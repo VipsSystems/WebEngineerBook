@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="keywords" content="spaceshooter, JavaScript, game, html5, canvas" />
+    <meta name="author" content="Michal Goly" />
+
+    <title>Space Shooter</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script src="js/jquery-3.4.0.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/inputManager.js"></script>
+    <script src="js/assetsManager.js"></script>
+    <script src="js/collisionManager.js"></script>
+    <script src="js/scorePanel.js"></script>
+    <script src="js/gameplayManager.js"></script>
+    <script src="js/background.js"></script>
+    <script src="js/spacecraft.js"></script>
+    <script src="js/bullet.js"></script>
+    <script src="js/meteor.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/powerUp.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#high-scores-page").hide();
+            $("#about-page").hide();
+            $("#canvas").hide();
+            $("#game-over-box").hide();
+
+            $("#start-game-button").click(function() {
+                $("#menu-page").hide();
+                $("#game-over-box").hide();
+                $("#canvas").show();
+
+                var canvas = document.getElementById("canvas");
+                var context = canvas.getContext("2d");
+                var game = new Game(canvas, context);
+                game.newGame();
+                game.run();
+            });
+
+            $("#high-scores-button").click(function() {
+                $("#menu-page").hide();
+                $("#high-scores-page").show();
+
+                var scores = JSON.parse(localStorage.getItem("scores"));
+                if (scores === null) {
+                    scores = [];
+                }
+
+                scores.sort(function(score1, score2) {
+                    return score2.points - score1.points;
+                });
+
+                if (scores.length < 10) {
+                    for (var i = 0; i < scores.length; i++) {
+                        $("#scores-ul").append("<li>" + scores[i].name + " : <span class='light-grey'>" + scores[i].points + "</span></li>");
+                    }
+                } else {
+                    for (var i = 0; i < 10; i++) {
+                        $("#scores-ul").append("<li>" + scores[i].name + " : <span class='light-grey'>" + scores[i].points + "</span></li>");
+                    }
+                }
+            });
+
+            $("#about-button").click(function() {
+                $("#menu-page").hide();
+                $("#about-page").show();
+            });
+
+            $(".back-button").click(function() {
+                $("#scores-ul").html('');
+                $("#high-scores-page").hide();
+                $("#about-page").hide();
+                $("#menu-page").show();
+            });
+
+            $("#exit-button").click(function() {
+                var playerName = $("#name-field").val() === "" ? "unnamed" : $("#name-field").val();
+                console.log(playerName + " scored " + $("#score-field").html());
+
+                var score = {
+                    points: $("#score-field").html(),
+                    name: playerName
+                };
+
+                var scores = JSON.parse(localStorage.getItem("scores"));
+
+                if (scores === null) {
+                    scores = [];
+                }
+
+                scores.push(score);
+                localStorage.setItem("scores", JSON.stringify(scores));
+
+                $("#canvas").hide();
+                $("#game-over-box").hide();
+                $("#menu-page").show();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="menu-page">
+            <h1>Space Shooter</h1>
+            <ul>
+                <li><a id="start-game-button" href="#">Start Game</a></li>
+                <li><a id="high-scores-button" href="#">High Scores</a></li>
+                <li><a id="about-button" href="#">About</a></li>
+            </ul>
+        </div>
+        <div id="high-scores-page">
+            <h1>High Scores</h1>
+            <a class="back-button" href="#">Menu</a>
+            <ul id="scores-ul">
+
+            </ul>
+        </div>
+        <div id="about-page">
+            <h1>About</h1>
+            <a class="back-button" href="#">Menu</a>
+            <h2>HOW TO PLAY</h2>
+            <p>
+                Use keyboard arrows to control the space craft and score as many points as possible
+                by shooting up meteors and enemies. The conservation of momentum has been incorporated
+                into the game by allowing meteors to bump into each other. The preservation
+                of momentum is also visible when player crashes either into the enemies or the meteors
+                themselves. Laser bullets  have no mass therefore they melt down the obstacles.
+            </p>
+            <h2 id="credits-h2">CREDITS</h2>
+            <ul>
+                <li class="about-li">Most assets by Kenney Vleugels (<a href="http://www.kenney.nl">www.kenney.nl</a>)</li>
+                <li class="about-li">Explosion spritesheet by Ville Seppanen (<a href="http://villeseppanen.com">villeseppanen.com</a>)</li>
+                <li class="about-li">Explosion sound by Michel Baradari (<a href="http://apollo-music.de">apollo-music.de</a>)</li>
+                <li class="about-li">Pause and Play icons by Gregor Cresnar from the Noun Project
+                    (<a href="https://thenounproject.com/search/?q=pause&i=200252">thenounproject.com</a>)</li>
+            </ul>
+        </div>
+        <canvas id="canvas" width="600" height="700">
+            Your web browser does not support a canvas
+        </canvas>
+        <div id="game-over-box">
+            <h1>Game Over</h1>
+            <p id="game-over-p">Score: <span id="score-field"></span></p>
+            <input type="text" id="name-field" name="name-field" placeholder="Your name" pattern="^[a-zA-Z]+$" />
+            <input type="button" id="exit-button" name="exit-button" value="Exit" />
+        </div>
+    </div>
+</body>
+</html>

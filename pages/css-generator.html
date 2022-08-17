@@ -1,0 +1,2576 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CSS and CSS3 styles generator, Web Engineer Book">
+  <meta name="keywords" content="css, css3, styles, generator, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style type="text/css">
+
+    #css_tests_container {
+      position: fixed;
+      top:10px;
+      right:10px;
+      border:1px solid black;
+      background-color: rgba(120,130,140,0.9);
+      /*opacity:0.3;*/
+      padding:10px;
+      width:300px;
+      height:370px;
+      z-index: 1;
+      resize: both;
+      overflow: auto;
+    }
+
+    textarea#style_value_txt {
+      font-size: 1em;
+      width: 300px;
+    }
+
+    #style_type_options {
+      color:ForestGreen;
+      float:left;
+      width:100%;
+    }
+
+    #style_type_note {
+      float:left;
+      width:100%;
+      color:DodgerBlue;
+    }
+
+    #style_type_support {
+      float:left;
+      width:100%;
+      color:FireBrick;
+    }
+
+    .css3 {
+      background-color:DeepSkyBlue;
+    }
+
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <script type="text/javascript">
+    /*
+      CRAFTED BY:
+      Andrei, andreivinyl@gmail.com
+    */
+
+    const named_colors = {
+      Black:"#000000",
+      Navy:"#000080",
+      DarkBlue:"#00008B",
+      MediumBlue:"#0000CD",
+      Blue:"#0000FF",
+      DarkGreen:"#006400",
+      Green:"#008000",
+      Teal:"#008080",
+      DarkCyan:"#008B8B",
+      DeepSkyBlue:"#00BFFF",
+      DarkTurquoise:"#00CED1",
+      MediumSpringGreen:"#00FA9A",
+      Lime:"#00FF00",
+      SpringGreen:"#00FF7F",
+      Cyan:"#00FFFF",
+      MidnightBlue:"#191970",
+      DodgerBlue:"#1E90FF",
+      LightSeaGreen:"#20B2AA",
+      ForestGreen:"#228B22",
+      SeaGreen:"#2E8B57",
+      DarkSlateGray:"#2F4F4F",
+      LimeGreen:"#32CD32",
+      MediumSeaGreen:"#3CB371",
+      Turquoise:"#40E0D0",
+      RoyalBlue:"#4169E1",
+      SteelBlue:"#4682B4",
+      DarkSlateBlue:"#483D8B",
+      MediumTurquoise:"#48D1CC",
+      Indigo:"#4B0082",
+      DarkOliveGreen:"#556B2F",
+      CadetBlue:"#5F9EA0",
+      CornflowerBlue:"#6495ED",
+      RebeccaPurple:"#663399",
+      MediumAquaMarine:"#66CDAA",
+      DimGray:"#696969",
+      SlateBlue:"#6A5ACD",
+      OliveDrab:"#6B8E23",
+      SlateGray:"#708090",
+      LightSlateGray:"#778899",
+      MediumSlateBlue:"#7B68EE",
+      LawnGreen:"#7CFC00",
+      Chartreuse:"#7FFF00",
+      Aquamarine:"#7FFFD4",
+      Maroon:"#800000",
+      Purple:"#800080",
+      Olive:"#808000",
+      Gray:"#808080",
+      SkyBlue:"#87CEEB",
+      LightSkyBlue:"#87CEFA",
+      BlueViolet:"#8A2BE2",
+      DarkRed:"#8B0000",
+      DarkMagenta:"#8B008B",
+      SaddleBrown:"#8B4513",
+      DarkSeaGreen:"#8FBC8F",
+      LightGreen:"#90EE90",
+      MediumPurple:"#9370DB",
+      DarkViolet:"#9400D3",
+      PaleGreen:"#98FB98",
+      DarkOrchid:"#9932CC",
+      YellowGreen:"#9ACD32",
+      Sienna:"#A0522D",
+      Brown:"#A52A2A",
+      DarkGray:"#A9A9A9",
+      LightBlue:"#ADD8E6",
+      GreenYellow:"#ADFF2F",
+      PaleTurquoise:"#AFEEEE",
+      LightSteelBlue:"#B0C4DE",
+      PowderBlue:"#B0E0E6",
+      FireBrick:"#B22222",
+      DarkGoldenRod:"#B8860B",
+      MediumOrchid:"#BA55D3",
+      RosyBrown:"#BC8F8F",
+      DarkKhaki:"#BDB76B",
+      Silver:"#C0C0C0",
+      MediumVioletRed:"#C71585",
+      IndianRed:"#CD5C5C",
+      Peru:"#CD853F",
+      Chocolate:"#D2691E",
+      Tan:"#D2B48C",
+      LightGray:"#D3D3D3",
+      Thistle:"#D8BFD8",
+      Orchid:"#DA70D6",
+      GoldenRod:"#DAA520",
+      PaleVioletRed:"#DB7093",
+      Crimson:"#DC143C",
+      Gainsboro:"#DCDCDC",
+      Plum:"#DDA0DD",
+      BurlyWood:"#DEB887",
+      LightCyan:"#E0FFFF",
+      Lavender:"#E6E6FA",
+      DarkSalmon:"#E9967A",
+      Violet:"#EE82EE",
+      PaleGoldenRod:"#EEE8AA",
+      LightCoral:"#F08080",
+      Khaki:"#F0E68C",
+      AliceBlue:"#F0F8FF",
+      HoneyDew:"#F0FFF0",
+      Azure:"#F0FFFF",
+      SandyBrown:"#F4A460",
+      Wheat:"#F5DEB3",
+      Beige:"#F5F5DC",
+      WhiteSmoke:"#F5F5F5",
+      MintCream:"#F5FFFA",
+      GhostWhite:"#F8F8FF",
+      Salmon:"#FA8072",
+      AntiqueWhite:"#FAEBD7",
+      Linen:"#FAF0E6",
+      LightGoldenRodYellow:"#FAFAD2",
+      OldLace:"#FDF5E6",
+      Red:"#FF0000",
+      Magenta:"#FF00FF",
+      DeepPink:"#FF1493",
+      OrangeRed:"#FF4500",
+      Tomato:"#FF6347",
+      HotPink:"#FF69B4",
+      Coral:"#FF7F50",
+      DarkOrange:"#FF8C00",
+      LightSalmon:"#FFA07A",
+      Orange:"#FFA500",
+      LightPink:"#FFB6C1",
+      Pink:"#FFC0CB",
+      Gold:"#FFD700",
+      PeachPuff:"#FFDAB9",
+      NavajoWhite:"#FFDEAD",
+      Moccasin:"#FFE4B5",
+      Bisque:"#FFE4C4",
+      MistyRose:"#FFE4E1",
+      BlanchedAlmond:"#FFEBCD",
+      PapayaWhip:"#FFEFD5",
+      LavenderBlush:"#FFF0F5",
+      SeaShell:"#FFF5EE",
+      Cornsilk:"#FFF8DC",
+      LemonChiffon:"#FFFACD",
+      FloralWhite:"#FFFAF0",
+      Snow:"#FFFAFA",
+      Yellow:"#FFFF00",
+      LightYellow:"#FFFFE0",
+      Ivory:"#FFFFF0",
+      White:"#FFFFFF"
+    };
+
+    const styles_js = {
+
+      "B A C K G R O U N D" : {
+        background : {
+          sample : "orange #ffffff url('images/img_orange_flowers.jpg') no-repeat right -20px",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5) | linear-gradient(direction, color-stop1, color-stop2, ...) | radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center, start-color, ..., last-color) | repeating-linear-gradient(angle(1deg-360deg)|side-or-corner(top,bottom,left,right), color-stop1, color-stop2, ...) | repeating-radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center,start-color,...,last-color )",
+          desc : "shorthand property for setting all the background properties in one declaration , use multiple background definition separated by comma , does not matter if one of the property values is missing, as long as the other ones are in this order: background-color, background-image, background-position, background-size, background-repeat,background-origin, background-clip, background-attachment, use offsets(background-position) for sprite images"
+        },
+        backgroundColor : {
+          sample : "rgba(255, 99, 71, 0.5)",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5) | transparent",
+          desc : ""
+        },
+        backgroundImage : {
+          sample : "url('images/img_orange_flowers.jpg')",
+          options : "url('URL') | linear-gradient(direction, color-stop1, color-stop2, ...) | radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center, start-color, ..., last-color) | repeating-linear-gradient(angle(1deg-360deg)|side-or-corner(top,bottom,left,right), color-stop1, color-stop2, ...) | repeating-radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center,start-color,...,last-color )",
+          desc : "sets one or more background images for an element , by default a background-image is placed at the top-left corner of an element and repeated both vertically and horizontally"
+        },
+        backgroundPosition : {
+          sample : "right top",
+          options : "left/center/right top/center/bottom | x% y% | xpos ypos",
+          desc : ""
+        },
+        backgroundRepeat : {
+          sample : "round",
+          options : "repeat(default)|repeat-x|repeat-y|no-repeat|space|round",
+          desc : "repeat - image is repeated so it covers the entire element, repeat-x | repeat-y - repeat only along one axe"
+        },
+        backgroundSize  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:4.1| Opera:10.5",
+          sample : "cover",
+          options : "auto | %,px,pt,cm,em,... | cover(keeps the aspect ratio) | contain",
+          desc : "how far the background (color or image) should extend within an element"
+        },
+        backgroundOrigin  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:3 | Opera:10.5",
+          sample : "content-box",
+          options : "padding-box(default, image starts from the upper left corner of the padding edge) | border-box(image starts from the upper left corner of the border) | content-box(image starts from the upper left corner of the content)",
+          desc : "background positioning area"
+        },
+        backgroundClip  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:3 | Opera:10.5",
+          sample : "right top",
+          options : "border-box(default, extend behind the border)|padding-box(extend to the inside edge of the border)|content-box(extend to the edge of the content box)",
+          desc : "how far the background (color or image) should extend within an element"
+        },
+        backgroundAttachment  : {
+          sample : "right top",
+          options : "scroll | fixed | local",
+          desc : "scroll dependency"
+        }
+      },
+
+      "B O R D E R" : {
+        border : {
+          sample : "2px solid DodgerBlue",
+          options : "border-width border-style(required) border-color",
+          desc : "usage of separate styling (except radius): border-[top|right|bottom|left]-[border property name]"
+        },
+        borderStyle : {
+          sample : "double",
+          options : "dotted | dashed | solid | double | groove | ridge | inset | outset | none",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border)"
+        },
+        borderWidth : {
+          sample : "thin",
+          options : "can be set as a specific size (in px, pt, cm, em, etc) or by using one of the three pre-defined values: thin, medium, or thick",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border)"
+        },
+        borderColor : {
+          sample : "thin",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | hsl(9, 100%, 64%)",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border), if border-color is not set, it inherits the color of the element"
+        },
+        borderRadius : {
+          css3 : true,
+          support : "Chrome/Safari:4-webkit-/3.1-webkit,5 | Edge:9 | FF:3-moz-,4 | Opera:10",
+          sample : "5px 15px 10px",
+          options : "px,pt,cm,em,...",
+          desc : "can have from one to four values: 1 = all four corners, 2 = top-left/bottom-right,top-right/bottom-left, 3 = top-left,top-right/bottom-left,bottom-right, 4 = top-left,top-right,bottom-right,bottom-left , usage of separate styling: border-[top|bottom]-[right|left]-radius"
+        },
+        borderImage : {
+          css3 : true,
+          support : "Chrome/Safari:4-webkit-/3.1-webkit-,16/6 | Edge:11 | FF:3.5-moz-,4 | Opera:11-o-,15",
+          sample : "url(images/border.png) 30 round",
+          options : "",
+          desc : "element also needs the border property set !!! shorthand property for: border-image-source(path to the image), border-image-slice(px|%|fill), border-image-width(px|%), border-image-outset(px,pt,cm,em,...|number), border-image-repeat(stretch|repeat|round|space) , omitted values are set to their default values"
+        }
+      },
+
+      "M A R G I N S" : {
+        margin : {
+          sample : "0",
+          options : "auto(horizontally center the element within its container) | px,pt,cm,em,... | 0(collapse) | % | inherit , negative values are allowed",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border), usage of separate styling: margin-[top|right|bottom|left]"
+        }
+      },
+
+      "P A D D I N G S" : {
+        padding : {
+          sample : "5px 15px 15px 10px",
+          options : "px,pt,cm,em,... | % | inherit",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border) , to keep the width no matter the amount of padding - use the box-sizing: border-box property , usage of separate styling: padding-[top|right|bottom|left]"
+        }
+      },
+
+      "HEIGHT / WIDTH" : {
+        height : {
+          sample : "100px",
+          options : "auto | px,pt,cm,em,... | %",
+          desc : "height and width properties do not include padding, borders, or margins; they set the height/width of the area inside the padding, border, and margin of the element"
+        },
+        maxHeight : {
+          sample : "100px",
+          options : "px,pt,cm,em,... | % | none(default)",
+          desc : "the maximum width of an element, min-height for minimum, overrides height !"
+        },
+        width : {
+          sample : "200px",
+          options : "auto | px,pt,cm,em,... | %",
+          desc : "height and width properties do not include padding, borders, or margins; they set the height/width of the area inside the padding, border, and margin of the element"
+        },
+        maxWidth : {
+          sample : "200px",
+          options : "px,pt,cm,em,... | % | none(default)",
+          desc : "the maximum width of an element, min-width for minimum, overrides width !"
+        }
+      },
+
+      "O U T L I N E" : {
+        outline : {
+          sample : "thick ridge pink",
+          options : "outline-width outline-style (required) outline-color",
+          desc : "line that is drawn around elements, OUTSIDE the borders, to make the element 'stand out' . outline is drawn outside the element border, and may overlap other content. outline is NOT a part of the element's dimensions; the element total width and height is not affected by the width of the outline"
+        },
+        outlineStyle : {
+          sample : "ridge",
+          options : "dotted|dashed|solid|double|groove|ridge|inset|outset|none|hidden",
+          desc : "none of the other outline properties will have any effect, unless the outline-style property is set"
+        },
+        outlineColor : {
+          sample : "invert",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | hsl(9, 100%, 64%) | invert(performs a color inversion (which ensures that the outline is visible, regardless of color background)) ",
+          desc : "none of the other outline properties will have any effect, unless the outline-style property is set"
+        },
+        outlineWidth : {
+          sample : "thin",
+          options : "can be set as a specific size (in px, pt, cm, em, etc) or by using one of the three pre-defined values: thin, medium, or thick",
+          desc : ""
+        },
+        outlineOffset : {
+          css3 : true,
+          support : "Chrome:4 | Edge:15 | FF:3.5 | Safari:3.1 | Opera:10.5",
+          sample : "15px",
+          options : "px, pt, cm, em, ...",
+          desc : "space between an outline and the edge or border of an element"
+        }
+      },
+
+      "T E X T" : {
+        color : {
+          sample : "rgb(120, 120, 120)",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5)",
+          desc : "for W3C compliant CSS: If you define the color property, you must also define the background-color"
+        },
+        textAlign : {
+          sample : "center",
+          options : "center|left|right|justify",
+          desc : "horizontal alignment of a text"
+        },
+        textDecoration : {
+          sample : "red underline overline",
+          options : "overline|line-through|underline|none",
+          desc : ""
+        },
+        textTransform : {
+          sample : "capitalize",
+          options : "uppercase|lowercase|capitalize",
+          desc : ""
+        },
+        textIndent : {
+          sample : "10px",
+          options : "px,pt,cm,em,...",
+          desc : "indentation of the first line of a text"
+        },
+        letterSpacing : {
+          sample : "10px",
+          options : "px,pt,cm,em,...  , negative values are allowed",
+          desc : "increase or decrease the space between characters"
+        },
+        wordSpacing : {
+          sample : "10px",
+          options : "normal|px,pt,cm,em,etc , Negative values are allowed",
+          desc : "increases or decreases the white space between words"
+        },
+        lineHeight : {
+          sample : "10px",
+          options : "px,pt,cm,em,...  , negative values are allowed",
+          desc : "space between lines"
+        },
+        direction : {
+          sample : "ltr",
+          options : "ltr|rtl",
+          desc : "change the text direction of an element , unicode-bidi:normal|embed|bidi-override - set or return whether the text should be overridden to support multiple languages in the same document"
+        },
+        textOverflow : {
+          css3 : true,
+          support : "Chrome:4 | Edge:6 | FF:7 | Safari:3.1 | Opera:9-o-,11",
+          sample : "ellipsis",
+          options : "clip|ellipsis(...)|string",
+          desc : "how overflowed content that is not displayed should be signaled to the user. It can be clipped, display an ellipsis (...), or display a custom string , both of the following properties are required for text-overflow - white-space: nowrap;overflow: hidden;"
+        },
+        whiteSpace : {
+          sample : "pre",
+          options : "normal|nowrap|pre|pre-line|pre-wrap",
+          desc : "how white-space inside an element is handled"
+        },
+        verticalAlign : {
+          sample : "super",
+          options : "baseline|px,pt,cm,em,...|%|sub|super|top|text-top|middle|bottom|text-bottom",
+          desc : "vertical alignment of an element"
+        },
+        textShadow : {
+          css3 : true,
+          support : "Chrome:4 | Edge:10 | FF:3.5 | Safari:4 | Opera:9.6",
+          sample : "3px 2px blue",
+          options : "h-shadow v-shadow blur-radius(optional) color(optional)",
+          desc : "define multiple shadow separating by comma"
+        },
+        textAlignLast : {
+          css3 : true,
+          support : "Chrome:47 | Edge:5.5(with text-align:justify) | FF:12-moz-,54 | Safari:NO | Opera:34",
+          sample : "right",
+          options : "left|right|center|justify|start|end",
+          desc : "how to align the last line of a text , to use text-align-last on only the last paragraph(p) in the container, you can use :last child"
+        },
+        textJustify : {
+          css3 : true,
+          support : "Chrome:? | Edge:11 | FF:55 | Safari:10 | Opera:?",
+          sample : "inter-word",
+          options : "auto|inter-word|inter-character",
+          desc : "justification method of text when text-align:justify"
+        },
+        wordBreak : {
+          css3 : true,
+          support : "Chrome:4 | Edge:5.5 | FF:15 | Safari:3.1 | Opera:15",
+          sample : "inter-word",
+          options : "normal|break-all|keep-all|break-word",
+          desc : "how words should break when reaching the end of a line"
+        },
+        wordWrap : {
+          css3 : true,
+          support : "Chrome:4 | Edge:5.5 | FF:3.5 | Safari:3.1 | Opera:10.5",
+          sample : "break-word",
+          options : "normal|break-word",
+          desc : "how words should break when reaching the end of a line"
+        },
+        userSelect : {
+          css3 : true,
+          support : "Chrome:6-webkit-,54 | Edge:10-ms- | FF:2-moz- | Safari:3.1-webkit- | Opera:15-webkit-,41",
+          sample : "none",
+          options : "auto|none|text|all",
+          desc : "whether the text of an element can be selected , in web browsers, if you double-click on some text it will be selected/highlighted , all = select with single click"
+        }
+      },
+
+      "F O N T S" : {
+        fontFamily : {
+          sample : '"Times New Roman", Times, serif',
+          options : "Arial, Helvetica, sans-serif|'Arial Black', Gadget, sans-serif|Tahoma, Geneva|Verdana|'Courier New', Courier, monospace|'Lucida Console', Monaco, monospace",
+          desc : "should hold several font names as a 'fallback' system"
+        },
+        fontStyle : {
+          sample : "italic",
+          options : "normal|italic|oblique",
+          desc : ""
+        },
+        fontSize : {
+          sample : "italic",
+          options : "medium|xx-small|x-small|small|large|x-large|xx-large|smaller|larger|%|vw,px,pt,cm,em,...",
+          desc : ""
+        },
+        fontWeight : {
+          sample : "bold",
+          options : "normal|bold|bolder|lighter|number(100,200,...,900)",
+          desc : ""
+        },
+        fontVariant : {
+          sample : "small-caps",
+          options : "normal|small-caps",
+          desc : "whether or not a text should be displayed in a small-caps font"
+        }
+      },
+
+      "L I S T S" : {
+        listStyle : {
+          sample : "upper-roman",
+          options : "list properties in one declaration: list-style-type list-style-position list-style-image, if one of the values are missing, the default value for that property will be used",
+          desc : "set list-style:none and li:before{content:'•';padding-right: 8px;color: blue;} for custom bullets"
+        },
+        listStyleType : {
+          sample : "upper-roman",
+          options : "disc|square|armenian| cjk-ideographic|decimal|decimal-leading-zero|georgian|hebrew|hiragana|hiragana-iroha|katakana|katakana-iroha|lower-alpha|lower-greek|lower-latin|lower-roman|upper-alpha|upper-greek|upper-latin|upper-roman",
+          desc : "Internet Explorer/Edge and Opera 12 and earlier versions do not support the values: cjk-ideographic, hebrew, hiragana, hiragana-iroha, katakana, and katakana-iroha"
+        },
+        listStylePosition : {
+          sample : "inside",
+          options : "inside|outside",
+          desc : "position of the list-item markers (bullet points)"
+        },
+        listStyleImage : {
+          sample : "url('images/img_orange_flowers.jpg')",
+          options : "url",
+          desc : "replaces the list-item marker with an image"
+        }
+      },
+
+      "T A B L E S" : {
+        tableLayout : {
+          sample : "fixed",
+          options : "auto(default)|fixed",
+          desc : "algorithm used to lay out table cells, rows, and columns. Tip: The main benefit of table-layout: fixed; is that the table renders much faster. On large tables, users will not see any part of the table until the browser has rendered the whole table. So, if you use table-layout: fixed, users will see the top of the table while the browser loads and renders rest of the table."
+        },
+        emptyCells : {
+          sample : "hide",
+          options : "show|hide",
+          desc : "whether or not to display borders on empty cells in a table, this property has no effect if border-collapse is 'collapse'"
+        },
+        captionSide : {
+          sample : "bottom",
+          options : "top|bottom",
+          desc : "placement of a table caption , on top or below"
+        },
+        borderSpacing : {
+          sample : "5px",
+          options : "px,pt,cm,em,...",
+          desc : "Specifies the distance between the borders of adjacent cells in px, cm, etc. Negative values are not allowed. - If one value is specified, it defines both the horizontal and vertical spacing between cells - If two values are specified, the first sets the horizontal spacing and the second sets the vertical spacing"
+        },
+        borderCollapse : {
+          sample : "separate",
+          options : "separate|collapse",
+          desc : "whether table borders should collapse into a single border or be separated as in standard HTML , with 'border-collapse:separate', the border-spacing property can be used to set the space between the cells , with 'border-collapse: collapse', the cell that appears first in the code will 'win'"
+        }
+      },
+
+      "L A Y O U T" : {
+        display : {
+          sample : "contents",
+          options : "none|inline|block|inline-block|contents|flex|inline-flex|grid|inline-grid|list-item|run-in|table|inline-table|table-caption|table-cell|table-column|table-row|table-column-group|table-header-group|table-footer-group|table-row-group",
+          desc : "display behavior (the type of rendering box) of an element , inline -  any height and width properties will have no effect usefull to place horizontally block elements, inline-block - element itself is formatted as an inline element but you can apply height and width values, the top and bottom margins/paddings are respected, major difference is that line-break is not added after the element, so the element can sit next to other elements , list-item -element behave like a li-element , block - starts on a new line, and takes up the whole width , run-in - displays an element as either block or inline, depending on context , contents - container disappear making the child elements children of the element the next level up in the DOM does not work in Edge/Internet Explorer , values 'flex' and 'inline-flex' requires the -webkit- prefix to work in Safari"
+        },
+        visibility : {
+          sample : "hidden",
+          options : "visible|hidden|collapse",
+          desc : "hidden - the element is hidden (but still takes up space) , collapse - only for table rows (tr), row groups (tbody), columns (col), column groups (colgroup). This value removes a row or column, but it does not affect the table layout. The space taken up by the row or column will be available for other content. If collapse is used on other elements, it renders as 'hidden'"
+        },
+        overflow : {
+          sample : "auto",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "use in pair with other overlows for effects , visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        overflowX : {
+          sample : "hidden",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        overflowY : {
+          sample : "hidden",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        position  : {
+          sample : "contents",
+          options : "static(default)|relative|fixed|absolute|sticky/-webkit-sticky",
+          desc : "static - positioned according to the normal flow of the page , relative - is positioned relative to its normal position setting the top/right/bottom/left properties of a relatively-positioned element will cause it to be adjusted away from its normal position, other content will not be adjusted to fit into any gap left by the elemen , fixed - is positioned relative to the viewport which means it always stays in the same place even if the page is scrolled , absolute - is positioned relative to the nearest positioned ancestor (anything except static, instead of positioned relative to the viewport, like fixed) , sticky - is positioned based on the user's scroll position, you must also specify at least one of top, right, bottom or left for sticky positioning to work, IE/Edge 15 and earlier versions do not support sticky position"
+        },
+        "float" : {
+          sample : "right",
+          options : "none(default)|left|right",
+          desc : "how an element should float : none - element does not float (will be displayed just where it occurs in the text) , left - element floats to the left of its container , right - element floats the right of its container , absolutely positioned elements ignores the float property! , elements after a floating element will flow around it, to avoid this, use the clear property or the clearfix hack (see example at the bottom of this page)"
+        },
+        clear : {
+          sample : "both",
+          options : "none(default)|left|right|both",
+          desc : "specifies on which sides of an element floating elements are not allowed to float: none - allows floating elements on both sides , left - no floating elements allowed on the left side , right - no floating elements allowed on the right side , both - no floating elements allowed on either the left or the right side"
+        },
+        zIndex : {
+          sample : "-3",
+          options : "auto|number",
+          desc : "stack order of an element , only works on positioned elements (position:absolute, position:relative, or position:fixed)"
+        },
+        clip : {
+          sample : "rect(10px,100px,50px,10px)",
+          options : "auto|rect(top,right,bottom,left)",
+          desc : "specify a rectangle to clip an absolutely positioned element, the rectangle is specified as four coordinates, all from the top-left corner of the element to be clipped , property does not work if 'overflow:visible'"
+        },
+        opacity : {
+          sample : "0.6",
+          options : "auto|%|px,cm,etc",
+          desc : "filter:alpha(opacity=60); /*For IE8 and earlier*/ , use RGBA to make transparent only element without its content !"
+        },
+        top : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        right : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        bottom : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        left : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        resize : {
+          css3 : true,
+          support : "Chrome:4 | Edge:NOT | FF:4-moz-,5 | Safari:4 | Opera:15",
+          sample : "vertical",
+          options : "none|both|horizontal|vertical",
+          desc : "defines if (and how) an element is resizable by the user , does not apply to inline elements or to block elements where overflow='visible'. So, make sure that overflow is set to 'scroll', 'auto', or 'hidden'"
+        },
+        boxShadow : {
+          css3 : true,
+          support : "Chrome:4-webkit-,10 | Edge:9 | FF:3.5-moz-,4 | Safari:3.1-webkit,5.1 | Opera:10.5",
+          sample : "5px 10px #888888 inset",
+          options : "h-offset v-offset blur spread color inset",
+          desc : "define multiple shadow separating by comma"
+        },
+        boxSizing : {
+          css3 : true,
+          support : "Chrome:4-webkit-,10 | Edge:8 | FF:2-moz-,29 | Safari:3.2-webkit,5.1 | Opera:9.5",
+          sample : "5px 10px #888888 inset",
+          options : "content-box(default) | border-box",
+          desc : "defines how the width and height of an element are calculated: should they include padding and borders, or not"
+        }
+      },
+
+      "T R A N S F O R M S" : {
+        transform : {
+          css3 : true,
+          support : "2D/3D = Chrome:4-webkit-,36/12-webkit-,36 | Edge:9-ms-,10/12 | FF:3.5-moz-,16/10 | Safari:3.2-webkit-,9/4-webkit-,9 | Opera:10.5-o-,15-webkit,23",
+          sample : "rotateX(-45deg) rotateY(30deg)",
+          options : "transform-functions",
+          desc : "applies a 2D or 3D transformation to an element, transform-functions : matrix(n,n,n,n,n,n) - 2D transformation using a matrix of six values | matrix3d(n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n) - 3D transformation using a 4x4 matrix of 16 values | translate(x,y)/translate3d(x,y,z)/translateX(x)/translateY(y)/ - 2D/3D translation | scale(x,y)/scale3d(x,y,z)/scaleX(x)/scaleY(y)/scaleZ(z) - 2D/3D scale transformation | rotate(50deg)/rotate3d(x,y,z,45deg)/rotateX(angle)/rotateY(angle)/rotateZ(angle) - 2D/3D rotation | skew(x-angle,y-angle)/skewX(angle)/skewY(angle) - 2D skew transformation | perspective(n) - perspective view for a 3D transformed element"
+        },
+        transformOrigin : {
+          css3 : true,
+          support : "2D/3D = Chrome:4-webkit-,36/12-webkit-,36 | Edge:9-ms-,10/10 | FF:3.5-moz-,16/10-moz-,16 | Safari:3.2-webkit-,9/4-webkit-,9 | Opera:10.5-o-,15-webkit-,23/15-webkit-,23",
+          sample : "20% 40%",
+          options : "x-axis(left|center|right|px,pt,cm,em,...|%) y-axis(top|center|bottom|px,pt,cm,em,...|%) z-axis",
+          desc : "change the position of transformed elements"
+        },
+        transformStyle : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:11 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "preserve-3d",
+          options : "flat(default, childs will NOT preserve its 3D position)|preserve-3d(childs will preserve its 3D position)",
+          desc : "change the position of transformed elements"
+        },
+        perspective : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "150px",
+          options : "none(default, same as 0)|px,pt,cm,em,...(how far the element is placed from the view)",
+          desc : "used to give a 3D-positioned element some perspective , defines how far the object is away from the user"
+        },
+        perspectiveOrigin : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "10px 50%",
+          options : "x-axis(left|center|right|px,pt,cm,em,...|%) y-axis(top|center|bottom|px,pt,cm,em,...|%)",
+          desc : "must be used in conjunction with the perspective property! , from which position the user is looking at the 3D-positioned element , it is the CHILD elements that will get the effect, NOT the element itself , default: 50% 50%"
+        },
+        backfaceVisibility : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "10px 50%",
+          options : "visible(default)|hidden",
+          desc : "defines whether or not the back face of an element should be visible when facing the user , back face of an element is a mirror image of the front face being displayed"
+        }
+      },
+
+      "T R A N S I T I O N S" : {
+        transition : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "property duration timing-function delay",
+          desc : "shorthand property for: transition-property transition-duration transition-timing-function transition-delay , always specify the transition-duration property, otherwise the duration is 0s, and the transition will have no effect"
+        },
+        transitionProperty : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "none(no property will get a transition effect) | all(default,all properties will get a transition effect) | property(comma separated list of CSS property names the transition effect is for)",
+          desc : "transition effect will start when the specified CSS property changes , always specify the transition-duration property, otherwise the duration is 0, and the transition will have no effect !"
+        },
+        transitionDuration : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "500ms",
+          options : "s|ms",
+          desc : "how many seconds or milliseconds a transition effect takes to complete"
+        },
+        transitionTimingFunction : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "linear(default, =cubic-bezier(0.25,0.1,0.25,1)) | ease(=cubic-bezier(0,0,1,1)) | ease-in(=cubic-bezier(0.42,0,1,1)) | ease-out(=cubic-bezier(0,0,0.58,1)) | ease-in-out(=cubic-bezier(0.42,0,0.58,1)) | step-start(=steps(1, start)) | step-end(=steps(1, end)) | steps(int,start|end)|cubic-bezier(n,n,n,n)(numeric values from 0 to 1)",
+          desc : "specifies the speed curve of the transition effect , allows a transition effect to change speed over its duration"
+        },
+        transitionDelay : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "1s",
+          options : "s|ms",
+          desc : "specifies the number of seconds or milliseconds to wait before the transition effect will start"
+        }
+      },
+
+      "A N I M A T I O N" : {
+        animation : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "my-animation",
+          options : "name duration timing-function delay iteration-count direction fill-mode play-state",
+          desc : "specifies the name of the keyframe you want to bind to the selector"
+        },
+        animationName : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "my-animation",
+          options : "",
+          desc : "specifies the name of the keyframe you want to bind to the selector"
+        },
+        animationDuration : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "2s",
+          options : "s,ms",
+          desc : "how long an animation should take to complete one cycle"
+        },
+        animationTimingFunction : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "ease-in-out",
+          options : "linear(default, =cubic-bezier(0.25,0.1,0.25,1)) | ease(=cubic-bezier(0,0,1,1)) | ease-in(=cubic-bezier(0.42,0,1,1)) | ease-out(=cubic-bezier(0,0,0.58,1)) | ease-in-out(=cubic-bezier(0.42,0,0.58,1)) | step-start(=steps(1, start)) | step-end(=steps(1, end)) | steps(int,start|end)|cubic-bezier(n,n,n,n)(numeric values from 0 to 1)",
+          desc : "how long an animation should take to complete one cycle"
+        },
+        animationDelay : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "500ms",
+          options : "s,ms",
+          desc : "delay for the start of an animation"
+        },
+        animationIterationCount : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "infinite",
+          options : "number(default=1)|infinite",
+          desc : "the number of times an animation should be played"
+        },
+        animationDirection : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "alternate-reverse",
+          options : "normal|reverse(animate backwards)|alternate(forwards first, then backwards)|alternate-reverse(backwards first, then forwards)",
+          desc : "whether an animation should be played forwards, backwards or in alternate cyclesd"
+        },
+        animationFillMode : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "forwards",
+          options : "none | forwards(retain the style values that is set by the last keyframe (depends on animation-direction and animation-iteration-count)) | backwards(get the style values that is set by the first keyframe (depends on animation-direction), and retain this during the animation-delay period) | both(follow the rules for both forwards and backwards, extending the animation properties in both directions)",
+          desc : "specifies a style for the element when the animation is not playing (before it starts, after it ends, or both) , animations do not affect the element before the first keyframe is played or after the last keyframe is played. The animation-fill-mode property can override this behavior"
+        },
+        animationPlayState : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "paused",
+          options : "paused|running",
+          desc : "    Use this property in a JavaScript to pause an animation in the middle of a cycle !"
+        }
+      },
+
+      "IMAGES / VIDEO" : {
+        filter : {
+          css3 : true,
+          support : "Chrome:18-webkit-,53 | Edge:13 | FF:35 | Safari:6-webkit-,9.1 | Opera:15-webkit-,40",
+          sample : "",
+          options : "blur(px) | brightness(%0-100+) | contrast(%0-100+) | drop-shadow(h-shadow v-shadow blur spread color) | grayscale(0-100%) | hue-rotate(0-360deg) | invert(0-100%) | opacity(0-100%) | saturate(%0-100+) | sepia(0-100%) | url(xml-file-with-svg-filter#element-id)",
+          desc : "defines visual effects (like blur and saturation) to an element (often <img>) , The filters that use percentage values (i.e. 75%), also accept the value as decimal (i.e. 0.75)"
+        },
+        objectFit : {
+          css3 : true,
+          support : "Chrome:31 | Edge:16 | FF:36 | Safari:7.1 | Opera:19",
+          sample : "",
+          options : "fill(default, the replaced content is sized to fill the element's content box, if necessary, the object will be stretched or squished to fit) | contain | cover(replaced content is sized to maintain its aspect ratio while filling the element's entire content box. The object will be clipped to fit) | scale-down(content is sized as if none or contain were specified (would result in a smaller concrete object size)) | none(replaced content is not resized)",
+          desc : "specify how an img or video should be resized to fit its container"
+        }
+      },
+
+      "C O L U M N S" : {
+        columns : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "100px 3",
+          options : "auto | column-width column-count",
+          desc : "shorthand property for: column-width(minimum width for each column) column-count(maximum number of columns) , multi-column layout will automatically break down into a single column at narrow browser widths, without the need of media queries or other rules"
+        },
+        columnWidth : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "100px",
+          options : "auto | px,pt,cm,em,...",
+          desc : "the number of columns will be the minimum number of columns needed to show all the content across the element , a minimum width suggestion for the browser. Once the browser cannot fit at least two columns at your specified width then the columns will stop and drop into a single column"
+        },
+        columnCount : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "4",
+          options : "number",
+          desc : ""
+        },
+        columnRule : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "4px double #ff00ff",
+          options : "column-rule-width column-rule-style column-rule-color",
+          desc : ""
+        },
+        columnSpan : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:NOT | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "3",
+          options : "1 | all",
+          desc : "how many columns an element should span across"
+        },
+        columnRuleWidth : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "thick",
+          options : "medium | thin | thick | length",
+          desc : "width of the rule between columns"
+        },
+        columnRuleStyle : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "dotted",
+          options : "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset",
+          desc : "style of the rule between columns"
+        },
+        columnRuleColor : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "#ff00ff",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5)",
+          desc : "color of the rule between columns"
+        },
+        columnGap : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "5px",
+          options : "px,pt,cm,em,...",
+          desc : ""
+        },
+        columnFill : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "5px",
+          options : "balance | auto",
+          desc : "balance - default value, fills each column with about the same amount of content, but will not allow the columns to be taller than the height (so, columns might be shorter than the height as the browser distributes the content evenly horizontally) , auto - fills each column until it reaches the height, and do this until it runs out of content (so, this value will not necessarily fill all the columns nor fill them evenly)"
+        }
+      },
+
+      "F L E X - PARENT" : {
+        flexFlow : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "column-reverse wrap-reverse",
+          options : "flex-direction flex-wrap",
+          desc : "shorthand property for: flex-direction(row|row-reverse|column|column-reverse) flex-wrap(nowrap|wrap|wrap-reverse)"
+        },
+        flexDirection : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "column-reverse",
+          options : "row(default)|row-reverse|column|column-reverse",
+          desc : "direction of the flexible items"
+        },
+        flexWrap : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "wrap-reverse",
+          options : " nowrap|wrap|wrap-reverse",
+          desc : "should flexible items wrap or not"
+        },
+        alignItems : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "stretch|center|flex-start|flex-end|baseline",
+          desc : "specifies the default alignment for items inside the flexible container : stretch(fit the container) | center(center) | flex-start | flex-end | baseline , use the align-self property of each item to override the align-items property !"
+        }
+      },
+
+      "F L E X - CHILD" : {
+        order : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "1",
+          options : "number",
+          desc : "order of a flexible item relative to the rest of the flexible items inside the same container"
+        },
+        flex : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "wrap-reverse",
+          options : "flex-grow flex-shrink flex-basis | initial(default, same as 0 1 auto) | auto(same as 1 1 auto) |none(same as 0 0 auto)",
+          desc : "sets the flexible length on flexible items , shorthand property for: flex-grow(how much the item will grow relative to the rest of the flexible items) flex-shrink(how much the item will shrink relative to the rest of the flexible items) flex-basis(length of item:px,pt,cm,em,...)"
+        },
+        flexGrow : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "number",
+          desc : "how much the item will grow relative to the rest of the flexible items inside the same container"
+        },
+        flexShrink : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "number",
+          desc : "how the item will shrink relative to the rest of the flexible items inside the same container"
+        },
+        flexBasis : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "100px",
+          options : "px,pt,cm,em,...",
+          desc : "specifies the initial length of a flexible item"
+        },
+        alignSelf : {
+          css3 : true,
+          support : "Chrome:21 | Edge:11 | FF:20 | Safari:7-webkit-,9 | Opera:12.1",
+          sample : "3",
+          options : "auto|stretch|center|flex-start|flex-end|baseline",
+          desc : "specifies the alignment for the selected item inside the flexible container : auto(inherits its parent container's align-items property, or stretch) | stretch(fit the container) | center(center) | flex-start | flex-end | baseline , overrides the flexible container's align-items property !"
+        }
+      },
+
+      "G R I D - PARENT" : {
+        grid : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "150px / auto auto auto",
+          options : "grid-template-rows/grid-template-columns - sizes of the columns and rows | grid-template-areas - layout using named items | grid-template rows/grid-auto-columns - size(height) of the rows, and the auto size of the columns | grid-auto-rows/grid-template-columns - size of the rows, and sets the grid-template-columns property | grid-template rows/grid-auto-flow grid-auto-columns - size(height) of the rows, and how to place auto-placed items, and the auto size of the columns | grid-auto flow grid-auto-rows/grid-template-columns - specifies how to place auto-placed items, and the auto size of the rows, and sets the grid-template-columns property",
+          desc : "shorthand property for: grid-template-rows grid-template-columns grid-template-areas grid-auto-rows grid-auto-columns grid-auto-flow"
+        },
+        gridTemplate : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "250px / auto auto",
+          options : "none|grid-template-rows / grid-template-columns|grid-template-areas",
+          desc : "shorthand property for: grid-template-rows grid-template-columns grid-template-areas"
+        },
+        gridTemplateAreas : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "'myArea myArea . . .' 'myArea myArea . . .'",
+          options : "none|itemnames",
+          desc : "areas within the grid layout , you can name grid items by using the grid-area property, and then reference to the name in the grid-template-areas property , each area is defined by apostrophes, use a period sign to refer to a grid item with no name"
+        },
+        gridTemplateColumns : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px 50px 50px",
+          options : "none|auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "specifies the number (and the widths) of columns in a grid layout , values are a space separated list, where each value specifies the size of the respective column"
+        },
+        gridTemplateRows : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px 200px",
+          options : "none|auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "specifies the number(and the heights) of the rows in a grid layout , values are a space-separated list, where each value specifies the height of the respective row"
+        },
+        gridGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "20px 50px",
+          options : "grid-row-gap grid-column-gap",
+          desc : "size of the gap between the rows and columns in a grid layout , shorthand property for: grid-row-gap grid-column-gap"
+        },
+        gridRowGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "px,pt,cm,em,...",
+          desc : "size of the gap between the rows in a grid layout"
+        },
+        gridColumnGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "px,pt,cm,em,...",
+          desc : "size of the gap between the columns in a grid layout"
+        },
+        gridAutoColumns : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "100px",
+          options : "auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "sets a size for the columns in a grid container , affects only columns with the size not set"
+        },
+        gridAutoFlow : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "row dense",
+          options : "row|columns|row dense|column dense",
+          desc : "how auto-placed items get inserted in the grid , dense - fills grid holes"
+        }
+      },
+
+      "G R I D - CHILD" : {
+        gridArea : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "myArea",
+          options : "grid-row-start / grid-column-start / grid-row-end / grid-column-end | itemname",
+          desc : "specifies a grid item's size and location in a grid layout"
+        },
+        gridAutoRows : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "size for the rows in a grid container"
+        },
+        gridColumn : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2 / span 2",
+          options : "grid-column-start / grid-column-end",
+          desc : "size for the rows in a grid container , shorthand property for: grid-column-start grid-column-end"
+        },
+        gridColumnEnd : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "3",
+          options : "column-line|span n",
+          desc : "how many columns an item will span, or on which column-line the item will end"
+        },
+        gridColumnStart : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "3",
+          options : "px,pt,cm,em,...",
+          desc : "on which column-line the item will start"
+        },
+        gridRow : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2 / span 2",
+          options : "grid-row-start / grid-row-end",
+          desc : "size and location in a grid layout , shorthand property for: grid-row-start grid-row-end"
+        },
+        gridRowEnd : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "5",
+          options : "row-line|span n",
+          desc : "size and location in a grid layout , shorthand property for: grid-row-start grid-row-end"
+        },
+        gridRowStart : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2",
+          options : "row-line",
+          desc : "on which row-line the item will start"
+        }
+      },
+
+      "FLEX/GRID ALIGN" : {
+        alignContent : {
+          css3 : true,
+          support : "Chrome:21 | Edge:11 | FF:28 | Safari:7-webkit-,9 | Opera:12.1",
+          sample : "center",
+          options : "stretch|center|flex-start/start|flex-end/end|space-between|space-around",
+          desc : "aligns FLEX lines(modifies the behavior of the flex-wrap property) / vertically align the whole GRID inside the container : stretch(stretch to take up the remaining space) | center(packed toward the center) | flex-start(packed toward the start) | flex-end(packed toward the end) | space-between(evenly distributed) | space-around(evenly distributed, with half-size spaces on either end) , there must be multiple lines of items for this property to have any effect ! , use the justify-content property to align the items on the main-axis (horizontally) ! grid's total height has to be less than the container's height for the align-content property to have any effect !"
+        },
+        justifyContent : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "center",
+          options : "flex-start/start|flex-end/end|center|space-between|space-around",
+          desc : "aligns the flexible container's items when the items do not use all available space on the main-axis (horizontally)"
+        }
+      },
+
+      "C U R S O R / P O I N T E R" : {
+        cursor : {
+          sample : "not-allowed",
+          options : "[url.cur,[x-coord y-coord]?,]* [ auto | default | none | context-menu | help | pointer | progress | wait | cell | crosshair | text | vertical-text | alias | copy | move | no-drop | not-allowed | e-resize | n-resize | ne-resize | nw-resize | s-resize | se-resize | sw-resize | w-resize | ew-resize | ns-resize | nesw-resize | nwse-resize | col-resize | row-resize | all-scroll | zoom-in | zoom-out | grab | grabbing ]",
+          desc : "which mouse cursor to display when the mouse pointer is over an element"
+        },
+        pointerEvents : {
+          css3 : true,
+          support : "Chrome:2 | Edge:11 | FF:3.6 | Safari:4 | Opera:9",
+          sample : "center",
+          options : "auto|none|inherit|initial|unset | visiblePainted|visibleFill|visibleStroke|visible|painted|fill|stroke|all",
+          desc : "useful for SVG, under what circumstances (if any) a particular graphic element can become the target of mouse events, when this property is unspecified, the same characteristics of the visiblePainted value apply to SVG content, value none instructs the mouse event to go through the element and target whatever is underneath that element instead"
+        },
+        pointerEvents : {
+          css3 : true,
+          support : "Chrome:2 | Edge:11 | FF:3.6 | Safari:4 | Opera:9",
+          sample : "center",
+          options : "auto|none|manipulation| [pan-x|pan-left|pan-right] [pan-y|pan-up|pan-down] [pinch-zoom]",
+          desc : "how a region can be manipulated by a touchscreen user (for example, by zooming features built into the browser) , see HTML-DOM-JS -> PointerEvent"
+        }
+      }
+
+
+
+
+    };
+
+    var styles_css = {};
+    Object.keys(styles_js).map(function(key, index) {
+      styles_css[key] = {};
+      Object.keys(styles_js[key]).map(function(key2, index2) {
+        styles_css[key][camelCaseToDash(key2)] = styles_js[key][key2];
+        styles_css[key][camelCaseToDash(key2)].js = key2;
+      });
+    });
+  </script>
+
+  <title>CSS and CSS3 styles generator - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+
+<div id="css_tests_container">
+
+  <div id="css_div_tests">
+    a lot of text inside div element for test purposes
+  </div>
+
+  <ul id="css_list_tests">
+    <li>First value</li>
+    <li>2nd item</li>
+    <li>third thing</li>
+  </ul>
+
+  <table id="css_table_tests">
+
+  <caption>Sum of age years</caption>
+
+   <tr>
+     <th>Firstname</th>
+     <th>Lastname</th>
+     <th>Age</th>
+   </tr>
+   <tr>
+     <td>Jill</td>
+     <td>Smith</td>
+     <td>50</td>
+   </tr>
+   <tr>
+     <td>Eve</td>
+     <td>Jackson</td>
+     <td>94</td>
+   </tr>
+    <tr>
+      <td colspan="2">Sum:</td>
+      <td>144</td>
+    </tr>
+  </table>
+
+  <p><a id="css_link_tests" href="#">link to nowhere</a></p>
+
+  <p><input id="css_input_tests" type="text"/></p>
+
+  <p>
+    <button id="css_button_tests">
+      Button
+    </button>
+  </p>
+
+</div>
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<h2 id="sg">Styles Generator</h2>
+
+  <table style="width:96%">
+    <tr>
+      <td style="width:40%">
+
+        Style:
+        <select id="style_type">
+        </select>
+        <br/>
+        <hr/>
+
+        Element:
+        <br/>
+        <label><input type="radio" name="style_element" value="css_tests_container" checked/>CONTAINER</label>
+        <label><input type="radio" name="style_element" value="css_div_tests"/>DIV</label>
+        <label><input type="radio" name="style_element" value="css_list_tests"/>LIST</label>
+        <label><input type="radio" name="style_element" value="css_link_tests"/>LINK</label>
+        <br/>
+        <label><input type="radio" name="style_element" value="css_table_tests"/>TABLE</label>
+        <label><input type="radio" name="style_element" value="css_button_tests"/>BUTTON</label>
+        <label><input type="radio" name="style_element" value="css_input_tests"/>INPUT</label>
+
+        <br/>
+        <hr/>
+        <label>
+        <input type="radio" name="style_source" value="style_value_txt" checked/>
+        Value:<br>
+        <textarea id="style_value_txt"></textarea>
+        </label>
+
+        <br/>
+        <label>
+        <input type="radio" name="style_source" value="style_value_cs"/>
+        Color selector:
+        <input id="style_value_cs" type="color"/> <!-- copy to value field -->
+        </label>
+
+        <br/>
+        <label>
+        <input type="radio" name="style_source" value="style_value_nc"/>
+        Named color:
+        <select id="style_value_nc">
+        </select>
+        </label>
+
+      </td>
+      <td style="width:40%;vertical-align: top;">
+
+        <div id="style_type_options"></div>
+        <div id="style_type_note"></div>
+        <div id="style_type_support"></div>
+
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2">
+          <button id="style_apply" onclick="applyStyle()">Apply style</button>
+      </td>
+    </tr>
+
+  </table>
+
+  <script type="text/javascript">
+    /*
+      CRAFTED BY:
+      Andrei, andreivinyl@gmail.com
+    */
+
+    var style_type = document.getElementById("style_type");
+    var style_value_txt = document.getElementById("style_value_txt");
+    var style_type_note = document.getElementById("style_type_note");
+    var style_type_support = document.getElementById("style_type_support");
+    var style_type_options = document.getElementById("style_type_options");
+    var style_value_cs = document.getElementById("style_value_cs");
+
+    var css_tests_container = document.getElementById("css_tests_container");
+    var css_div_tests = document.getElementById("css_div_tests");
+    var css_button_tests = document.getElementById("css_button_tests");
+    var css_list_tests = document.getElementById("css_list_tests");
+    var css_link_tests = document.getElementById("css_link_tests");
+    var css_input_tests = document.getElementById("css_input_tests");
+
+    var named_colors_select_options = "";
+    Object.keys(named_colors).forEach(function(name){
+      named_colors_select_options += "<option style='background-color:"+named_colors[name]+"' value='"+name+"'>"+name+" - "+named_colors[name]+"</option>";
+    });
+    document.getElementById("style_value_nc").innerHTML = named_colors_select_options;
+
+    var style_types = "";
+    Object.keys(styles_css).forEach(function(key){
+      style_types += "<optgroup label='"+key+"'>";
+      Object.keys(styles_css[key]).forEach(function(s){
+        style_types += "<option value='"+s+"' "+(("css3" in styles_css[key][s])?"class='css3'":"")+" data-group='"+key+"'>"+s+"</option>";
+      });
+      style_types += "</optgroup>";
+    });
+    style_type.innerHTML = style_types;
+
+    style_type.addEventListener("change", function(){
+      var style_type_option = style_type.item(style_type.selectedIndex);
+      var style_type_group = style_type_option.attributes.getNamedItem("data-group").value;
+      var style_type_value = styles_css[style_type_group][style_type.value];
+      style_value_txt.value = style_type_value.sample;
+      style_type_options.innerHTML = style_type_value.options;
+      style_type_note.innerHTML = style_type_value.desc;
+      style_type_support.innerHTML = (style_type_value.support) ? style_type_value.support : "";
+    });
+
+    function applyStyle() {
+      var target = document.getElementById(checkedRadioByName('style_element'));
+      var style_type_option = style_type.item(style_type.selectedIndex);
+      var style_type_group = style_type_option.attributes.getNamedItem("data-group").value;
+      var style_obj = styles_css[style_type_group][style_type.value];
+
+      target.style[styles_css[style_type_group][style_type.value].js] = document.getElementById(checkedRadioByName('style_source')).value;
+    }
+    // setInterval(function(){
+    // console.log([
+    //   style_txt,
+    //   style_cs,
+    //   style_nc,
+    //   checkedRadioByName('style_source')
+    // ]);
+    // },500000);
+  </script>
+
+  <pre><code class="html">
+    &lt;table style="width:96%"&gt;
+      &lt;tr&gt;
+        &lt;td style="width:40%"&gt;
+          Style:
+          &lt;select id="style_type"&gt;&lt;/select&gt;
+          Element:
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_tests_container" checked/&gt;CONTAINER&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_div_tests"/&gt;DIV&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_list_tests"/&gt;LIST&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_link_tests"/&gt;LINK&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_table_tests"/&gt;TABLE&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_button_tests"/&gt;BUTTON&lt;/label&gt;
+          &lt;label&gt;&lt;input type="radio" name="style_element" value="css_input_tests"/&gt;INPUT&lt;/label&gt;
+          &lt;label&gt;
+          &lt;input type="radio" name="style_source" value="style_value_txt" checked/&gt;
+          Value:
+          &lt;textarea id="style_value_txt"&gt;&lt;/textarea&gt;
+          &lt;/label&gt;
+          &lt;label&gt;
+          &lt;input type="radio" name="style_source" value="style_value_cs"/&gt;
+          Color selector:
+          &lt;input id="style_value_cs" type="color"/&gt; &lt;!-- copy to value field --&gt;
+          &lt;/label&gt;
+          &lt;label&gt;
+          &lt;input type="radio" name="style_source" value="style_value_nc"/&gt;
+          Named color:
+          &lt;select id="style_value_nc"&gt;&lt;/select&gt;
+          &lt;/label&gt;
+        &lt;/td&gt;
+        &lt;td style="width:40%;vertical-align: top;"&gt;
+          &lt;div id="style_type_options"&gt;&lt;/div&gt;
+          &lt;div id="style_type_note"&gt;&lt;/div&gt;
+          &lt;div id="style_type_support"&gt;&lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2"&gt;
+            &lt;button id="style_apply" onclick="applyStyle()"&gt;Apply style&lt;/button&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var style_type = document.getElementById("style_type");
+    var style_value_txt = document.getElementById("style_value_txt");
+    var style_type_note = document.getElementById("style_type_note");
+    var style_type_support = document.getElementById("style_type_support");
+    var style_type_options = document.getElementById("style_type_options");
+    var style_value_cs = document.getElementById("style_value_cs");
+
+    var css_tests_container = document.getElementById("css_tests_container");
+    var css_div_tests = document.getElementById("css_div_tests");
+    var css_button_tests = document.getElementById("css_button_tests");
+    var css_list_tests = document.getElementById("css_list_tests");
+    var css_link_tests = document.getElementById("css_link_tests");
+    var css_input_tests = document.getElementById("css_input_tests");
+
+    var named_colors_select_options = "";
+    Object.keys(named_colors).forEach(function(name){
+      named_colors_select_options +=
+        "&lt;option style='background-color:"+named_colors[name]+
+        "' value='"+name+"'&gt;"+name+" - "+named_colors[name]+"&lt;/option&gt;";
+    });
+    document.getElementById("style_value_nc").innerHTML = named_colors_select_options;
+
+    var style_types = "";
+    Object.keys(styles_css).forEach(function(key){
+      style_types += "&lt;optgroup label='"+key+"'&gt;";
+      Object.keys(styles_css[key]).forEach(function(s){
+        style_types += "&lt;option value='"+s+
+          "' "+(("css3" in styles_css[key][s])?"class='css3'":"")+
+          " data-group='"+key+"'&gt;"+s+"&lt;/option&gt;";
+      });
+      style_types += "&lt;/optgroup&gt;";
+    });
+    style_type.innerHTML = style_types;
+
+    style_type.addEventListener("change", function(){
+      var style_type_option = style_type.item(style_type.selectedIndex);
+      var style_type_group = style_type_option.attributes.getNamedItem("data-group").value;
+      var style_type_value = styles_css[style_type_group][style_type.value];
+      style_value_txt.value = style_type_value.sample;
+      style_type_options.innerHTML = style_type_value.options;
+      style_type_note.innerHTML = style_type_value.desc;
+      style_type_support.innerHTML = (style_type_value.support) ? style_type_value.support : "";
+    });
+
+    function applyStyle() {
+      var target = document.getElementById(checkedRadioByName('style_element'));
+      var style_type_option = style_type.item(style_type.selectedIndex);
+      var style_type_group = style_type_option.attributes.getNamedItem("data-group").value;
+      var style_obj = styles_css[style_type_group][style_type.value];
+
+      target.style[styles_css[style_type_group][style_type.value].js] =
+        document.getElementById(checkedRadioByName('style_source')).value;
+    }
+    // setInterval(function(){
+    // console.log([
+    //   style_txt,
+    //   style_cs,
+    //   style_nc,
+    //   checkedRadioByName('style_source')
+    // ]);
+    // },500000);
+  </code></pre>
+
+  <pre><code class="javascript">
+    const named_colors = {
+      Black:"#000000",
+      Navy:"#000080",
+      DarkBlue:"#00008B",
+      MediumBlue:"#0000CD",
+      Blue:"#0000FF",
+      DarkGreen:"#006400",
+      Green:"#008000",
+      Teal:"#008080",
+      DarkCyan:"#008B8B",
+      DeepSkyBlue:"#00BFFF",
+      DarkTurquoise:"#00CED1",
+      MediumSpringGreen:"#00FA9A",
+      Lime:"#00FF00",
+      SpringGreen:"#00FF7F",
+      Cyan:"#00FFFF",
+      MidnightBlue:"#191970",
+      DodgerBlue:"#1E90FF",
+      LightSeaGreen:"#20B2AA",
+      ForestGreen:"#228B22",
+      SeaGreen:"#2E8B57",
+      DarkSlateGray:"#2F4F4F",
+      LimeGreen:"#32CD32",
+      MediumSeaGreen:"#3CB371",
+      Turquoise:"#40E0D0",
+      RoyalBlue:"#4169E1",
+      SteelBlue:"#4682B4",
+      DarkSlateBlue:"#483D8B",
+      MediumTurquoise:"#48D1CC",
+      Indigo:"#4B0082",
+      DarkOliveGreen:"#556B2F",
+      CadetBlue:"#5F9EA0",
+      CornflowerBlue:"#6495ED",
+      RebeccaPurple:"#663399",
+      MediumAquaMarine:"#66CDAA",
+      DimGray:"#696969",
+      SlateBlue:"#6A5ACD",
+      OliveDrab:"#6B8E23",
+      SlateGray:"#708090",
+      LightSlateGray:"#778899",
+      MediumSlateBlue:"#7B68EE",
+      LawnGreen:"#7CFC00",
+      Chartreuse:"#7FFF00",
+      Aquamarine:"#7FFFD4",
+      Maroon:"#800000",
+      Purple:"#800080",
+      Olive:"#808000",
+      Gray:"#808080",
+      SkyBlue:"#87CEEB",
+      LightSkyBlue:"#87CEFA",
+      BlueViolet:"#8A2BE2",
+      DarkRed:"#8B0000",
+      DarkMagenta:"#8B008B",
+      SaddleBrown:"#8B4513",
+      DarkSeaGreen:"#8FBC8F",
+      LightGreen:"#90EE90",
+      MediumPurple:"#9370DB",
+      DarkViolet:"#9400D3",
+      PaleGreen:"#98FB98",
+      DarkOrchid:"#9932CC",
+      YellowGreen:"#9ACD32",
+      Sienna:"#A0522D",
+      Brown:"#A52A2A",
+      DarkGray:"#A9A9A9",
+      LightBlue:"#ADD8E6",
+      GreenYellow:"#ADFF2F",
+      PaleTurquoise:"#AFEEEE",
+      LightSteelBlue:"#B0C4DE",
+      PowderBlue:"#B0E0E6",
+      FireBrick:"#B22222",
+      DarkGoldenRod:"#B8860B",
+      MediumOrchid:"#BA55D3",
+      RosyBrown:"#BC8F8F",
+      DarkKhaki:"#BDB76B",
+      Silver:"#C0C0C0",
+      MediumVioletRed:"#C71585",
+      IndianRed:"#CD5C5C",
+      Peru:"#CD853F",
+      Chocolate:"#D2691E",
+      Tan:"#D2B48C",
+      LightGray:"#D3D3D3",
+      Thistle:"#D8BFD8",
+      Orchid:"#DA70D6",
+      GoldenRod:"#DAA520",
+      PaleVioletRed:"#DB7093",
+      Crimson:"#DC143C",
+      Gainsboro:"#DCDCDC",
+      Plum:"#DDA0DD",
+      BurlyWood:"#DEB887",
+      LightCyan:"#E0FFFF",
+      Lavender:"#E6E6FA",
+      DarkSalmon:"#E9967A",
+      Violet:"#EE82EE",
+      PaleGoldenRod:"#EEE8AA",
+      LightCoral:"#F08080",
+      Khaki:"#F0E68C",
+      AliceBlue:"#F0F8FF",
+      HoneyDew:"#F0FFF0",
+      Azure:"#F0FFFF",
+      SandyBrown:"#F4A460",
+      Wheat:"#F5DEB3",
+      Beige:"#F5F5DC",
+      WhiteSmoke:"#F5F5F5",
+      MintCream:"#F5FFFA",
+      GhostWhite:"#F8F8FF",
+      Salmon:"#FA8072",
+      AntiqueWhite:"#FAEBD7",
+      Linen:"#FAF0E6",
+      LightGoldenRodYellow:"#FAFAD2",
+      OldLace:"#FDF5E6",
+      Red:"#FF0000",
+      Magenta:"#FF00FF",
+      DeepPink:"#FF1493",
+      OrangeRed:"#FF4500",
+      Tomato:"#FF6347",
+      HotPink:"#FF69B4",
+      Coral:"#FF7F50",
+      DarkOrange:"#FF8C00",
+      LightSalmon:"#FFA07A",
+      Orange:"#FFA500",
+      LightPink:"#FFB6C1",
+      Pink:"#FFC0CB",
+      Gold:"#FFD700",
+      PeachPuff:"#FFDAB9",
+      NavajoWhite:"#FFDEAD",
+      Moccasin:"#FFE4B5",
+      Bisque:"#FFE4C4",
+      MistyRose:"#FFE4E1",
+      BlanchedAlmond:"#FFEBCD",
+      PapayaWhip:"#FFEFD5",
+      LavenderBlush:"#FFF0F5",
+      SeaShell:"#FFF5EE",
+      Cornsilk:"#FFF8DC",
+      LemonChiffon:"#FFFACD",
+      FloralWhite:"#FFFAF0",
+      Snow:"#FFFAFA",
+      Yellow:"#FFFF00",
+      LightYellow:"#FFFFE0",
+      Ivory:"#FFFFF0",
+      White:"#FFFFFF"
+    };
+
+    const styles_js = {
+
+      "B A C K G R O U N D" : {
+        background : {
+          sample : "orange #ffffff url('images/img_orange_flowers.jpg') no-repeat right -20px",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5) | linear-gradient(direction, color-stop1, color-stop2, ...) | radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center, start-color, ..., last-color) | repeating-linear-gradient(angle(1deg-360deg)|side-or-corner(top,bottom,left,right), color-stop1, color-stop2, ...) | repeating-radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center,start-color,...,last-color )",
+          desc : "shorthand property for setting all the background properties in one declaration , use multiple background definition separated by comma , does not matter if one of the property values is missing, as long as the other ones are in this order: background-color, background-image, background-position, background-size, background-repeat,background-origin, background-clip, background-attachment, use offsets(background-position) for sprite images"
+        },
+        backgroundColor : {
+          sample : "rgba(255, 99, 71, 0.5)",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5) | transparent",
+          desc : ""
+        },
+        backgroundImage : {
+          sample : "url('images/img_orange_flowers.jpg')",
+          options : "url('URL') | linear-gradient(direction, color-stop1, color-stop2, ...) | radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center, start-color, ..., last-color) | repeating-linear-gradient(angle(1deg-360deg)|side-or-corner(top,bottom,left,right), color-stop1, color-stop2, ...) | repeating-radial-gradient(ellipse|circle farthest-corner|closest-side|closest-corner|farthest-side center,start-color,...,last-color )",
+          desc : "sets one or more background images for an element , by default a background-image is placed at the top-left corner of an element and repeated both vertically and horizontally"
+        },
+        backgroundPosition : {
+          sample : "right top",
+          options : "left/center/right top/center/bottom | x% y% | xpos ypos",
+          desc : ""
+        },
+        backgroundRepeat : {
+          sample : "round",
+          options : "repeat(default)|repeat-x|repeat-y|no-repeat|space|round",
+          desc : "repeat - image is repeated so it covers the entire element, repeat-x | repeat-y - repeat only along one axe"
+        },
+        backgroundSize  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:4.1| Opera:10.5",
+          sample : "cover",
+          options : "auto | %,px,pt,cm,em,... | cover(keeps the aspect ratio) | contain",
+          desc : "how far the background (color or image) should extend within an element"
+        },
+        backgroundOrigin  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:3 | Opera:10.5",
+          sample : "content-box",
+          options : "padding-box(default, image starts from the upper left corner of the padding edge) | border-box(image starts from the upper left corner of the border) | content-box(image starts from the upper left corner of the content)",
+          desc : "background positioning area"
+        },
+        backgroundClip  : {
+          css3 : true,
+          support : "Chrome:4 | Edge:9 | FF:4 | Safari:3 | Opera:10.5",
+          sample : "right top",
+          options : "border-box(default, extend behind the border)|padding-box(extend to the inside edge of the border)|content-box(extend to the edge of the content box)",
+          desc : "how far the background (color or image) should extend within an element"
+        },
+        backgroundAttachment  : {
+          sample : "right top",
+          options : "scroll | fixed | local",
+          desc : "scroll dependency"
+        }
+      },
+
+      "B O R D E R" : {
+        border : {
+          sample : "2px solid DodgerBlue",
+          options : "border-width border-style(required) border-color",
+          desc : "usage of separate styling (except radius): border-[top|right|bottom|left]-[border property name]"
+        },
+        borderStyle : {
+          sample : "double",
+          options : "dotted | dashed | solid | double | groove | ridge | inset | outset | none",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border)"
+        },
+        borderWidth : {
+          sample : "thin",
+          options : "can be set as a specific size (in px, pt, cm, em, etc) or by using one of the three pre-defined values: thin, medium, or thick",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border)"
+        },
+        borderColor : {
+          sample : "thin",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | hsl(9, 100%, 64%)",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border), if border-color is not set, it inherits the color of the element"
+        },
+        borderRadius : {
+          css3 : true,
+          support : "Chrome/Safari:4-webkit-/3.1-webkit,5 | Edge:9 | FF:3-moz-,4 | Opera:10",
+          sample : "5px 15px 10px",
+          options : "px,pt,cm,em,...",
+          desc : "can have from one to four values: 1 = all four corners, 2 = top-left/bottom-right,top-right/bottom-left, 3 = top-left,top-right/bottom-left,bottom-right, 4 = top-left,top-right,bottom-right,bottom-left , usage of separate styling: border-[top|bottom]-[right|left]-radius"
+        },
+        borderImage : {
+          css3 : true,
+          support : "Chrome/Safari:4-webkit-/3.1-webkit-,16/6 | Edge:11 | FF:3.5-moz-,4 | Opera:11-o-,15",
+          sample : "url(images/border.png) 30 round",
+          options : "",
+          desc : "element also needs the border property set !!! shorthand property for: border-image-source(path to the image), border-image-slice(px|%|fill), border-image-width(px|%), border-image-outset(px,pt,cm,em,...|number), border-image-repeat(stretch|repeat|round|space) , omitted values are set to their default values"
+        }
+      },
+
+      "M A R G I N S" : {
+        margin : {
+          sample : "0",
+          options : "auto(horizontally center the element within its container) | px,pt,cm,em,... | 0(collapse) | % | inherit , negative values are allowed",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border), usage of separate styling: margin-[top|right|bottom|left]"
+        }
+      },
+
+      "P A D D I N G S" : {
+        padding : {
+          sample : "5px 15px 15px 10px",
+          options : "px,pt,cm,em,... | % | inherit",
+          desc : "can have from one to four values (for the top border, right border, bottom border, and the left border) , to keep the width no matter the amount of padding - use the box-sizing: border-box property , usage of separate styling: padding-[top|right|bottom|left]"
+        }
+      },
+
+      "HEIGHT / WIDTH" : {
+        height : {
+          sample : "100px",
+          options : "auto | px,pt,cm,em,... | %",
+          desc : "height and width properties do not include padding, borders, or margins; they set the height/width of the area inside the padding, border, and margin of the element"
+        },
+        maxHeight : {
+          sample : "100px",
+          options : "px,pt,cm,em,... | % | none(default)",
+          desc : "the maximum width of an element, min-height for minimum, overrides height !"
+        },
+        width : {
+          sample : "200px",
+          options : "auto | px,pt,cm,em,... | %",
+          desc : "height and width properties do not include padding, borders, or margins; they set the height/width of the area inside the padding, border, and margin of the element"
+        },
+        maxWidth : {
+          sample : "200px",
+          options : "px,pt,cm,em,... | % | none(default)",
+          desc : "the maximum width of an element, min-width for minimum, overrides width !"
+        }
+      },
+
+      "O U T L I N E" : {
+        outline : {
+          sample : "thick ridge pink",
+          options : "outline-width outline-style (required) outline-color",
+          desc : "line that is drawn around elements, OUTSIDE the borders, to make the element 'stand out' . outline is drawn outside the element border, and may overlap other content. outline is NOT a part of the element's dimensions; the element total width and height is not affected by the width of the outline"
+        },
+        outlineStyle : {
+          sample : "ridge",
+          options : "dotted|dashed|solid|double|groove|ridge|inset|outset|none|hidden",
+          desc : "none of the other outline properties will have any effect, unless the outline-style property is set"
+        },
+        outlineColor : {
+          sample : "invert",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | hsl(9, 100%, 64%) | invert(performs a color inversion (which ensures that the outline is visible, regardless of color background)) ",
+          desc : "none of the other outline properties will have any effect, unless the outline-style property is set"
+        },
+        outlineWidth : {
+          sample : "thin",
+          options : "can be set as a specific size (in px, pt, cm, em, etc) or by using one of the three pre-defined values: thin, medium, or thick",
+          desc : ""
+        },
+        outlineOffset : {
+          css3 : true,
+          support : "Chrome:4 | Edge:15 | FF:3.5 | Safari:3.1 | Opera:10.5",
+          sample : "15px",
+          options : "px, pt, cm, em, ...",
+          desc : "space between an outline and the edge or border of an element"
+        }
+      },
+
+      "T E X T" : {
+        color : {
+          sample : "rgb(120, 120, 120)",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5)",
+          desc : "for W3C compliant CSS: If you define the color property, you must also define the background-color"
+        },
+        textAlign : {
+          sample : "center",
+          options : "center|left|right|justify",
+          desc : "horizontal alignment of a text"
+        },
+        textDecoration : {
+          sample : "red underline overline",
+          options : "overline|line-through|underline|none",
+          desc : ""
+        },
+        textTransform : {
+          sample : "capitalize",
+          options : "uppercase|lowercase|capitalize",
+          desc : ""
+        },
+        textIndent : {
+          sample : "10px",
+          options : "px,pt,cm,em,...",
+          desc : "indentation of the first line of a text"
+        },
+        letterSpacing : {
+          sample : "10px",
+          options : "px,pt,cm,em,...  , negative values are allowed",
+          desc : "increase or decrease the space between characters"
+        },
+        wordSpacing : {
+          sample : "10px",
+          options : "normal|px,pt,cm,em,etc , Negative values are allowed",
+          desc : "increases or decreases the white space between words"
+        },
+        lineHeight : {
+          sample : "10px",
+          options : "px,pt,cm,em,...  , negative values are allowed",
+          desc : "space between lines"
+        },
+        direction : {
+          sample : "ltr",
+          options : "ltr|rtl",
+          desc : "change the text direction of an element , unicode-bidi:normal|embed|bidi-override - set or return whether the text should be overridden to support multiple languages in the same document"
+        },
+        textOverflow : {
+          css3 : true,
+          support : "Chrome:4 | Edge:6 | FF:7 | Safari:3.1 | Opera:9-o-,11",
+          sample : "ellipsis",
+          options : "clip|ellipsis(...)|string",
+          desc : "how overflowed content that is not displayed should be signaled to the user. It can be clipped, display an ellipsis (...), or display a custom string , both of the following properties are required for text-overflow - white-space: nowrap;overflow: hidden;"
+        },
+        whiteSpace : {
+          sample : "pre",
+          options : "normal|nowrap|pre|pre-line|pre-wrap",
+          desc : "how white-space inside an element is handled"
+        },
+        verticalAlign : {
+          sample : "super",
+          options : "baseline|px,pt,cm,em,...|%|sub|super|top|text-top|middle|bottom|text-bottom",
+          desc : "vertical alignment of an element"
+        },
+        textShadow : {
+          css3 : true,
+          support : "Chrome:4 | Edge:10 | FF:3.5 | Safari:4 | Opera:9.6",
+          sample : "3px 2px blue",
+          options : "h-shadow v-shadow blur-radius(optional) color(optional)",
+          desc : "define multiple shadow separating by comma"
+        },
+        textAlignLast : {
+          css3 : true,
+          support : "Chrome:47 | Edge:5.5(with text-align:justify) | FF:12-moz-,54 | Safari:NO | Opera:34",
+          sample : "right",
+          options : "left|right|center|justify|start|end",
+          desc : "how to align the last line of a text , to use text-align-last on only the last paragraph(p) in the container, you can use :last child"
+        },
+        textJustify : {
+          css3 : true,
+          support : "Chrome:? | Edge:11 | FF:55 | Safari:10 | Opera:?",
+          sample : "inter-word",
+          options : "auto|inter-word|inter-character",
+          desc : "justification method of text when text-align:justify"
+        },
+        wordBreak : {
+          css3 : true,
+          support : "Chrome:4 | Edge:5.5 | FF:15 | Safari:3.1 | Opera:15",
+          sample : "inter-word",
+          options : "normal|break-all|keep-all|break-word",
+          desc : "how words should break when reaching the end of a line"
+        },
+        wordWrap : {
+          css3 : true,
+          support : "Chrome:4 | Edge:5.5 | FF:3.5 | Safari:3.1 | Opera:10.5",
+          sample : "break-word",
+          options : "normal|break-word",
+          desc : "how words should break when reaching the end of a line"
+        },
+        userSelect : {
+          css3 : true,
+          support : "Chrome:6-webkit-,54 | Edge:10-ms- | FF:2-moz- | Safari:3.1-webkit- | Opera:15-webkit-,41",
+          sample : "none",
+          options : "auto|none|text|all",
+          desc : "whether the text of an element can be selected , in web browsers, if you double-click on some text it will be selected/highlighted , all = select with single click"
+        }
+      },
+
+      "F O N T S" : {
+        fontFamily : {
+          sample : '"Times New Roman", Times, serif',
+          options : "Arial, Helvetica, sans-serif|'Arial Black', Gadget, sans-serif|Tahoma, Geneva|Verdana|'Courier New', Courier, monospace|'Lucida Console', Monaco, monospace",
+          desc : "should hold several font names as a 'fallback' system"
+        },
+        fontStyle : {
+          sample : "italic",
+          options : "normal|italic|oblique",
+          desc : ""
+        },
+        fontSize : {
+          sample : "italic",
+          options : "medium|xx-small|x-small|small|large|x-large|xx-large|smaller|larger|%|vw,px,pt,cm,em,...",
+          desc : ""
+        },
+        fontWeight : {
+          sample : "bold",
+          options : "normal|bold|bolder|lighter|number(100,200,...,900)",
+          desc : ""
+        },
+        fontVariant : {
+          sample : "small-caps",
+          options : "normal|small-caps",
+          desc : "whether or not a text should be displayed in a small-caps font"
+        }
+      },
+
+      "L I S T S" : {
+        listStyle : {
+          sample : "upper-roman",
+          options : "list properties in one declaration: list-style-type list-style-position list-style-image, if one of the values are missing, the default value for that property will be used",
+          desc : "set list-style:none and li:before{content:'•';padding-right: 8px;color: blue;} for custom bullets"
+        },
+        listStyleType : {
+          sample : "upper-roman",
+          options : "disc|square|armenian| cjk-ideographic|decimal|decimal-leading-zero|georgian|hebrew|hiragana|hiragana-iroha|katakana|katakana-iroha|lower-alpha|lower-greek|lower-latin|lower-roman|upper-alpha|upper-greek|upper-latin|upper-roman",
+          desc : "Internet Explorer/Edge and Opera 12 and earlier versions do not support the values: cjk-ideographic, hebrew, hiragana, hiragana-iroha, katakana, and katakana-iroha"
+        },
+        listStylePosition : {
+          sample : "inside",
+          options : "inside|outside",
+          desc : "position of the list-item markers (bullet points)"
+        },
+        listStyleImage : {
+          sample : "url('images/img_orange_flowers.jpg')",
+          options : "url",
+          desc : "replaces the list-item marker with an image"
+        }
+      },
+
+      "T A B L E S" : {
+        tableLayout : {
+          sample : "fixed",
+          options : "auto(default)|fixed",
+          desc : "algorithm used to lay out table cells, rows, and columns. Tip: The main benefit of table-layout: fixed; is that the table renders much faster. On large tables, users will not see any part of the table until the browser has rendered the whole table. So, if you use table-layout: fixed, users will see the top of the table while the browser loads and renders rest of the table."
+        },
+        emptyCells : {
+          sample : "hide",
+          options : "show|hide",
+          desc : "whether or not to display borders on empty cells in a table, this property has no effect if border-collapse is 'collapse'"
+        },
+        captionSide : {
+          sample : "bottom",
+          options : "top|bottom",
+          desc : "placement of a table caption , on top or below"
+        },
+        borderSpacing : {
+          sample : "5px",
+          options : "px,pt,cm,em,...",
+          desc : "Specifies the distance between the borders of adjacent cells in px, cm, etc. Negative values are not allowed. - If one value is specified, it defines both the horizontal and vertical spacing between cells - If two values are specified, the first sets the horizontal spacing and the second sets the vertical spacing"
+        },
+        borderCollapse : {
+          sample : "separate",
+          options : "separate|collapse",
+          desc : "whether table borders should collapse into a single border or be separated as in standard HTML , with 'border-collapse:separate', the border-spacing property can be used to set the space between the cells , with 'border-collapse: collapse', the cell that appears first in the code will 'win'"
+        }
+      },
+
+      "L A Y O U T" : {
+        display : {
+          sample : "contents",
+          options : "none|inline|block|inline-block|contents|flex|inline-flex|grid|inline-grid|list-item|run-in|table|inline-table|table-caption|table-cell|table-column|table-row|table-column-group|table-header-group|table-footer-group|table-row-group",
+          desc : "display behavior (the type of rendering box) of an element , inline -  any height and width properties will have no effect usefull to place horizontally block elements, inline-block - element itself is formatted as an inline element but you can apply height and width values, the top and bottom margins/paddings are respected, major difference is that line-break is not added after the element, so the element can sit next to other elements , list-item -element behave like a li-element , block - starts on a new line, and takes up the whole width , run-in - displays an element as either block or inline, depending on context , contents - container disappear making the child elements children of the element the next level up in the DOM does not work in Edge/Internet Explorer , values 'flex' and 'inline-flex' requires the -webkit- prefix to work in Safari"
+        },
+        visibility : {
+          sample : "hidden",
+          options : "visible|hidden|collapse",
+          desc : "hidden - the element is hidden (but still takes up space) , collapse - only for table rows (tr), row groups (tbody), columns (col), column groups (colgroup). This value removes a row or column, but it does not affect the table layout. The space taken up by the row or column will be available for other content. If collapse is used on other elements, it renders as 'hidden'"
+        },
+        overflow : {
+          sample : "auto",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "use in pair with other overlows for effects , visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        overflowX : {
+          sample : "hidden",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        overflowY : {
+          sample : "hidden",
+          options : "visible(default)|hidden|scroll|auto",
+          desc : "visible - overflow is not clipped it renders outside the element box , hidden - overflow is clipped, and the rest of the content will be invisible , scroll - overflow is clipped but a scroll-bar is added to see the rest of the content , auto - if overflow is clipped, a scroll-bar should be added to see the rest of the content"
+        },
+        position  : {
+          sample : "contents",
+          options : "static(default)|relative|fixed|absolute|sticky/-webkit-sticky",
+          desc : "static - positioned according to the normal flow of the page , relative - is positioned relative to its normal position setting the top/right/bottom/left properties of a relatively-positioned element will cause it to be adjusted away from its normal position, other content will not be adjusted to fit into any gap left by the elemen , fixed - is positioned relative to the viewport which means it always stays in the same place even if the page is scrolled , absolute - is positioned relative to the nearest positioned ancestor (anything except static, instead of positioned relative to the viewport, like fixed) , sticky - is positioned based on the user's scroll position, you must also specify at least one of top, right, bottom or left for sticky positioning to work, IE/Edge 15 and earlier versions do not support sticky position"
+        },
+        "float" : {
+          sample : "right",
+          options : "none(default)|left|right",
+          desc : "how an element should float : none - element does not float (will be displayed just where it occurs in the text) , left - element floats to the left of its container , right - element floats the right of its container , absolutely positioned elements ignores the float property! , elements after a floating element will flow around it, to avoid this, use the clear property or the clearfix hack (see example at the bottom of this page)"
+        },
+        clear : {
+          sample : "both",
+          options : "none(default)|left|right|both",
+          desc : "specifies on which sides of an element floating elements are not allowed to float: none - allows floating elements on both sides , left - no floating elements allowed on the left side , right - no floating elements allowed on the right side , both - no floating elements allowed on either the left or the right side"
+        },
+        zIndex : {
+          sample : "-3",
+          options : "auto|number",
+          desc : "stack order of an element , only works on positioned elements (position:absolute, position:relative, or position:fixed)"
+        },
+        clip : {
+          sample : "rect(10px,100px,50px,10px)",
+          options : "auto|rect(top,right,bottom,left)",
+          desc : "specify a rectangle to clip an absolutely positioned element, the rectangle is specified as four coordinates, all from the top-left corner of the element to be clipped , property does not work if 'overflow:visible'"
+        },
+        opacity : {
+          sample : "0.6",
+          options : "auto|%|px,cm,etc",
+          desc : "filter:alpha(opacity=60); /*For IE8 and earlier*/ , use RGBA to make transparent only element without its content !"
+        },
+        top : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        right : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        bottom : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        left : {
+          sample : "10px",
+          options : "auto|%|px,cm,etc",
+          desc : "This property has no effect on non-positioned elements. If position:absolute or position:fixed - property sets the edge of an element to a unit above/below/left/right the edge of its nearest positioned ancestor. If position:relative - property makes the element's edge to move above/below/left/right its normal position. If position:sticky - property behaves like its position is relative when the element is inside the viewport, and like its position is fixed when it is outside. If position:static - property has no effect."
+        },
+        resize : {
+          css3 : true,
+          support : "Chrome:4 | Edge:NOT | FF:4-moz-,5 | Safari:4 | Opera:15",
+          sample : "vertical",
+          options : "none|both|horizontal|vertical",
+          desc : "defines if (and how) an element is resizable by the user , does not apply to inline elements or to block elements where overflow='visible'. So, make sure that overflow is set to 'scroll', 'auto', or 'hidden'"
+        },
+        boxShadow : {
+          css3 : true,
+          support : "Chrome:4-webkit-,10 | Edge:9 | FF:3.5-moz-,4 | Safari:3.1-webkit,5.1 | Opera:10.5",
+          sample : "5px 10px #888888 inset",
+          options : "h-offset v-offset blur spread color inset",
+          desc : "define multiple shadow separating by comma"
+        },
+        boxSizing : {
+          css3 : true,
+          support : "Chrome:4-webkit-,10 | Edge:8 | FF:2-moz-,29 | Safari:3.2-webkit,5.1 | Opera:9.5",
+          sample : "5px 10px #888888 inset",
+          options : "content-box(default) | border-box",
+          desc : "defines how the width and height of an element are calculated: should they include padding and borders, or not"
+        }
+      },
+
+      "T R A N S F O R M S" : {
+        transform : {
+          css3 : true,
+          support : "2D/3D = Chrome:4-webkit-,36/12-webkit-,36 | Edge:9-ms-,10/12 | FF:3.5-moz-,16/10 | Safari:3.2-webkit-,9/4-webkit-,9 | Opera:10.5-o-,15-webkit,23",
+          sample : "rotateX(-45deg) rotateY(30deg)",
+          options : "transform-functions",
+          desc : "applies a 2D or 3D transformation to an element, transform-functions : matrix(n,n,n,n,n,n) - 2D transformation using a matrix of six values | matrix3d(n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n) - 3D transformation using a 4x4 matrix of 16 values | translate(x,y)/translate3d(x,y,z)/translateX(x)/translateY(y)/ - 2D/3D translation | scale(x,y)/scale3d(x,y,z)/scaleX(x)/scaleY(y)/scaleZ(z) - 2D/3D scale transformation | rotate(50deg)/rotate3d(x,y,z,45deg)/rotateX(angle)/rotateY(angle)/rotateZ(angle) - 2D/3D rotation | skew(x-angle,y-angle)/skewX(angle)/skewY(angle) - 2D skew transformation | perspective(n) - perspective view for a 3D transformed element"
+        },
+        transformOrigin : {
+          css3 : true,
+          support : "2D/3D = Chrome:4-webkit-,36/12-webkit-,36 | Edge:9-ms-,10/10 | FF:3.5-moz-,16/10-moz-,16 | Safari:3.2-webkit-,9/4-webkit-,9 | Opera:10.5-o-,15-webkit-,23/15-webkit-,23",
+          sample : "20% 40%",
+          options : "x-axis(left|center|right|px,pt,cm,em,...|%) y-axis(top|center|bottom|px,pt,cm,em,...|%) z-axis",
+          desc : "change the position of transformed elements"
+        },
+        transformStyle : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:11 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "preserve-3d",
+          options : "flat(default, childs will NOT preserve its 3D position)|preserve-3d(childs will preserve its 3D position)",
+          desc : "change the position of transformed elements"
+        },
+        perspective : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "150px",
+          options : "none(default, same as 0)|px,pt,cm,em,...(how far the element is placed from the view)",
+          desc : "used to give a 3D-positioned element some perspective , defines how far the object is away from the user"
+        },
+        perspectiveOrigin : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "10px 50%",
+          options : "x-axis(left|center|right|px,pt,cm,em,...|%) y-axis(top|center|bottom|px,pt,cm,em,...|%)",
+          desc : "must be used in conjunction with the perspective property! , from which position the user is looking at the 3D-positioned element , it is the CHILD elements that will get the effect, NOT the element itself , default: 50% 50%"
+        },
+        backfaceVisibility : {
+          css3 : true,
+          support : "Chrome:12-webkit-,36 | Edge:10 | FF:10-moz-,16 | Safari:4-webkit-,9 | Opera:15-webkit-,23",
+          sample : "10px 50%",
+          options : "visible(default)|hidden",
+          desc : "defines whether or not the back face of an element should be visible when facing the user , back face of an element is a mirror image of the front face being displayed"
+        }
+      },
+
+      "T R A N S I T I O N S" : {
+        transition : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "property duration timing-function delay",
+          desc : "shorthand property for: transition-property transition-duration transition-timing-function transition-delay , always specify the transition-duration property, otherwise the duration is 0s, and the transition will have no effect"
+        },
+        transitionProperty : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "none(no property will get a transition effect) | all(default,all properties will get a transition effect) | property(comma separated list of CSS property names the transition effect is for)",
+          desc : "transition effect will start when the specified CSS property changes , always specify the transition-duration property, otherwise the duration is 0, and the transition will have no effect !"
+        },
+        transitionDuration : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "500ms",
+          options : "s|ms",
+          desc : "how many seconds or milliseconds a transition effect takes to complete"
+        },
+        transitionTimingFunction : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "",
+          options : "linear(default, =cubic-bezier(0.25,0.1,0.25,1)) | ease(=cubic-bezier(0,0,1,1)) | ease-in(=cubic-bezier(0.42,0,1,1)) | ease-out(=cubic-bezier(0,0,0.58,1)) | ease-in-out(=cubic-bezier(0.42,0,0.58,1)) | step-start(=steps(1, start)) | step-end(=steps(1, end)) | steps(int,start|end)|cubic-bezier(n,n,n,n)(numeric values from 0 to 1)",
+          desc : "specifies the speed curve of the transition effect , allows a transition effect to change speed over its duration"
+        },
+        transitionDelay : {
+          css3 : true,
+          support : "Chrome:4-webkit-,26 | Edge:10 | FF:4-moz-,16 | Safari:3.1-webkit-,6.1 | Opera:10.5-o-,12.1",
+          sample : "1s",
+          options : "s|ms",
+          desc : "specifies the number of seconds or milliseconds to wait before the transition effect will start"
+        }
+      },
+
+      "A N I M A T I O N" : {
+        animation : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "my-animation",
+          options : "name duration timing-function delay iteration-count direction fill-mode play-state",
+          desc : "specifies the name of the keyframe you want to bind to the selector"
+        },
+        animationName : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "my-animation",
+          options : "",
+          desc : "specifies the name of the keyframe you want to bind to the selector"
+        },
+        animationDuration : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "2s",
+          options : "s,ms",
+          desc : "how long an animation should take to complete one cycle"
+        },
+        animationTimingFunction : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "ease-in-out",
+          options : "linear(default, =cubic-bezier(0.25,0.1,0.25,1)) | ease(=cubic-bezier(0,0,1,1)) | ease-in(=cubic-bezier(0.42,0,1,1)) | ease-out(=cubic-bezier(0,0,0.58,1)) | ease-in-out(=cubic-bezier(0.42,0,0.58,1)) | step-start(=steps(1, start)) | step-end(=steps(1, end)) | steps(int,start|end)|cubic-bezier(n,n,n,n)(numeric values from 0 to 1)",
+          desc : "how long an animation should take to complete one cycle"
+        },
+        animationDelay : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "500ms",
+          options : "s,ms",
+          desc : "delay for the start of an animation"
+        },
+        animationIterationCount : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "infinite",
+          options : "number(default=1)|infinite",
+          desc : "the number of times an animation should be played"
+        },
+        animationDirection : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "alternate-reverse",
+          options : "normal|reverse(animate backwards)|alternate(forwards first, then backwards)|alternate-reverse(backwards first, then forwards)",
+          desc : "whether an animation should be played forwards, backwards or in alternate cyclesd"
+        },
+        animationFillMode : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "forwards",
+          options : "none | forwards(retain the style values that is set by the last keyframe (depends on animation-direction and animation-iteration-count)) | backwards(get the style values that is set by the first keyframe (depends on animation-direction), and retain this during the animation-delay period) | both(follow the rules for both forwards and backwards, extending the animation properties in both directions)",
+          desc : "specifies a style for the element when the animation is not playing (before it starts, after it ends, or both) , animations do not affect the element before the first keyframe is played or after the last keyframe is played. The animation-fill-mode property can override this behavior"
+        },
+        animationPlayState : {
+          css3 : true,
+          support : "Chrome:4-webkit-,43 | Edge:10 | FF:5-moz-,16 | Safari:4-webkit-,9 | Opera:12-o-,15-webkit-,30",
+          sample : "paused",
+          options : "paused|running",
+          desc : "    Use this property in a JavaScript to pause an animation in the middle of a cycle !"
+        }
+      },
+
+      "IMAGES / VIDEO" : {
+        filter : {
+          css3 : true,
+          support : "Chrome:18-webkit-,53 | Edge:13 | FF:35 | Safari:6-webkit-,9.1 | Opera:15-webkit-,40",
+          sample : "",
+          options : "blur(px) | brightness(%0-100+) | contrast(%0-100+) | drop-shadow(h-shadow v-shadow blur spread color) | grayscale(0-100%) | hue-rotate(0-360deg) | invert(0-100%) | opacity(0-100%) | saturate(%0-100+) | sepia(0-100%) | url(xml-file-with-svg-filter#element-id)",
+          desc : "defines visual effects (like blur and saturation) to an element (often <img>) , The filters that use percentage values (i.e. 75%), also accept the value as decimal (i.e. 0.75)"
+        },
+        objectFit : {
+          css3 : true,
+          support : "Chrome:31 | Edge:16 | FF:36 | Safari:7.1 | Opera:19",
+          sample : "",
+          options : "fill(default, the replaced content is sized to fill the element's content box, if necessary, the object will be stretched or squished to fit) | contain | cover(replaced content is sized to maintain its aspect ratio while filling the element's entire content box. The object will be clipped to fit) | scale-down(content is sized as if none or contain were specified (would result in a smaller concrete object size)) | none(replaced content is not resized)",
+          desc : "specify how an img or video should be resized to fit its container"
+        }
+      },
+
+      "C O L U M N S" : {
+        columns : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "100px 3",
+          options : "auto | column-width column-count",
+          desc : "shorthand property for: column-width(minimum width for each column) column-count(maximum number of columns) , multi-column layout will automatically break down into a single column at narrow browser widths, without the need of media queries or other rules"
+        },
+        columnWidth : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "100px",
+          options : "auto | px,pt,cm,em,...",
+          desc : "the number of columns will be the minimum number of columns needed to show all the content across the element , a minimum width suggestion for the browser. Once the browser cannot fit at least two columns at your specified width then the columns will stop and drop into a single column"
+        },
+        columnCount : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "4",
+          options : "number",
+          desc : ""
+        },
+        columnRule : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "4px double #ff00ff",
+          options : "column-rule-width column-rule-style column-rule-color",
+          desc : ""
+        },
+        columnSpan : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:NOT | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "3",
+          options : "1 | all",
+          desc : "how many columns an element should span across"
+        },
+        columnRuleWidth : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "thick",
+          options : "medium | thin | thick | length",
+          desc : "width of the rule between columns"
+        },
+        columnRuleStyle : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "dotted",
+          options : "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset",
+          desc : "style of the rule between columns"
+        },
+        columnRuleColor : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "#ff00ff",
+          options : "blue,red,... | #ff6 | #ff6347 | rgb(255, 99, 71) | rgba(255, 99, 71, 0.5) | hsl(9, 100%, 64%) | hsla(9, 100%, 64%, 0.5)",
+          desc : "color of the rule between columns"
+        },
+        columnGap : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "5px",
+          options : "px,pt,cm,em,...",
+          desc : ""
+        },
+        columnFill : {
+          css3 : true,
+          support : "Chrome:4-webkit-,50 | Edge:10 | FF:2-moz-,52 | Safari:3.1-webkit-,9 | Opera:11.1,15-webkit-,37",
+          sample : "5px",
+          options : "balance | auto",
+          desc : "balance - default value, fills each column with about the same amount of content, but will not allow the columns to be taller than the height (so, columns might be shorter than the height as the browser distributes the content evenly horizontally) , auto - fills each column until it reaches the height, and do this until it runs out of content (so, this value will not necessarily fill all the columns nor fill them evenly)"
+        }
+      },
+
+      "F L E X - PARENT" : {
+        flexFlow : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "column-reverse wrap-reverse",
+          options : "flex-direction flex-wrap",
+          desc : "shorthand property for: flex-direction(row|row-reverse|column|column-reverse) flex-wrap(nowrap|wrap|wrap-reverse)"
+        },
+        flexDirection : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "column-reverse",
+          options : "row(default)|row-reverse|column|column-reverse",
+          desc : "direction of the flexible items"
+        },
+        flexWrap : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "wrap-reverse",
+          options : " nowrap|wrap|wrap-reverse",
+          desc : "should flexible items wrap or not"
+        },
+        alignItems : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "stretch|center|flex-start|flex-end|baseline",
+          desc : "specifies the default alignment for items inside the flexible container : stretch(fit the container) | center(center) | flex-start | flex-end | baseline , use the align-self property of each item to override the align-items property !"
+        }
+      },
+
+      "F L E X - CHILD" : {
+        order : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "1",
+          options : "number",
+          desc : "order of a flexible item relative to the rest of the flexible items inside the same container"
+        },
+        flex : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "wrap-reverse",
+          options : "flex-grow flex-shrink flex-basis | initial(default, same as 0 1 auto) | auto(same as 1 1 auto) |none(same as 0 0 auto)",
+          desc : "sets the flexible length on flexible items , shorthand property for: flex-grow(how much the item will grow relative to the rest of the flexible items) flex-shrink(how much the item will shrink relative to the rest of the flexible items) flex-basis(length of item:px,pt,cm,em,...)"
+        },
+        flexGrow : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "number",
+          desc : "how much the item will grow relative to the rest of the flexible items inside the same container"
+        },
+        flexShrink : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "3",
+          options : "number",
+          desc : "how the item will shrink relative to the rest of the flexible items inside the same container"
+        },
+        flexBasis : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "100px",
+          options : "px,pt,cm,em,...",
+          desc : "specifies the initial length of a flexible item"
+        },
+        alignSelf : {
+          css3 : true,
+          support : "Chrome:21 | Edge:11 | FF:20 | Safari:7-webkit-,9 | Opera:12.1",
+          sample : "3",
+          options : "auto|stretch|center|flex-start|flex-end|baseline",
+          desc : "specifies the alignment for the selected item inside the flexible container : auto(inherits its parent container's align-items property, or stretch) | stretch(fit the container) | center(center) | flex-start | flex-end | baseline , overrides the flexible container's align-items property !"
+        }
+      },
+
+      "G R I D - PARENT" : {
+        grid : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "150px / auto auto auto",
+          options : "grid-template-rows/grid-template-columns - sizes of the columns and rows | grid-template-areas - layout using named items | grid-template rows/grid-auto-columns - size(height) of the rows, and the auto size of the columns | grid-auto-rows/grid-template-columns - size of the rows, and sets the grid-template-columns property | grid-template rows/grid-auto-flow grid-auto-columns - size(height) of the rows, and how to place auto-placed items, and the auto size of the columns | grid-auto flow grid-auto-rows/grid-template-columns - specifies how to place auto-placed items, and the auto size of the rows, and sets the grid-template-columns property",
+          desc : "shorthand property for: grid-template-rows grid-template-columns grid-template-areas grid-auto-rows grid-auto-columns grid-auto-flow"
+        },
+        gridTemplate : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "250px / auto auto",
+          options : "none|grid-template-rows / grid-template-columns|grid-template-areas",
+          desc : "shorthand property for: grid-template-rows grid-template-columns grid-template-areas"
+        },
+        gridTemplateAreas : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "'myArea myArea . . .' 'myArea myArea . . .'",
+          options : "none|itemnames",
+          desc : "areas within the grid layout , you can name grid items by using the grid-area property, and then reference to the name in the grid-template-areas property , each area is defined by apostrophes, use a period sign to refer to a grid item with no name"
+        },
+        gridTemplateColumns : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px 50px 50px",
+          options : "none|auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "specifies the number (and the widths) of columns in a grid layout , values are a space separated list, where each value specifies the size of the respective column"
+        },
+        gridTemplateRows : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px 200px",
+          options : "none|auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "specifies the number(and the heights) of the rows in a grid layout , values are a space-separated list, where each value specifies the height of the respective row"
+        },
+        gridGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "20px 50px",
+          options : "grid-row-gap grid-column-gap",
+          desc : "size of the gap between the rows and columns in a grid layout , shorthand property for: grid-row-gap grid-column-gap"
+        },
+        gridRowGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "px,pt,cm,em,...",
+          desc : "size of the gap between the rows in a grid layout"
+        },
+        gridColumnGap : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "px,pt,cm,em,...",
+          desc : "size of the gap between the columns in a grid layout"
+        },
+        gridAutoColumns : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "100px",
+          options : "auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "sets a size for the columns in a grid container , affects only columns with the size not set"
+        },
+        gridAutoFlow : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "row dense",
+          options : "row|columns|row dense|column dense",
+          desc : "how auto-placed items get inserted in the grid , dense - fills grid holes"
+        }
+      },
+
+      "G R I D - CHILD" : {
+        gridArea : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "myArea",
+          options : "grid-row-start / grid-column-start / grid-row-end / grid-column-end | itemname",
+          desc : "specifies a grid item's size and location in a grid layout"
+        },
+        gridAutoRows : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "50px",
+          options : "auto|max-content|min-content|px,pt,cm,em,...",
+          desc : "size for the rows in a grid container"
+        },
+        gridColumn : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2 / span 2",
+          options : "grid-column-start / grid-column-end",
+          desc : "size for the rows in a grid container , shorthand property for: grid-column-start grid-column-end"
+        },
+        gridColumnEnd : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "3",
+          options : "column-line|span n",
+          desc : "how many columns an item will span, or on which column-line the item will end"
+        },
+        gridColumnStart : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "3",
+          options : "px,pt,cm,em,...",
+          desc : "on which column-line the item will start"
+        },
+        gridRow : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2 / span 2",
+          options : "grid-row-start / grid-row-end",
+          desc : "size and location in a grid layout , shorthand property for: grid-row-start grid-row-end"
+        },
+        gridRowEnd : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "5",
+          options : "row-line|span n",
+          desc : "size and location in a grid layout , shorthand property for: grid-row-start grid-row-end"
+        },
+        gridRowStart : {
+          css3 : true,
+          support : "Chrome:57 | Edge:16 | FF:52 | Safari:10 | Opera:44",
+          sample : "2",
+          options : "row-line",
+          desc : "on which row-line the item will start"
+        }
+      },
+
+      "FLEX/GRID ALIGN" : {
+        alignContent : {
+          css3 : true,
+          support : "Chrome:21 | Edge:11 | FF:28 | Safari:7-webkit-,9 | Opera:12.1",
+          sample : "center",
+          options : "stretch|center|flex-start/start|flex-end/end|space-between|space-around",
+          desc : "aligns FLEX lines(modifies the behavior of the flex-wrap property) / vertically align the whole GRID inside the container : stretch(stretch to take up the remaining space) | center(packed toward the center) | flex-start(packed toward the start) | flex-end(packed toward the end) | space-between(evenly distributed) | space-around(evenly distributed, with half-size spaces on either end) , there must be multiple lines of items for this property to have any effect ! , use the justify-content property to align the items on the main-axis (horizontally) ! grid's total height has to be less than the container's height for the align-content property to have any effect !"
+        },
+        justifyContent : {
+          css3 : true,
+          support : "Chrome:21-webkit-,29 | Edge:11 | FF:18-moz-,28 | Safari:6.1-webkit-,9 | Opera:17",
+          sample : "center",
+          options : "flex-start/start|flex-end/end|center|space-between|space-around",
+          desc : "aligns the flexible container's items when the items do not use all available space on the main-axis (horizontally)"
+        }
+      },
+
+      "C U R S O R / P O I N T E R" : {
+        cursor : {
+          sample : "not-allowed",
+          options : "[url.cur,[x-coord y-coord]?,]* [ auto | default | none | context-menu | help | pointer | progress | wait | cell | crosshair | text | vertical-text | alias | copy | move | no-drop | not-allowed | e-resize | n-resize | ne-resize | nw-resize | s-resize | se-resize | sw-resize | w-resize | ew-resize | ns-resize | nesw-resize | nwse-resize | col-resize | row-resize | all-scroll | zoom-in | zoom-out | grab | grabbing ]",
+          desc : "which mouse cursor to display when the mouse pointer is over an element"
+        },
+        pointerEvents : {
+          css3 : true,
+          support : "Chrome:2 | Edge:11 | FF:3.6 | Safari:4 | Opera:9",
+          sample : "center",
+          options : "auto|none|inherit|initial|unset | visiblePainted|visibleFill|visibleStroke|visible|painted|fill|stroke|all",
+          desc : "useful for SVG, under what circumstances (if any) a particular graphic element can become the target of mouse events, when this property is unspecified, the same characteristics of the visiblePainted value apply to SVG content, value none instructs the mouse event to go through the element and target whatever is underneath that element instead"
+        },
+        pointerEvents : {
+          css3 : true,
+          support : "Chrome:2 | Edge:11 | FF:3.6 | Safari:4 | Opera:9",
+          sample : "center",
+          options : "auto|none|manipulation| [pan-x|pan-left|pan-right] [pan-y|pan-up|pan-down] [pinch-zoom]",
+          desc : "how a region can be manipulated by a touchscreen user (for example, by zooming features built into the browser) , see HTML-DOM-JS -> PointerEvent"
+        }
+      }
+
+    };
+
+    var styles_css = {};
+    Object.keys(styles_js).map(function(key, index) {
+      styles_css[key] = {};
+      Object.keys(styles_js[key]).map(function(key2, index2) {
+        styles_css[key][camelCaseToDash(key2)] = styles_js[key][key2];
+        styles_css[key][camelCaseToDash(key2)].js = key2;
+      });
+    });
+
+    /*
+      CRAFTED BY:
+      Andrei, andreivinyl@gmail.com
+    */
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

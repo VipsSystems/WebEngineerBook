@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Web security tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="security, xss, csrf, xsrf, xssi, 2fa, authentication, authorization, jwt, token, gdpr, privacy, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Web security tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="pr">Principles</h2>
+
+  <ul>
+    <li>core pillars of information security
+      <ul>
+        <li>confidentiality - only allow access to data for which the user is permitted </li>
+        <li>integrity - ensure data is not tampered or altered by unauthorized users</li>
+        <li>availability - ensure systems and data are available to authorized users when they need it</li>
+      </ul>
+    </li>
+    <li>attackers
+      <ul>
+        <li>disgruntled staff or developers</li>
+        <li>"drive by” attacks, such as side effects or direct consequences of a virus, worm, or Trojan attack</li>
+        <li>motivated criminal attackers, such as organized crime</li>
+        <li>criminal attackers without motive against your organization, such as defacers</li>
+        <li>script kiddies</li>
+      </ul>
+    </li>
+    <li>consider each functional feature
+      <ul>
+        <li>is the process surrounding this feature as safe as possible ?  is this a flawed process ?</li>
+        <li>if i were evil, how would i abuse this feature ?</li>
+        <li>is the feature required to be on by default ? if so, are there limits or options that could help reduce the risk from this feature ?</li>
+      </ul>
+    </li>
+    <li></li>
+    <li>separation of duties - entity that approves an action (authorization), the entity that carries out an action (implementation), and the entity that monitors that action (monitoring) must be separate, eliminate the possibility of a single user from carrying out and concealing a prohibited action, certain roles have different levels of trust than normal users, in particular, Administrators are different from normal users and should not be users of the application</li>
+    <li>dont trust user input - form data, client information such as user-agent strings, cookies, referer, etc</li>
+    <li>dont trust infrastructure - authenticate and authorize every action from surrounded systems by implementing application-level security</li>
+    <li>dont trust services (third party partners)</li>
+    <li>defense in depth - if an attack causes one security mechanism to fail, other mechanisms may still provide the necessary security to protect the system</li>
+    <li>establish secure defaults - settings which may be opted out of by the user or other options which may be opted into (commonly known as Opt-in and Opt-out), integrity controls turned on</li>
+    <li>fail securely - design your security mechanism so that a failure will follow the same execution path as disallowing the operation</li>
+    <li>fix security issues correctly - develop and understand the root cause of the issue, when design patterns are used, it is likely that the security issue is widespread amongst all code bases, so developing the right fix without introducing regressions is essential</li>
+    <li>keep security simple</li>
+    <li>least privilege - accounts have the least amount of privilege required to perform their business processes: user rights, resource permissions such as CPU limits, memory, network, and file system permissions, elevated privilege level required to perform operations such as chroot() should be dropped immediately after the operation is performed</li>
+    <li>minimize attack surface area - every feature that is added to an application adds a certain amount of risk to the overall application, reduce the overall risk by reducing the attack surface area</li>
+    <li>positive security model - also known as "whitelist", defines what is allowed, and rejects everything else, contrasted with a "negative" (or "blacklist") security model, which defines what is disallowed, while implicitly allowing everything else, applied to a number of different application security areas: input validation - dictate that you should specify the characteristics of input that will be allowed, as opposed to trying to filter out bad input; in access control area - deny access to everything, and only allow access to specific authorized resources or functions; firewall - application of the positive model,  adopting the negative model means that youll never be quite sure that you have addressed everything, ending up with a long list of negative signatures to block that has to be maintained</li>
+    <li>insecure-bootstrapping principle - principle is a simple rule that helps to guide security decisions in complex situations: start with a one-sentence description of the principle; describe the principle and how it should be applied to security decisions</li>
+    <li>use encapsulation - draw strong boundaries among application elements, including modules, functions and data, to limit the impact of potential attacks
+      <ul>
+        <li>design
+          <ul>
+            <li>separate internal administrators functions from external users functions</li>
+            <li>differentiate between validated data and unvalidated data, between one user data and another, or between data users are allowed to see and data that they are not</li>
+            <li>in a web browser ensure that your mobile code cannot be abused by other mobile code</li>
+          </ul>
+        </li>
+        <li>implementation
+          <ul>
+            <li>hide internal details of a class, including data and methods, using private access modifier</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>code modification prevention:
+      <ul>
+        <li>create unpredictable defenses</li>
+        <li>detect integrity violation incidents - circumventing encryption used during data transmission or storage exposes otherwise secured data; insert and modify data within your application; view critical function code, the values of dynamic keys and how sensitive information is saved to your file systems and databases; anti-debug control</li>
+        <li>dont trust local resources - verify integrity of external dependencies as well</li>
+        <li>dont trust mobile OS infrastructure - operating environment of an application must never be trusted</li>
+        <li>positive security model - applies integrity controls to protect code and data based on characteristics that are known and good, rather than what is known to be bad, bad values may grow over time</li>
+        <li></li>
+      </ul>
+    </li>
+    <li>detecting intrusions:
+      <ul>
+        <li>log security-relevant events</li>
+        <li>ensure the logs are monitored regularly</li>
+        <li>respond to an intrusion once detected</li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="csp">XSS (CSP)</h2>
+
+  <ul>
+    <li>Cross-site scripting (XSS) - injecting malicious code into web pages to steal user data (in particular, login data) or perform actions to impersonate the user, you must prevent malicious code from entering the DOM (Document Object Model)</li>
+    <li>sanitization - inspection of an untrusted value, turning it into a value that is safe to insert into the DOM, security contexts:
+      <ul>
+        <li>HTML - when interpreting a value as HTML (binding to innerHtml,...)</li>
+        <li>Style - when binding CSS into the style property</li>
+        <li>URL - for URL properties, such as &lt;a href&gt;</li>
+        <li>Resource URL - URL that will be loaded and executed as code, for example, in &lt;script src&gt;</li>
+      </ul>
+    </li>
+    <li></li>
+    <li><strong>Content Security Policy (CSP)</strong> - ability to block untrusted resources, <u>defines the Content-Security-Policy HTTP header</u> that allows you to create a whitelist of sources of trusted content, and instructs the browser to only execute or render resources from those sources</li>
+    <li><code>Content-Security-Policy: script-src 'self' https://apis.google.com</code> - directive controls set of script-related privileges for a specific page, 'self' - as one valid source of script, and https://apis.google.com as another, browser will dutifully download and execute JavaScript from apis.google.com over HTTPS, as well as from the current page origin</li>
+    <li>other <strong>resource directives</strong>:</li>
+    <li>base-uri  - restricts the URLs that can appear in a page base-element</li>
+    <li>child-src - lists the URLs for workers and embedded frame contents: child-src https://youtube.com would enable embedding videos from YouTube but not from other origins, use this in place of the deprecated frame-src directive</li>
+    <li>connect-src - limits the origins to which you can connect (via XHR, WebSockets, and EventSource)</li>
+    <li>font-src - specifies the origins that can serve web fonts, Google Web Fonts could be enabled via font-src https://themes.googleusercontent.com</li>
+    <li>form-action - lists valid endpoints for submission from form-tags</li>
+    <li>frame-ancestors - specifies the sources that can embed the current page. This directive applies to frame/iframe/embed/applet tags, this directive cant be used in meta tags and applies only to non-HTML resources</li>
+    <li>img-src - defines the origins from which images can be loaded</li>
+    <li>media-src - restricts the origins allowed to deliver video and audio</li>
+    <li>object-src - allows control over Flash and other plugins</li>
+    <li>plugin-types - limits the kinds of plugins a page may invoke</li>
+    <li>report-uri - specifies a URL where a browser will send reports when a content security policy is violated, this directive cant be used in meta tags</li>
+    <li>style-src - script-src counterpart for stylesheets</li>
+    <li>upgrade-insecure-requests - instructs user agents to rewrite URL schemes, changing HTTP to HTTPS, for web sites with large numbers of old URLs that need to be rewritten</li>
+    <li><u>default-src</u> - override default behavior, <u>applies to any directive that ends with -src (only!)</u></li>
+    <li></li>
+    <li>keywords are also accepted in the source list:</li>
+    <li>none - matches nothing</li>
+    <li>self - matches the current origin, but not its subdomains</li>
+    <li>unsafe-inline - allows inline JavaScript and CSS</li>
+    <li>unsafe-eval - allows text-to-JavaScript mechanisms like eval</li>
+  </ul>
+
+  <pre><code class="python">
+    # set a policy on a page directly in the markup
+    &lt;meta http-equiv="Content-Security-Policy" content="default-src https://cdn.example.net; child-src 'none'; object-src 'none'"&gt;
+
+    # all required resources of a specific type in a single directive
+    script-src https://host1.com; script-src https://host2.com # wrong
+    script-src https://host1.com https://host2.com # right
+
+    # application that loads all of its resources from a content delivery network
+    # (say, https://cdn.example.net),
+    # and know that you dont need framed content or any plugins at all
+    Content-Security-Policy: default-src https://cdn.example.net; child-src 'none'; object-src 'none'
+
+    # including multiple widgets is straightforward
+    # combine the policy directives, remembering to merge all resources of a single type
+    # into a single directive
+    script-src https://apis.google.com https://platform.twitter.com; child-src https://plusone.google.com https://facebook.com https://platform.twitter.com
+
+    # bank loads all images, style, and script from a CDN at https://cdn.mybank.net,
+    # and connects via XHR to https://api.mybank.com/ to pull various bits of data down
+    # frames are used, but only for pages local to the site (no third-party origins)
+    # there is no Flash on the site, no fonts, no nothing
+    # most restrictive CSP header that we could send in this scenario is:
+    Content-Security-Policy: default-src 'none'; script-src https://cdn.mybank.net; style-src https://cdn.mybank.net; img-src https://cdn.mybank.net; connect-src https://api.mybank.com; child-src 'self'
+
+    # even though https: was specified in default-src,
+    # the script and style directives dont automatically inherit that source
+    # each directive overwrites the default completely for that specific type of resource
+    Content-Security-Policy: default-src https:; script-src https: 'unsafe-inline'; style-src https: 'unsafe-inline'
+  </code></pre>
+
+
+
+<h2 id="csrf">CSRF or XSRF</h2>
+
+  <ul>
+    <li><strong>cross-site request forgery</strong></li>
+    <li>application must ensure that a user request originates from the real application, not from a different site, server and client must cooperate to thwart this attack</li>
+    <li>executes unwanted actions on a web application in which user is currently authenticated</li>
+    <li>attacker tricks the user into visiting a different web page (such as evil.com) with malignant code that secretly sends a malicious request to the application web server (such as example-bank.com)</li>
+    <li>attacks specifically target state-changing requests, not theft of data, since the attacker has no way to see the response to the forged request, attacker may trick the users of a web application into executing actions of the attacker choosing</li>
+    <li>successful CSRF attack can force the user to perform state changing requests like transferring funds, changing their email address, and so forth</li>
+    <li></li>
+    <li>- application server sends a randomly generated authentication token in a cookie (per-session nonce), client code reads the cookie and adds a custom request header with the token in all subsequent requests, server compares the received cookie value to the request header value and rejects the request if the values are missing or dont match, only code from the website on which cookies are set can read the cookies from that site and set custom headers on requests to that site, only your application can read this cookie token and set the custom header</li>
+    <li>- add a per-request (number that can be used just once) to the URL and all forms in addition to the standard session, also referred to as "form keys"</li>
+    <li>- add a hash (session id, function name, server-side secret) to all forms</li>
+    <li>- checking the referrer header in the client HTTP request, ensuring that the HTTP request has come from the original site means that attacks from other sites will not function</li>
+    <li>tokenizing</li>
+  </ul>
+
+
+
+<h2 id="xssi">XSSI</h2>
+
+  <ul>
+    <li><strong>cross-site script inclusion</strong>></li>
+    <li>can allow an attacker website to read data from a JSON API</li>
+    <li>attack works on older browsers by overriding native JavaScript object constructors, and then including an API URL using a script-tag</li>
+    <li>also known as JSON vulnerability</li>
+    <li>attack is only successful if the returned JSON is executable as JavaScript, servers can prevent an attack by prefixing all JSON responses to make them non-executable, by convention, using the well-known string ")]}',\n"</li>
+  </ul>
+
+
+
+<h2 id="2fa">2FA</h2>
+
+  <ul>
+    <li>extra layer of security used to make sure that people trying to gain access to an online account are who they say they are</li>
+    <li>1 - user will enter their username and a password</li>
+    <li>2 - will be required to provide another piece of information (second factor)
+      <ul>
+        <li>something you know - could be a personal identification number (pin), a password, answers to "secret questions" or a specific keystroke pattern</li>
+        <li>something you have - typically, a user would have something in their possession, like a credit card, a smartphone, or a small hardware token</li>
+        <li>something you are - this category is a little more advanced, and might include biometric pattern of a fingerprint, an iris scan, or a voice print</li>
+      </ul>
+    </li>
+    <li>potential compromise of just one of these factors wont unlock the account</li>
+    <li>common types of 2fa
+      <ul>
+        <li>hardware tokens for 2fa</li>
+        <li>sms text-message and voice-based 2fa</li>
+        <li>software tokens for 2fa - preferred alternative to sms and voice, uses a software-generated, time-based one-time passcode, totp, or "soft-token"</li>
+        <li>push notification for 2fa - passwordless authentication with no codes to enter, and no additional interaction required, websites and apps can now send the user a push notification that an authentication attempt is taking place, device owner simply views the details and can approve or deny access with a single touch: passcode, gesture, biometrics, ambient noise, pulse, typing patterns, vocal prints, ...</li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="jwt">JWT</h2>
+
+  <ul>
+    <li>transmit information about users and other data objects using public/private key encryption to provide data security, and token signing to insure data integrity</li>
+    <li>entity in possession of the public key cant sign the token, so it cant change the token contents; if the payload contents are changed the signature wont match, signature certifies that only the party holding the private key signed the token</li>
+    <li>other systems can easily decode the token and read its contents if they have access to the token public key, if a service or application has access to the public key (generated from the private key used to sign the token) it can verify that the contents were not modified by checking to see if the signature matches</li>
+    <li>consists of three parts structured as JSON objects, Base64Url encoded and separated by a dot delimiter
+      <ul>
+        <li>Header - identification of the algorithm used to encrypt the token</li>
+        <li>Payload - information stored in the token</li>
+        <li>Signature - encrypted signature of header and payload</li>
+      </ul>
+    </li>
+    <li><code>eyJhb***CJ9.eyJzdW***yfQ.SflKx***sw5c</code></li>
+  </ul>
+
+
+
+<h2 id="gspr">GDPR</h2>
+
+  <ul>
+    <li>silence, pre-ticked boxes or inactivity should not constitute consent</li>
+    <li>only collect data that you need - if you are not going to use the information, then dont ask for it, and if you are going to use it, be really clear about what you'll use it for</li>
+    <li>make everything really clear - transparency: put an "unsubscribe" link on your app next to "subscribe", link directly to terms and conditions and privacy policy from the menu, make the privacy policy as open as possible, protect the app from concerns that GDPR compliance raise</li>
+    <li>data privacy and data protection are huge topics in Europe, give details about cookies and data protection, show it off</li>
+  </ul>
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,3637 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Angular app example, Web Engineer Book">
+  <meta name="keywords" content="Angular, app, javascript, js, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Angular app example - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+  <details><summary>&nbsp;&nbsp;&nbsp;.eslintrc.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;root&quot;: true,
+      &quot;ignorePatterns&quot;: [
+        &quot;projects/**/*&quot;
+      ],
+      &quot;overrides&quot;: [
+        {
+          &quot;files&quot;: [
+            &quot;*.ts&quot;
+          ],
+          &quot;parserOptions&quot;: {
+            &quot;project&quot;: [
+              &quot;tsconfig.json&quot;,
+              &quot;e2e/tsconfig.json&quot;
+            ],
+            &quot;createDefaultProgram&quot;: true
+          },
+          &quot;extends&quot;: [
+            &quot;plugin:@angular-eslint/recommended&quot;,
+            &quot;plugin:@angular-eslint/template/process-inline-templates&quot;
+          ],
+          &quot;rules&quot;: {
+            &quot;@angular-eslint/component-selector&quot;: [
+              &quot;error&quot;,
+              {
+                &quot;prefix&quot;: &quot;app&quot;,
+                &quot;style&quot;: &quot;kebab-case&quot;,
+                &quot;type&quot;: &quot;element&quot;
+              }
+            ],
+            &quot;@angular-eslint/directive-selector&quot;: [
+              &quot;error&quot;,
+              {
+                &quot;prefix&quot;: &quot;app&quot;,
+                &quot;style&quot;: &quot;camelCase&quot;,
+                &quot;type&quot;: &quot;attribute&quot;
+              }
+            ]
+          }
+        },
+        {
+          &quot;files&quot;: [
+            &quot;*.html&quot;
+          ],
+          &quot;extends&quot;: [
+            &quot;plugin:@angular-eslint/template/recommended&quot;
+          ],
+          &quot;rules&quot;: {}
+        }
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;.gitignore</summary>
+    <pre><code class='gitignore'>
+    # See http://help.github.com/ignore-files/ for more about ignoring files.
+
+    # compiled output
+    /dist
+    /tmp
+    /out-tsc
+
+    # dependencies
+    /node_modules
+
+    # IDEs and editors
+    .vscode/
+    /.idea
+    .project
+    .classpath
+    .c9/
+    *.launch
+    .settings/
+    *.sublime-workspace
+
+    # IDE - VSCode
+    .vscode/*
+    !.vscode/settings.json
+    !.vscode/tasks.json
+    !.vscode/launch.json
+    !.vscode/extensions.json
+
+    # misc
+    /.angular/cache
+    /.sass-cache
+    /connect.lock
+    /coverage
+    /libpeerconnection.log
+    npm-debug.log
+    testem.log
+    /typings
+    yarn-error.log
+
+    # e2e
+    /e2e/*.js
+    /e2e/*.map
+
+    # System Files
+    .DS_Store
+    Thumbs.db
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;.travis.yml</summary>
+    <pre><code class='yml'>
+    language: node_js
+    node_js:
+      - &quot;12.3.1&quot;
+
+    branches:
+      only:
+        - master
+
+    before_script:
+      - yarn install --frozen-lockfile
+
+    env:
+      - NG_CLI_ANALYTICS=ci
+
+    script:
+      - yarn build
+
+    deploy:
+      provider: pages
+      skip-cleanup: true
+      github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+      keep-history: true
+      on:
+        branch: master
+      local_dir: dist
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;LICENSE.txt</summary>
+    <pre><code class='txt'>
+    MIT License
+
+    Copyright (c) [2022] [Khaled Osman]
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the &quot;Software&quot;), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;README.md</summary>
+    <pre><code class='md'>
+    [![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io)
+    [![Netlify Status](https://api.netlify.com/api/v1/badges/b0c71b0c-d430-4547-a10e-c84ce57cd2a1/deploy-status)](https://app.netlify.com/sites/angular-realworld/deploys)
+
+    # ![Angular Example App](logo.png)
+
+    &gt; ### Angular codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld-example-apps) spec and API.
+
+
+    &lt;a href=&quot;https://stackblitz.com/edit/angular-realworld&quot; target=&quot;_blank&quot;&gt;&lt;img width=&quot;187&quot; src=&quot;https://github.com/gothinkster/realworld/blob/master/media/edit_on_blitz.png?raw=true&quot; /&gt;&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;a href=&quot;https://thinkster.io/tutorials/building-real-world-angular-2-apps&quot; target=&quot;_blank&quot;&gt;&lt;img width=&quot;384&quot; src=&quot;https://raw.githubusercontent.com/gothinkster/realworld/master/media/learn-btn-hr.png&quot; /&gt;&lt;/a&gt;
+
+    ### [Demo](https://angular-realworld.netlify.app/)&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;[RealWorld](https://github.com/gothinkster/realworld)
+
+
+
+    This codebase was created to demonstrate a fully fledged application built with Angular that interacts with an actual backend server including CRUD operations, authentication, routing, pagination, and more. We've gone to great lengths to adhere to the [Angular Styleguide](https://angular.io/styleguide) &amp; best practices.
+
+    Additionally, there is an Angular 1.5 version of this codebase that you can [fork](https://github.com/gothinkster/angularjs-realworld-example-app) and/or [learn how to recreate](https://thinkster.io/angularjs-es6-tutorial).
+
+
+    # How it works
+
+    We're currently working on some docs for the codebase (explaining where functionality is located, how it works, etc) but the codebase should be straightforward to follow as is. We've also released a [step-by-step tutorial w/ screencasts](https://thinkster.io/tutorials/building-real-world-angular-2-apps) that teaches you how to recreate the codebase from scratch.
+
+    ### Making requests to the backend API
+
+    For convenience, we have a live API server running at https://api.realworld.io/api for the application to make requests against. You can view [the API spec here](https://github.com/GoThinkster/productionready/blob/master/api) which contains all routes &amp; responses for the server.
+
+    The source code for the backend server (available for Node, Rails and Django) can be found in the [main RealWorld repo](https://github.com/gothinkster/realworld).
+
+    If you want to change the API URL to a local server, simply edit `src/environments/environment.ts` and change `api_url` to the local server's URL (i.e. `localhost:3000/api`)
+
+
+    # Getting started
+
+    Make sure you have the [Angular CLI](https://github.com/angular/angular-cli#installation) installed globally. We use [Yarn](https://yarnpkg.com) to manage the dependencies, so we strongly recommend you to use it. you can install it from [Here](https://yarnpkg.com/en/docs/install), then run `yarn install` to resolve all dependencies (might take a minute).
+
+    Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+    ### Building the project
+    Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+
+
+    ## Functionality overview
+
+    The example application is a social blogging site (i.e. a Medium.com clone) called &quot;Conduit&quot;. It uses a custom API for all requests, including authentication. You can view a live demo over at https://angular.realworld.io
+
+    **General functionality:**
+
+    - Authenticate users via JWT (login/signup pages + logout button on settings page)
+    - CRU* users (sign up &amp; settings page - no deleting required)
+    - CRUD Articles
+    - CR*D Comments on articles (no updating required)
+    - GET and display paginated lists of articles
+    - Favorite articles
+    - Follow other users
+
+    **The general page breakdown looks like this:**
+
+    - Home page (URL: /#/ )
+        - List of tags
+        - List of articles pulled from either Feed, Global, or by Tag
+        - Pagination for list of articles
+    - Sign in/Sign up pages (URL: /#/login, /#/register )
+        - Uses JWT (store the token in localStorage)
+        - Authentication can be easily switched to session/cookie based
+    - Settings page (URL: /#/settings )
+    - Editor page to create/edit articles (URL: /#/editor, /#/editor/article-slug-here )
+    - Article page (URL: /#/article/article-slug-here )
+        - Delete article button (only shown to article's author)
+        - Render markdown from server client side
+        - Comments section at bottom of page
+        - Delete comment button (only shown to comment's author)
+    - Profile page (URL: /#/profile/:username, /#/profile/:username/favorites )
+        - Show basic user info
+        - List of articles populated from author's created articles or author's favorited articles
+
+
+    &lt;br /&gt;
+
+    [![Brought to you by Thinkster](https://raw.githubusercontent.com/gothinkster/realworld/master/media/end.png)](https://thinkster.io)
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;angular.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;$schema&quot;: &quot;./node_modules/@angular/cli/lib/config/schema.json&quot;,
+      &quot;version&quot;: 1,
+      &quot;newProjectRoot&quot;: &quot;projects&quot;,
+      &quot;projects&quot;: {
+        &quot;ang2-conduit&quot;: {
+          &quot;root&quot;: &quot;&quot;,
+          &quot;sourceRoot&quot;: &quot;src&quot;,
+          &quot;projectType&quot;: &quot;application&quot;,
+          &quot;architect&quot;: {
+            &quot;build&quot;: {
+              &quot;builder&quot;: &quot;@angular-devkit/build-angular:browser&quot;,
+              &quot;options&quot;: {
+                &quot;outputPath&quot;: &quot;dist&quot;,
+                &quot;index&quot;: &quot;src/index.html&quot;,
+                &quot;main&quot;: &quot;src/main.ts&quot;,
+                &quot;tsConfig&quot;: &quot;src/tsconfig.app.json&quot;,
+                &quot;polyfills&quot;: &quot;src/polyfills.ts&quot;,
+                &quot;assets&quot;: [
+                  &quot;src/assets&quot;,
+                  &quot;src/favicon.ico&quot;,
+                  &quot;src/manifest.webmanifest&quot;
+                ],
+                &quot;styles&quot;: [
+                  &quot;src/styles.css&quot;
+                ],
+                &quot;scripts&quot;: [],
+                &quot;namedChunks&quot;: true,
+                &quot;vendorChunk&quot;: true,
+                &quot;extractLicenses&quot;: false,
+                &quot;buildOptimizer&quot;: false,
+                &quot;sourceMap&quot;: true,
+                &quot;optimization&quot;: false,
+                &quot;aot&quot;: true
+              },
+              &quot;configurations&quot;: {
+                &quot;production&quot;: {
+                  &quot;optimization&quot;: true,
+                  &quot;outputHashing&quot;: &quot;all&quot;,
+                  &quot;sourceMap&quot;: false,
+                  &quot;extractLicenses&quot;: true,
+                  &quot;vendorChunk&quot;: false,
+                  &quot;buildOptimizer&quot;: true,
+                  &quot;budgets&quot;: [
+                    {
+                      &quot;type&quot;: &quot;initial&quot;,
+                      &quot;maximumWarning&quot;: &quot;2mb&quot;,
+                      &quot;maximumError&quot;: &quot;5mb&quot;
+                    },
+                    {
+                      &quot;type&quot;: &quot;anyComponentStyle&quot;,
+                      &quot;maximumWarning&quot;: &quot;6kb&quot;
+                    }
+                  ],
+                  &quot;fileReplacements&quot;: [
+                    {
+                      &quot;replace&quot;: &quot;src/environments/environment.ts&quot;,
+                      &quot;with&quot;: &quot;src/environments/environment.prod.ts&quot;
+                    }
+                  ],
+                  &quot;serviceWorker&quot;: true,
+                  &quot;ngswConfigPath&quot;: &quot;ngsw-config.json&quot;
+                }
+              },
+              &quot;defaultConfiguration&quot;: &quot;&quot;
+            },
+            &quot;serve&quot;: {
+              &quot;builder&quot;: &quot;@angular-devkit/build-angular:dev-server&quot;,
+              &quot;options&quot;: {
+                &quot;browserTarget&quot;: &quot;ang2-conduit:build&quot;
+              },
+              &quot;configurations&quot;: {
+                &quot;production&quot;: {
+                  &quot;browserTarget&quot;: &quot;ang2-conduit:build:production&quot;
+                }
+              }
+            },
+            &quot;extract-i18n&quot;: {
+              &quot;builder&quot;: &quot;@angular-devkit/build-angular:extract-i18n&quot;,
+              &quot;options&quot;: {
+                &quot;browserTarget&quot;: &quot;ang2-conduit:build&quot;
+              }
+            },
+            &quot;test&quot;: {
+              &quot;builder&quot;: &quot;@angular-devkit/build-angular:karma&quot;,
+              &quot;options&quot;: {
+                &quot;main&quot;: &quot;src/test.ts&quot;,
+                &quot;karmaConfig&quot;: &quot;./karma.conf.js&quot;,
+                &quot;polyfills&quot;: &quot;src/polyfills.ts&quot;,
+                &quot;tsConfig&quot;: &quot;src/tsconfig.spec.json&quot;,
+                &quot;scripts&quot;: [],
+                &quot;styles&quot;: [
+                  &quot;src/styles.css&quot;
+                ],
+                &quot;assets&quot;: [
+                  &quot;src/assets&quot;,
+                  &quot;src/favicon.ico&quot;,
+                  &quot;src/manifest.webmanifest&quot;
+                ]
+              }
+            },
+            &quot;lint&quot;: {
+              &quot;builder&quot;: &quot;@angular-eslint/builder:lint&quot;,
+              &quot;options&quot;: {
+                &quot;lintFilePatterns&quot;: [
+                  &quot;src/**/*.ts&quot;,
+                  &quot;src/**/*.html&quot;
+                ]
+              }
+            }
+          }
+        },
+        &quot;ang2-conduit-e2e&quot;: {
+          &quot;root&quot;: &quot;e2e&quot;,
+          &quot;sourceRoot&quot;: &quot;e2e&quot;,
+          &quot;projectType&quot;: &quot;application&quot;,
+          &quot;architect&quot;: {
+            &quot;e2e&quot;: {
+              &quot;builder&quot;: &quot;@angular-devkit/build-angular:protractor&quot;,
+              &quot;options&quot;: {
+                &quot;protractorConfig&quot;: &quot;./protractor.conf.js&quot;,
+                &quot;devServerTarget&quot;: &quot;ang2-conduit:serve&quot;
+              }
+            }
+          }
+        }
+      },
+      &quot;defaultProject&quot;: &quot;ang2-conduit&quot;,
+      &quot;schematics&quot;: {
+        &quot;@schematics/angular:component&quot;: {
+          &quot;prefix&quot;: &quot;app&quot;,
+          &quot;style&quot;: &quot;css&quot;
+        },
+        &quot;@schematics/angular:directive&quot;: {
+          &quot;prefix&quot;: &quot;app&quot;
+        }
+      },
+      &quot;cli&quot;: {
+        &quot;analytics&quot;: false,
+        &quot;defaultCollection&quot;: &quot;@angular-eslint/schematics&quot;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;e2e</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.e2e-spec.ts</summary>
+    <pre><code class='ts'>
+    import { Ng2RealApp } from './app.po';
+
+    describe('ng-demo App', () =&gt; {
+      let page: Ng2RealApp;
+
+      beforeEach(() =&gt; {
+        page = new Ng2RealApp();
+      });
+
+      it('should display message saying app works', () =&gt; {
+        page.navigateTo();
+        expect(page.getParagraphText()).toContain('conduit');
+      });
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.po.ts</summary>
+    <pre><code class='ts'>
+    import { browser, element, by } from 'protractor';
+
+    export class Ng2RealApp {
+      navigateTo() {
+        return browser.get('/');
+      }
+
+        getParagraphText() {
+        return element(by.css('.logo-font')).getText();
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;tsconfig.e2e.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tsconfig.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/e2e&quot;,
+        &quot;baseUrl&quot;: &quot;./&quot;,
+        &quot;module&quot;: &quot;commonjs&quot;,
+        &quot;target&quot;: &quot;es5&quot;,
+        &quot;types&quot;: [
+          &quot;jasmine&quot;,
+          &quot;jasminewd2&quot;,
+          &quot;node&quot;
+        ]
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;karma.conf.js</summary>
+    <pre><code class='js'>
+    // Karma configuration file, see link for more information
+    // https://karma-runner.github.io/1.0/config/configuration-file.html
+
+    module.exports = function(config) {
+      config.set({
+        basePath: '',
+        frameworks: ['jasmine', '@angular-devkit/build-angular'],
+        plugins: [
+          require('karma-jasmine'),
+          require('karma-chrome-launcher'),
+          require('karma-jasmine-html-reporter'),
+          require('karma-coverage-istanbul-reporter'),
+          require('@angular-devkit/build-angular/plugins/karma')
+        ],
+        client: {
+          clearContext: false // leave Jasmine Spec Runner output visible in browser
+        },
+        coverageIstanbulReporter: {
+          dir: require('path').join(__dirname, 'coverage'), reports: ['html', 'lcovonly'],
+          fixWebpackSourcePaths: true
+        },
+
+        reporters:
+          config.angularCli &amp;&amp; config.angularCli.codeCoverage
+            ? ['progress', 'coverage-istanbul']
+            : ['progress', 'kjhtml'],
+        port: 9876,
+        colors: true,
+        logLevel: config.LOG_INFO,
+        autoWatch: true,
+        browsers: ['Chrome'],
+        singleRun: false
+      });
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;ngsw-config.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;$schema&quot;: &quot;./node_modules/@angular/service-worker/config/schema.json&quot;,
+      &quot;index&quot;: &quot;/index.html&quot;,
+      &quot;assetGroups&quot;: [
+        {
+          &quot;name&quot;: &quot;app&quot;,
+          &quot;installMode&quot;: &quot;prefetch&quot;,
+          &quot;resources&quot;: {
+            &quot;files&quot;: [
+              &quot;/favicon.ico&quot;,
+              &quot;/index.html&quot;,
+              &quot;/*.css&quot;,
+              &quot;/*.js&quot;,
+              &quot;/manifest.webmanifest&quot;
+            ]
+          }
+        }, {
+          &quot;name&quot;: &quot;assets&quot;,
+          &quot;installMode&quot;: &quot;lazy&quot;,
+          &quot;updateMode&quot;: &quot;prefetch&quot;,
+          &quot;resources&quot;: {
+            &quot;files&quot;: [
+              &quot;/assets/**&quot;,
+              &quot;/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)&quot;
+            ]
+          }
+        }
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;package.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;name&quot;: &quot;ang2-conduit&quot;,
+      &quot;version&quot;: &quot;0.0.0&quot;,
+      &quot;license&quot;: &quot;MIT&quot;,
+      &quot;scripts&quot;: {
+        &quot;ng&quot;: &quot;ng&quot;,
+        &quot;start&quot;: &quot;ng serve&quot;,
+        &quot;build&quot;: &quot;ng build --configuration production  --base-href ./ &amp;&amp; cp CNAME dist/CNAME&quot;,
+        &quot;test&quot;: &quot;ng test&quot;,
+        &quot;lint&quot;: &quot;ng lint --force&quot;,
+        &quot;e2e&quot;: &quot;ng e2e&quot;,
+        &quot;postinstall&quot;: &quot;ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points&quot;
+      },
+      &quot;pre-commit&quot;: [
+        &quot;lint&quot;
+      ],
+      &quot;private&quot;: true,
+      &quot;dependencies&quot;: {
+        &quot;@angular/animations&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/common&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/compiler&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/core&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/forms&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/platform-browser&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/platform-browser-dynamic&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/router&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/service-worker&quot;: &quot;13.3.2&quot;,
+        &quot;core-js&quot;: &quot;^3.21.1&quot;,
+        &quot;marked&quot;: &quot;^4.0.14&quot;,
+        &quot;ngx-quicklink&quot;: &quot;^0.2.7&quot;,
+        &quot;rxjs&quot;: &quot;^7.5.5&quot;,
+        &quot;tslib&quot;: &quot;^2.3.1&quot;,
+        &quot;zone.js&quot;: &quot;~0.11.5&quot;
+      },
+      &quot;devDependencies&quot;: {
+        &quot;@angular-devkit/build-angular&quot;: &quot;~13.3.2&quot;,
+        &quot;@angular-eslint/builder&quot;: &quot;13.2.0&quot;,
+        &quot;@angular-eslint/eslint-plugin&quot;: &quot;13.2.0&quot;,
+        &quot;@angular-eslint/eslint-plugin-template&quot;: &quot;13.2.0&quot;,
+        &quot;@angular-eslint/schematics&quot;: &quot;13.2.0&quot;,
+        &quot;@angular-eslint/template-parser&quot;: &quot;13.2.0&quot;,
+        &quot;@angular/cli&quot;: &quot;^13.3.2&quot;,
+        &quot;@angular/compiler-cli&quot;: &quot;13.3.2&quot;,
+        &quot;@angular/language-service&quot;: &quot;13.3.2&quot;,
+        &quot;@types/jasmine&quot;: &quot;~4.0.2&quot;,
+        &quot;@types/jasminewd2&quot;: &quot;~2.0.10&quot;,
+        &quot;@types/node&quot;: &quot;^17.0.23&quot;,
+        &quot;@typescript-eslint/eslint-plugin&quot;: &quot;5.17.0&quot;,
+        &quot;@typescript-eslint/parser&quot;: &quot;5.17.0&quot;,
+        &quot;eslint&quot;: &quot;^8.12.0&quot;,
+        &quot;jasmine-core&quot;: &quot;~4.1.0&quot;,
+        &quot;jasmine-spec-reporter&quot;: &quot;~7.0.0&quot;,
+        &quot;karma&quot;: &quot;~6.3.18&quot;,
+        &quot;karma-chrome-launcher&quot;: &quot;~3.1.1&quot;,
+        &quot;karma-cli&quot;: &quot;~2.0.0&quot;,
+        &quot;karma-coverage-istanbul-reporter&quot;: &quot;~3.0.3&quot;,
+        &quot;karma-jasmine&quot;: &quot;~5.0.0&quot;,
+        &quot;karma-jasmine-html-reporter&quot;: &quot;^1.7.0&quot;,
+        &quot;pre-commit&quot;: &quot;^1.2.2&quot;,
+        &quot;protractor&quot;: &quot;~7.0.0&quot;,
+        &quot;ts-node&quot;: &quot;~10.7.0&quot;,
+        &quot;typescript&quot;: &quot;4.6.3&quot;
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;protractor.conf.js</summary>
+    <pre><code class='js'>
+    // Protractor configuration file, see link for more information
+    // https://github.com/angular/protractor/blob/master/lib/config.ts
+
+    const { SpecReporter } = require('jasmine-spec-reporter');
+
+    exports.config = {
+      allScriptsTimeout: 11000,
+      specs: [
+        './e2e/**/*.e2e-spec.ts'
+      ],
+      capabilities: {
+        'browserName': 'chrome'
+      },
+      directConnect: true,
+      baseUrl: 'http://localhost:4200/',
+      framework: 'jasmine',
+      jasmineNodeOpts: {
+        showColors: true,
+        defaultTimeoutInterval: 30000,
+        print: function() {}
+      },
+      onPrepare() {
+        require('ts-node').register({
+          project: 'e2e/tsconfig.e2e.json'
+        });
+        jasmine.getEnv().addReporter(new SpecReporter({ spec: { displayStacktrace: true } }));
+      }
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;src</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;app-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { QuicklinkModule, QuicklinkStrategy } from 'ngx-quicklink';
+
+    const routes: Routes = [
+      {
+        path: 'settings',
+        loadChildren: () =&gt; import('./settings/settings.module').then(m =&gt; m.SettingsModule)
+      },
+      {
+        path: 'profile',
+        loadChildren: () =&gt; import('./profile/profile.module').then(m =&gt; m.ProfileModule)
+      },
+      {
+        path: 'editor',
+        loadChildren: () =&gt; import('./editor/editor.module').then(m =&gt; m.EditorModule)
+      },
+      {
+        path: 'article',
+        loadChildren: () =&gt; import('./article/article.module').then(m =&gt; m.ArticleModule)
+      }
+    ];
+
+    @NgModule({
+      imports: [
+        QuicklinkModule,
+        RouterModule.forRoot(routes, {
+        // preload all modules; optionally we could
+        // implement a custom preloading strategy for just some
+        // of the modules (PRs welcome 😉)
+        preloadingStrategy: QuicklinkStrategy,
+        relativeLinkResolution: 'legacy'
+    })],
+      exports: [RouterModule]
+    })
+    export class AppRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;app.component.html</summary>
+    <pre><code class='html'>
+    &lt;app-layout-header&gt;&lt;/app-layout-header&gt;
+
+    &lt;router-outlet&gt;&lt;/router-outlet&gt;
+
+    &lt;app-layout-footer&gt;&lt;/app-layout-footer&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;app.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
+    import { UserService } from &quot;./core&quot;;
+
+    @Component({
+      selector: 'app-root',
+      templateUrl: './app.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class AppComponent implements OnInit {
+      constructor(private userService: UserService) {}
+
+      ngOnInit() {
+        this.userService.populate();
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;app.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { BrowserModule } from '@angular/platform-browser';
+
+    import { AppComponent } from './app.component';
+    import { AuthModule } from './auth/auth.module';
+    import { HomeModule } from './home/home.module';
+    import {
+      FooterComponent,
+      HeaderComponent,
+      SharedModule
+    } from './shared';
+    import { AppRoutingModule } from './app-routing.module';
+    import { CoreModule } from './core/core.module';
+    import { ServiceWorkerModule } from '@angular/service-worker';
+    import { environment } from '../environments/environment';
+
+    @NgModule({
+      declarations: [AppComponent, FooterComponent, HeaderComponent],
+      imports: [
+        BrowserModule,
+        CoreModule,
+        SharedModule,
+        HomeModule,
+        AuthModule,
+        AppRoutingModule,
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+      ],
+      providers: [],
+      bootstrap: [AppComponent]
+    })
+    export class AppModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-comment.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;card&quot;&gt;
+      &lt;div class=&quot;card-block&quot;&gt;
+        &lt;p class=&quot;card-text&quot;&gt;
+          {{ comment.body }}
+        &lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;card-footer&quot;&gt;
+        &lt;a class=&quot;comment-author&quot; [routerLink]=&quot;['/profile', comment.author.username]&quot;&gt;
+          &lt;img [src]=&quot;comment.author.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'&quot; alt=&quot;author image&quot; class=&quot;comment-author-img&quot; /&gt;
+        &lt;/a&gt;
+        &amp;nbsp;
+        &lt;a class=&quot;comment-author&quot; [routerLink]=&quot;['/profile', comment.author.username]&quot;&gt;
+          {{ comment.author.username }}
+        &lt;/a&gt;
+        &lt;span class=&quot;date-posted&quot;&gt;
+          {{ comment.createdAt | date: 'longDate' }}
+        &lt;/span&gt;
+        &lt;span class=&quot;mod-options&quot; [hidden]=&quot;!canModify&quot;&gt;
+          &lt;i class=&quot;ion-trash-a&quot; (click)=&quot;deleteClicked()&quot;&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-comment.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+
+    import { Comment, User, UserService } from '../core';
+    import { Subscription } from 'rxjs';
+
+    @Component({
+      selector: 'app-article-comment',
+      templateUrl: './article-comment.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ArticleCommentComponent implements OnInit, OnDestroy {
+      constructor(
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      private subscription: Subscription;
+
+      @Input() comment: Comment;
+      @Output() deleteComment = new EventEmitter&lt;boolean&gt;();
+
+      canModify: boolean;
+
+      ngOnInit() {
+        // Load the current user's data
+        this.subscription = this.userService.currentUser.subscribe(
+          (userData: User) =&gt; {
+            this.canModify = (userData.username === this.comment.author.username);
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+      ngOnDestroy() {
+        this.subscription.unsubscribe();
+      }
+
+      deleteClicked() {
+        this.deleteComment.emit(true);
+      }
+
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-resolver.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable, } from '@angular/core';
+    import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { Article, ArticlesService, UserService } from '../core';
+    import { catchError } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ArticleResolver implements Resolve&lt;Article&gt; {
+      constructor(
+        private articlesService: ArticlesService,
+        private router: Router,
+        private userService: UserService
+      ) {}
+
+      resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;any&gt; {
+
+        return this.articlesService.get(route.params['slug'])
+          .pipe(catchError((err) =&gt; this.router.navigateByUrl('/')));
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { ArticleComponent } from './article.component';
+    import { ArticleResolver } from './article-resolver.service';
+
+    const routes: Routes = [
+      {
+        path: ':slug',
+        component: ArticleComponent,
+        resolve: {
+          article: ArticleResolver
+        }
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class ArticleRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;article-page&quot;&gt;
+
+      &lt;div class=&quot;banner&quot;&gt;
+        &lt;div class=&quot;container&quot;&gt;
+          &lt;h1&gt;{{ article.title }}&lt;/h1&gt;
+
+          &lt;app-article-meta [article]=&quot;article&quot;&gt;
+
+              &lt;span [hidden]=&quot;!canModify&quot;&gt;
+              &lt;a class=&quot;btn btn-sm btn-outline-secondary&quot;
+                 [routerLink]=&quot;['/editor', article.slug]&quot;&gt;
+                &lt;i class=&quot;ion-edit&quot;&gt;&lt;/i&gt; Edit Article
+              &lt;/a&gt;
+
+              &lt;button class=&quot;btn btn-sm btn-outline-danger&quot;
+                [ngClass]=&quot;{disabled: isDeleting}&quot;
+                (click)=&quot;deleteArticle()&quot;&gt;
+                &lt;i class=&quot;ion-trash-a&quot;&gt;&lt;/i&gt; Delete Article
+              &lt;/button&gt;
+            &lt;/span&gt;
+
+            &lt;span [hidden]=&quot;canModify&quot;&gt;
+              &lt;app-follow-button
+                [profile]=&quot;article.author&quot;
+                (toggle)=&quot;onToggleFollowing($event)&quot;&gt;
+              &lt;/app-follow-button&gt;
+
+              &lt;app-favorite-button
+                [article]=&quot;article&quot;
+                (toggle)=&quot;onToggleFavorite($event)&quot;&gt;
+                {{ article.favorited ? 'Unfavorite' : 'Favorite' }} Article &lt;span class=&quot;counter&quot;&gt;({{ article.favoritesCount }})&lt;/span&gt;
+              &lt;/app-favorite-button&gt;
+            &lt;/span&gt;
+
+          &lt;/app-article-meta&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;container page&quot;&gt;
+
+        &lt;div class=&quot;row article-content&quot;&gt;
+          &lt;div class=&quot;col-md-12&quot;&gt;
+
+            &lt;div [innerHTML]=&quot;article.body | markdown&quot;&gt;&lt;/div&gt;
+
+            &lt;ul class=&quot;tag-list&quot;&gt;
+              &lt;li *ngFor=&quot;let tag of article.tagList; trackBy: trackByFn&quot;
+                class=&quot;tag-default tag-pill tag-outline&quot;&gt;
+                {{ tag }}
+              &lt;/li&gt;
+            &lt;/ul&gt;
+
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;hr /&gt;
+
+        &lt;div class=&quot;article-actions&quot;&gt;
+          &lt;app-article-meta [article]=&quot;article&quot;&gt;
+
+              &lt;span [hidden]=&quot;!canModify&quot;&gt;
+              &lt;a class=&quot;btn btn-sm btn-outline-secondary&quot;
+                 [routerLink]=&quot;['/editor', article.slug]&quot;&gt;
+                &lt;i class=&quot;ion-edit&quot;&gt;&lt;/i&gt; Edit Article
+              &lt;/a&gt;
+
+              &lt;button class=&quot;btn btn-sm btn-outline-danger&quot;
+                [ngClass]=&quot;{disabled: isDeleting}&quot;
+                (click)=&quot;deleteArticle()&quot;&gt;
+                &lt;i class=&quot;ion-trash-a&quot;&gt;&lt;/i&gt; Delete Article
+              &lt;/button&gt;
+            &lt;/span&gt;
+
+            &lt;span [hidden]=&quot;canModify&quot;&gt;
+              &lt;app-follow-button
+                [profile]=&quot;article.author&quot;
+                (toggle)=&quot;onToggleFollowing($event)&quot;&gt;
+              &lt;/app-follow-button&gt;
+
+              &lt;app-favorite-button
+                [article]=&quot;article&quot;
+                (toggle)=&quot;onToggleFavorite($event)&quot;&gt;
+                {{ article.favorited ? 'Unfavorite' : 'Favorite' }} Article &lt;span class=&quot;counter&quot;&gt;({{ article.favoritesCount }})&lt;/span&gt;
+              &lt;/app-favorite-button&gt;
+            &lt;/span&gt;
+
+          &lt;/app-article-meta&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;row&quot;&gt;
+          &lt;div class=&quot;col-xs-12 col-md-8 offset-md-2&quot;&gt;
+
+            &lt;div *appShowAuthed=&quot;true&quot;&gt;
+              &lt;app-list-errors [errors]=&quot;commentFormErrors&quot;&gt;&lt;/app-list-errors&gt;
+              &lt;form class=&quot;card comment-form&quot; (ngSubmit)=&quot;addComment()&quot;&gt;
+                &lt;fieldset [disabled]=&quot;isSubmitting&quot;&gt;
+                  &lt;div class=&quot;card-block&quot;&gt;
+                    &lt;textarea class=&quot;form-control&quot;
+                      placeholder=&quot;Write a comment...&quot;
+                      rows=&quot;3&quot;
+                      [formControl]=&quot;commentControl&quot;
+                    &gt;&lt;/textarea&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;card-footer&quot;&gt;
+                    &lt;img [src]=&quot;currentUser.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'&quot; alt=&quot;user image&quot; class=&quot;comment-author-img&quot; /&gt;
+                    &lt;button class=&quot;btn btn-sm btn-primary&quot; type=&quot;submit&quot;&gt;
+                     Post Comment
+                    &lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;/fieldset&gt;
+              &lt;/form&gt;
+            &lt;/div&gt;
+
+            &lt;div *appShowAuthed=&quot;false&quot;&gt;
+              &lt;a [routerLink]=&quot;['/login']&quot;&gt;Sign in&lt;/a&gt; or &lt;a [routerLink]=&quot;['/register']&quot;&gt;sign up&lt;/a&gt; to add comments on this article.
+            &lt;/div&gt;
+
+            &lt;app-article-comment
+              *ngFor=&quot;let comment of comments; trackBy: trackByFn&quot;
+              [comment]=&quot;comment&quot;
+              (deleteComment)=&quot;onDeleteComment(comment)&quot;&gt;
+            &lt;/app-article-comment&gt;
+
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { FormControl } from '@angular/forms';
+    import { ActivatedRoute, Router } from '@angular/router';
+
+    import {
+      Article,
+      ArticlesService,
+      Comment,
+      CommentsService,
+      User,
+      UserService
+    } from '../core';
+
+    @Component({
+      selector: 'app-article-page',
+      templateUrl: './article.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ArticleComponent implements OnInit {
+      article: Article;
+      currentUser: User;
+      canModify: boolean;
+      comments: Comment[];
+      commentControl = new FormControl();
+      commentFormErrors = {};
+      isSubmitting = false;
+      isDeleting = false;
+
+      constructor(
+        private route: ActivatedRoute,
+        private articlesService: ArticlesService,
+        private commentsService: CommentsService,
+        private router: Router,
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) { }
+
+      ngOnInit() {
+        // Retreive the prefetched article
+        this.route.data.subscribe(
+          (data: { article: Article }) =&gt; {
+            this.article = data.article;
+
+            // Load the comments on this article
+            this.populateComments();
+            this.cd.markForCheck();
+          }
+        );
+
+        // Load the current user's data
+        this.userService.currentUser.subscribe(
+          (userData: User) =&gt; {
+            this.currentUser = userData;
+
+            this.canModify = (this.currentUser.username === this.article.author.username);
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+      onToggleFavorite(favorited: boolean) {
+        this.article.favorited = favorited;
+
+        if (favorited) {
+          this.article.favoritesCount++;
+        } else {
+          this.article.favoritesCount--;
+        }
+      }
+
+      trackByFn(index, item) {
+        return index;
+      }
+
+      onToggleFollowing(following: boolean) {
+        this.article.author.following = following;
+      }
+
+      deleteArticle() {
+        this.isDeleting = true;
+
+        this.articlesService.destroy(this.article.slug)
+          .subscribe(
+            success =&gt; {
+              this.router.navigateByUrl('/');
+            }
+          );
+      }
+
+      populateComments() {
+        this.commentsService.getAll(this.article.slug)
+          .subscribe(comments =&gt; {
+            this.comments = comments;
+            this.cd.markForCheck();
+          });
+      }
+
+      addComment() {
+        this.isSubmitting = true;
+        this.commentFormErrors = {};
+
+        const commentBody = this.commentControl.value;
+        this.commentsService
+          .add(this.article.slug, commentBody)
+          .subscribe(
+            comment =&gt; {
+              this.comments.unshift(comment);
+              this.commentControl.reset('');
+              this.isSubmitting = false;
+              this.cd.markForCheck();
+            },
+            errors =&gt; {
+              this.isSubmitting = false;
+              this.commentFormErrors = errors;
+              this.cd.markForCheck();
+            }
+          );
+      }
+
+      onDeleteComment(comment) {
+        this.commentsService.destroy(comment.id, this.article.slug)
+          .subscribe(
+            success =&gt; {
+              this.comments = this.comments.filter((item) =&gt; item !== comment);
+              this.cd.markForCheck();
+            }
+          );
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+    import { ArticleComponent } from './article.component';
+    import { ArticleCommentComponent } from './article-comment.component';
+    import { MarkdownPipe } from './markdown.pipe';
+    import { SharedModule } from '../shared';
+    import { ArticleRoutingModule } from './article-routing.module';
+
+    @NgModule({
+      imports: [
+        SharedModule,
+        ArticleRoutingModule
+      ],
+      declarations: [
+        ArticleComponent,
+        ArticleCommentComponent,
+        MarkdownPipe
+      ],
+
+      providers: [
+      ]
+    })
+    export class ArticleModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;markdown.pipe.ts</summary>
+    <pre><code class='ts'>
+    import { Pipe, PipeTransform } from '@angular/core';
+    import * as marked from 'marked';
+
+    @Pipe({name: 'markdown'})
+    export class MarkdownPipe implements PipeTransform {
+      transform(content: string): string {
+        return marked(content, { sanitize: true });
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { AuthComponent } from './auth.component';
+    import { NoAuthGuard } from './no-auth-guard.service';
+
+    const routes: Routes = [
+      {
+        path: 'login',
+        component: AuthComponent,
+        canActivate: [NoAuthGuard]
+      },
+      {
+        path: 'register',
+        component: AuthComponent,
+        canActivate: [NoAuthGuard]
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class AuthRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;auth-page&quot;&gt;
+      &lt;div class=&quot;container page&quot;&gt;
+        &lt;div class=&quot;row&quot;&gt;
+
+          &lt;div class=&quot;col-md-6 offset-md-3 col-xs-12&quot;&gt;
+            &lt;h1 class=&quot;text-xs-center&quot;&gt;{{ title }}&lt;/h1&gt;
+            &lt;p class=&quot;text-xs-center&quot;&gt;
+              &lt;a [routerLink]=&quot;['/login']&quot; *ngIf=&quot;authType === 'register'&quot;&gt;Have an account?&lt;/a&gt;
+              &lt;a [routerLink]=&quot;['/register']&quot; *ngIf=&quot;authType === 'login'&quot;&gt;Need an account?&lt;/a&gt;
+            &lt;/p&gt;
+            &lt;app-list-errors [errors]=&quot;errors&quot;&gt;&lt;/app-list-errors&gt;
+            &lt;form [formGroup]=&quot;authForm&quot; (ngSubmit)=&quot;submitForm()&quot;&gt;
+              &lt;fieldset [disabled]=&quot;isSubmitting&quot;&gt;
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input
+                    formControlName=&quot;username&quot;
+                    placeholder=&quot;Username&quot;
+                    class=&quot;form-control form-control-lg&quot;
+                    type=&quot;text&quot;
+                    *ngIf=&quot;authType === 'register'&quot; /&gt;
+                &lt;/fieldset&gt;
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input
+                    formControlName=&quot;email&quot;
+                    placeholder=&quot;Email&quot;
+                    class=&quot;form-control form-control-lg&quot;
+                    type=&quot;text&quot; /&gt;
+                &lt;/fieldset&gt;
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input
+                    formControlName=&quot;password&quot;
+                    placeholder=&quot;Password&quot;
+                    class=&quot;form-control form-control-lg&quot;
+                    type=&quot;password&quot; /&gt;
+                &lt;/fieldset&gt;
+                &lt;button class=&quot;btn btn-lg btn-primary pull-xs-right&quot; [disabled]=&quot;!authForm.valid&quot; type=&quot;submit&quot;&gt;
+                  {{ title }}
+                &lt;/button&gt;
+              &lt;/fieldset&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+    import { ActivatedRoute, Router } from '@angular/router';
+
+    import { Errors, UserService } from '../core';
+
+    @Component({
+      selector: 'app-auth-page',
+      templateUrl: './auth.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class AuthComponent implements OnInit {
+      authType: String = '';
+      title: String = '';
+      errors: Errors = {errors: {}};
+      isSubmitting = false;
+      authForm: FormGroup;
+
+      constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private userService: UserService,
+        private fb: FormBuilder,
+        private cd: ChangeDetectorRef
+      ) {
+        // use FormBuilder to create a form group
+        this.authForm = this.fb.group({
+          'email': ['', Validators.required],
+          'password': ['', Validators.required]
+        });
+      }
+
+      ngOnInit() {
+        this.route.url.subscribe(data =&gt; {
+          // Get the last piece of the URL (it's either 'login' or 'register')
+          this.authType = data[data.length - 1].path;
+          // Set a title for the page accordingly
+          this.title = (this.authType === 'login') ? 'Sign in' : 'Sign up';
+          // add form control for username if this is the register page
+          if (this.authType === 'register') {
+            this.authForm.addControl('username', new FormControl());
+          }
+          this.cd.markForCheck();
+        });
+      }
+
+      submitForm() {
+        this.isSubmitting = true;
+        this.errors = {errors: {}};
+
+        const credentials = this.authForm.value;
+        this.userService
+        .attemptAuth(this.authType, credentials)
+        .subscribe(
+          data =&gt; this.router.navigateByUrl('/'),
+          err =&gt; {
+            this.errors = err;
+            this.isSubmitting = false;
+            this.cd.markForCheck();
+          }
+        );
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+    import { AuthComponent } from './auth.component';
+    import { NoAuthGuard } from './no-auth-guard.service';
+    import { SharedModule } from '../shared';
+    import { AuthRoutingModule } from './auth-routing.module';
+
+    @NgModule({
+      imports: [
+        SharedModule,
+        AuthRoutingModule
+      ],
+      declarations: [
+        AuthComponent
+      ],
+      providers: [
+        NoAuthGuard
+      ]
+    })
+    export class AuthModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;no-auth-guard.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { UserService } from '../core';
+    import { map ,  take } from 'rxjs/operators';
+
+    @Injectable()
+    export class NoAuthGuard implements CanActivate {
+      constructor(
+        private router: Router,
+        private userService: UserService
+      ) {}
+
+      canActivate(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;boolean&gt; {
+
+        return this.userService.isAuthenticated.pipe(take(1), map(isAuth =&gt; !isAuth));
+
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;core</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;core.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { CommonModule } from '@angular/common';
+    import { HTTP_INTERCEPTORS } from '@angular/common/http';
+    import { HttpTokenInterceptor } from './interceptors/http.token.interceptor';
+
+    @NgModule({
+      imports: [
+        CommonModule
+      ],
+      providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: HttpTokenInterceptor, multi: true }
+      ],
+      declarations: []
+    })
+    export class CoreModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './core.module';
+    export * from './services';
+    export * from './models';
+    export * from './interceptors';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;interceptors</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;http.token.interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable, Injector } from '@angular/core';
+    import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
+    import { Observable } from 'rxjs';
+
+    import { JwtService } from '../services';
+
+    @Injectable()
+    export class HttpTokenInterceptor implements HttpInterceptor {
+      constructor(private jwtService: JwtService) {}
+
+      intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+        const headersConfig = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        };
+
+        const token = this.jwtService.getToken();
+
+        if (token) {
+          headersConfig['Authorization'] = `Token ${token}`;
+        }
+
+        const request = req.clone({ setHeaders: headersConfig });
+        return next.handle(request);
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './http.token.interceptor';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;models</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-list-config.model.ts</summary>
+    <pre><code class='ts'>
+    export interface ArticleListConfig {
+      type: string;
+
+      filters: {
+        tag?: string,
+        author?: string,
+        favorited?: string,
+        limit?: number,
+        offset?: number
+      };
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article.model.ts</summary>
+    <pre><code class='ts'>
+    import { Profile } from './profile.model';
+
+    export interface Article {
+      slug: string;
+      title: string;
+      description: string;
+      body: string;
+      tagList: string[];
+      createdAt: string;
+      updatedAt: string;
+      favorited: boolean;
+      favoritesCount: number;
+      author: Profile;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;comment.model.ts</summary>
+    <pre><code class='ts'>
+    import { Profile } from './profile.model';
+
+    export interface Comment {
+      id: number;
+      body: string;
+      createdAt: string;
+      author: Profile;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;errors.model.ts</summary>
+    <pre><code class='ts'>
+    export interface Errors {
+      errors: {[key: string]: string};
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './article.model';
+    export * from './article-list-config.model';
+    export * from './comment.model';
+    export * from './errors.model';
+    export * from './profile.model';
+    export * from './user.model';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile.model.ts</summary>
+    <pre><code class='ts'>
+    export interface Profile {
+      username: string;
+      bio: string;
+      image: string;
+      following: boolean;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;user.model.ts</summary>
+    <pre><code class='ts'>
+    export interface User {
+      email: string;
+      token: string;
+      username: string;
+      bio: string;
+      image: string;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;services</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;api.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { environment } from '../../../environments/environment';
+    import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+    import { Observable ,  throwError } from 'rxjs';
+
+    import { catchError } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ApiService {
+      constructor(
+        private http: HttpClient
+      ) {}
+
+      private formatErrors(error: any) {
+        return  throwError(error.error);
+      }
+
+      get(path: string, params: HttpParams = new HttpParams()): Observable&lt;any&gt; {
+        return this.http.get(`${environment.api_url}${path}`, { params })
+          .pipe(catchError(this.formatErrors));
+      }
+
+      put(path: string, body: Object = {}): Observable&lt;any&gt; {
+        return this.http.put(
+          `${environment.api_url}${path}`,
+          JSON.stringify(body)
+        ).pipe(catchError(this.formatErrors));
+      }
+
+      post(path: string, body: Object = {}): Observable&lt;any&gt; {
+        return this.http.post(
+          `${environment.api_url}${path}`,
+          JSON.stringify(body)
+        ).pipe(catchError(this.formatErrors));
+      }
+
+      delete(path): Observable&lt;any&gt; {
+        return this.http.delete(
+          `${environment.api_url}${path}`
+        ).pipe(catchError(this.formatErrors));
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;articles.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { HttpParams } from '@angular/common/http';
+    import { Observable } from 'rxjs';
+
+    import { ApiService } from './api.service';
+    import { Article, ArticleListConfig } from '../models';
+    import { map } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ArticlesService {
+      constructor (
+        private apiService: ApiService
+      ) {}
+
+      query(config: ArticleListConfig): Observable&lt;{articles: Article[], articlesCount: number}&gt; {
+        // Convert any filters over to Angular's URLSearchParams
+        const params = {};
+
+        Object.keys(config.filters)
+        .forEach((key) =&gt; {
+          params[key] = config.filters[key];
+        });
+
+        return this.apiService
+        .get(
+          '/articles' + ((config.type === 'feed') ? '/feed' : ''),
+          new HttpParams({ fromObject: params })
+        );
+      }
+
+      get(slug): Observable&lt;Article&gt; {
+        return this.apiService.get('/articles/' + slug)
+          .pipe(map(data =&gt; data.article));
+      }
+
+      destroy(slug) {
+        return this.apiService.delete('/articles/' + slug);
+      }
+
+      save(article): Observable&lt;Article&gt; {
+        // If we're updating an existing article
+        if (article.slug) {
+          return this.apiService.put('/articles/' + article.slug, {article: article})
+            .pipe(map(data =&gt; data.article));
+
+        // Otherwise, create a new article
+        } else {
+          return this.apiService.post('/articles/', {article: article})
+            .pipe(map(data =&gt; data.article));
+        }
+      }
+
+      favorite(slug): Observable&lt;Article&gt; {
+        return this.apiService.post('/articles/' + slug + '/favorite');
+      }
+
+      unfavorite(slug): Observable&lt;Article&gt; {
+        return this.apiService.delete('/articles/' + slug + '/favorite');
+      }
+
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth-guard.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { UserService } from './user.service';
+    import { take } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class AuthGuard implements CanActivate {
+      constructor(
+        private router: Router,
+        private userService: UserService
+      ) {}
+
+      canActivate(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;boolean&gt; {
+
+        return this.userService.isAuthenticated.pipe(take(1));
+
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;comments.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable } from 'rxjs';
+
+    import { ApiService } from './api.service';
+    import { Comment } from '../models';
+    import { map } from 'rxjs/operators';
+
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class CommentsService {
+      constructor (
+        private apiService: ApiService
+      ) {}
+
+      add(slug, payload): Observable&lt;Comment&gt; {
+        return this.apiService
+        .post(
+          `/articles/${slug}/comments`,
+          { comment: { body: payload } }
+        ).pipe(map(data =&gt; data.comment));
+      }
+
+      getAll(slug): Observable&lt;Comment[]&gt; {
+        return this.apiService.get(`/articles/${slug}/comments`)
+          .pipe(map(data =&gt; data.comments));
+      }
+
+      destroy(commentId, articleSlug) {
+        return this.apiService
+               .delete(`/articles/${articleSlug}/comments/${commentId}`);
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './api.service';
+    export * from './articles.service';
+    export * from './auth-guard.service';
+    export * from './comments.service';
+    export * from './jwt.service';
+    export * from './profiles.service';
+    export * from './tags.service';
+    export * from './user.service';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;jwt.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class JwtService {
+
+      getToken(): String {
+        return window.localStorage['jwtToken'];
+      }
+
+      saveToken(token: String) {
+        window.localStorage['jwtToken'] = token;
+      }
+
+      destroyToken() {
+        window.localStorage.removeItem('jwtToken');
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profiles.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable } from 'rxjs';
+
+    import { ApiService } from './api.service';
+    import { Profile } from '../models';
+    import { map } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ProfilesService {
+      constructor (
+        private apiService: ApiService
+      ) {}
+
+      get(username: string): Observable&lt;Profile&gt; {
+        return this.apiService.get('/profiles/' + username)
+          .pipe(map((data: {profile: Profile}) =&gt; data.profile));
+      }
+
+      follow(username: string): Observable&lt;Profile&gt; {
+        return this.apiService.post('/profiles/' + username + '/follow');
+      }
+
+      unfollow(username: string): Observable&lt;Profile&gt; {
+        return this.apiService.delete('/profiles/' + username + '/follow');
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;tags.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable } from 'rxjs';
+
+    import { ApiService } from './api.service';
+    import { map } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class TagsService {
+      constructor (
+        private apiService: ApiService
+      ) {}
+
+      getAll(): Observable&lt;[string]&gt; {
+        return this.apiService.get('/tags')
+              .pipe(map(data =&gt; data.tags));
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;user.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable ,  BehaviorSubject ,  ReplaySubject } from 'rxjs';
+
+    import { ApiService } from './api.service';
+    import { JwtService } from './jwt.service';
+    import { User } from '../models';
+    import { map ,  distinctUntilChanged } from 'rxjs/operators';
+
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class UserService {
+      private currentUserSubject = new BehaviorSubject&lt;User&gt;({} as User);
+      public currentUser = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
+
+      private isAuthenticatedSubject = new ReplaySubject&lt;boolean&gt;(1);
+      public isAuthenticated = this.isAuthenticatedSubject.asObservable();
+
+      constructor (
+        private apiService: ApiService,
+        private jwtService: JwtService
+      ) {}
+
+      // Verify JWT in localstorage with server &amp; load user's info.
+      // This runs once on application startup.
+      populate() {
+        // If JWT detected, attempt to get &amp; store user's info
+        if (this.jwtService.getToken()) {
+          this.apiService.get('/user')
+          .subscribe(
+            data =&gt; this.setAuth(data.user),
+            err =&gt; this.purgeAuth()
+          );
+        } else {
+          // Remove any potential remnants of previous auth states
+          this.purgeAuth();
+        }
+      }
+
+      setAuth(user: User) {
+        // Save JWT sent from server in localstorage
+        this.jwtService.saveToken(user.token);
+        // Set current user data into observable
+        this.currentUserSubject.next(user);
+        // Set isAuthenticated to true
+        this.isAuthenticatedSubject.next(true);
+      }
+
+      purgeAuth() {
+        // Remove JWT from localstorage
+        this.jwtService.destroyToken();
+        // Set current user to an empty object
+        this.currentUserSubject.next({} as User);
+        // Set auth status to false
+        this.isAuthenticatedSubject.next(false);
+      }
+
+      attemptAuth(type, credentials): Observable&lt;User&gt; {
+        const route = (type === 'login') ? '/login' : '';
+        return this.apiService.post(`/users${route}`, {user: credentials})
+          .pipe(map(
+          data =&gt; {
+            this.setAuth(data.user);
+            return data;
+          }
+        ));
+      }
+
+      getCurrentUser(): User {
+        return this.currentUserSubject.value;
+      }
+
+      // Update the user on the server (email, pass, etc)
+      update(user): Observable&lt;User&gt; {
+        return this.apiService
+        .put('/user', { user })
+        .pipe(map(data =&gt; {
+          // Update the currentUser observable
+          this.currentUserSubject.next(data.user);
+          return data.user;
+        }));
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editable-article-resolver.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { Article, ArticlesService, UserService } from '../core';
+    import { catchError ,  map } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class EditableArticleResolver implements Resolve&lt;Article&gt; {
+      constructor(
+        private articlesService: ArticlesService,
+        private router: Router,
+        private userService: UserService
+      ) { }
+
+      resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;any&gt; {
+
+        return this.articlesService.get(route.params['slug'])
+          .pipe(
+            map(
+              article =&gt; {
+                if (this.userService.getCurrentUser().username === article.author.username) {
+                  return article;
+                } else {
+                  this.router.navigateByUrl('/');
+                }
+              }
+            ),
+            catchError((err) =&gt; this.router.navigateByUrl('/'))
+          );
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { EditorComponent } from './editor.component';
+    import { EditableArticleResolver } from './editable-article-resolver.service';
+    import { AuthGuard } from '../core';
+    import { SharedModule } from '../shared';
+
+    const routes: Routes = [
+      {
+        path: '',
+        component: EditorComponent,
+        canActivate: [AuthGuard]
+      },
+      {
+        path: ':slug',
+        component: EditorComponent,
+        canActivate: [AuthGuard],
+        resolve: {
+          article: EditableArticleResolver
+        }
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class EditorRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;editor-page&quot;&gt;
+      &lt;div class=&quot;container page&quot;&gt;
+        &lt;div class=&quot;row&quot;&gt;
+          &lt;div class=&quot;col-md-10 offset-md-1 col-xs-12&quot;&gt;
+
+            &lt;app-list-errors [errors]=&quot;errors&quot;&gt;&lt;/app-list-errors&gt;
+
+            &lt;form [formGroup]=&quot;articleForm&quot;&gt;
+              &lt;fieldset [disabled]=&quot;isSubmitting&quot;&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control form-control-lg&quot;
+                    formControlName=&quot;title&quot;
+                    type=&quot;text&quot;
+                    placeholder=&quot;Article Title&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control&quot;
+                    formControlName=&quot;description&quot;
+                    type=&quot;text&quot;
+                    placeholder=&quot;What's this article about?&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;textarea class=&quot;form-control&quot;
+                    formControlName=&quot;body&quot;
+                    rows=&quot;8&quot;
+                    placeholder=&quot;Write your article (in markdown)&quot;&gt;
+                  &lt;/textarea&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control&quot;
+                    type=&quot;text&quot;
+                    placeholder=&quot;Enter tags&quot;
+                    [formControl]=&quot;tagField&quot;
+                    (keyup.enter)=&quot;addTag()&quot; /&gt;
+
+                  &lt;div class=&quot;tag-list&quot;&gt;
+                    &lt;span *ngFor=&quot;let tag of article.tagList; trackBy: trackByFn&quot;
+                      class=&quot;tag-default tag-pill&quot;&gt;
+                      &lt;i class=&quot;ion-close-round&quot; (click)=&quot;removeTag(tag)&quot;&gt;&lt;/i&gt;
+                      {{ tag }}
+                    &lt;/span&gt;
+                  &lt;/div&gt;
+                &lt;/fieldset&gt;
+
+                &lt;button class=&quot;btn btn-lg pull-xs-right btn-primary&quot; type=&quot;button&quot; (click)=&quot;submitForm()&quot;&gt;
+                  Publish Article
+                &lt;/button&gt;
+
+              &lt;/fieldset&gt;
+            &lt;/form&gt;
+
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+    import { ActivatedRoute, Router } from '@angular/router';
+
+    import { Article, ArticlesService } from '../core';
+
+    @Component({
+      selector: 'app-editor-page',
+      templateUrl: './editor.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class EditorComponent implements OnInit {
+      article: Article = {} as Article;
+      articleForm: FormGroup;
+      tagField = new FormControl();
+      errors: Object = {};
+      isSubmitting = false;
+
+      constructor(
+        private articlesService: ArticlesService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private fb: FormBuilder,
+        private cd: ChangeDetectorRef
+      ) {
+        // use the FormBuilder to create a form group
+        this.articleForm = this.fb.group({
+          title: '',
+          description: '',
+          body: ''
+        });
+
+        // Initialized tagList as empty array
+        this.article.tagList = [];
+
+        // Optional: subscribe to value changes on the form
+        // this.articleForm.valueChanges.subscribe(value =&gt; this.updateArticle(value));
+      }
+
+      ngOnInit() {
+        // If there's an article prefetched, load it
+        this.route.data.subscribe((data: { article: Article }) =&gt; {
+          if (data.article) {
+            this.article = data.article;
+            this.articleForm.patchValue(data.article);
+            this.cd.markForCheck();
+          }
+        });
+      }
+
+      trackByFn(index, item) {
+        return index;
+      }
+
+      addTag() {
+        // retrieve tag control
+        const tag = this.tagField.value;
+        // only add tag if it does not exist yet
+        if (this.article.tagList.indexOf(tag) &lt; 0) {
+          this.article.tagList.push(tag);
+        }
+        // clear the input
+        this.tagField.reset('');
+      }
+
+      removeTag(tagName: string) {
+        this.article.tagList = this.article.tagList.filter(tag =&gt; tag !== tagName);
+      }
+
+      submitForm() {
+        this.isSubmitting = true;
+
+        // update the model
+        this.updateArticle(this.articleForm.value);
+
+        // post the changes
+        this.articlesService.save(this.article).subscribe(
+          article =&gt; {
+            this.router.navigateByUrl('/article/' + article.slug);
+            this.cd.markForCheck();
+          },
+          err =&gt; {
+            this.errors = err;
+            this.isSubmitting = false;
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+      updateArticle(values: Object) {
+        Object.assign(this.article, values);
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+
+    import { EditorComponent } from './editor.component';
+
+    import { SharedModule } from '../shared';
+    import { EditorRoutingModule } from './editor-routing.module';
+
+    @NgModule({
+      imports: [SharedModule, EditorRoutingModule],
+      declarations: [EditorComponent],
+      providers: []
+    })
+    export class EditorModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home-auth-resolver.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { UserService } from '../core';
+    import { take } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class HomeAuthResolver implements Resolve&lt;boolean&gt; {
+      constructor(
+        private router: Router,
+        private userService: UserService
+      ) {}
+
+      resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;boolean&gt; {
+
+        return this.userService.isAuthenticated.pipe(take(1));
+
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { HomeComponent } from './home.component';
+    import { HomeAuthResolver } from './home-auth-resolver.service';
+
+    const routes: Routes = [
+      {
+        path: '',
+        component: HomeComponent,
+        resolve: {
+          isAuthenticated: HomeAuthResolver
+        }
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class HomeRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home.component.css</summary>
+    <pre><code class='css'>
+    .nav-link {
+      cursor:pointer;
+    }
+
+    .tag-pill{
+      cursor:pointer;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;home-page&quot;&gt;
+
+      &lt;div class=&quot;banner&quot; *appShowAuthed=&quot;false&quot;&gt;
+        &lt;div class=&quot;container&quot;&gt;
+          &lt;h1 class=&quot;logo-font&quot;&gt;conduit&lt;/h1&gt;
+          &lt;p&gt;A place to share your &lt;i&gt;Angular&lt;/i&gt; knowledge.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;container page&quot;&gt;
+        &lt;div class=&quot;row&quot;&gt;
+
+          &lt;div class=&quot;col-md-9&quot;&gt;
+            &lt;div class=&quot;feed-toggle&quot;&gt;
+              &lt;ul class=&quot;nav nav-pills outline-active&quot;&gt;
+                &lt;li class=&quot;nav-item&quot;&gt;
+                  &lt;a class=&quot;nav-link&quot;
+                     [ngClass]=&quot;{'active': listConfig.type === 'feed'}&quot;
+                     (click)=&quot;setListTo('feed')&quot;&gt;
+                     Your Feed
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class=&quot;nav-item&quot;&gt;
+                  &lt;a class=&quot;nav-link&quot;
+                     [ngClass]=&quot;{'active': listConfig.type === 'all' &amp;&amp; !listConfig.filters.tag}&quot;
+                     (click)=&quot;setListTo('all')&quot;&gt;
+                     Global Feed
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class=&quot;nav-item&quot; [hidden]=&quot;!listConfig.filters.tag&quot;&gt;
+                  &lt;a class=&quot;nav-link active&quot;&gt;
+                    &lt;i class=&quot;ion-pound&quot;&gt;&lt;/i&gt; {{ listConfig.filters.tag }}
+                  &lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/div&gt;
+
+            &lt;app-article-list [limit]=&quot;10&quot; [config]=&quot;listConfig&quot;&gt;&lt;/app-article-list&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;col-md-3&quot;&gt;
+            &lt;div class=&quot;sidebar&quot;&gt;
+              &lt;p&gt;Popular Tags&lt;/p&gt;
+
+              &lt;div class=&quot;tag-list&quot;&gt;
+                &lt;a *ngFor=&quot;let tag of tags; trackBy: trackByFn&quot;
+                   (click)=&quot;setListTo('all', {tag: tag})&quot;
+                   class=&quot;tag-default tag-pill&quot;&gt;
+                   {{ tag }}
+                &lt;/a&gt;
+              &lt;/div&gt;
+
+              &lt;div [hidden]=&quot;tagsLoaded&quot;&gt;
+                Loading tags...
+              &lt;/div&gt;
+
+              &lt;div [hidden]=&quot;!tagsLoaded || tags.length &gt; 0&quot;&gt;
+                No tags are here... yet.
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { Router } from '@angular/router';
+
+    import { ArticleListConfig, TagsService, UserService } from '../core';
+
+    @Component({
+      selector: 'app-home-page',
+      templateUrl: './home.component.html',
+      styleUrls: ['./home.component.css'],
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class HomeComponent implements OnInit {
+      constructor(
+        private router: Router,
+        private tagsService: TagsService,
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      isAuthenticated: boolean;
+      listConfig: ArticleListConfig = {
+        type: 'all',
+        filters: {}
+      };
+      tags: Array&lt;string&gt; = [];
+      tagsLoaded = false;
+
+      ngOnInit() {
+        this.userService.isAuthenticated.subscribe(
+          (authenticated) =&gt; {
+            this.isAuthenticated = authenticated;
+
+            // set the article list accordingly
+            if (authenticated) {
+              this.setListTo('feed');
+            } else {
+              this.setListTo('all');
+            }
+            this.cd.markForCheck();
+          }
+        );
+
+        this.tagsService.getAll()
+        .subscribe(tags =&gt; {
+          this.tags = tags;
+          this.tagsLoaded = true;
+          this.cd.markForCheck();
+        });
+      }
+
+      trackByFn(index, item) {
+        return index;
+      }
+
+      setListTo(type: string = '', filters: Object = {}) {
+        // If feed is requested but user is not authenticated, redirect to login
+        if (type === 'feed' &amp;&amp; !this.isAuthenticated) {
+          this.router.navigateByUrl('/login');
+          return;
+        }
+
+        // Otherwise, set the list object
+        this.listConfig = {type: type, filters: filters};
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;home.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+    import { HomeComponent } from './home.component';
+    import { SharedModule } from '../shared';
+    import { HomeRoutingModule } from './home-routing.module';
+
+    @NgModule({
+      imports: [
+        SharedModule,
+        HomeRoutingModule
+      ],
+      declarations: [
+        HomeComponent
+      ],
+      providers: [
+      ]
+    })
+    export class HomeModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './app.component';
+    export * from './app.module';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-articles.component.html</summary>
+    <pre><code class='html'>
+    &lt;app-article-list [limit]=&quot;10&quot; [config]=&quot;articlesConfig&quot;&gt;
+    &lt;/app-article-list&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-articles.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { ActivatedRoute, Router } from '@angular/router';
+
+    import { ArticleListConfig, Profile } from '../core';
+
+    @Component({
+      selector: 'app-profile-articles',
+      templateUrl: './profile-articles.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ProfileArticlesComponent implements OnInit {
+      constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      profile: Profile;
+      articlesConfig: ArticleListConfig = {
+        type: 'all',
+        filters: {}
+      };
+
+      ngOnInit() {
+        this.route.parent.data.subscribe(
+          (data: {profile: Profile}) =&gt; {
+            this.profile = data.profile;
+            this.articlesConfig = {
+              type: 'all',
+              filters: {}
+            }; // Only method I found to refresh article load on swap
+            this.articlesConfig.filters.author = this.profile.username;
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-favorites.component.html</summary>
+    <pre><code class='html'>
+    &lt;app-article-list [limit]=&quot;10&quot; [config]=&quot;favoritesConfig&quot;&gt;
+    &lt;/app-article-list&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-favorites.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { ActivatedRoute, Router } from '@angular/router';
+
+    import { ArticleListConfig, Profile } from '../core';
+
+    @Component({
+      selector: 'app-profile-favorites',
+      templateUrl: './profile-favorites.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ProfileFavoritesComponent implements OnInit {
+      constructor(
+        private route: ActivatedRoute,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      profile: Profile;
+      favoritesConfig: ArticleListConfig = {
+        type: 'all',
+        filters: {}
+      };
+
+      ngOnInit() {
+        this.route.parent.data.subscribe(
+          (data: {profile: Profile}) =&gt; {
+            this.profile = data.profile;
+            this.favoritesConfig = {...this.favoritesConfig};
+            this.favoritesConfig.filters.favorited = this.profile.username;
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-resolver.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable, } from '@angular/core';
+    import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { Profile, ProfilesService } from '../core';
+    import { catchError } from 'rxjs/operators';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ProfileResolver implements Resolve&lt;Profile&gt; {
+      constructor(
+        private profilesService: ProfilesService,
+        private router: Router
+      ) {}
+
+      resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;any&gt; {
+
+        return this.profilesService.get(route.params['username'])
+          .pipe(catchError((err) =&gt; this.router.navigateByUrl('/')));
+
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { RouterModule, Routes } from '@angular/router';
+    import { ProfileArticlesComponent } from './profile-articles.component';
+    import { ProfileFavoritesComponent } from './profile-favorites.component';
+    import { ProfileResolver } from './profile-resolver.service';
+    import { ProfileComponent } from './profile.component';
+
+
+    const routes: Routes = [
+      {
+        path: ':username',
+        component: ProfileComponent,
+        resolve: {
+          profile: ProfileResolver
+        },
+        children: [
+          {
+            path: '',
+            component: ProfileArticlesComponent
+          },
+          {
+            path: 'favorites',
+            component: ProfileFavoritesComponent
+          }
+        ]
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class ProfileRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;profile-page&quot;&gt;
+
+      &lt;div class=&quot;user-info&quot;&gt;
+        &lt;div class=&quot;container&quot;&gt;
+          &lt;div class=&quot;row&quot;&gt;
+
+            &lt;div class=&quot;col-xs-12 col-md-10 offset-md-1&quot;&gt;
+              &lt;img [src]=&quot;profile.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'&quot; alt=&quot;user image&quot; class=&quot;user-img&quot; /&gt;
+              &lt;h4&gt;{{ profile.username }}&lt;/h4&gt;
+              &lt;p&gt;{{ profile.bio }}&lt;/p&gt;
+              &lt;app-follow-button
+                [hidden]=&quot;isUser&quot;
+                [profile]=&quot;profile&quot;
+                (toggle)=&quot;onToggleFollowing($event)&quot;&gt;
+              &lt;/app-follow-button&gt;
+               &lt;a [routerLink]=&quot;['/settings']&quot;
+                  [hidden]=&quot;!isUser&quot;
+                  class=&quot;btn btn-sm btn-outline-secondary action-btn&quot;&gt;
+                  &lt;i class=&quot;ion-gear-a&quot;&gt;&lt;/i&gt; Edit Profile Settings
+                &lt;/a&gt;
+            &lt;/div&gt;
+
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;container&quot;&gt;
+        &lt;div class=&quot;row&quot;&gt;
+
+          &lt;div class=&quot;col-xs-12 col-md-10 offset-md-1&quot;&gt;
+            &lt;div class=&quot;articles-toggle&quot;&gt;
+              &lt;ul class=&quot;nav nav-pills outline-active&quot;&gt;
+                &lt;li class=&quot;nav-item&quot;&gt;
+                  &lt;a class=&quot;nav-link&quot;
+                     routerLinkActive=&quot;active&quot;
+                     [routerLinkActiveOptions]=&quot;{ exact: true }&quot;
+                     [routerLink]=&quot;['/profile', profile.username]&quot;&gt;
+                     My Posts
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class=&quot;nav-item&quot;&gt;
+                  &lt;a class=&quot;nav-link&quot;
+                     routerLinkActive=&quot;active&quot;
+                     [routerLinkActiveOptions]=&quot;{ exact: true }&quot;
+                     [routerLink]=&quot;['/profile', profile.username, 'favorites']&quot;&gt;
+                     Favorited Posts
+                  &lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/div&gt;
+
+            &lt;router-outlet&gt;&lt;/router-outlet&gt;
+          &lt;/div&gt;
+
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { ActivatedRoute } from '@angular/router';
+
+    import { User, UserService, Profile } from '../core';
+    import { concatMap ,  tap } from 'rxjs/operators';
+
+    @Component({
+      selector: 'app-profile-page',
+      templateUrl: './profile.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ProfileComponent implements OnInit {
+      constructor(
+        private route: ActivatedRoute,
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) { }
+
+      profile: Profile;
+      currentUser: User;
+      isUser: boolean;
+
+      ngOnInit() {
+        this.route.data.pipe(
+          concatMap((data: { profile: Profile }) =&gt; {
+            this.profile = data.profile;
+            // Load the current user's data.
+            return this.userService.currentUser.pipe(tap(
+              (userData: User) =&gt; {
+                this.currentUser = userData;
+                this.isUser = (this.currentUser.username === this.profile.username);
+              }
+            ));
+          })
+        ).subscribe((() =&gt; {
+          this.cd.markForCheck();
+        }));
+      }
+
+      onToggleFollowing(following: boolean) {
+        this.profile.following = following;
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+    import { ProfileArticlesComponent } from './profile-articles.component';
+    import { ProfileComponent } from './profile.component';
+    import { ProfileFavoritesComponent } from './profile-favorites.component';
+    import { SharedModule } from '../shared';
+    import { ProfileRoutingModule } from './profile-routing.module';
+
+    @NgModule({
+      imports: [
+        SharedModule,
+        ProfileRoutingModule
+      ],
+      declarations: [
+        ProfileArticlesComponent,
+        ProfileComponent,
+        ProfileFavoritesComponent
+      ],
+      providers: [
+      ]
+    })
+    export class ProfileModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;settings</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;settings-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { RouterModule, Routes } from '@angular/router';
+    import { AuthGuard } from '../core';
+    import { SettingsComponent } from './settings.component';
+
+    const routes: Routes = [
+      {
+        path: '',
+        component: SettingsComponent,
+        canActivate: [AuthGuard]
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class SettingsRoutingModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;settings.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;settings-page&quot;&gt;
+      &lt;div class=&quot;container page&quot;&gt;
+        &lt;div class=&quot;row&quot;&gt;
+          &lt;div class=&quot;col-md-6 offset-md-3 col-xs-12&quot;&gt;
+
+            &lt;h1 class=&quot;text-xs-center&quot;&gt;Your Settings&lt;/h1&gt;
+
+            &lt;app-list-errors [errors]=&quot;errors&quot;&gt;&lt;/app-list-errors&gt;
+
+            &lt;form [formGroup]=&quot;settingsForm&quot; (ngSubmit)=&quot;submitForm()&quot;&gt;
+              &lt;fieldset [disabled]=&quot;isSubmitting&quot;&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control&quot;
+                    type=&quot;text&quot;
+                    placeholder=&quot;URL of profile picture&quot;
+                    formControlName=&quot;image&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control form-control-lg&quot;
+                    type=&quot;text&quot;
+                    placeholder=&quot;Username&quot;
+                    formControlName=&quot;username&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;textarea class=&quot;form-control form-control-lg&quot;
+                    rows=&quot;8&quot;
+                    placeholder=&quot;Short bio about you&quot;
+                    formControlName=&quot;bio&quot;&gt;
+                  &lt;/textarea&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control form-control-lg&quot;
+                    type=&quot;email&quot;
+                    placeholder=&quot;Email&quot;
+                    formControlName=&quot;email&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;fieldset class=&quot;form-group&quot;&gt;
+                  &lt;input class=&quot;form-control form-control-lg&quot;
+                    type=&quot;password&quot;
+                    placeholder=&quot;New Password&quot;
+                    formControlName=&quot;password&quot; /&gt;
+                &lt;/fieldset&gt;
+
+                &lt;button class=&quot;btn btn-lg btn-primary pull-xs-right&quot;
+                  type=&quot;submit&quot;&gt;
+                  Update Settings
+                &lt;/button&gt;
+
+              &lt;/fieldset&gt;
+            &lt;/form&gt;
+
+            &lt;!-- Line break for logout button --&gt;
+            &lt;hr /&gt;
+
+            &lt;button class=&quot;btn btn-outline-danger&quot;
+              (click)=&quot;logout()&quot;&gt;
+              Or click here to logout.
+            &lt;/button&gt;
+
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;settings.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { FormBuilder, FormGroup } from '@angular/forms';
+    import { Router } from '@angular/router';
+
+    import { User, UserService } from '../core';
+
+    @Component({
+      selector: 'app-settings-page',
+      templateUrl: './settings.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class SettingsComponent implements OnInit {
+      user: User = {} as User;
+      settingsForm: FormGroup;
+      errors: Object = {};
+      isSubmitting = false;
+
+      constructor(
+        private router: Router,
+        private userService: UserService,
+        private fb: FormBuilder,
+        private cd: ChangeDetectorRef
+      ) {
+        // create form group using the form builder
+        this.settingsForm = this.fb.group({
+          image: '',
+          username: '',
+          bio: '',
+          email: '',
+          password: ''
+        });
+        // Optional: subscribe to changes on the form
+        // this.settingsForm.valueChanges.subscribe(values =&gt; this.updateUser(values));
+      }
+
+      ngOnInit() {
+        // Make a fresh copy of the current user's object to place in editable form fields
+        Object.assign(this.user, this.userService.getCurrentUser());
+        // Fill the form
+        this.settingsForm.patchValue(this.user);
+      }
+
+      logout() {
+        this.userService.purgeAuth();
+        this.router.navigateByUrl('/');
+      }
+
+      submitForm() {
+        this.isSubmitting = true;
+
+        // update the model
+        this.updateUser(this.settingsForm.value);
+
+        this.userService
+        .update(this.user)
+        .subscribe(
+          updatedUser =&gt; this.router.navigateByUrl('/profile/' + updatedUser.username),
+          err =&gt; {
+            this.errors = err;
+            this.isSubmitting = false;
+            this.cd.markForCheck();
+          }
+        );
+      }
+
+      updateUser(values: Object) {
+        Object.assign(this.user, values);
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;settings.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+
+    import { SettingsComponent } from './settings.component';
+    import { SharedModule } from '../shared';
+    import { SettingsRoutingModule } from './settings-routing.module';
+
+    @NgModule({
+      imports: [
+        SharedModule,
+        SettingsRoutingModule
+      ],
+      declarations: [
+        SettingsComponent
+      ]
+    })
+    export class SettingsModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;shared</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-helpers</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-list.component.css</summary>
+    <pre><code class='css'>
+    .page-link {
+      cursor: pointer;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-list.component.html</summary>
+    <pre><code class='html'>
+    &lt;app-article-preview
+      *ngFor=&quot;let article of results; trackBy: trackByFn&quot;
+      [article]=&quot;article&quot;&gt;
+    &lt;/app-article-preview&gt;
+
+    &lt;div class=&quot;app-article-preview&quot;
+      [hidden]=&quot;!loading&quot;&gt;
+      Loading articles...
+    &lt;/div&gt;
+
+    &lt;div class=&quot;app-article-preview&quot;
+      [hidden]=&quot;loading || results.length&quot;&gt;
+      No articles are here... yet.
+    &lt;/div&gt;
+
+    &lt;nav [hidden]=&quot;loading || totalPages.length &lt;= 1&quot;&gt;
+      &lt;ul class=&quot;pagination&quot;&gt;
+
+        &lt;li class=&quot;page-item&quot;
+          [ngClass]=&quot;{'active': pageNumber === currentPage}&quot;
+          *ngFor=&quot;let pageNumber of totalPages; trackBy: trackByFn&quot;
+          (click)=&quot;setPageTo(pageNumber)&quot;&gt;
+
+          &lt;a class=&quot;page-link&quot; &gt;{{ pageNumber }}&lt;/a&gt;
+
+        &lt;/li&gt;
+
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-list.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+
+    import { Article, ArticleListConfig, ArticlesService } from '../../core';
+    @Component({
+      selector: 'app-article-list',
+      styleUrls: ['article-list.component.css'],
+      templateUrl: './article-list.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ArticleListComponent {
+      constructor (
+        private articlesService: ArticlesService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      @Input() limit: number;
+      @Input()
+      set config(config: ArticleListConfig) {
+        if (config) {
+          this.query = config;
+          this.currentPage = 1;
+          this.runQuery();
+        }
+      }
+
+      query: ArticleListConfig;
+      results: Article[];
+      loading = false;
+      currentPage = 1;
+      totalPages: Array&lt;number&gt; = [1];
+
+      setPageTo(pageNumber) {
+        this.currentPage = pageNumber;
+        this.runQuery();
+      }
+
+      trackByFn(index, item) {
+        return index;
+      }
+
+      runQuery() {
+        this.loading = true;
+        this.results = [];
+
+        // Create limit and offset filter (if necessary)
+        if (this.limit) {
+          this.query.filters.limit = this.limit;
+          this.query.filters.offset =  (this.limit * (this.currentPage - 1));
+        }
+
+        this.articlesService.query(this.query)
+        .subscribe(data =&gt; {
+          this.loading = false;
+          this.results = data.articles;
+
+          // Used from http://www.jstips.co/en/create-range-0...n-easily-using-one-line/
+          this.totalPages = Array.from(new Array(Math.ceil(data.articlesCount / this.limit)), (val, index) =&gt; index + 1);
+          this.cd.markForCheck();
+        });
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-meta.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;article-meta&quot;&gt;
+      &lt;a [routerLink]=&quot;['/profile', article.author.username]&quot;&gt;
+        &lt;img [src]=&quot;article.author.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'&quot; alt=&quot;author image&quot; /&gt;
+      &lt;/a&gt;
+
+      &lt;div class=&quot;info&quot;&gt;
+        &lt;a class=&quot;author&quot;
+          [routerLink]=&quot;['/profile', article.author.username]&quot;&gt;
+          {{ article.author.username }}
+        &lt;/a&gt;
+        &lt;span class=&quot;date&quot;&gt;
+          {{ article.createdAt | date: 'longDate' }}
+        &lt;/span&gt;
+      &lt;/div&gt;
+
+      &lt;ng-content&gt;&lt;/ng-content&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-meta.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+
+    import { Article } from '../../core';
+
+    @Component({
+      selector: 'app-article-meta',
+      templateUrl: './article-meta.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ArticleMetaComponent {
+      @Input() article: Article;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-preview.component.html</summary>
+    <pre><code class='html'>
+    &lt;div class=&quot;article-preview&quot;&gt;
+      &lt;app-article-meta [article]=&quot;article&quot;&gt;
+        &lt;app-favorite-button
+          [article]=&quot;article&quot;
+          (toggle)=&quot;onToggleFavorite($event)&quot;
+          class=&quot;pull-xs-right&quot;&gt;
+          {{article.favoritesCount}}
+        &lt;/app-favorite-button&gt;
+      &lt;/app-article-meta&gt;
+
+      &lt;a [routerLink]=&quot;['/article', article.slug]&quot; class=&quot;preview-link&quot;&gt;
+        &lt;h1&gt;{{ article.title }}&lt;/h1&gt;
+        &lt;p&gt;{{ article.description }}&lt;/p&gt;
+        &lt;span&gt;Read more...&lt;/span&gt;
+        &lt;ul class=&quot;tag-list&quot;&gt;
+          &lt;li class=&quot;tag-default tag-pill tag-outline&quot;
+            *ngFor=&quot;let tag of article.tagList; trackBy: trackByFn&quot;&gt;
+            {{ tag }}
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article-preview.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+
+    import { Article } from '../../core';
+
+    @Component({
+      selector: 'app-article-preview',
+      templateUrl: './article-preview.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ArticlePreviewComponent {
+      @Input() article: Article;
+
+      trackByFn(index, item) {
+        return index;
+      }
+
+      onToggleFavorite(favorited: boolean) {
+        this.article['favorited'] = favorited;
+
+        if (favorited) {
+          this.article['favoritesCount']++;
+        } else {
+          this.article['favoritesCount']--;
+        }
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './article-list.component';
+    export * from './article-meta.component';
+    export * from './article-preview.component';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;buttons</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;favorite-button.component.html</summary>
+    <pre><code class='html'>
+    &lt;button class=&quot;btn btn-sm&quot;
+     [ngClass]=&quot;{ 'disabled' : isSubmitting,
+                  'btn-outline-primary': !article.favorited,
+                  'btn-primary': article.favorited }&quot;
+     (click)=&quot;toggleFavorite()&quot;&gt;
+      &lt;i class=&quot;ion-heart&quot;&gt;&lt;/i&gt; &lt;ng-content&gt;&lt;/ng-content&gt;
+    &lt;/button&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;favorite-button.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { Router } from '@angular/router';
+
+    import { Article, ArticlesService, UserService } from '../../core';
+    import { of } from 'rxjs';
+    import { concatMap ,  tap } from 'rxjs/operators';
+
+    @Component({
+      selector: 'app-favorite-button',
+      templateUrl: './favorite-button.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class FavoriteButtonComponent {
+      constructor(
+        private articlesService: ArticlesService,
+        private router: Router,
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      @Input() article: Article;
+      @Output() toggle = new EventEmitter&lt;boolean&gt;();
+      isSubmitting = false;
+
+      toggleFavorite() {
+        this.isSubmitting = true;
+
+        this.userService.isAuthenticated.pipe(concatMap(
+          (authenticated) =&gt; {
+            // Not authenticated? Push to login screen
+            if (!authenticated) {
+              this.router.navigateByUrl('/login');
+              return of(null);
+            }
+
+            // Favorite the article if it isn't favorited yet
+            if (!this.article.favorited) {
+              return this.articlesService.favorite(this.article.slug)
+              .pipe(tap(
+                data =&gt; {
+                  this.isSubmitting = false;
+                  this.toggle.emit(true);
+                },
+                err =&gt; this.isSubmitting = false
+              ));
+
+            // Otherwise, unfavorite the article
+            } else {
+              return this.articlesService.unfavorite(this.article.slug)
+              .pipe(tap(
+                data =&gt; {
+                  this.isSubmitting = false;
+                  this.toggle.emit(false);
+                },
+                err =&gt; this.isSubmitting = false
+              ));
+            }
+
+          }
+        )).subscribe(() =&gt; {
+          this.cd.markForCheck();
+        });
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;follow-button.component.html</summary>
+    <pre><code class='html'>
+    &lt;button
+      class=&quot;btn btn-sm action-btn&quot;
+      [ngClass]=&quot;{ 'disabled': isSubmitting,
+                   'btn-outline-secondary': !profile.following,
+                   'btn-secondary': profile.following }&quot;
+      (click)=&quot;toggleFollowing()&quot;&gt;
+      &lt;i class=&quot;ion-plus-round&quot;&gt;&lt;/i&gt;
+      &amp;nbsp;
+      {{ profile.following ? 'Unfollow' : 'Follow' }} {{ profile.username }}
+    &lt;/button&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;follow-button.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+    import { Router } from '@angular/router';
+
+    import { Profile, ProfilesService, UserService } from '../../core';
+    import { concatMap ,  tap } from 'rxjs/operators';
+    import { of } from 'rxjs';
+
+    @Component({
+      selector: 'app-follow-button',
+      templateUrl: './follow-button.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class FollowButtonComponent {
+      constructor(
+        private profilesService: ProfilesService,
+        private router: Router,
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      @Input() profile: Profile;
+      @Output() toggle = new EventEmitter&lt;boolean&gt;();
+      isSubmitting = false;
+
+      toggleFollowing() {
+        this.isSubmitting = true;
+        // TODO: remove nested subscribes, use mergeMap
+
+        this.userService.isAuthenticated.pipe(concatMap(
+          (authenticated) =&gt; {
+            // Not authenticated? Push to login screen
+            if (!authenticated) {
+              this.router.navigateByUrl('/login');
+              return of(null);
+            }
+
+            // Follow this profile if we aren't already
+            if (!this.profile.following) {
+              return this.profilesService.follow(this.profile.username)
+              .pipe(tap(
+                data =&gt; {
+                  this.isSubmitting = false;
+                  this.toggle.emit(true);
+                },
+                err =&gt; this.isSubmitting = false
+              ));
+
+            // Otherwise, unfollow this profile
+            } else {
+              return this.profilesService.unfollow(this.profile.username)
+              .pipe(tap(
+                data =&gt; {
+                  this.isSubmitting = false;
+                  this.toggle.emit(false);
+                },
+                err =&gt; this.isSubmitting = false
+              ));
+            }
+          }
+        )).subscribe(() =&gt; {
+          this.cd.markForCheck();
+        });
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './favorite-button.component';
+    export * from './follow-button.component';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './article-helpers';
+    export * from './buttons';
+    export * from './layout';
+    export * from './list-errors.component';
+    export * from './shared.module';
+    export * from './show-authed.directive';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;layout</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;footer.component.html</summary>
+    <pre><code class='html'>
+    &lt;footer&gt;
+      &lt;div class=&quot;container&quot;&gt;
+        &lt;a class=&quot;logo-font&quot; routerLink=&quot;/&quot;&gt;conduit&lt;/a&gt;
+        &lt;span class=&quot;attribution&quot;&gt;
+          &amp;copy; {{ today | date: 'yyyy' }}.
+          An interactive learning project from &lt;a href=&quot;https://thinkster.io&quot;&gt;Thinkster&lt;/a&gt;.
+          Code licensed under MIT.
+        &lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;footer.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, ChangeDetectionStrategy } from '@angular/core';
+
+    @Component({
+      selector: 'app-layout-footer',
+      templateUrl: './footer.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class FooterComponent {
+      today: number = Date.now();
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;header.component.html</summary>
+    <pre><code class='html'>
+    &lt;nav class=&quot;navbar navbar-light&quot;&gt;
+      &lt;div class=&quot;container&quot;&gt;
+        &lt;a class=&quot;navbar-brand&quot; routerLink=&quot;/&quot;&gt;conduit&lt;/a&gt;
+
+        &lt;!-- Show this for logged out users --&gt;
+        &lt;ul *appShowAuthed=&quot;false&quot;
+          class=&quot;nav navbar-nav pull-xs-right&quot;&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/&quot;&gt;
+              Home
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/login&quot;
+              routerLinkActive=&quot;active&quot;&gt;
+              Sign in
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/register&quot;
+              routerLinkActive=&quot;active&quot;&gt;
+              Sign up
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+        &lt;/ul&gt;
+
+        &lt;!-- Show this for logged in users --&gt;
+        &lt;ul *appShowAuthed=&quot;true&quot;
+          class=&quot;nav navbar-nav pull-xs-right&quot;&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/&quot;
+              routerLinkActive=&quot;active&quot;
+              [routerLinkActiveOptions]=&quot;{ exact: true }&quot;&gt;
+              Home
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/editor&quot;
+              routerLinkActive=&quot;active&quot;&gt;
+              &lt;i class=&quot;ion-compose&quot;&gt;&lt;/i&gt;&amp;nbsp;New Article
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              routerLink=&quot;/settings&quot;
+              routerLinkActive=&quot;active&quot;&gt;
+              &lt;i class=&quot;ion-gear-a&quot;&gt;&lt;/i&gt;&amp;nbsp;Settings
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+          &lt;li class=&quot;nav-item&quot;&gt;
+            &lt;a class=&quot;nav-link&quot;
+              [routerLink]=&quot;['/profile', currentUser.username]&quot;
+              routerLinkActive=&quot;active&quot;&gt;
+              &lt;img [src]=&quot;currentUser.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'&quot; *ngIf=&quot;currentUser.image&quot; class=&quot;user-pic&quot; alt=&quot;user image&quot; /&gt;
+              {{ currentUser.username }}
+            &lt;/a&gt;
+          &lt;/li&gt;
+
+        &lt;/ul&gt;
+
+      &lt;/div&gt;
+    &lt;/nav&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;header.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+
+    import { User, UserService } from '../../core';
+
+    @Component({
+      selector: 'app-layout-header',
+      templateUrl: './header.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class HeaderComponent implements OnInit {
+      constructor(
+        private userService: UserService,
+        private cd: ChangeDetectorRef
+      ) {}
+
+      currentUser: User;
+
+      ngOnInit() {
+        this.userService.currentUser.subscribe(
+          (userData) =&gt; {
+            this.currentUser = userData;
+            this.cd.markForCheck();
+          }
+        );
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export * from './footer.component';
+    export * from './header.component';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;list-errors.component.html</summary>
+    <pre><code class='html'>
+    &lt;ul class=&quot;error-messages&quot; *ngIf=&quot;errorList&quot;&gt;
+      &lt;li *ngFor=&quot;let error of errorList; trackBy: trackByFn&quot;&gt;
+        {{ error }}
+      &lt;/li&gt;
+    &lt;/ul&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;list-errors.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+
+    import { Errors } from '../core';
+
+    @Component({
+      selector: 'app-list-errors',
+      templateUrl: './list-errors.component.html',
+      changeDetection: ChangeDetectionStrategy.OnPush
+    })
+    export class ListErrorsComponent {
+      formattedErrors: Array&lt;string&gt; = [];
+
+      @Input()
+      set errors(errorList: Errors) {
+        this.formattedErrors = Object.keys(errorList.errors || {})
+          .map(key =&gt; `${key} ${errorList.errors[key]}`);
+      }
+
+      get errorList() { return this.formattedErrors; }
+
+      trackByFn(index, item) {
+        return index;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;shared.module.ts</summary>
+    <pre><code class='ts'>
+    import { CommonModule } from '@angular/common';
+    import { NgModule } from '@angular/core';
+    import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+    import { HttpClientModule } from '@angular/common/http';
+    import { RouterModule } from '@angular/router';
+
+    import { ArticleListComponent, ArticleMetaComponent, ArticlePreviewComponent } from './article-helpers';
+    import { FavoriteButtonComponent, FollowButtonComponent } from './buttons';
+    import { ListErrorsComponent } from './list-errors.component';
+    import { ShowAuthedDirective } from './show-authed.directive';
+
+    @NgModule({
+      imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        RouterModule
+      ],
+      declarations: [
+        ArticleListComponent,
+        ArticleMetaComponent,
+        ArticlePreviewComponent,
+        FavoriteButtonComponent,
+        FollowButtonComponent,
+        ListErrorsComponent,
+        ShowAuthedDirective
+      ],
+      exports: [
+        ArticleListComponent,
+        ArticleMetaComponent,
+        ArticlePreviewComponent,
+        CommonModule,
+        FavoriteButtonComponent,
+        FollowButtonComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        ListErrorsComponent,
+        RouterModule,
+        ShowAuthedDirective
+      ]
+    })
+    export class SharedModule {}
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;show-authed.directive.ts</summary>
+    <pre><code class='ts'>
+    import {
+      Directive,
+      Input,
+      OnInit,
+      TemplateRef,
+      ViewContainerRef
+    } from '@angular/core';
+
+    import { UserService } from '../core';
+
+    @Directive({ selector: '[appShowAuthed]' })
+    export class ShowAuthedDirective implements OnInit {
+      constructor(
+        private templateRef: TemplateRef&lt;any&gt;,
+        private userService: UserService,
+        private viewContainer: ViewContainerRef
+      ) {}
+
+      condition: boolean;
+
+      ngOnInit() {
+        this.userService.isAuthenticated.subscribe(
+          (isAuthenticated) =&gt; {
+            if (isAuthenticated &amp;&amp; this.condition || !isAuthenticated &amp;&amp; !this.condition) {
+              this.viewContainer.createEmbeddedView(this.templateRef);
+            } else {
+              this.viewContainer.clear();
+            }
+          }
+        );
+      }
+
+      @Input() set appShowAuthed(condition: boolean) {
+        this.condition = condition;
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;assets</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;icons</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;environments</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;environment.prod.ts</summary>
+    <pre><code class='ts'>
+    export const environment = {
+      production: true,
+      api_url: 'https://api.realworld.io/api'
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;environment.ts</summary>
+    <pre><code class='ts'>
+    // The file contents for the current environment will overwrite these during build.
+    // The build system defaults to the dev environment which uses `environment.ts`, but if you do
+    // `ng build --env=prod` then `environment.prod.ts` will be used instead.
+    // The list of which env maps to which file can be found in `angular-cli.json`.
+
+    export const environment = {
+      production: false,
+      api_url: 'https://api.realworld.io/api'
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.html</summary>
+    <pre><code class='html'>
+    &lt;!doctype html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+      &lt;meta charset=&quot;utf-8&quot;&gt;
+      &lt;meta name=&quot;Description&quot; content=&quot;Angular realworld example&quot;&gt;
+      &lt;title&gt;Conduit&lt;/title&gt;
+      &lt;base href=&quot;/&quot;&gt;
+
+      &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+      &lt;link href=&quot;//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+      &lt;link href=&quot;//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic&amp;display=swap&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+      &lt;link rel=&quot;stylesheet&quot; href=&quot;//demo.productionready.io/main.css&quot;&gt;
+
+      &lt;link rel=&quot;manifest&quot; href=&quot;manifest.webmanifest&quot;&gt;
+      &lt;meta name=&quot;theme-color&quot; content=&quot;#1976d2&quot;&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+      &lt;app-root&gt;Loading...&lt;/app-root&gt;
+      &lt;noscript&gt;Please enable JavaScript to continue using this application.&lt;/noscript&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;main.ts</summary>
+    <pre><code class='ts'>
+    import { enableProdMode } from '@angular/core';
+    import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+    import { AppModule } from './app/app.module';
+    import { environment } from './environments/environment';
+
+    if (environment.production) {
+      enableProdMode();
+    }
+
+    const bootstrapPromise =  platformBrowserDynamic().bootstrapModule(AppModule);
+
+    // Logging bootstrap information
+    bootstrapPromise.then(success =&gt; console.log(`Bootstrap success`))
+      .catch(err =&gt; console.error(err));
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;polyfills.ts</summary>
+    <pre><code class='ts'>
+    /**
+     * This file includes polyfills needed by Angular and is loaded before the app.
+     * You can add your own extra polyfills to this file.
+     *
+     * This file is divided into 2 sections:
+     *   1. Browser polyfills. These are applied before loading ZoneJS and are sorted by browsers.
+     *   2. Application imports. Files imported after ZoneJS that should be loaded before your main
+     *      file.
+     *
+     * The current setup is for so-called &quot;evergreen&quot; browsers; the last versions of browsers that
+     * automatically update themselves. This includes Safari &gt;= 10, Chrome &gt;= 55 (including Opera),
+     * Edge &gt;= 13 on the desktop, and iOS 10 and Chrome on mobile.
+     *
+     * Learn more in https://angular.io/guide/browser-support
+     */
+
+    /***************************************************************************************************
+    * BROWSER POLYFILLS
+    */
+
+    /** IE10 and IE11 requires the following for the Reflect API. */
+    // import 'core-js/es6/reflect';
+
+    /** Evergreen browsers require these. **/
+    // Used for reflect-metadata in JIT. If you use AOT (and only Angular decorators), you can remove.
+    // import 'core-js/es7/reflect';
+
+    /***************************************************************************************************
+     * Zone JS is required by default for Angular itself.
+     */
+    import 'zone.js'; // Included with Angular CLI.
+
+    /***************************************************************************************************
+     * APPLICATION IMPORTS
+     */
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;styles.css</summary>
+    <pre><code class='css'>
+    /* You can add global styles to this file, and also import other style files */
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;test.ts</summary>
+    <pre><code class='ts'>
+    // This file is required by karma.conf.js and loads recursively all the .spec and framework files
+
+    import 'zone.js/dist/long-stack-trace-zone';
+    import 'zone.js/dist/proxy.js';
+    import 'zone.js/dist/sync-test';
+    import 'zone.js/dist/jasmine-patch';
+    import 'zone.js/dist/async-test';
+    import 'zone.js/dist/fake-async-test';
+    import { getTestBed } from '@angular/core/testing';
+    import {
+      BrowserDynamicTestingModule,
+      platformBrowserDynamicTesting
+    } from '@angular/platform-browser-dynamic/testing';
+
+    // Unfortunately there's no typing for the `__karma__` variable. Just declare it as any.
+    declare const __karma__: any;
+    declare const require: any;
+
+    // Prevent Karma from running prematurely.
+    __karma__.loaded = function () {};
+
+    // First, initialize the Angular testing environment.
+    getTestBed().initTestEnvironment(
+      BrowserDynamicTestingModule,
+      platformBrowserDynamicTesting(), {
+        teardown: { destroyAfterEach: false }
+    }
+    );
+    // Then we find all the tests.
+    const context = require.context('./', true, /\.spec\.ts$/);
+    // And load the modules.
+    context.keys().map(context);
+    // Finally, start Karma to run the tests.
+    __karma__.start();
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;tsconfig.app.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tsconfig.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/app&quot;,
+        &quot;baseUrl&quot;: &quot;./&quot;,
+        &quot;types&quot;: []
+      },
+      &quot;files&quot;: [
+        &quot;main.ts&quot;,
+        &quot;polyfills.ts&quot;
+      ],
+      &quot;include&quot;: [
+        &quot;src/**/*.d.ts&quot;
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;tsconfig.spec.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tsconfig.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/spec&quot;,
+        &quot;baseUrl&quot;: &quot;./&quot;,
+        &quot;types&quot;: [
+          &quot;jasmine&quot;,
+          &quot;node&quot;
+        ]
+      },
+      &quot;files&quot;: [
+        &quot;test.ts&quot;,
+        &quot;polyfills.ts&quot;
+      ],
+      &quot;include&quot;: [
+        &quot;**/*.spec.ts&quot;,
+        &quot;**/*.d.ts&quot;
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;typings.d.ts</summary>
+    <pre><code class='ts'>
+    /* SystemJS module definition */
+    declare var module: NodeModule;
+    interface NodeModule {
+      id: string;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tsconfig.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;compileOnSave&quot;: false,
+      &quot;compilerOptions&quot;: {
+        &quot;importHelpers&quot;: true,
+        &quot;downlevelIteration&quot;: true,
+        &quot;outDir&quot;: &quot;./dist/out-tsc&quot;,
+        &quot;sourceMap&quot;: true,
+        &quot;declaration&quot;: false,
+        &quot;module&quot;: &quot;es2020&quot;,
+        &quot;moduleResolution&quot;: &quot;node&quot;,
+        &quot;emitDecoratorMetadata&quot;: true,
+        &quot;experimentalDecorators&quot;: true,
+        &quot;target&quot;: &quot;es2015&quot;,
+        &quot;typeRoots&quot;: [
+          &quot;node_modules/@types&quot;
+        ],
+        &quot;lib&quot;: [
+          &quot;es2018&quot;,
+          &quot;dom&quot;
+        ]
+      }
+    }
+    </code></pre></details>
+
+  <br/>
+  <a href="../index.html" id="main_page_link">Back to Main Page</a>
+  <br/>
+  <br/>
+  <br/>
+
+  </body>
+  </html>

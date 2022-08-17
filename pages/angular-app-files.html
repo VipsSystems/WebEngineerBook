@@ -1,0 +1,4895 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Angular app example, Web Engineer Book">
+  <meta name="keywords" content="Angular, app, javascript, js, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Angular app example - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+    <details><summary>[ angular.json ]</summary>
+    <pre><code class='json'>
+    {
+      "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+      "version": 1,
+      "newProjectRoot": "projects",
+      "projects": {
+        "angular-tour": {
+          "root": "",
+          "sourceRoot": "src",
+          "projectType": "application",
+          "prefix": "app",
+          "schematics": {},
+          "architect": {
+            "build": {
+              "builder": "@angular-devkit/build-angular:browser",
+              "options": {
+                "outputPath": "dist/browser",
+                "index": "src/index.html",
+                "main": "src/main.ts",
+                "polyfills": "src/polyfills.ts",
+                "tsConfig": "src/tsconfig.app.json",
+                "assets": [
+                  "src/favicon.ico",
+                  "src/assets",
+                  "src/manifest.webmanifest"
+                ],
+                "styles": [
+                  "src/styles.css"
+                ],
+                "scripts": [
+                  {
+                    "input": "node_modules/document-register-element/build/document-register-element.js"
+                  }
+                ]
+              },
+              "configurations": {
+                "production": {
+                  "fileReplacements": [
+                    {
+                      "replace": "src/environments/environment.ts",
+                      "with": "src/environments/environment.prod.ts"
+                    }
+                  ],
+                  "optimization": true,
+                  "outputHashing": "all",
+                  "sourceMap": true,
+                  "extractCss": true,
+                  "namedChunks": false,
+                  "aot": true,
+                  "extractLicenses": true,
+                  "vendorChunk": false,
+                  "buildOptimizer": true,
+                  "budgets": [
+                    {
+                      "type": "initial",
+                      "maximumWarning": "2mb",
+                      "maximumError": "5mb"
+                    }
+                  ],
+                  "serviceWorker": true
+                },
+                "ru": {
+                  "aot": true,
+                  "outputPath": "dist/angular-tour-ru/",
+                  "i18nFile": "src/locale/messages.ru.xlf",
+                  "i18nFormat": "xlf",
+                  "i18nLocale": "ru",
+                  "i18nMissingTranslation": "error"
+                }
+              }
+            },
+            "serve": {
+              "builder": "@angular-devkit/build-angular:dev-server",
+              "options": {
+                "browserTarget": "angular-tour:build"
+              },
+              "configurations": {
+                "production": {
+                  "browserTarget": "angular-tour:build:production"
+                },
+                "ru": {
+                  "browserTarget": "angular-tour:build:ru"
+                }
+              }
+            },
+            "extract-i18n": {
+              "builder": "@angular-devkit/build-angular:extract-i18n",
+              "options": {
+                "browserTarget": "angular-tour:build"
+              }
+            },
+            "test": {
+              "builder": "@angular-devkit/build-angular:karma",
+              "options": {
+                "main": "src/test.ts",
+                "polyfills": "src/polyfills.ts",
+                "tsConfig": "src/tsconfig.spec.json",
+                "karmaConfig": "src/karma.conf.js",
+                "styles": [
+                  "src/styles.css"
+                ],
+                "scripts": [],
+                "assets": [
+                  "src/favicon.ico",
+                  "src/assets",
+                  "src/manifest.webmanifest"
+                ]
+              }
+            },
+            "lint": {
+              "builder": "@angular-devkit/build-angular:tslint",
+              "options": {
+                "tsConfig": [
+                  "src/tsconfig.app.json",
+                  "src/tsconfig.spec.json"
+                ],
+                "exclude": [
+                  "**/node_modules/**"
+                ]
+              }
+            },
+            "server": {
+              "builder": "@angular-devkit/build-angular:server",
+              "options": {
+                "outputPath": "dist/server",
+                "main": "src/main.server.ts",
+                "tsConfig": "src/tsconfig.server.json"
+              },
+              "configurations": {
+                "production": {
+                  "fileReplacements": [
+                    {
+                      "replace": "src/environments/environment.ts",
+                      "with": "src/environments/environment.prod.ts"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "angular-tour-e2e": {
+          "root": "e2e/",
+          "projectType": "application",
+          "prefix": "",
+          "architect": {
+            "e2e": {
+              "builder": "@angular-devkit/build-angular:protractor",
+              "options": {
+                "protractorConfig": "e2e/protractor.conf.js",
+                "devServerTarget": "angular-tour:serve"
+              },
+              "configurations": {
+                "production": {
+                  "devServerTarget": "angular-tour:serve:production"
+                }
+              }
+            },
+            "lint": {
+              "builder": "@angular-devkit/build-angular:tslint",
+              "options": {
+                "tsConfig": "e2e/tsconfig.e2e.json",
+                "exclude": [
+                  "**/node_modules/**"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "defaultProject": "angular-tour"
+    }
+    </code></pre></details>
+
+    <details><summary>[ ngsw-config.json ]</summary>
+    <pre><code class='ts'>
+    {
+      "index": "/index.html",
+      "assetGroups": [
+        {
+          "name": "app",
+          "installMode": "prefetch",
+          "resources": {
+            "files": [
+              "/favicon.ico",
+              "/index.html",
+              "/*.css",
+              "/*.js"
+            ]
+          }
+        }, {
+          "name": "assets",
+          "installMode": "lazy",
+          "updateMode": "prefetch",
+          "resources": {
+            "files": [
+              "/assets/**",
+              "/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+            ]
+          }
+        }
+      ]
+    }
+    </code></pre></details>
+
+    <details><summary>[ package.json ]</summary>
+    <pre><code class='ts'>
+    {
+      "name": "angular-tour",
+      "version": "0.0.0",
+      "browserslist": [
+        "last 2 versions",
+        "not ie <= 10",
+        "not ie_mob <= 10"
+      ],
+      "scripts": {
+        "ng": "ng",
+        "start": "ng serve",
+        "build": "ng build",
+        "test": "ng test",
+        "lint": "ng lint",
+        "e2e": "ng e2e",
+        "compile:server": "webpack --config webpack.server.config.js --progress --colors",
+        "serve:ssr": "node dist/server",
+        "build:ssr": "npm run build:client-and-server-bundles && npm run compile:server",
+        "build:client-and-server-bundles": "ng build --prod && ng run angular-tour:server:production"
+      },
+      "private": true,
+      "dependencies": {
+        "@angular/animations": "~7.2.0",
+        "@angular/common": "~7.2.0",
+        "@angular/compiler": "~7.2.0",
+        "@angular/core": "~7.2.0",
+        "@angular/elements": "^7.2.4",
+        "@angular/forms": "~7.2.0",
+        "@angular/http": "~7.2.0",
+        "@angular/platform-browser": "~7.2.0",
+        "@angular/platform-browser-dynamic": "~7.2.0",
+        "@angular/platform-server": "~7.2.0",
+        "@angular/pwa": "^0.13.6",
+        "@angular/router": "~7.2.0",
+        "@angular/service-worker": "~7.2.0",
+        "@nguniversal/express-engine": "^7.1.1",
+        "@nguniversal/module-map-ngfactory-loader": "0.0.0",
+        "angular-in-memory-web-api": "^0.8.0",
+        "core-js": "^2.5.4",
+        "document-register-element": "^1.7.2",
+        "express": "^4.15.2",
+        "http-server": "^0.11.1",
+        "rxjs": "~6.3.3",
+        "tslib": "^1.9.0",
+        "web-animations-js": "^2.3.1",
+        "zone.js": "~0.8.26"
+      },
+      "devDependencies": {
+        "@angular-devkit/build-angular": "^0.13.8",
+        "@angular/cli": "~7.2.3",
+        "@angular/compiler-cli": "^7.2.10",
+        "@angular/language-service": "~7.2.0",
+        "@types/jasmine": "~2.8.8",
+        "@types/jasminewd2": "~2.0.3",
+        "@types/node": "~8.9.4",
+        "codelyzer": "~4.5.0",
+        "jasmine-core": "~2.99.1",
+        "jasmine-spec-reporter": "~4.2.1",
+        "karma": "^4.0.1",
+        "karma-chrome-launcher": "~2.2.0",
+        "karma-coverage-istanbul-reporter": "~2.0.1",
+        "karma-jasmine": "~1.1.2",
+        "karma-jasmine-html-reporter": "^0.2.2",
+        "protractor": "~5.4.0",
+        "source-map-explorer": "^1.8.0",
+        "ts-loader": "^5.2.0",
+        "ts-node": "~7.0.0",
+        "tslint": "~5.11.0",
+        "typescript": "~3.2.2",
+        "webpack-cli": "^3.1.0"
+      }
+    }
+    </code></pre></details>
+
+    <details><summary>&nbsp;&nbsp;&nbsp;APP</summary></details>
+
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app-config.ts</summary>
+    <pre><code class='ts'>
+    /*
+      Must put this interface in its own file instead of app.config.ts
+      or else TypeScript gives a (bogus) warning:
+      WARNING in ./src/app/... .ts
+      &quot;export 'AppConfig' was not found in './app.config'
+    */
+    export interface AppConfig {
+      title: string;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
+
+    import { AuthGuard }                          from './auth/auth.guard';
+
+    import { DashboardComponent  } from './dashboard/dashboard.component';
+    import { DynamicFormPageComponent } from './dynamic-form/dynamic-form-page.component';
+
+    import {HttpExamplesComponent } from './http-examples/http-examples.component';
+    import {PageNotFoundComponent } from './page-not-found.component';
+    import { SelectivePreloadingStrategyService } from './selective-preloading-strategy.service';
+
+    import { AnimationsComponent } from './animations/animations.component';
+    import { TranslationsComponent } from './translations/translations.component';
+
+    const routes: Routes = [
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { animation: 'dashboard' }
+      },
+      {
+        path: 'admin',
+        // loadChildren: () => import('IMPORT_STRING').then(M => M.EXPORT_NAME)
+        loadChildren: () => import('./admin/admin.module').then(mod => mod.AdminModule)
+        canLoad: [AuthGuard]
+      },
+      {
+        path: 'help-center',
+        loadChildren: () => import('./help-center/help-center.module').then(mod => mod.HelpCenterModule)
+        data: { preload: true } // flag for SelectivePreloadingStrategy service
+      },
+      {
+        path: 'dynamic-form',
+        component: DynamicFormPageComponent,
+        outlet: 'fordynamicform'
+      },
+      { path: 'http-examples', component: HttpExamplesComponent },
+      { path: 'animations', component: AnimationsComponent },
+      { path: 'translations', component: TranslationsComponent },
+      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { path: '**', component: PageNotFoundComponent }
+    ];
+
+    @NgModule({
+      // forRoot() - supplies the service providers and directives needed for routing
+      // and performs the initial navigation based on the current browser URL
+      imports: [RouterModule.forRoot(
+        routes
+        ,{
+          // enableTracing: true, // &lt;-- debugging purposes only
+          // preloadingStrategy: PreloadAllModules
+          preloadingStrategy: SelectivePreloadingStrategyService
+          // useHash?: boolean
+          // initialNavigation?: InitialNavigation
+          // errorHandler?: ErrorHandler
+          // onSameUrlNavigation?: 'reload' | 'ignore'
+          // scrollPositionRestoration?: 'disabled' | 'enabled' | 'top'
+          // anchorScrolling?: 'disabled' | 'enabled'
+          // scrollOffset?: [number, number] | (() =&gt; [number, number])
+          // paramsInheritanceStrategy?: 'emptyOnly' | 'always'
+          // malformedUriErrorHandler?: (
+          //   error: URIError, urlSerializer: UrlSerializer, url: string) =&gt; UrlTree
+          // urlUpdateStrategy?: 'deferred' | 'eager'
+          // relativeLinkResolution?: 'corrected' | 'legacy'
+        }
+      )],
+      exports: [RouterModule]
+    })
+    export class AppRoutingModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.component.css</summary>
+    <pre><code class='css'>
+    * {
+
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.component.html</summary>
+    <pre><code class='html'>
+    &lt;h1&gt;{{ title }}&lt;/h1&gt;
+
+    &lt;nav&gt;
+      &lt;a routerLink=&quot;/dashboard&quot; routerLinkActive=&quot;active&quot;&gt;Dashboard&lt;/a&gt;
+      &lt;a routerLink=&quot;/currentnotes&quot; routerLinkActive=&quot;active&quot;&gt;Notes&lt;/a&gt;
+      &lt;a routerLink=&quot;/help-center&quot; routerLinkActive=&quot;active&quot;&gt;Help Center&lt;/a&gt;
+      &lt;a routerLink=&quot;/admin&quot; routerLinkActive=&quot;active&quot;&gt;Admin&lt;/a&gt;
+      &lt;a routerLink=&quot;/http-examples&quot; routerLinkActive=&quot;active&quot;&gt;HttpExamples&lt;/a&gt;
+      &lt;a routerLink=&quot;/animations&quot; routerLinkActive=&quot;active&quot;&gt;Animations&lt;/a&gt;
+      &lt;a routerLink=&quot;/translations&quot; routerLinkActive=&quot;active&quot;&gt;Translations&lt;/a&gt;
+
+      &lt;a
+        [routerLink]=&quot;[{ outlets: { fordynamicform: ['dynamic-form'] } }]&quot;
+      &gt;Dynamic Form (in own outlet)&lt;/a&gt;
+      &lt;a routerLink=&quot;/no-controller&quot;&gt;Invalid URL&lt;/a&gt;
+    &lt;/nav&gt;
+
+    &lt;div [@routeAnimation]=&quot;prepareRoute(routerOutlet)&quot;&gt;
+      &lt;router-outlet #routerOutlet=&quot;outlet&quot;&gt;&lt;/router-outlet&gt;
+    &lt;/div&gt;
+    &lt;router-outlet name=&quot;fordynamicform&quot;&gt;&lt;/router-outlet&gt;
+
+    &lt;app-messages&gt;&lt;/app-messages&gt;
+
+    &lt;br&gt;
+    &lt;hr&gt;
+    &lt;button (click)=&quot;adSwitch = !adSwitch&quot;&gt;
+    Ads are: {{adSwitch ? 'false' : 'true'}}
+    &lt;/button&gt;
+    &lt;ng-template [appUnless]=&quot;adSwitch&quot;&gt;
+      &lt;app-ad-banner [ads]=&quot;ads&quot;&gt;&lt;/app-ad-banner&gt;
+    &lt;/ng-template&gt;
+    &lt;hr&gt;
+
+    &lt;input #input value=&quot;Message&quot;&gt;
+    &lt;button (click)=&quot;popup.showAsComponent(input.value)&quot;&gt;Show as component&lt;/button&gt;
+    &lt;button (click)=&quot;popup.showAsElement(input.value)&quot;&gt;Show as element&lt;/button&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Injector, Inject } from '@angular/core';
+    import { RouterOutlet } from '@angular/router';
+
+    import { createCustomElement } from '@angular/elements';
+    import { PopupComponent } from './popup/popup.component';
+    import { PopupService } from './popup/popup.service';
+    import { AdService }         from './ad/ad.service';
+    import { AdItem }            from './ad/ad-item';
+
+    import { slideInAnimation } from './animations';
+
+    import { APP_CONFIG, AppConfig } from './app.config';
+    import { environment } from './../environments/environment';
+
+    // import { Observable } from 'rxjs';
+
+    @Component({
+      selector: 'app-root',
+      templateUrl: './app.component.html',
+      styleUrls: ['./app.component.css'],
+      animations: [ slideInAnimation ]
+    })
+    export class AppComponent {
+      title: string;
+      ads: AdItem[];
+      adSwitch: boolean = true; // for unless directive
+      constructor(
+        @Inject(APP_CONFIG) config: AppConfig,
+        injector: Injector,
+        public popup: PopupService,
+        private adService: AdService
+      ) {
+        this.title = config.title;
+        // Convert `PopupComponent` to a custom element.
+        const PopupElement = createCustomElement(PopupComponent, {injector});
+        // Register the custom element with the browser.
+        customElements.define('popup-element', PopupElement);
+        // console.log(&quot;Is environment prod: &quot;+environment.production);
+      }
+      ngOnInit() {
+        this.ads = this.adService.getAds();
+      }
+      prepareRoute(outlet: RouterOutlet) {
+        return outlet &amp;&amp; outlet.activatedRouteData &amp;&amp; outlet.activatedRouteData['animation'];
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.config.ts</summary>
+    <pre><code class='ts'>
+    import { AppConfig } from './app-config';
+    export { AppConfig } from './app-config';
+
+    import { InjectionToken } from '@angular/core';
+
+    export const APP_CONFIG = new InjectionToken&lt;AppConfig&gt;('app.config');
+
+    export const MAIN_CONFIG: AppConfig = {
+      title: 'Angular TOUR'
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.module.ts</summary>
+    <pre><code class='ts'>
+    import { BrowserModule } from '@angular/platform-browser';
+    import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+    import { NgModule } from '@angular/core';
+    import { FormsModule } from '@angular/forms'; // &lt;-- NgModel lives here
+    import { ReactiveFormsModule } from '@angular/forms';
+    import { HttpClientModule }    from '@angular/common/http';
+    import { HttpClientXsrfModule } from '@angular/common/http';
+    // import { Router } from '@angular/router';
+
+    import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
+    import { InMemoryDataService }  from './in-memory-data.service';
+    import { APP_CONFIG, MAIN_CONFIG }    from './app.config';
+
+    import { AppComponent } from './app.component';
+    import { AppRoutingModule } from './app-routing.module';
+    // import { RouterModule, Routes } from '@angular/router';
+    // const appRoutes: Routes = [
+    //   { path: 'crisis-center', component: CrisisListComponent },
+    //   { path: 'heroes', component: HeroListComponent },
+
+    //   { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
+    //   { path: '**', component: PageNotFoundComponent }
+    // ];
+
+    import { MessagesComponent } from './messages/messages.component';
+    import { DashboardComponent } from './dashboard/dashboard.component';
+    import { PopupComponent } from './popup/popup.component';
+    import { PopupService } from './popup/popup.service';
+    import { MessageService } from './messages/message.service';
+    import { AdService } from './ad/ad.service';
+    import { AdDirective } from './ad/ad.directive';
+    import { AdBannerComponent } from './ad/ad-banner.component';
+    import { JobAdComponent } from './ad/job-ad.component';
+    import { ProfileComponent } from './ad/profile.component';
+    import { HighlightDirective } from './highlight.directive';
+    import { UnlessDirective } from './unless.directive';
+    import { ExponentitPipe } from './exponentit.pipe';
+    import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
+    import { DynamicFormQuestionComponent } from './dynamic-form/dynamic-form-question.component';
+    import { DynamicFormPageComponent } from './dynamic-form/dynamic-form-page.component';
+
+    import { HttpExamplesComponent } from './http-examples/http-examples.component';
+    import { AuthService }          from './auth/auth.service';
+    import { RequestCache, RequestCacheWithMap } from './request-cache.service';
+    import { httpInterceptorProviders } from './http-interceptors/index';
+
+    import { FilterNotePipe } from './notes/filter-note.pipe';
+    import { NotesModule } from './notes/notes.module';
+
+    // lazy loaded in routes
+    // import { HelpCenterModule }      from './help-center/help-center.module';
+    // import { AdminModule }      from './admin/admin.module';
+
+    import { PageNotFoundComponent } from './page-not-found.component';
+    import { AuthModule }              from './auth/auth.module';
+    import { SelectivePreloadingStrategyService } from './selective-preloading-strategy.service';
+
+    import { AnimationsComponent } from './animations/animations.component';
+
+    import { TranslationsComponent } from './translations/translations.component';
+    import { registerLocaleData } from '@angular/common';
+    import localeRu from '@angular/common/locales/ru';
+    import { ServiceWorkerModule } from '@angular/service-worker';
+    import { environment } from '../environments/environment';
+    // import localeFrExtra from '@angular/common/locales/extra/fr';
+    // the second parameter 'fr' is optional - custom locale id
+    registerLocaleData(localeRu);
+    // with extra
+    // registerLocaleData(localeFr, 'fr-FR', localeFrExtra);
+
+    @NgModule({
+      declarations: [
+        AppComponent,
+
+        MessagesComponent,
+        DashboardComponent,
+        PopupComponent,
+        AdDirective,
+        AdBannerComponent,
+        JobAdComponent,
+        ProfileComponent,
+        HighlightDirective,
+        UnlessDirective,
+        ExponentitPipe,
+        FilterNotePipe,
+
+        DynamicFormComponent,
+        DynamicFormQuestionComponent,
+        DynamicFormPageComponent,
+
+        HttpExamplesComponent,
+
+        PageNotFoundComponent,
+
+        AnimationsComponent,
+
+        TranslationsComponent
+      ],
+      imports: [
+        BrowserModule.withServerTransition({ appId: 'serverApp' }),
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+
+        NotesModule,
+
+        // lazy loaded in routes
+        // HelpCenterModule,
+        // AdminModule,
+
+        AuthModule,
+
+        AppRoutingModule,
+        // RouterModule.forRoot(
+        //   appRoutes,
+        //   { enableTracing: true } // &lt;-- debugging purposes only
+        // )
+
+        // import HttpClientModule after BrowserModule.
+        HttpClientModule,
+        HttpClientXsrfModule.withOptions({
+          cookieName: 'My-Xsrf-Cookie',
+          headerName: 'My-Xsrf-Header',
+        }),
+
+        // The HttpClientInMemoryWebApiModule module intercepts HTTP requests
+        // and returns simulated server responses
+        // Remove it when a real server is ready to receive requests !
+        HttpClientInMemoryWebApiModule.forRoot(
+          InMemoryDataService, {
+            dataEncapsulation: false,
+            passThruUnknownUrl: true,
+            put204: false // return entity after PUT/update
+          }
+        ),
+
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+
+      ],
+      // Include the 'PopupService provider
+      // but exclude PopupComponent from compilation
+      // because it will be added dynamically
+      providers: [
+        PopupService,
+        MessageService,
+        AdService,
+        {
+          provide: APP_CONFIG,
+          useValue: MAIN_CONFIG
+        },
+        AuthService,
+        { provide: RequestCache, useClass: RequestCacheWithMap },
+        httpInterceptorProviders,
+        SelectivePreloadingStrategyService
+      ],
+      bootstrap: [AppComponent]
+    })
+    export class AppModule {
+      // // Diagnostic only: inspect router configuration
+      // constructor(router: Router) {
+      //   // Use a custom replacer to display function names in the route configs
+      //   const replacer = (key, value) =&gt; (typeof value === 'function') ? value.name : value;
+      //   console.log('AppModule router.config: ', JSON.stringify(router.config, replacer, 2));
+      // }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.server.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { ServerModule } from '@angular/platform-server';
+
+    import { AppModule } from './app.module';
+    import { AppComponent } from './app.component';
+    import { ModuleMapLoaderModule } from '@nguniversal/module-map-ngfactory-loader';
+
+    @NgModule({
+      imports: [
+        AppModule,
+        ServerModule,
+        ModuleMapLoaderModule,
+      ],
+      bootstrap: [AppComponent],
+    })
+    export class AppServerModule {}
+    </code></pre></details>
+
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;ad</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ad-banner.component.ts</summary>
+    <pre><code class='ts'>
+    import {
+      Component, Input, OnInit, ViewChild, ComponentFactoryResolver, OnDestroy
+    } from '@angular/core';
+
+    import { AdDirective } from './ad.directive';
+    import { AdItem }      from './ad-item';
+    import { AdComponent } from './ad.component';
+    import { style } from '@angular/animations';
+    // import { AdService } from './ad.service';
+
+    // ng-template - for dinamic component load
+    @Component({
+      selector: 'app-ad-banner',
+      template: `
+                  &lt;div class=&quot;ad-banner-example&quot;&gt;
+                    &lt;h3&gt;Advertisements&lt;/h3&gt;
+                    &lt;ng-template ad-host&gt;&lt;/ng-template&gt;
+                  &lt;/div&gt;
+                `,
+      styles: [`
+        .ad-banner-example {
+          width: 400px;
+        }
+      `]
+    })
+    export class AdBannerComponent implements OnInit, OnDestroy {
+      @Input() ads: AdItem[];
+      currentAdIndex = -1;
+      @ViewChild(AdDirective) adHost: AdDirective;
+      interval: any;
+      constructor(
+        private componentFactoryResolver: ComponentFactoryResolver
+        // ,private adService: AdService
+      ) { }
+      ngOnInit() {
+        this.loadComponent();
+        this.getAds();
+      }
+      ngOnDestroy() {
+        clearInterval(this.interval);
+      }
+      loadComponent() {
+        // this.ads = this.adService.getAds();
+        this.currentAdIndex = (this.currentAdIndex + 1) % this.ads.length;
+        let adItem = this.ads[this.currentAdIndex];
+        let componentFactory =
+          this.componentFactoryResolver.resolveComponentFactory(adItem.component);
+        let viewContainerRef = this.adHost.viewContainerRef;
+        viewContainerRef.clear();
+        let componentRef = viewContainerRef.createComponent(componentFactory);
+        (&lt;AdComponent&gt;componentRef.instance).data = adItem.data;
+      }
+      getAds() {
+        this.interval = setInterval(() =&gt; {
+          this.loadComponent();
+        }, 3000);
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ad-item.ts</summary>
+    <pre><code class='ts'>
+    import { Type } from '@angular/core';
+
+    export class AdItem {
+      constructor(public component: Type&lt;any&gt;, public data: any) {}
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ad.component.ts</summary>
+    <pre><code class='ts'>
+    export interface AdComponent {
+      data: any;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ad.directive.ts</summary>
+    <pre><code class='ts'>
+    import { Directive, ViewContainerRef } from '@angular/core';
+
+    // injects ViewContainerRef to gain access to the view container of the element
+    @Directive({
+      selector: '[ad-host]', // apply the directive to the element
+    })
+    export class AdDirective {
+      constructor(public viewContainerRef: ViewContainerRef) { }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ad.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable }           from '@angular/core';
+    import { JobAdComponent }   from './job-ad.component';
+    import { ProfileComponent } from './profile.component';
+    import { AdItem }               from './ad-item';
+    @Injectable()
+    export class AdService {
+      getAds() {
+        return [
+          new AdItem(
+            ProfileComponent,
+            {name: 'Bombasto', bio: 'Brave as they come'}),
+          new AdItem(
+            ProfileComponent,
+            {name: 'Dr IQ', bio: 'Smart as they come'}),
+          new AdItem(
+            JobAdComponent,
+            {headline: 'Hiring for several positions',
+              body: 'Submit your resume today!'}),
+          new AdItem(
+            JobAdComponent,
+            {headline: 'Openings in all departments',
+              body: 'Apply today'}),
+        ];
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;job-ad.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input } from '@angular/core';
+
+    import { AdComponent }      from './ad.component';
+
+    @Component({
+      template: `
+        &lt;div class=&quot;ad&quot;&gt;
+          &lt;h4&gt;{{data.headline}}&lt;/h4&gt;
+
+          {{data.body}}
+        &lt;/div&gt;
+      `,
+      styles: [`
+        .ad {
+          border: 1px solid gray;
+          padding: 5px;
+          padding-bottom: 20px;
+          padding-left: 20px;
+          border-radius: 10px;
+          background-color: lightblue;
+          color: black;
+      }`]
+    })
+    export class JobAdComponent implements AdComponent {
+      @Input() data: any;
+
+    }
+
+
+
+    /*
+    Copyright Google LLC. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license
+    */</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;profile.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input }  from '@angular/core';
+
+    import { AdComponent }       from './ad.component';
+
+    @Component({
+      template: `
+        &lt;div class=&quot;profile&quot;&gt;
+          &lt;h3&gt;Featured Profile&lt;/h3&gt;
+          &lt;h4&gt;{{data.name}}&lt;/h4&gt;
+          &lt;p&gt;{{data.bio}}&lt;/p&gt;
+          &lt;strong&gt;Hire today!&lt;/strong&gt;
+        &lt;/div&gt;
+      `,
+      styles: [`
+        .profile {
+          border: 1px solid gray;
+          padding: 5px;
+          padding-bottom: 20px;
+          padding-left: 20px;
+          border-radius: 10px;
+          background-color: lightgreen;
+          color: black;
+        }`]
+    })
+    export class ProfileComponent implements AdComponent {
+      @Input() data: any;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;admin</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-dashboard</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-dashboard.component.html</summary>
+    <pre><code class='html'>
+    &lt;p&gt;Dashboard&lt;/p&gt;
+
+    &lt;p&gt;Session ID: {{ sessionId | async }}&lt;/p&gt;
+    &lt;a id=&quot;anchor&quot;&gt;&lt;/a&gt;
+    &lt;p&gt;Token: {{ token | async }}&lt;/p&gt;
+
+    Preloaded Modules
+    &lt;ul&gt;
+      &lt;li *ngFor=&quot;let module of modules&quot;&gt;{{ module }}&lt;/li&gt;
+    &lt;/ul&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-dashboard.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { ActivatedRoute }     from '@angular/router';
+    import { Observable }         from 'rxjs';
+    import { map }                from 'rxjs/operators';
+    import {
+      SelectivePreloadingStrategyService
+    } from '../../selective-preloading-strategy.service';
+
+    @Component({
+      selector: 'app-admin-dashboard',
+      templateUrl: './admin-dashboard.component.html'
+    })
+    export class AdminDashboardComponent implements OnInit {
+      sessionId: Observable&lt;string&gt;;
+      token: Observable&lt;string&gt;;
+      modules: string[];
+      constructor(
+        private route: ActivatedRoute,
+        preloadStrategy: SelectivePreloadingStrategyService
+      ) {
+        this.modules = preloadStrategy.preloadedModules;
+      }
+      ngOnInit() {
+        // capture session ID if available
+        this.sessionId = this.route
+          .queryParamMap
+          .pipe(map(params =&gt; params.get('session_id') || 'None'));
+        // capture the fragment if available
+        this.token = this.route
+          .fragment
+          .pipe(map(fragment =&gt; fragment || 'None'));
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-helps</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-helps.component.html</summary>
+    <pre><code class='html'>
+    &lt;p&gt;
+      admin-helps works!
+    &lt;/p&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-helps.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-admin-helps',
+      templateUrl: './admin-helps.component.html'
+    })
+    export class AdminHelpsComponent implements OnInit {
+
+      constructor() { }
+
+      ngOnInit() {
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-notes</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-notes.component.html</summary>
+    <pre><code class='html'>
+    &lt;p&gt;
+      admin-notes works!
+    &lt;/p&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-notes.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-admin-notes',
+      templateUrl: './admin-notes.component.html'
+    })
+    export class AdminNotesComponent implements OnInit {
+
+      constructor() { }
+
+      ngOnInit() {
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+
+    import { AdminComponent } from './admin.component';
+    import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+    import { AdminNotesComponent } from './admin-notes/admin-notes.component';
+    import { AdminHelpsComponent } from './admin-helps/admin-helps.component';
+
+    import { AuthGuard }                from '../auth/auth.guard';
+
+    const routes: Routes = [
+      {
+        path: '',
+        component: AdminComponent,
+        canActivate: [AuthGuard],
+        children: [
+          {
+            // component-less route makes it easier to guard child routes
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: [
+              { path: 'helps', component: AdminHelpsComponent },
+              { path: 'notes', component: AdminNotesComponent },
+              { path: '', component: AdminDashboardComponent }
+            ]
+          }
+        ]
+      }
+    ];
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class AdminRoutingModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin.component.html</summary>
+    <pre><code class='html'>
+    &lt;h3&gt;ADMIN&lt;/h3&gt;
+    &lt;nav&gt;
+      &lt;a
+        routerLink=&quot;./&quot;
+        routerLinkActive=&quot;active&quot;
+        [routerLinkActiveOptions]=&quot;{ exact: true }&quot;
+        queryParamsHandling='preserve'
+        preserveFragment
+      &gt;Dashboard&lt;/a&gt;
+      &lt;a
+        routerLink=&quot;./helps&quot;
+        routerLinkActive=&quot;active&quot;
+        queryParamsHandling='preserve'
+        preserveFragment
+      &gt;Manage Helps&lt;/a&gt;
+      &lt;a
+        routerLink=&quot;./notes&quot;
+        routerLinkActive=&quot;active&quot;
+        queryParamsHandling='preserve'
+        preserveFragment
+      &gt;Manage Notes&lt;/a&gt;
+    &lt;/nav&gt;
+    &lt;router-outlet&gt;&lt;/router-outlet&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component } from '@angular/core';
+
+    @Component({
+      selector: 'app-admin',
+      templateUrl: './admin.component.html'
+    })
+    export class AdminComponent {
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;admin.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { CommonModule } from '@angular/common';
+    import { AdminRoutingModule } from './admin-routing.module';
+    import { AdminComponent } from './admin.component';
+
+    import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+    import { AdminNotesComponent } from './admin-notes/admin-notes.component';
+    import { AdminHelpsComponent } from './admin-helps/admin-helps.component';
+
+    @NgModule({
+      declarations: [
+        AdminComponent,
+        AdminDashboardComponent,
+        AdminNotesComponent,
+        AdminHelpsComponent
+      ],
+      imports: [
+        CommonModule,
+        AdminRoutingModule
+      ]
+    })
+    export class AdminModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;animations</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;animations.component.css</summary>
+    <pre><code class='css'>
+    :host {
+    display: block;
+    }
+
+    .open-close-container {
+    border: 1px solid #dddddd;
+    margin-top: 1em;
+    padding: 20px 20px 0px 20px;
+    color: #000000;
+    font-weight: bold;
+    font-size: 20px;
+    }
+
+    .insert-remove-container {
+      border: 1px solid #dddddd;
+      margin-top: 1em;
+      padding: 20px 20px 0px 20px;
+      color: #000000;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .kfBox {
+      width: 10em;
+      border: .2em solid black;
+      display: block;
+      line-height: 5em;
+      text-align: center;
+      font-size: 2em;
+      color: white;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;animations.component.html</summary>
+    <pre><code class='html'>
+    &lt;nav&gt;
+      &lt;button (click)=&quot;toggleAnimations()&quot;&gt;Toggle Animations&lt;/button&gt;
+    &lt;/nav&gt;
+
+    &lt;br&gt;
+    &lt;nav&gt;
+      &lt;button (click)=&quot;toggle()&quot;&gt;Toggle Open/Closed&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div [@.disabled]=&quot;isDisabled&quot;&gt;
+      &lt;div [@openClose]=&quot;isOpen ? true : false&quot;
+        class=&quot;open-close-container&quot;&gt;
+        &lt;p&gt;openClose box is {{ isOpen ? 'Open' : 'Closed' }}!&lt;/p&gt;
+        &lt;p *ngIf=&quot;isOpen&quot; &gt;additional content&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+
+    &lt;br&gt;
+    &lt;nav&gt;
+      &lt;button
+        (click)=&quot;toggleImportedOpenClose()&quot;
+      &gt;Toggle Imported Open/Closed&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div [@.disabled]=&quot;isDisabled&quot;&gt;
+      &lt;div [@importedOpenClose]=&quot;isImportedOpenClose ? true : false&quot;
+        class=&quot;open-close-container&quot;&gt;
+        importedOpenClose box is {{ isImportedOpenClose ? 'Open' : 'Closed' }}!
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;br&gt;
+    &lt;nav&gt;
+      &lt;button (click)=&quot;toggle2()&quot;&gt;Toggle Open/Close 2&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div [@.disabled]=&quot;isDisabled&quot;&gt;
+      &lt;div [@openClose2]=&quot;isOpen2 ? 'open2' : 'closed2'&quot;
+        (@openClose2.start)=&quot;onAnimationEvent($event)&quot;
+        (@openClose2.done)=&quot;onAnimationEvent($event)&quot;
+        class=&quot;open-close-container&quot;&gt;
+        &lt;p&gt;openClose2 box is {{ isOpen2 ? 'Open' : 'Closed' }}!&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;br&gt;
+    &lt;nav&gt;
+      &lt;button
+        (click)=&quot;toggleEnterLeave()&quot;
+      &gt;toggleEnterLeave()&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div
+      @enterLeaveTrigger
+      *ngIf=&quot;enterLeave&quot;
+      class=&quot;insert-remove-container&quot;
+    &gt;
+      &lt;p&gt;The box is inserted&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;br&gt;
+    &lt;nav&gt;
+      &lt;button (click)=&quot;kfToggle()&quot;&gt;kfToggle()&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div [@kfSample]=&quot;kfStatus&quot; class=&quot;kfBox&quot;&gt;
+      {{ kfStatus == 'active' ? 'Active' : 'Inactive' }}
+    &lt;/div&gt;
+
+    &lt;br&gt;
+    &lt;div class=&quot;w_100pc&quot;&gt;
+      &lt;div class=&quot;w_32pc&quot;&gt;
+        &lt;ul class=&quot;notes&quot;&gt;
+          &lt;li
+            *ngFor=&quot;let note of notes_1&quot;
+            [@shrinkOut]=&quot;'in'&quot;
+            (click)=&quot;removeNote(note.id)&quot;&gt;
+              &lt;div class=&quot;inner&quot;&gt;
+                &lt;span class=&quot;id&quot;&gt;{{ note.id }}&lt;/span&gt;
+                &lt;span&gt;{{ note.title }}&lt;/span&gt;
+              &lt;/div&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;w_32pc&quot;&gt;
+        &lt;ul
+          class=&quot;notes&quot;
+          [@filterAnimation]=&quot;noteTotal&quot;&gt;
+            &lt;li *ngFor=&quot;let note of notes_2_2&quot; class=&quot;note&quot;&gt;
+              &lt;div class=&quot;inner&quot;&gt;
+                &lt;span class=&quot;id&quot;&gt;{{ note.id }}&lt;/span&gt;
+                &lt;span&gt;{{ note.title }}&lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;form&gt;
+        &lt;input
+          #criteria (input)=&quot;updateCriteria(criteria.value)&quot;
+          placeholder=&quot;Search Notes&quot;
+        /&gt;&lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;animations.component.ts</summary>
+    <pre><code class='ts'>
+    import {
+      Component, OnInit, HostBinding, EventEmitter
+    } from '@angular/core';
+    import {
+      state, style, trigger,
+      animate, transition, group,
+      query, stagger, keyframes,
+      useAnimation,
+      AnimationEvent
+    } from '@angular/animations';
+
+    import {
+      transOnAnimation, transOffAnimation
+    } from '../animations';
+
+    import { NOTES } from '../notes/mock-notes';
+
+    @Component({
+      selector: 'app-animations',
+      templateUrl: './animations.component.html',
+      styleUrls: ['./animations.component.css'],
+      animations: [
+
+        trigger('openClose', [
+          state('true', style({
+            height: '8em',
+            opacity: 1,
+            backgroundColor: 'yellow'
+          })),
+          state('false', style({
+            height: '4em',
+            opacity: 0.5,
+            backgroundColor: 'green'
+          })),
+          transition('false &lt;=&gt; true', [
+            animate('1s'
+              // , keyframes ( [
+              //   style({ opacity: 0.1, offset: 0.1 }),
+              //   style({ opacity: 0.6, offset: 0.2 }),
+              //   style({ opacity: 1,   offset: 0.5 }),
+              //   style({ opacity: 0.2, offset: 0.7 })
+              // ])
+            )
+          ]),
+        ]),
+
+        trigger('importedOpenClose', [
+          transition('false =&gt; true', [
+            useAnimation(transOnAnimation)
+          ]),
+          transition('true =&gt; false', [
+            useAnimation(transOffAnimation, {
+              params: {
+                time: '.2s'
+              }
+            })
+          ])
+        ]),
+
+        trigger('openClose2', [
+          state('open2', style({
+            height: '200px',
+            // opacity: 1,
+            backgroundColor: 'yellow'
+          })),
+          state('closed2', style({
+            height: '100px',
+            // opacity: 0.5,
+            backgroundColor: 'green'
+          })),
+          transition('open2 =&gt; closed2', [
+            animate('1s')
+          ]),
+          transition('closed2 =&gt; open2', [
+            animate('0.5s')
+          ]),
+
+          transition('* =&gt; closed2', [
+            animate('1s')
+          ]),
+          transition('* =&gt; open2', [
+            animate('0.5s')
+          ]),
+
+          transition('open2 &lt;=&gt; closed2', [
+            animate('0.5s')
+          ]),
+          transition ('* =&gt; open2', [
+            animate ('1s',
+              style ({ opacity: '*' }),
+            ),
+          ]),
+          transition('* =&gt; *', [
+            animate('1s')
+          ]),
+        ]),
+
+        trigger('enterLeaveTrigger', [
+          transition(':enter', [
+            style({ opacity: 0 }),
+            animate('0.5s', style({ opacity: 1 })),
+          ]),
+          transition(':leave', [
+            animate('0.5s', style({ opacity: 0 }))
+          ])
+        ]),
+
+        trigger('shrinkOut', [
+          state('in', style({ height: '*' })),
+          transition('* =&gt; void', [
+            style({ height: '*' }),
+            animate(250, style({ height: 0 }))
+          ])
+        ]),
+
+        trigger('kfSample', [
+          state('inactive', style({ backgroundColor: 'blue' })),
+          state('active', style({ backgroundColor: 'orange' })),
+          transition('* =&gt; active', [
+            animate('2s', keyframes([
+              style({ backgroundColor: 'blue', offset: 0}),
+              style({ backgroundColor: 'red', offset: 0.8}),
+              style({ backgroundColor: 'orange', offset: 1.0})
+            ])),
+          ]),
+          transition('* =&gt; inactive', [
+            animate('2s', keyframes([
+              style({ backgroundColor: 'orange', offset: 0}),
+              style({ backgroundColor: 'red', offset: 0.2}),
+              style({ backgroundColor: 'blue', offset: 1.0})
+            ]))
+          ]),
+          transition('* =&gt; active', [
+            animate('2s', keyframes([
+              style({ backgroundColor: 'blue' }),
+              style({ backgroundColor: 'red' }),
+              style({ backgroundColor: 'orange' })
+            ]))
+          ]),
+        ]),
+
+        trigger('enterPageAnimations', [
+          transition(':enter', [
+            query('.note, form', [
+              // invisible and use transform to move it out of position
+              style({opacity: 0, transform: 'translateY(-100px)'}),
+              // delay each animation by 30 milliseconds
+              stagger(-30, [
+                // animate each element on screen for 0.5 seconds
+                // using a custom-defined easing curve,
+                // simultaneously fading it in and un-transforming it
+                animate(
+                  '500ms cubic-bezier(0.35, 0, 0.25, 1)',
+                  style({ opacity: 1, transform: 'none' })
+                )
+              ])
+            ])
+          ])
+        ]),
+        trigger('filterAnimation', [
+          transition(':enter, * =&gt; 0, * =&gt; -1', []),
+          transition(':increment', [
+            query(':enter', [
+              style({ opacity: 0, width: '0px' }),
+              stagger(50, [
+                animate(
+                  '300ms ease-out',
+                  style({ opacity: 1, width: '*' })
+                ),
+              ]),
+            ], { optional: true })
+          ]),
+          transition(':decrement', [
+            query(':leave', [
+              stagger(50, [
+                animate(
+                  '300ms ease-out',
+                  style({ opacity: 0, width: '0px' })
+                ),
+              ]),
+            ]/*, { optional: true } */)
+          ]),
+        ]),
+
+      ],
+    })
+    export class AnimationsComponent implements OnInit {
+      constructor() { }
+      isDisabled = false;
+      toggleAnimations() { this.isDisabled = !this.isDisabled; }
+
+      isOpen = false;
+      toggle() { this.isOpen = !this.isOpen; }
+
+      isImportedOpenClose = false;
+      toggleImportedOpenClose() {
+        this.isImportedOpenClose = !this.isImportedOpenClose;
+      }
+
+      isOpen2 = false;
+      onAnimationEvent ( event: AnimationEvent ) {
+        // // openClose is trigger name in this example
+        // console.warn(`Animation Trigger: ${event.triggerName}`);
+        // // phaseName is start or done
+        // console.warn(`Phase: ${event.phaseName}`);
+        // // in our example, totalTime is 1000 or 1 second
+        // console.warn(`Total time: ${event.totalTime}`);
+        // // in our example, fromState is either open or closed
+        // console.warn(`From: ${event.fromState}`);
+        // // in our example, toState either open or closed
+        // console.warn(`To: ${event.toState}`);
+        // // the HTML element itself, the button in this case
+        // console.warn(`Element: ${event.element}`);
+      }
+      toggle2() { this.isOpen2 = !this.isOpen2; }
+
+      notes_1 = NOTES.slice();
+      removeNote(id: number) {
+        this.notes_1 = this.notes_1.filter(note =&gt; note.id !== id);
+      }
+
+      // insert/remove
+      enterLeave = false;
+      toggleEnterLeave() { this.enterLeave = !this.enterLeave; }
+
+      // keyframes
+      kfStatus: 'active' | 'inactive' = 'inactive';
+      kfToggle() {
+        if (this.kfStatus === 'active') { this.kfStatus = 'inactive'; }
+        else { this.kfStatus = 'active'; }
+      }
+
+      // animate multiple elements filter/stagger
+      @HostBinding('@enterPageAnimations')
+      ngOnInit() { this.notes_2_2 = NOTES; }
+      public animatePage = true;
+      notes_2_2 = [];
+      noteTotal = -1;
+      get notes_2_1() { return this.notes_2_2; }
+      updateCriteria(criteria: string) {
+        criteria = criteria ? criteria.trim() : '';
+        this.notes_2_2 = NOTES.filter(
+          note =&gt; note.title.toLowerCase().includes(criteria.toLowerCase())
+        );
+        const newTotal = this.notes_2_1.length;
+        if (this.noteTotal !== newTotal) {
+          this.noteTotal = newTotal;
+        } else if (!criteria) {
+          this.noteTotal = -1;
+        }
+      }
+
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;animations.ts</summary>
+    <pre><code class='ts'>
+    import {
+      trigger, animateChild, group,
+      transition, animate, style, query,
+      animation
+    } from '@angular/animations';
+
+    // reusable animations
+    export const transOnAnimation = animation([
+      style({
+        height: '{{ height }}',
+        opacity: '{{ opacity }}',
+        backgroundColor: '{{ backgroundColor }}'
+      }), animate('{{ time }}') ],
+      // defaults
+      {
+        params: {
+          height: '6em',
+          opacity: 1,
+          backgroundColor: 'green',
+          time: '2s'
+        }
+      }
+    );
+    export const transOffAnimation = animation([
+      style({
+        height: '3em',
+        opacity: 0.2,
+        backgroundColor: 'red'
+      }), animate('{{ time }}') ],
+      // defaults
+      {
+        params: {
+          time: '.5s'
+        }
+      }
+    );
+
+    // routable animations
+    export const slideInAnimation =
+      trigger('routeAnimation', [
+        transition('notes &lt;=&gt; note', [
+          // host view must use relative positioning
+          style({ position: 'relative' }),
+          // child views must use absolute positioning
+          query(':enter, :leave', [
+            style({
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              backgroundColor: 'white'
+            })
+          ]),
+          query(':enter', [
+            style({ left: '-100%'})
+          ]),
+          query(':leave', animateChild()),
+          group([
+            query(':leave', [
+              animate(
+                '300ms ease-out',
+                style({ left: '100%', opacity: 0})
+              )
+            ]),
+            query(':enter', [
+              animate(
+                '300ms ease-out',
+                style({ left: '0%', opacity: 1})
+              )
+            ])
+          ]),
+          query(':enter', animateChild()),
+        ])
+      ]);
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;auth</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.guard.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable }       from '@angular/core';
+    import {
+      CanActivate, Router,
+      ActivatedRouteSnapshot,
+      RouterStateSnapshot,
+      CanActivateChild,
+      NavigationExtras,
+      CanLoad, Route
+    }                           from '@angular/router';
+    import { AuthService }      from './auth.service';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
+      constructor(
+        private authService: AuthService,
+        private router: Router
+      ) {}
+
+      canActivate(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): boolean {
+        let url: string = state.url;
+        return this.checkLogin(url);
+      }
+      canActivateChild(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): boolean {
+        return this.canActivate(route, state);
+      }
+      canLoad(route: Route): boolean {
+        let url = `/${route.path}`;
+        return this.checkLogin(url);
+      }
+      checkLogin(url: string): boolean {
+        if (this.authService.isLoggedIn) { return true; }
+        this.authService.redirectUrl = url; // attempted URL for redirecting
+        let sessionId = 123456789; // dummy session id
+        // navigation extras object: global query params and fragment
+        let navigationExtras: NavigationExtras = {
+          queryParams: { 'session_id': sessionId },
+          fragment: 'anchor'
+        };
+        // navigate to the login page with extras
+        this.router.navigate(['/login'], navigationExtras);
+        return false;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule }       from '@angular/core';
+    import { CommonModule }   from '@angular/common';
+    import { FormsModule }    from '@angular/forms';
+
+    import { LoginComponent }    from './login/login.component';
+
+    // import { AuthRoutingModule } from './auth-routing.module';
+    import { RouterModule, Routes } from '@angular/router';
+    const appRoutes: Routes = [
+      { path: 'login', component: LoginComponent }
+    ];
+
+    @NgModule({
+      imports: [
+        CommonModule,
+        FormsModule,
+        // ,AuthRoutingModule
+        RouterModule.forRoot(appRoutes)
+      ],
+      declarations: [
+        LoginComponent
+      ]
+    })
+    export class AuthModule {}</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable, of } from 'rxjs';
+    import { tap, delay } from 'rxjs/operators';
+
+    /** Mock client-side authentication/authorization service */
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class AuthService {
+      isLoggedIn = false;
+      redirectUrl: string; // url to redirect after login
+      login(): Observable&lt;boolean&gt; {
+        return of(true).pipe(
+          delay(1000),
+          tap(val =&gt; this.isLoggedIn = true)
+        );
+      }
+      logout(): void {
+        this.isLoggedIn = false;
+      }
+      getAuthorizationToken() {
+        return 'some-auth-token';
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;login</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;login.component.html</summary>
+    <pre><code class='html'>
+    &lt;h2&gt;LOGIN&lt;/h2&gt;
+    &lt;p&gt;{{message}}&lt;/p&gt;
+    &lt;p&gt;
+      &lt;button
+        (click)=&quot;login()&quot;
+        *ngIf=&quot;!authService.isLoggedIn&quot;
+      &gt;Login&lt;/button&gt;
+      &lt;button
+        (click)=&quot;logout()&quot;
+        *ngIf=&quot;authService.isLoggedIn&quot;
+      &gt;Logout&lt;/button&gt;
+    &lt;/p&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;login.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component } from '@angular/core';
+    import { Router, NavigationExtras } from '@angular/router';
+    import { AuthService } from '../auth.service';
+
+    @Component({
+      selector: 'app-login',
+      templateUrl: './login.component.html'
+    })
+    export class LoginComponent {
+      message: string;
+      constructor(
+        public authService: AuthService,
+        public router: Router
+      ) {
+        this.setMessage();
+      }
+      setMessage() {
+        this.message = 'Logged ' + (this.authService.isLoggedIn ? 'in' : 'out');
+      }
+      login() {
+        this.message = 'Trying to log in ...';
+        this.authService.login().subscribe(() =&gt; {
+          this.setMessage();
+          if (this.authService.isLoggedIn) {
+            // redirect using default or attempted url
+            let redirect = this.authService.redirectUrl ?
+                          this.authService.redirectUrl : '/help-center/admin';
+            // keep navigation extras object
+            let navigationExtras: NavigationExtras = {
+              queryParamsHandling: 'preserve', // or 'merge', to concat params
+              preserveFragment: true
+            };
+            this.router.navigate([redirect], navigationExtras); // redirect
+          }
+        });
+      }
+      logout() {
+        this.authService.logout();
+        this.setMessage();
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;can-deactivate.guard.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable }    from '@angular/core';
+    import { CanDeactivate } from '@angular/router';
+    import { Observable }    from 'rxjs';
+
+    export interface CanComponentDeactivate {
+    canDeactivate: () =&gt; Observable&lt;boolean&gt; | Promise&lt;boolean&gt; | boolean;
+    }
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class CanDeactivateGuard implements CanDeactivate&lt;CanComponentDeactivate&gt; {
+      canDeactivate(component: CanComponentDeactivate) {
+        return component.canDeactivate ? component.canDeactivate() : true;
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;dashboard</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dashboard.component.css</summary>
+    <pre><code class='css'>
+    [class*='col-'] {
+      float: left;
+      padding-right: 20px;
+      padding-bottom: 20px;
+    }
+    [class*='col-']:last-of-type {
+      padding-right: 0;
+    }
+    a {
+      text-decoration: none;
+    }
+    *, *:after, *:before {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .grid {
+      margin: 0;
+    }
+    .grid-pad {
+      padding: 10px 0;
+    }
+    .grid-pad &gt; [class*='col-']:last-of-type {
+      padding-right: 20px;
+    }
+    .col-1-4 {
+      width: 25%;
+    }
+    .module {
+      padding: 20px;
+      text-align: center;
+      color: #eee;
+      max-height: 120px;
+      min-width: 120px;
+      background-color: #607d8b;
+      border-radius: 2px;
+    }
+    .module:hover {
+      background-color: #eee;
+      cursor: pointer;
+      color: #607d8b;
+    }
+    @media (max-width: 600px) {
+      .module {
+        font-size: 10px;
+        max-height: 75px; }
+    }
+    @media (max-width: 1024px) {
+      .grid {
+        margin: 0;
+      }
+      .module {
+        min-width: 60px;
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dashboard.component.html</summary>
+    <pre><code class='html'>
+    &lt;h3&gt;Top Notes&lt;/h3&gt;
+    &lt;div class=&quot;grid grid-pad&quot;&gt;
+      &lt;a
+        *ngFor=&quot;let note of notes&quot;
+        class=&quot;col-1-4&quot;
+        routerLink=&quot;/note/{{note.id}}&quot;
+      &gt;
+        &lt;div class=&quot;module note&quot; [appHighlight]=&quot;hColor&quot;&gt;
+          &lt;h4&gt;{{note.title}}&lt;/h4&gt;
+        &lt;/div&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+    &lt;h4&gt;Pick a highlight color&lt;/h4&gt;
+    &lt;div&gt;
+      &lt;input type=&quot;radio&quot; name=&quot;colors&quot; (click)=&quot;hColor='lightgreen'&quot;&gt;Green
+      &lt;input type=&quot;radio&quot; name=&quot;colors&quot; (click)=&quot;hColor='yellow'&quot;&gt;Yellow
+      &lt;input type=&quot;radio&quot; name=&quot;colors&quot; (click)=&quot;hColor='cyan'&quot;&gt;Cyan
+    &lt;/div&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dashboard.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { Note } from '../notes/note';
+    import { NoteService } from '../notes/note.service';
+
+    @Component({
+      selector: 'app-dashboard',
+      templateUrl: './dashboard.component.html',
+      styleUrls: ['./dashboard.component.css']
+    })
+    export class DashboardComponent implements OnInit {
+      notes: Note[] = [];
+      hColor: string;
+      constructor(private noteService: NoteService) { }
+      ngOnInit() {
+        this.getNotes();
+      }
+      getNotes(): void {
+        this.noteService.getNotes()
+          .subscribe(notes =&gt; this.notes = notes.slice(1, 5));
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;dialog.service.spec.ts</summary>
+    <pre><code class='ts'>
+    // Straight Jasmine testing without Angular testing support
+    import { DialogService }  from './dialog.service';
+    describe('DialogService', () =&gt; {
+    let service: DialogService;
+    beforeEach(() =&gt; { service = new DialogService(); });
+
+    //  it('#confirm', () =&gt; {
+    //    expect(service.confirm()).toBe('real value');
+    //  });
+
+    // it('#getObservableValue should return value from observable',
+    //   (done: DoneFn) =&gt; {
+    //   service.getObservableValue().subscribe(value =&gt; {
+    //     expect(value).toBe('observable value');
+    //     done();
+    //   });
+    // });
+
+    // it('#getPromiseValue should return value from a promise',
+    //   (done: DoneFn) =&gt; {
+    //   service.getPromiseValue().then(value =&gt; {
+    //     expect(value).toBe('promise value');
+    //     done();
+    //   });
+    // });
+
+    });</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;dialog.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable, of } from 'rxjs';
+
+    // Async modal dialog service
+    // makes this app easier to test by faking this service
+    // TODO: better modal implementation that doesn't use window.confirm
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class DialogService {
+      // ask user to confirm an action
+      // `message` explains the action and choices
+      // returns observable resolving to `true`=confirm or `false`=cancel
+      confirm(message?: string): Observable&lt;boolean&gt; {
+        const confirmation = window.confirm(message || 'Is it OK?');
+        return of(confirmation);
+      };
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form-page.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { DropdownQuestion } from './question-dropdown';
+    import { QuestionBase }     from './question-base';
+    import { TextboxQuestion }  from './question-textbox';
+    @Component({
+      selector: 'app-dynamic-form-page',
+      template: `
+        &lt;div&gt;
+          &lt;h2&gt;Job Application for Heroes&lt;/h2&gt;
+          &lt;app-dynamic-form [questions]=&quot;questions&quot;&gt;&lt;/app-dynamic-form&gt;
+        &lt;/div&gt;
+      `
+    })
+    export class DynamicFormPageComponent implements OnInit {
+      questions: any[];
+
+      constructor() { }
+
+      ngOnInit() {
+        this.questions = this.getQuestions();
+      }
+
+      // TODO: get from a remote source of question metadata
+      // TODO: make asynchronous
+      getQuestions() {
+        let questions: QuestionBase&lt;any&gt;[] = [
+          new DropdownQuestion({
+            key: 'brave',
+            label: 'Bravery Rating',
+            options: [
+              {key: 'solid',  value: 'Solid'},
+              {key: 'great',  value: 'Great'},
+              {key: 'good',   value: 'Good'},
+              {key: 'unproven', value: 'Unproven'}
+            ],
+            order: 3
+          }),
+          new TextboxQuestion({
+            key: 'firstName',
+            label: 'First name',
+            value: 'Bombasto',
+            required: true,
+            order: 1
+          }),
+          new TextboxQuestion({
+            key: 'emailAddress',
+            label: 'Email',
+            type: 'email',
+            order: 2
+          })
+        ];
+        return questions.sort((a, b) =&gt; a.order - b.order);
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form-question.component.html</summary>
+    <pre><code class='html'>
+    &lt;div [formGroup]=&quot;form&quot;&gt;
+      &lt;label [attr.for]=&quot;question.key&quot;&gt;{{question.label}}&lt;/label&gt;
+      &lt;div [ngSwitch]=&quot;question.controlType&quot;&gt;
+        &lt;input *ngSwitchCase=&quot;'textbox'&quot; [formControlName]=&quot;question.key&quot;
+                [id]=&quot;question.key&quot; [type]=&quot;question.type&quot;&gt;
+        &lt;select [id]=&quot;question.key&quot; *ngSwitchCase=&quot;'dropdown'&quot; [formControlName]=&quot;question.key&quot;&gt;
+          &lt;option *ngFor=&quot;let opt of question.options&quot; [value]=&quot;opt.key&quot;&gt;{{opt.value}}&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;errorMessage&quot; *ngIf=&quot;!isValid&quot;&gt;{{question.label}} is required&lt;/div&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form-question.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input } from '@angular/core';
+    import { FormGroup }        from '@angular/forms';
+
+    import { QuestionBase }     from './question-base';
+
+    @Component({
+      selector: 'app-question',
+      templateUrl: './dynamic-form-question.component.html'
+    })
+    export class DynamicFormQuestionComponent {
+      @Input() question: QuestionBase&lt;any&gt;;
+      @Input() form: FormGroup;
+      get isValid() { return this.form.controls[this.question.key].valid; }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form.component.html</summary>
+    <pre><code class='html'>
+    &lt;div&gt;
+      &lt;form (ngSubmit)=&quot;onSubmit()&quot; [formGroup]=&quot;form&quot;&gt;
+        &lt;div *ngFor=&quot;let question of questions&quot; class=&quot;form-row&quot;&gt;
+          &lt;app-question [question]=&quot;question&quot; [form]=&quot;form&quot;&gt;&lt;/app-question&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;form-row&quot;&gt;
+          &lt;button type=&quot;submit&quot; [disabled]=&quot;!form.valid&quot;&gt;Save&lt;/button&gt;
+          &lt;button (click)=&quot;cancel()&quot;&gt;Cancel&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/form&gt;
+      &lt;div *ngIf=&quot;payLoad&quot; class=&quot;form-row&quot;&gt;
+        &lt;strong&gt;Saved the following values&lt;/strong&gt;&lt;br&gt;{{payLoad}}
+      &lt;/div&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;dynamic-form.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, Input, OnInit }  from '@angular/core';
+    import { Router }                 from '@angular/router';
+    import { FormGroup }                 from '@angular/forms';
+    import { QuestionBase }              from './question-base';
+    import { QuestionControlService }    from './question-control.service';
+    @Component({
+      selector: 'app-dynamic-form',
+      templateUrl: './dynamic-form.component.html',
+      providers: [ QuestionControlService ]
+    })
+    export class DynamicFormComponent implements OnInit {
+      @Input() questions: QuestionBase&lt;any&gt;[] = [];
+      form: FormGroup;
+      payLoad = '';
+      constructor(
+        private qcs: QuestionControlService,
+        private router: Router
+      ) {  }
+      ngOnInit() {
+        this.form = this.qcs.toFormGroup(this.questions);
+      }
+      onSubmit() {
+        this.payLoad = JSON.stringify(this.form.value);
+      }
+      cancel() {
+        this.closePopup();
+      }
+      closePopup() {
+        // clears the contents of the named outlet
+        this.router.navigate([{ outlets: { fordynamicform: null }}]);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;question-base.ts</summary>
+    <pre><code class='ts'>
+    export class QuestionBase&lt;T&gt; {
+      value: T;
+      key: string;
+      label: string;
+      required: boolean;
+      order: number;
+      controlType: string;
+
+      constructor(options: {
+          value?: T,
+          key?: string,
+          label?: string,
+          required?: boolean,
+          order?: number,
+          controlType?: string
+        } = {}) {
+        this.value = options.value;
+        this.key = options.key || '';
+        this.label = options.label || '';
+        this.required = !!options.required;
+        this.order = options.order === undefined ? 1 : options.order;
+        this.controlType = options.controlType || '';
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;question-control.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable }   from '@angular/core';
+    import { FormControl, FormGroup, Validators } from '@angular/forms';
+    import { QuestionBase } from './question-base';
+    @Injectable()
+    export class QuestionControlService {
+      constructor() { }
+      toFormGroup(questions: QuestionBase&lt;any&gt;[] ) {
+        let group: any = {};
+        questions.forEach(question =&gt; {
+          group[question.key] = question.required ?
+          new FormControl(question.value || '', Validators.required) :
+          new FormControl(question.value || '');
+        });
+        return new FormGroup(group);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;question-dropdown.ts</summary>
+    <pre><code class='ts'>
+    import { QuestionBase } from './question-base';
+
+    export class DropdownQuestion extends QuestionBase&lt;string&gt; {
+      controlType = 'dropdown';
+      options: {key: string, value: string}[] = [];
+
+      constructor(options: {} = {}) {
+        super(options);
+        this.options = options['options'] || [];
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;question-textbox.ts</summary>
+    <pre><code class='ts'>
+    import { QuestionBase } from './question-base';
+
+    export class TextboxQuestion extends QuestionBase&lt;string&gt; {
+      controlType = 'textbox';
+      type: string;
+
+      constructor(options: {} = {}) {
+        super(options);
+        this.type = options['type'] || '';
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;exponentit.pipe.ts</summary>
+    <pre><code class='ts'>
+    import { Pipe, PipeTransform } from '@angular/core';
+    /*
+    * Raise the value exponentially
+    * Takes an exponent argument that defaults to 1.
+    * Usage: value | exponentit:exponent
+    * Example: {{ 2 | exponentit:10 }} // formats to: 1024
+    */
+    @Pipe({name: 'exponentit'})
+    export class ExponentitPipe implements PipeTransform {
+      transform(value: number, exponent: string): number {
+        let exp = parseFloat(exponent);
+        return Math.pow(value, isNaN(exp) ? 1 : exp);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;help-center</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-center-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+
+    import { HelpCenterComponent } from './help-center.component';
+    import { HelpListComponent }       from './help-list/help-list.component';
+    import { HelpDetailsComponent }     from './help-details/help-details.component';
+    import { HelpDetailsResolverService } from './help-details-resolver.service';
+
+    import { CanDeactivateGuard } from '../can-deactivate.guard';
+
+    const routes: Routes = [
+      {
+        path: '',
+        component: HelpCenterComponent,
+        children: [
+          {
+            path: '',
+            component: HelpListComponent,
+            children: [
+              {
+                path: ':id',
+                component: HelpDetailsComponent,
+                canDeactivate: [CanDeactivateGuard],
+                resolve: {
+                  help: HelpDetailsResolverService
+                }
+              }
+              // ,{
+              //   path: '',
+              //   component: HelpCenterComponent
+              // }
+            ]
+          }
+        ]
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class HelpCenterRoutingModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-center.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-help-center',
+      template:`
+        &lt;h2&gt;HELP CENTER&lt;/h2&gt;
+        &lt;router-outlet&gt;&lt;/router-outlet&gt;
+      `
+    })
+    export class HelpCenterComponent implements OnInit {
+
+      constructor() { }
+
+      ngOnInit() {
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-center.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { CommonModule } from '@angular/common';
+    import { FormsModule }    from '@angular/forms';
+
+    import { HelpCenterRoutingModule } from './help-center-routing.module';
+    import { HelpCenterComponent } from './help-center.component';
+    import { HelpListComponent } from './help-list/help-list.component';
+    import { HelpDetailsComponent } from './help-details/help-details.component';
+
+    @NgModule({
+      declarations: [
+        HelpCenterComponent,
+        HelpListComponent,
+        HelpDetailsComponent
+      ],
+      imports: [
+        CommonModule,
+        FormsModule,
+        HelpCenterRoutingModule
+      ]
+    })
+    export class HelpCenterModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-details</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-details.component.html</summary>
+    <pre><code class='html'>
+    &lt;div *ngIf=&quot;help&quot;&gt;
+      &lt;h3&gt;&quot;{{ editName }}&quot;&lt;/h3&gt;
+      &lt;div&gt;
+        &lt;label&gt;Id: &lt;/label&gt;{{ help.id }}&lt;/div&gt;
+      &lt;div&gt;
+        &lt;label&gt;Name: &lt;/label&gt;
+        &lt;input [(ngModel)]=&quot;editName&quot; placeholder=&quot;name&quot;/&gt;
+      &lt;/div&gt;
+      &lt;p&gt;
+        &lt;button (click)=&quot;save()&quot;&gt;Save&lt;/button&gt;
+        &lt;button (click)=&quot;cancel()&quot;&gt;Cancel&lt;/button&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-details.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit, HostBinding } from '@angular/core';
+    import { ActivatedRoute, Router } from '@angular/router';
+    import { Observable } from 'rxjs';
+
+    import { Help }         from '../help';
+    import { DialogService }  from '../../dialog.service';
+
+    @Component({
+      selector: 'app-help-details',
+      templateUrl: './help-details.component.html'
+    })
+    export class HelpDetailsComponent implements OnInit {
+      help: Help;
+      editName: string;
+
+      constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        public dialogService: DialogService
+      ) {}
+
+      ngOnInit() {
+        this.route.data
+          .subscribe((data: { help: Help }) =&gt; {
+            this.editName = data.help.name;
+            this.help = data.help;
+          });
+      }
+
+      cancel() {
+        this.gotoHelps();
+      }
+
+      save() {
+        this.help.name = this.editName;
+        this.gotoHelps();
+      }
+
+      canDeactivate(): Observable&lt;boolean&gt; | boolean {
+        if (!this.help || this.help.name === this.editName) {
+          return true; // no changes or no data for component
+        }
+        // decision observable
+        return this.dialogService.confirm('Discard changes?');
+      }
+
+      gotoHelps() {
+        let helpId = this.help ? this.help.id : null;
+        // Pass along the help id if available
+        // so that the HelpListComponent can select that help
+        // Add a totally useless `foo` parameter for kicks
+        // Relative navigation back to the help
+        this.router.navigate(['../', { id: helpId, foo: 'foo' }], { relativeTo: this.route });
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-details-resolver.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable }             from '@angular/core';
+    import {
+      Router, Resolve,
+      RouterStateSnapshot,
+      ActivatedRouteSnapshot
+    }                                 from '@angular/router';
+    import { Observable, of, EMPTY }  from 'rxjs';
+    import { mergeMap, take }         from 'rxjs/operators';
+
+    import { HelpsService }  from './helps.service';
+    import { Help } from './help';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class HelpDetailsResolverService implements Resolve&lt;Help&gt; {
+      constructor(
+        private hs: HelpsService,
+        private router: Router
+      ) {}
+
+      resolve(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot
+      ): Observable&lt;Help&gt; | Observable&lt;never&gt; {
+        let id = route.paramMap.get('id');
+
+        return this.hs.getHelp(id).pipe(
+          take(1), // Observable completes after retrieving the first value
+          mergeMap(help =&gt; {
+            if (help) {
+              return of(help);
+            } else { // id not found
+              this.router.navigate(['/help-center']);
+              return EMPTY;
+            }
+          })
+        );
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-list</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-list.component.css</summary>
+    <pre><code class='css'>
+    /* CrisisListComponent's private CSS styles */
+    .helps {
+    margin: 0 0 2em 0;
+    list-style-type: none;
+    padding: 0;
+    width: 24em;
+    }
+    .helps li {
+    position: relative;
+    cursor: pointer;
+    background-color: #EEE;
+    margin: .5em;
+    padding: .3em 0;
+    height: 1.6em;
+    border-radius: 4px;
+    }
+
+    .helps li:hover {
+    color: #607D8B;
+    background-color: #DDD;
+    }
+
+    .helps a {
+    color: #888;
+    text-decoration: none;
+    display: block;
+    }
+
+    .helps a:hover {
+    color:#607D8B;
+    }
+
+    .helps .badge {
+    display: inline-block;
+    font-size: small;
+    color: white;
+    padding: 0.8em 0.7em 0 0.7em;
+    background-color: #607D8B;
+    line-height: 1em;
+    position: relative;
+    left: -1px;
+    top: -4px;
+    height: 1.8em;
+    min-width: 16px;
+    text-align: right;
+    margin-right: .8em;
+    border-radius: 4px 0 0 4px;
+    }
+
+    button {
+    background-color: #eee;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    cursor: hand;
+    font-family: Arial;
+    }
+
+    button:hover {
+    background-color: #cfd8dc;
+    }
+
+    button.delete {
+    position: relative;
+    left: 194px;
+    top: -32px;
+    background-color: gray !important;
+    color: white;
+    }
+
+    .helps li.selected {
+    background-color: #CFD8DC;
+    color: white;
+    }
+    .helps li.selected:hover {
+    background-color: #BBD8DC;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-list.component.html</summary>
+    <pre><code class='html'>
+    &lt;ul class=&quot;helps&quot;&gt;
+      &lt;li *ngFor=&quot;let help of helps$ | async&quot;
+        [class.selected]=&quot;help.id === selectedId&quot;&gt;
+        &lt;a [routerLink]=&quot;[help.id]&quot;&gt;
+          &lt;span class=&quot;badge&quot;&gt;{{ help.id }}&lt;/span&gt;{{ help.name }}
+        &lt;/a&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;router-outlet&gt;&lt;/router-outlet&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help-list.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit }  from '@angular/core';
+    import { ActivatedRoute }     from '@angular/router';
+    import { Observable }     from 'rxjs';
+    import { switchMap }      from 'rxjs/operators';
+
+    import { HelpsService }  from '../helps.service';
+    import { Help }         from '../help';
+
+    @Component({
+      selector: 'app-help-list',
+      templateUrl: './help-list.component.html',
+      styleUrls: ['./help-list.component.css']
+    })
+    export class HelpListComponent implements OnInit {
+      helps$: Observable&lt;Help[]&gt;;
+      selectedId: number;
+
+      constructor(
+        private service: HelpsService,
+        private route: ActivatedRoute
+      ) {}
+
+      ngOnInit() {
+        this.helps$ = this.route.paramMap.pipe(
+          switchMap(params =&gt; {
+            this.selectedId = +params.get('id');
+            return this.service.getHelps();
+          })
+        );
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help.service.spec.ts</summary>
+    <pre><code class='ts'>
+    import { HelpsService } from './helps.service';
+    import { MessageService } from '../messages/message.service';
+
+    describe('HelpsService without Angular testing support', () =&gt; {
+    let helpsService: HelpsService;
+
+    it('#getValue should return real value from the real service', () =&gt; {
+      helpsService = new HelpsService(new MessageService());
+      expect(helpsService.getValue()).toBe('real value');
+    });
+
+    // it('#getValue should return faked value from a fakeService', () =&gt; {
+    //   helpsService = new HelpsService(new FakeMessageService());
+    //   expect(helpsService.getValue()).toBe('faked service value');
+    // });
+
+    // it('#getValue should return faked value from a fake object', () =&gt; {
+    //   const fake =  { getValue: () =&gt; 'fake value' };
+    //   helpsService = new HelpsService(fake as MessageService);
+    //   expect(helpsService.getValue()).toBe('fake value');
+    // });
+
+    it('#getValue should return stubbed value from a spy', () =&gt; {
+      // create `getValue` spy on an object representing the MessageService
+      const messageServiceSpy =
+        jasmine.createSpyObj('MessageService', ['getValue']);
+
+      // set the value to return when the `getValue` spy is called.
+      const stubValue = 'stub value';
+      messageServiceSpy.getValue.and.returnValue(stubValue);
+
+      helpsService = new HelpsService(messageServiceSpy);
+
+      expect(helpsService.getValue())
+        .toBe(stubValue, 'service returned stub value');
+      expect(messageServiceSpy.getValue.calls.count())
+        .toBe(1, 'spy method was called once');
+      expect(messageServiceSpy.getValue.calls.mostRecent().returnValue)
+        .toBe(stubValue);
+    });
+    });</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;help.ts</summary>
+    <pre><code class='ts'>
+    export class Help {
+      id: number;
+      name: string;
+    }
+      </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;helps.service.ts</summary>
+    <pre><code class='ts'>
+    import { BehaviorSubject } from 'rxjs';
+    import { map } from 'rxjs/operators';
+
+    import { Injectable } from '@angular/core';
+    import { MessageService } from '../messages/message.service';
+    import { Help } from './help';
+    import { HELPS } from './mock-helps';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class HelpsService {
+      static nextHelpId = 100;
+      private helps$: BehaviorSubject&lt;Help[]&gt; = new BehaviorSubject&lt;Help[]&gt;(HELPS);
+
+      constructor(
+        private messageService: MessageService
+      ) { }
+
+      getHelps() { return this.helps$; }
+
+      getHelp(id: number | string) {
+        return this.getHelps().pipe(
+          map(helps =&gt; helps.find(help =&gt; help.id === +id))
+        );
+      }
+
+      addHelp(name: string) {
+        name = name.trim();
+        if (name) {
+          let help = { id: HelpsService.nextHelpId++, name };
+          HELPS.push(help);
+          this.helps$.next(HELPS);
+        }
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;mock-helps.ts</summary>
+    <pre><code class='ts'>
+    import { Help } from './help';
+
+    export const HELPS: Help[] = [
+      { id: 1, name: 'Dragon Burning Cities' },
+      { id: 2, name: 'Sky Rains Great White Sharks' },
+      { id: 3, name: 'Giant Asteroid Heading For Earth' },
+      { id: 4, name: 'Procrastinators Meeting Delayed Again' },
+    ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;highlight.directive.ts</summary>
+    <pre><code class='ts'>
+    import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+
+    @Directive({
+      selector: '[appHighlight]' // brackets ([]) make it an attribute selector
+    })
+    export class HighlightDirective {
+      // this property is public and available for binding
+      // &lt;p [appHighlight]=&quot;color&quot; defaultColor=&quot;violet&quot;&gt;
+      @Input() defaultColor: string;
+      // alias directive itself as an input for color from outside
+      // &lt;p [appHighlight]=&quot;color&quot;&gt;Highlight me!&lt;/p&gt; // waits &quot;color&quot; to be a definition
+      @Input('appHighlight') highlightColor: string;
+      constructor(private el: ElementRef) { }
+      @HostListener('mouseenter') onMouseEnter() {
+        this.highlight(this.highlightColor || this.defaultColor || 'red');
+      }
+      @HostListener('mouseleave') onMouseLeave() {
+        this.highlight(null);
+      }
+      private highlight(color: string) {
+        this.el.nativeElement.style.backgroundColor = color;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;http-examples</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;http-examples.component.html</summary>
+    <pre><code class='html'>
+    &lt;button (click)=&quot;clear(); showConfig()&quot;&gt;showConfig&lt;/button&gt;
+    &lt;button (click)=&quot;clear(); showConfigResponse()&quot;&gt;showConfigResponse&lt;/button&gt;
+    &lt;button (click)=&quot;clear(); showTextfileContent()&quot;&gt;showTextfileContent&lt;/button&gt;
+    &lt;button (click)=&quot;clear(); makeError()&quot;&gt;makeError&lt;/button&gt;
+    &lt;button (click)=&quot;clear()&quot;&gt;clear&lt;/button&gt;
+    &lt;span *ngIf=&quot;result_obj&quot;&gt;
+      &lt;p *ngFor=&quot;let key of objectKeys(result_obj)&quot;&gt;
+        {{key}}: {{result_obj[key]}}
+      &lt;/p&gt;
+      &lt;!-- &lt;p&gt;API URL is &quot;{{result_obj.apiUrl}}&quot;&lt;/p&gt; --&gt;
+      &lt;!-- &lt;p&gt;Textfile URL is &quot;{{result_obj.textfile}}&quot;&lt;/p&gt; --&gt;
+      &lt;div *ngIf=&quot;headers&quot;&gt;
+        Response headers:
+        &lt;ul&gt;
+          &lt;li *ngFor=&quot;let header of headers&quot;&gt;{{header}}&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/span&gt;
+    &lt;p *ngIf=&quot;contents&quot;&gt;Contents: &quot;{{contents}}&quot;&lt;/p&gt;
+
+    &lt;textarea *ngIf=&quot;error&quot; class=&quot;error&quot;&gt;{{error | json}}&lt;/textarea&gt;
+
+    &lt;hr&gt;
+    &lt;h3&gt;Upload file&lt;/h3&gt;
+    &lt;form enctype=&quot;multipart/form-data&quot; method=&quot;post&quot;&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;picked&quot;&gt;Choose file to upload&lt;/label&gt;
+        &lt;div&gt;
+          &lt;input type=&quot;file&quot; id=&quot;picked&quot; #picked
+            (click)=&quot;message=''&quot;
+            (change)=&quot;onPicked(picked)&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;p *ngIf=&quot;message&quot;&gt;{{message}}&lt;/p&gt;
+    &lt;/form&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;http-examples.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { Config, HttpExamplesService } from './http-examples.service';
+    import { UploaderService } from './uploader.service';
+
+    @Component({
+      selector: 'app-http-examples',
+      templateUrl: './http-examples.component.html',
+      styles:[`
+        textarea.error {
+          width:50%;
+          height:20em;
+        }
+      `],
+      providers: [HttpExamplesService, UploaderService]
+    })
+    export class HttpExamplesComponent implements OnInit {
+      error: any;
+      headers: string[];
+      config: Config;
+      result_obj: Object;
+      contents: string;
+      message: string;
+
+      configUrl = 'assets/config.json';
+      textfileUrl = 'assets/textfile.txt';
+
+      objectKeys = Object.keys;
+      constructor(
+        private httpExamplesService: HttpExamplesService,
+        private uploaderService: UploaderService
+      ) {}
+      ngOnInit() { }
+
+      clear() {
+        this.error = undefined;
+        this.headers = undefined;
+        this.config = undefined;
+        this.result_obj = undefined;
+        this.contents = undefined;
+      }
+
+      showConfig() {
+        this.httpExamplesService.getData(this.configUrl)
+          .subscribe(
+            (data: Config) =&gt; {
+              this.config = { ...data }; // typed response object container
+              this.result_obj = this.config; // assign to local object
+            }, // success path
+            error =&gt; this.error = error // error path
+          );
+          // .subscribe((data: Config) =&gt; this.config = {
+          //   apiUrl: data['heroesUrl'],
+          //   textfile:  data['textfile']
+          // });
+      }
+
+      showConfigResponse() {
+        this.httpExamplesService.getConfigDataResponse(
+          this.configUrl
+        ).subscribe(resp =&gt; { // resp is of type `HttpResponse&lt;Config&gt;`
+            // display its headers
+            const keys = resp.headers.keys();
+            this.headers = keys.map(key =&gt;
+              `${key}: ${resp.headers.get(key)}`);
+            // access the body directly, which is typed as `Config`.
+            this.config = { ... resp.body }; // typed response object container
+            this.result_obj = this.config; // assign here to local object
+          });
+      }
+
+      onPicked(input: HTMLInputElement) {
+        const file = input.files[0];
+        if (file) {
+          this.uploaderService.upload(file).subscribe(
+            msg =&gt; {
+              input.value = null;
+              this.contents = msg;
+            }
+          );
+        }
+      }
+
+      showTextfileContent() {
+        this.httpExamplesService.getData(
+          this.textfileUrl,
+          {responseType: 'text'}
+        ).subscribe(
+          results =&gt; this.contents = results.toString(),
+          error =&gt; this.error = error // error path
+        );
+        // .subscribe((data: Config) =&gt; this.config = {
+        //   apiUrl: data['heroesUrl'],
+        //   textfile:  data['textfile']
+        // });
+      }
+
+      makeError() {
+        this.httpExamplesService.makeIntentionalError()
+          .subscribe(null, error =&gt; this.error = error );
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;http-examples.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { HttpClient } from '@angular/common/http';
+    import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+
+    import { Observable, throwError } from 'rxjs';
+    import { catchError, retry, tap } from 'rxjs/operators';
+
+    import { MessageService } from '../messages/message.service';
+
+    export interface Config {
+      apiUrl: string;
+      textfile: string;
+    }
+
+    @Injectable()
+    export class HttpExamplesService {
+
+      constructor(
+        private http: HttpClient,
+        private messageService: MessageService
+      ) { }
+
+      getData(url: string, options_obj = {}) {
+        return this.http.get(url, options_obj)
+          .pipe(
+            retry(3),
+            tap(
+              data =&gt; data,
+              error =&gt; this.handleError(error)
+            )
+          );
+        // Observable of Config
+        // configUrl = 'assets/config.json';
+        // return this.http.get&lt;Config&gt;(this.configUrl)
+        // .pipe(
+        //   retry(3), // retry a failed request up to 3 times
+        //   catchError(this.handleError) // then handle the error
+        // );
+        // return this.http.get(this.configUrl);
+      }
+
+      getConfigDataResponse(url: string): Observable&lt;HttpResponse&lt;Config&gt;&gt; {
+        return this.http.get&lt;Config&gt;(
+          url,
+          { observe: 'response' }
+        );
+      }
+
+      makeIntentionalError() {
+        return this.http.get('not/a/real/url')
+          .pipe(
+            tap(
+              data =&gt; data,
+              error =&gt; this.handleError(error)
+            )
+          );
+      }
+
+      private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+          // client-side or network error occurred
+          this.log('An error occurred:'+ error.error.message);
+        } else {
+          // backend returned an unsuccessful response
+          this.log(
+            `Backend returned code ${error.status}`);
+            // , body was: ${error.error}
+        }
+        // return an observable with a user-facing error message
+        return throwError(
+          'Something bad happened; please try again later.');
+      };
+
+      private log(data: string) {
+        this.messageService.add(data);
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;uploader.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpClient, HttpEvent, HttpEventType, HttpProgressEvent,
+      HttpRequest, HttpResponse, HttpErrorResponse
+    } from '@angular/common/http';
+    import { of } from 'rxjs';
+    import { catchError, last, map, tap } from 'rxjs/operators';
+    import { MessageService } from '../messages/message.service';
+
+    @Injectable()
+    export class UploaderService {
+      constructor(
+        private http: HttpClient,
+        private messenger: MessageService) {}
+
+      // If uploading multiple files, change to:
+      // upload(files: FileList) {
+      //   const formData = new FormData();
+      //   files.forEach(f =&gt; formData.append(f.name, f));
+      //   new HttpRequest('POST', '/upload/file', formData, {reportProgress: true});
+      //   ...
+      // }
+
+      upload(file: File) {
+        if (!file) { return; }
+
+        // COULD HAVE WRITTEN:
+        // return this.http.post('/upload/file', file, {
+        //   reportProgress: true,
+        //   observe: 'events'
+        // }).pipe(
+        const req = new HttpRequest('POST', '/upload/file', file, {
+          reportProgress: true
+        });
+
+        // The `HttpClient.request` API produces a raw event stream
+        // which includes start (sent), progress, and response events.
+        return this.http.request(req).pipe(
+          map(event =&gt; this.getEventMessage(event, file)),
+          tap(message =&gt; this.showProgress(message)),
+          last(), // return last (completed) message to caller
+          catchError(this.handleError(file))
+        );
+      }
+
+      /** Return distinct message for sent, upload progress, &amp; response events */
+      private getEventMessage(event: HttpEvent&lt;any&gt;, file: File) {
+        switch (event.type) {
+          case HttpEventType.Sent:
+            return `Uploading file &quot;${file.name}&quot; of size ${file.size}.`;
+
+          case HttpEventType.UploadProgress:
+            // Compute and show the % done:
+            const percentDone = Math.round(100 * event.loaded / event.total);
+            return `File &quot;${file.name}&quot; is ${percentDone}% uploaded.`;
+
+          case HttpEventType.Response:
+            return `File &quot;${file.name}&quot; was completely uploaded!`;
+
+          default:
+            return `File &quot;${file.name}&quot; surprising upload event: ${event.type}.`;
+        }
+      }
+
+      /**
+      * Returns a function that handles Http upload failures.
+      * @param file - File object for file being uploaded
+      *
+      * When no `UploadInterceptor` and no server,
+      * you'll end up here in the error handler.
+      */
+      private handleError(file: File) {
+        const userMessage = `${file.name} upload failed.`;
+
+        return (error: HttpErrorResponse) =&gt; {
+          // TODO: send the error to remote logging infrastructure
+          console.error(error); // log to console instead
+
+          const message = (error.error instanceof Error) ?
+            error.error.message :
+          `server returned code ${error.status} with body &quot;${error.error}&quot;`;
+
+          this.messenger.add(`${userMessage} ${message}`);
+
+          // Let app keep running but indicate failure.
+          return of(userMessage);
+        };
+      }
+
+      private showProgress(message: string) {
+        this.messenger.add(message);
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;http-interceptors</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpInterceptor, HttpHandler, HttpRequest
+    } from '@angular/common/http';
+    import { AuthService } from '../auth/auth.service';
+    @Injectable()
+    export class AuthInterceptor implements HttpInterceptor {
+      constructor(private auth: AuthService) {}
+      intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler) {
+        const authToken = this.auth.getAuthorizationToken();
+        // // Verbose way: clone the request and replace the original headers
+        // // with cloned headers, updated with the authorization
+        // const authReq = req.clone({
+        //   headers: req.headers.set('Authorization', authToken)
+        // });
+        // clone the request and set the new header in one step
+        const authReq = req.clone({ setHeaders: { Authorization: authToken } });
+        return next.handle(authReq); // send cloned request with header to the next handler
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;caching-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpHeaders, HttpRequest, HttpResponse,
+      HttpInterceptor, HttpHandler
+    } from '@angular/common/http';
+    import { Observable, of } from 'rxjs';
+    import { startWith, tap } from 'rxjs/operators';
+    import { RequestCache } from '../request-cache.service';
+
+    import { notesUrl } from '../notes/note.service';
+    // searchUrl = 'https://npmsearch.com/query';
+
+    // return cachable (e.g., search) response as observable,
+    // also re-run search if has 'x-refresh' header that is true,
+    // using response from next(),
+    // returning an observable that emits the cached response first.
+    // if not in cache or not cachable, pass request through to next()
+    @Injectable()
+    export class CachingInterceptor implements HttpInterceptor {
+      constructor(private cache: RequestCache) {}
+      intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler) {
+        // continue if not cachable.
+        if (!isCachable(req)) { return next.handle(req); }
+        const cachedResponse = this.cache.get(req);
+        // cache-then-refresh
+        if (req.headers.get('x-refresh')) {
+          const results$ = sendRequest(req, next, this.cache);
+          return cachedResponse ?
+            results$.pipe( startWith(cachedResponse) ) :
+            results$;
+        }
+        // cache-or-fetch
+        return cachedResponse ?
+          of(cachedResponse) : sendRequest(req, next, this.cache);
+      }
+    }
+    // Only GET requests and npm package search are cachable
+    function isCachable(req: HttpRequest&lt;any&gt;) {
+      return req.method === 'GET' &amp;&amp; -1 &lt; req.url.indexOf(notesUrl);
+    }
+    // get server response observable by sending request to `next()`
+    // adds the response to the cache on the way out
+    function sendRequest(
+      req: HttpRequest&lt;any&gt;,
+      next: HttpHandler,
+      cache: RequestCache
+    ): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+      // No headers allowed in npm search request
+      const noHeaderReq = req.clone({ headers: new HttpHeaders() });
+      return next.handle(noHeaderReq).pipe(
+        tap(event =&gt; {
+          // There may be other events besides the response.
+          if (event instanceof HttpResponse) {
+            cache.put(req, event); // Update the cache.
+          }
+        })
+      );
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ensure-https-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpInterceptor, HttpHandler, HttpRequest
+    } from '@angular/common/http';
+    import { Observable } from 'rxjs';
+    @Injectable()
+    export class EnsureHttpsInterceptor implements HttpInterceptor {
+      intercept(
+        req: HttpRequest&lt;any&gt;,
+        next: HttpHandler
+      ): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+        // clone request and replace 'http://' with 'https://' at the same time
+        const secureReq = req.clone({
+          url: req.url.replace('http://', 'https://')
+        });
+        return next.handle(secureReq); // send cloned, &quot;secure&quot; request to the next handler
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    import { HTTP_INTERCEPTORS } from '@angular/common/http';
+    import { AuthInterceptor } from './auth-interceptor';
+    import { CachingInterceptor } from './caching-interceptor';
+    import { EnsureHttpsInterceptor } from './ensure-https-interceptor';
+    import { LoggingInterceptor } from './logging-interceptor';
+    import { TrimNameInterceptor } from './trim-name-interceptor';
+    import { UploadInterceptor } from './upload-interceptor';
+    //Http interceptor providers in outside-in order
+    export const httpInterceptorProviders = [
+      { provide: HTTP_INTERCEPTORS, useClass: EnsureHttpsInterceptor, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: TrimNameInterceptor, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: UploadInterceptor, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true }
+    ];</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;logging-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpInterceptor, HttpHandler,
+      HttpRequest, HttpResponse
+    } from '@angular/common/http';
+    import { finalize, tap } from 'rxjs/operators';
+    import { MessageService } from '../messages/message.service';
+    @Injectable()
+    export class LoggingInterceptor implements HttpInterceptor {
+      constructor(private messenger: MessageService) {}
+      intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler) {
+        const started = Date.now();
+        let ok: string;
+        // extend server response observable with logging
+        return next.handle(req)
+          .pipe(
+            tap(
+              // Succeeds when there is a response; ignore other events
+              event =&gt; ok = event instanceof HttpResponse ? 'succeeded' : '',
+              // Operation failed; error is an HttpErrorResponse
+              error =&gt; ok = 'failed'
+            ),
+            // Log when response observable either completes or errors
+            finalize(() =&gt; {
+              const elapsed = Date.now() - started;
+              const msg = `${req.method} &quot;${req.urlWithParams}&quot;
+                  ${ok} in ${elapsed} ms.`;
+              this.messenger.add(msg);
+            })
+          );
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;trim-name-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpInterceptor, HttpHandler, HttpRequest
+    } from '@angular/common/http';
+    import { Observable } from 'rxjs';
+    @Injectable()
+    export class TrimNameInterceptor implements HttpInterceptor {
+      intercept(
+        req: HttpRequest&lt;any&gt;,
+        next: HttpHandler
+      ): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+        const body = req.body;
+        if (!body || !body.name ) { return next.handle(req); }
+        // copy the body and trim whitespace from the name property
+        const newBody = { ...body, name: body.name.trim() };
+        // clone request and set its body
+        const newReq = req.clone({ body: newBody });
+        // send the cloned request to the next handler.
+        return next.handle(newReq);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;upload-interceptor.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import {
+      HttpEvent, HttpInterceptor, HttpHandler,
+      HttpRequest, HttpResponse,
+      HttpEventType, HttpProgressEvent
+    } from '@angular/common/http';
+    import { Observable } from 'rxjs';
+    @Injectable()
+    export class UploadInterceptor implements HttpInterceptor {
+      intercept(
+        req: HttpRequest&lt;any&gt;,
+        next: HttpHandler
+      ): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+        if (req.url.indexOf('/upload/file') === -1) {
+          return next.handle(req);
+        }
+        const delay = 300; // TODO: inject delay?
+        return createUploadEvents(delay);
+      }
+    }
+    // simulation of upload event stream
+    function createUploadEvents(delay: number) {
+      // Simulate XHR behavior which would provide this information in a ProgressEvent
+      const chunks = 5;
+      const total = 12345678;
+      const chunkSize = Math.ceil(total / chunks);
+      return new Observable&lt;HttpEvent&lt;any&gt;&gt;(observer =&gt; {
+        // notify the event stream that the request was sent.
+        observer.next({type: HttpEventType.Sent});
+        uploadLoop(0);
+        function uploadLoop(loaded: number) {
+          // N.B.: Cannot use setInterval or rxjs delay (which uses setInterval)
+          // because e2e test won't complete. A zone thing?
+          // Use setTimeout and tail recursion instead.
+            setTimeout(() =&gt; {
+              loaded += chunkSize;
+              if (loaded &gt;= total) {
+                const doneResponse = new HttpResponse({
+                  status: 201, // OK but no body;
+                });
+                observer.next(doneResponse);
+                observer.complete();
+                return;
+              }
+              const progressEvent: HttpProgressEvent = {
+                type: HttpEventType.UploadProgress,
+                loaded,
+                total
+              };
+              observer.next(progressEvent);
+              uploadLoop(loaded);
+            }, delay);
+        }
+      });
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;in-memory-data.service.ts</summary>
+    <pre><code class='ts'>
+    import { InMemoryDbService } from 'angular-in-memory-web-api';
+    import { Injectable } from '@angular/core';
+
+    import { Note } from './notes/note';
+    import { NOTES } from './notes/mock-notes';
+
+    import { Help } from './help-center/help';
+    import { HELPS } from './help-center/mock-helps';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class InMemoryDataService {
+      // constructor() { }
+      createDb() {
+        const notes = NOTES;
+        return {notes};
+      }
+      // Overrides the genId method to ensure that a note always has an id
+      // heroes array is empty = method returns the initial number (11)
+      // heroes array is not empty = method below returns the highest
+      // hero id + 1
+      genId(notes: Note[]): number {
+        return notes.length &gt; 0 ? Math.max(...notes.map(note =&gt; note.id)) + 1 : 11;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;messages</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;message.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class MessageService {
+      messages: string[] = [];
+      // constructor() { }
+      add(message: string) {
+        this.messages.push(message);
+      }
+      clear() {
+        this.messages = [];
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;messages.component.css</summary>
+    <pre><code class='css'>
+    /* MessagesComponent's private CSS styles */
+    h2 {
+      color: red;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: lighter;
+    }
+    body {
+      margin: 2em;
+    }
+    body, input[text], button {
+      color: crimson;
+      font-family: Cambria, Georgia;
+    }
+
+    button.clear {
+      font-family: Arial;
+      background-color: #eee;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      cursor: hand;
+    }
+    button:hover {
+      background-color: #cfd8dc;
+    }
+    button:disabled {
+      background-color: #eee;
+      color: #aaa;
+      cursor: auto;
+    }
+    button.clear {
+      color: #888;
+      margin-bottom: 12px;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;messages.component.html</summary>
+    <pre><code class='html'>
+    &lt;div *ngIf=&quot;messageService.messages.length&quot;&gt;
+      &lt;h2&gt;Messages&lt;/h2&gt;
+      &lt;button class=&quot;clear&quot;
+      (click)=&quot;messageService.clear()&quot;&gt;clear&lt;/button&gt;
+      &lt;div *ngFor='let message of messageService.messages'&gt;
+        {{message}}
+      &lt;/div&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;messages.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { MessageService } from './message.service';
+
+    @Component({
+      selector: 'app-messages',
+      templateUrl: './messages.component.html',
+      styleUrls: ['./messages.component.css']
+    })
+    export class MessagesComponent implements OnInit {
+
+      constructor(public messageService: MessageService) { }
+
+      ngOnInit() {
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;notes</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;filter-note.pipe.ts</summary>
+    <pre><code class='ts'>
+    import { Pipe, PipeTransform } from '@angular/core';
+    import { Note } from './note';
+
+    @Pipe({ name: 'filternote' })
+    export class FilterNotePipe implements PipeTransform {
+      transform(allNotes: Note[]) {
+        return allNotes.filter(hero =&gt; hero.id); // here, avoid id 0
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;mock-notes.ts</summary>
+    <pre><code class='ts'>
+    import { Note } from './note';
+
+    export const NOTES: Note[] = [ // array of Notes-class
+        { id: 11, title: 'Mr. Nice', content: 'who is Mr. Nice' },
+        { id: 12, title: 'Narco', content: 'why he is Narco' },
+        { id: 13, title: 'Bombasto', content: 'where lives Bombasto' },
+        { id: 14, title: 'Celeritas', content: 'is Celeritas a girl' },
+        { id: 15, title: 'Magneta', content: 'find Magneta' },
+        { id: 16, title: 'RubberMan', content: 'use RubberMan' },
+        { id: 17, title: 'Dynama', content: 'Dynama is on the way' },
+        { id: 18, title: 'Dr IQ', content: 'find out IQ of Dr IQ' },
+        { id: 19, title: 'Magma', content: 'no sence to call Magma' },
+        { id: 20, title: 'Tornado', content: 'Tornado looks scarry' }
+      ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-details</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-details.component.css</summary>
+    <pre><code class='css'>
+    label {
+      display: inline-block;
+      width: 3em;
+      margin: .5em 0;
+      color: #607D8B;
+      font-weight: bold;
+    }
+    input {
+      height: 2em;
+      font-size: 1em;
+      padding-left: .4em;
+    }
+    button {
+      margin-top: 20px;
+      font-family: Arial;
+      background-color: #eee;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      cursor: hand;
+    }
+    button:hover {
+      background-color: #cfd8dc;
+    }
+    button:disabled {
+      background-color: #eee;
+      color: #ccc;
+      cursor: auto;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-details.component.html</summary>
+    <pre><code class='html'>
+    &lt;div *ngIf=&quot;note&quot;&gt;
+        &lt;h2&gt;{{ note.title | uppercase }} [id: {{ note.id }}]&lt;/h2&gt;
+        &lt;h3&gt;{{ note.content }}&lt;/h3&gt;
+        &lt;div&gt;
+            &lt;label&gt;title:
+            &lt;input [(ngModel)]=&quot;note.title&quot; placeholder=&quot;title&quot;/&gt;
+            &lt;/label&gt;
+        &lt;/div&gt;
+        &lt;button (click)=&quot;save()&quot;&gt;save()&lt;/button&gt;&lt;br&gt;
+        &lt;button (click)=&quot;goBack()&quot;&gt;goBack()&lt;/button&gt;
+        &lt;button (click)=&quot;gotoNotes(note)&quot;&gt;gotoNotes(note)&lt;/button&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-details.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit /*,Input*/ } from '@angular/core';
+    import { Location } from '@angular/common';
+    import { Router, ActivatedRoute /*,ParamMap*/ } from '@angular/router';
+    // import { Observable } from 'rxjs';
+    // import { switchMap } from 'rxjs/operators';
+
+    import { NoteService }  from '../note.service';
+    import { Note } from '../note';
+
+    @Component({
+      selector: 'app-note-details',
+      templateUrl: './note-details.component.html',
+      styleUrls: ['./note-details.component.css']
+    })
+    export class NoteDetailsComponent implements OnInit {
+      // @Input() note: Note;
+      note: Note;
+      // note$: Observable&lt;Note&gt;;
+      constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private noteService: NoteService,
+        private location: Location
+      ) { }
+      ngOnInit(): void {
+        this.getNote();
+        // // paramMap - detect when the route parameters change from within the same instance
+        // this.note$ = this.route.paramMap.pipe(
+        //  // cancel previous in-flight requests
+        //   switchMap((params: ParamMap) =&gt;
+        //     this.noteService.getNote(params.get('id'))
+        // ));
+      }
+      getNote(): void {
+        const id = +this.route.snapshot.paramMap.get('id');
+        this.noteService.getNote(id)
+          .subscribe(note =&gt; this.note = note);
+      }
+      save(): void {
+        this.noteService.updateNote(this.note)
+          .subscribe(() =&gt; this.goBack());
+      }
+
+      gotoNotes(note: Note) {
+        let noteId = note ? note.id : null;
+        // pass note id if available
+        // include a junk 'foo' property
+        this.router.navigate(['/currentnotes', { id: noteId, foo: 'foo' }]);
+      }
+      goBack(): void {
+        this.location.back();
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-list</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-list.component.html</summary>
+    <pre><code class='html'>
+    &lt;h2&gt;Notes&lt;/h2&gt;
+
+    &lt;div&gt;
+      &lt;label&gt;Note title:
+        &lt;input #noteTitle (keyup.enter)=&quot;add(noteTitle.value); noteTitle.value=''&quot; /&gt;
+      &lt;/label&gt;
+      &lt;!-- (click) passes input value to add() and then clears the input --&gt;
+      &lt;button (click)=&quot;add(noteTitle.value); noteTitle.value=''&quot;&gt;
+        add
+      &lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;ul class=&quot;notes&quot;&gt;
+      &lt;li
+        *ngFor=&quot;let note of notes&quot;
+        [@flyInOut]=&quot;'in'&quot;
+        [class.selected]=&quot;note.id === selectedId&quot;&gt;
+        &lt;!-- [class.selected]=&quot;note === selectedNote&quot; --&gt;
+        &lt;!-- (click)=&quot;onSelect(note)&quot; --&gt;
+        &lt;a routerLink=&quot;/note/{{note.id}}&quot;&gt;
+        &lt;!-- &lt;a [routerLink]=&quot;['/note', note.id]&quot;&gt; --&gt;
+          &lt;span class=&quot;id&quot;&gt;{{note.id}}&lt;/span&gt; {{note.title}}
+        &lt;/a&gt;
+        &lt;button class=&quot;delete&quot; title=&quot;delete note&quot;
+          (click)=&quot;delete(note)&quot;&gt;x&lt;/button&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;app-note-search&gt;&lt;/app-note-search&gt;
+
+    &lt;!-- &lt;app-note-details [note]=&quot;selectedNote&quot;&gt;&lt;/app-note-details&gt; --&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-list.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { ActivatedRoute } from '@angular/router';
+    import {
+      state,
+      style,
+      trigger,
+      animate,
+      transition,
+      group,
+      query,
+      stagger,
+      AnimationEvent
+    } from '@angular/animations';
+
+    import { Note } from '../note';
+    // import { NOTES } from '../mock-notes';
+    import { NoteService } from '../note.service';
+
+    @Component({
+      selector: 'app-note-list',
+      templateUrl: './note-list.component.html',
+      styleUrls: ['./note-list.component.css'],
+      animations: [
+
+        // trigger('flyInOut', [
+        //   state('in', style({ transform: 'translateX(0)' })),
+        //   transition('void =&gt; *', [
+        //     style({ transform: 'translateX(-100%)' }),
+        //     animate(100)
+        //   ]),
+        //   transition('* =&gt; void', [
+        //     animate(100, style({ transform: 'translateX(100%)' }))
+        //   ])
+        // ]),
+
+        trigger('flyInOut', [
+          state('in', style({
+            width: 120,
+            transform: 'translateX(0)', opacity: 1
+          })),
+          transition('void =&gt; *', [
+            style({
+              width: 10,
+              transform: 'translateX(50px)',
+              opacity: 0
+            }),
+            group([
+              animate('0.3s 0.1s ease', style({
+                transform: 'translateX(0)',
+                width: 120
+              })),
+              animate('0.3s ease', style({
+                opacity: 1
+              }))
+            ])
+          ]),
+          transition('* =&gt; void', [
+            group([
+              animate('0.3s ease', style({
+                transform: 'translateX(50px)',
+                width: 10
+              })),
+              animate('0.3s 0.2s ease', style({
+                opacity: 0
+              }))
+            ])
+          ])
+        ]),
+
+      ]
+    })
+    export class NoteListComponent implements OnInit {
+      // note: Note = {
+      //   id: 1,
+      //   title: 'Note 1 title',
+      //   content: 'this is content sample'
+      // };
+      // notes = NOTES;
+      notes: Note[];
+      selectedId: number;
+      // selectedNote: Note;
+      // notes$: Observable&lt;Hero[]&gt;;
+      constructor(
+        private noteService: NoteService,
+        private route: ActivatedRoute
+      ) {}
+      ngOnInit() {
+        // (+) before `params.get()` turns the string into a number
+        this.selectedId = +this.route.snapshot.paramMap.get('id');
+        this.getNotes();
+        // this.notes$ = this.route.paramMap.pipe(
+        //   switchMap(params =&gt; {
+        //     // (+) before `params.get()` turns the string into a number
+        //     this.selectedId = +params.get('id');
+        //     return this.noteService.getNotes();
+        //   })
+        // );
+      }
+      // onSelect(note: Note): void {
+      //   this.selectedNote = note;
+      // }
+      getNotes(): void {
+        this.noteService.getNotes()
+          .subscribe(notes =&gt; this.notes = notes);
+      }
+      add(title: string): void {
+        title = title.trim();
+        if (!title) { return; }
+        this.noteService.addNote({ title } as Note)
+          .subscribe(note =&gt; {
+            this.notes.push(note);
+          });
+      }
+      delete(note: Note): void {
+        this.notes = this.notes.filter(h =&gt; h !== note);
+        this.noteService.deleteNote(note).subscribe();
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-search</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-search.component.css</summary>
+    <pre><code class='css'>
+    .search-result li {
+      border-bottom: 1px solid gray;
+      border-left: 1px solid gray;
+      border-right: 1px solid gray;
+      width: 195px;
+      height: 16px;
+      padding: 5px;
+      background-color: white;
+      cursor: pointer;
+      list-style-type: none;
+    }
+
+    .search-result li:hover {
+      background-color: #607D8B;
+    }
+
+    .search-result li a {
+      color: #888;
+      display: block;
+      text-decoration: none;
+    }
+
+    .search-result li a:hover {
+      color: white;
+    }
+    .search-result li a:active {
+      color: white;
+    }
+    #search-box {
+      width: 200px;
+      height: 20px;
+    }
+
+    ul.search-result {
+      margin-top: 0;
+      padding-left: 0;
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-search.component.html</summary>
+    <pre><code class='html'>
+    &lt;div id=&quot;search-component&quot;&gt;
+      &lt;h4&gt;Note Search&lt;/h4&gt;
+      &lt;input #searchBox id=&quot;search-box&quot; (input)=&quot;search(searchBox.value)&quot; /&gt;
+      &lt;input type=&quot;checkbox&quot; id=&quot;refresh&quot; [checked]=&quot;withRefresh&quot; (click)=&quot;toggleRefresh()&quot;&gt;
+      &lt;label for=&quot;refresh&quot;&gt;with refresh&lt;/label&gt;
+      &lt;ul class=&quot;search-result&quot;&gt;
+        &lt;li *ngFor=&quot;let note of notes$ | async&quot; &gt;
+          &lt;a routerLink=&quot;/note/{{note.id}}&quot;&gt;
+            {{note.title}}
+          &lt;/a&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note-search.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+    import { Observable, Subject } from 'rxjs';
+    import {
+      debounceTime, distinctUntilChanged, switchMap
+    } from 'rxjs/operators';
+    import { Note } from '../note';
+    import { NoteService /*,NpmPackageInfo*/ } from '../note.service';
+
+    @Component({
+      selector: 'app-note-search',
+      templateUrl: './note-search.component.html',
+      styleUrls: ['./note-search.component.css']
+    })
+    export class NoteSearchComponent implements OnInit {
+      withRefresh = false;
+      // packages$: Observable&lt;NpmPackageInfo[]&gt;;
+      notes$: Observable&lt;Note[]&gt;; // $ - as an Observable
+      private searchTerms$ = new Subject&lt;string&gt;();
+      constructor(private noteService: NoteService) { }
+      ngOnInit(): void {
+        this.notes$ = this.searchTerms$.pipe(
+          // wait 300ms after each keystroke before considering the term
+          debounceTime(300),
+          // ignore new term if same as previous term
+          distinctUntilChanged(),
+          // switch to new search observable each time the term changes
+          switchMap(
+            (term: string) =&gt; this.noteService.searchNotes(term, this.withRefresh)
+          ),
+        );
+      }
+      // Push a search term into the observable stream.
+      search(term: string): void {
+        this.searchTerms$.next(term);
+      }
+      toggleRefresh() { this.withRefresh = ! this.withRefresh; }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { Observable, of } from 'rxjs';
+
+    import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+    import { catchError, map, tap } from 'rxjs/operators';
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'x-refresh':  'true'
+      })
+    };
+
+    function createHttpOptions(packageName: string, refresh = false) {
+      // npm package name search api: http://npmsearch.com/query?q=dom
+      const params = new HttpParams({ fromObject: { q: packageName } });
+      const headerMap = refresh ? {'x-refresh': 'true'} : {};
+      const headers = new HttpHeaders(headerMap) ;
+      return { headers, params };
+    }
+
+    // export interface NpmPackageInfo {
+    //   name: string;
+    //   version: string;
+    //   description: string;
+    // }
+
+    import { Note } from './note';
+    // import { NOTES } from './mock-notes';
+    import { MessageService } from '../messages/message.service';
+
+    export const notesUrl = 'api/notes';
+
+    @Injectable({
+      providedIn: 'root' // injects into any class that asks for it
+    })
+    export class NoteService {// URL to web api
+      constructor(
+        private http: HttpClient,
+        private messageService: MessageService // injecting other service
+      ) { }
+      // getNotes(): Note[] {
+      //   return NOTES;
+      // }
+      getNotes(): Observable&lt;Note[]&gt; {
+        // TODO: send the message _after_ fetching the heroes
+        // this.log('fetched notes');
+        // return of(NOTES);
+        return this.http.get&lt;Note[]&gt;(notesUrl).pipe(
+          tap(_ =&gt; this.log('fetched notes')),
+          catchError(this.handleError('getNotes', []))
+        );
+      }
+      getNoteNo404&lt;Data&gt;(id: number): Observable&lt;Note&gt; {
+        const url = `${notesUrl}/?id=${id}`;
+        return this.http.get&lt;Note[]&gt;(url)
+          .pipe(
+            map(notes =&gt; notes[0]), // returns a {0|1} element array
+            tap(h =&gt; {
+              const outcome = h ? `fetched` : `did not find`;
+              this.log(`${outcome} note id=${id}`);
+            }),
+            catchError(this.handleError&lt;Note&gt;(`getNote id=${id}`))
+          );
+      }
+      getNote(id: number): Observable&lt;Note&gt; {
+        // this.log(`fetched note id=${id}`); // send _after_ fetching the heroes
+        // return of(NOTES.find(note =&gt; note.id === id));
+        const url = `${notesUrl}/${id}`;
+        return this.http.get&lt;Note&gt;(url).pipe(
+          tap(_ =&gt; this.log(`fetched note id=${id}`)),
+          catchError(this.handleError&lt;Note&gt;(`getNote id=${id}`))
+        );
+      }
+      updateNote (note: Note): Observable&lt;any&gt; {
+        return this.http.put(notesUrl, note, httpOptions).pipe(
+          tap(_ =&gt; this.log(`updated note id=${note.id}`)),
+          catchError(this.handleError&lt;any&gt;('updateNote'))
+        );
+      }
+      addNote (note: Note): Observable&lt;Note&gt; {
+        return this.http.post&lt;Note&gt;(notesUrl, note, httpOptions).pipe(
+          tap((note: Note) =&gt; this.log(`added note w/ id=${note.id}`)),
+          catchError(this.handleError&lt;Note&gt;('addNote'))
+        );
+      }
+      deleteNote (note: Note | number): Observable&lt;Note&gt; {
+        const id = typeof note === 'number' ? note : note.id;
+        const url = `${notesUrl}/${id}`;
+        return this.http.delete&lt;Note&gt;(url, httpOptions).pipe(
+          tap(_ =&gt; this.log(`deleted note id=${id}`)),
+          catchError(this.handleError&lt;Note&gt;('deleteNote'))
+        );
+      }
+      searchNotes(
+        term: string,
+        refresh = false
+      ): Observable&lt;Note[]&gt; {
+        if (!term.trim()) { return of([]); }
+        // const options = term ?
+        // { params: new HttpParams().set('title', term) } : {}; // URL encoded search parameter
+        // const options = createHttpOptions(term, refresh);
+        // return this.http.get&lt;Note[]&gt;(notesUrl, options).pipe(
+        return this.http.get&lt;Note[]&gt;(`${notesUrl}/?title=${term}`).pipe(
+          tap(_ =&gt; this.log(`found notes matching &quot;${term}&quot;`)),
+          // map((data: any) =&gt; {
+          //   return data.results.map(entry =&gt; ({
+          //       name: entry.name[0],
+          //       version: entry.version[0],
+          //       description: entry.description[0]
+          //     } as NpmPackageInfo )
+          //   );
+          // }),
+          catchError(this.handleError&lt;Note[]&gt;('searchNotes', []))
+        );
+      }
+
+      // --------------------------------------
+      private log(message: string) {
+        this.messageService.add(`NoteService: ${message}`);
+      }
+      /**
+      * Handle Http operation that failed. Let the app continue.
+      * @param operation - name of the operation that failed
+      * @param result - optional value to return as the observable result
+      */
+      private handleError&lt;T&gt; (operation = 'operation', result?: T) {
+        return (error: any): Observable&lt;T&gt; =&gt; {
+          // TODO: send the error to remote logging infrastructure
+          console.error(error); // log to console instead
+          // TODO: better job of transforming error for user consumption
+          this.log(`${operation} failed: ${error.message}`);
+          // Let the app keep running by returning an empty result.
+          return of(result as T);
+        };
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;note.ts</summary>
+    <pre><code class='ts'>
+    export class Note { // class for usage in components/services
+        id: number;
+        title: string;
+        content: string;
+        // constructor(
+        //     public id: number,
+        //     public title: string
+        //     public content: string;
+        // ) { }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;notes-routing.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+
+    import { NoteListComponent } from './note-list/note-list.component';
+    import { NoteDetailsComponent  } from './note-details/note-details.component';
+    // import { NoteSearchComponent  } from './note-search/note-search.component';
+
+    const routes: Routes = [
+      {
+        path: 'notes',
+        redirectTo: '/currentnotes'
+      },{
+        path: 'note/:id',
+        redirectTo: '/currentnote/:id'
+      },{
+        path: 'currentnotes',
+        component: NoteListComponent,
+        data: { animation: 'notes' }
+      },{
+        path: 'currentnote/:id',
+        component: NoteDetailsComponent,
+        data: { animation: 'note' }
+      }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule]
+    })
+    export class NotesRoutingModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;notes.module.ts</summary>
+    <pre><code class='ts'>
+    import { NgModule } from '@angular/core';
+    import { CommonModule } from '@angular/common';
+    import { FormsModule } from '@angular/forms'; // &lt;-- NgModel lives here
+
+    import { NoteListComponent } from './note-list/note-list.component';
+    import { NoteDetailsComponent  } from './note-details/note-details.component';
+    import { NoteSearchComponent  } from './note-search/note-search.component';
+
+    import { NotesRoutingModule } from './notes-routing.module';
+
+    @NgModule({
+      declarations: [
+        NoteListComponent,
+        NoteDetailsComponent,
+        NoteSearchComponent
+      ],
+      imports: [
+        CommonModule,
+        FormsModule,
+        NotesRoutingModule
+      ]
+    })
+    export class NotesModule { }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;page-not-found.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-page-not-found',
+      template: `
+        &lt;h2&gt;Page not found&lt;/h2&gt;
+      `
+    })
+    export class PageNotFoundComponent implements OnInit {
+
+      constructor() { }
+
+      ngOnInit() {
+      }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;popup</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;popup.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, EventEmitter, Input, Output } from '@angular/core';
+    import { animate, state, style, transition, trigger } from '@angular/animations';
+
+    @Component({
+      selector: 'my-popup',
+      template: `
+        &lt;span&gt;Popup: {{message}}&lt;/span&gt;
+        &lt;button (click)=&quot;closed.next()&quot;&gt;&amp;#x2716;&lt;/button&gt;
+      `,
+      host: {
+        '[@state]': 'state',
+      },
+      animations: [
+        trigger('state', [
+          state('opened', style({transform: 'translateY(0%)'})),
+          state('void, closed', style({transform: 'translateY(100%)', opacity: 0})),
+          transition('* =&gt; *', animate('500ms ease-in')),
+        ])
+      ],
+      styles: [`
+        :host {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: #009cff;
+          height: 48px;
+          padding: 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid black;
+          font-size: 24px;
+        }
+        button {
+          border-radius: 50%;
+        }
+      `]
+    })
+    export class PopupComponent {
+      private state: 'opened' | 'closed' = 'closed';
+      @Input()
+      set message(message: string) {
+        this._message = message;
+        this.state = 'opened';
+      }
+      get message(): string { return this._message; }
+      _message: string;
+      @Output()
+      closed = new EventEmitter();
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;popup.service.ts</summary>
+    <pre><code class='ts'>
+    import { ApplicationRef, ComponentFactoryResolver, Injectable, Injector } from '@angular/core';
+    import { NgElement, WithProperties } from '@angular/elements';
+    import { PopupComponent } from './popup.component';
+    @Injectable()
+    export class PopupService {
+      constructor(private injector: Injector,
+                  private applicationRef: ApplicationRef,
+                  private componentFactoryResolver: ComponentFactoryResolver) {}
+      // Previous dynamic-loading method required you to set up infrastructure
+      // before adding the popup to the DOM.
+      showAsComponent(message: string) {
+        // Create element
+        const popup = document.createElement('popup-component');
+        // Create the component and wire it up with the element
+        const factory = this.componentFactoryResolver.resolveComponentFactory(PopupComponent);
+        const popupComponentRef = factory.create(this.injector, [], popup);
+        // Attach to the view so that the change detector knows to run
+        this.applicationRef.attachView(popupComponentRef.hostView);
+        // Listen to the close event
+        popupComponentRef.instance.closed.subscribe(() =&gt; {
+          document.body.removeChild(popup);
+          this.applicationRef.detachView(popupComponentRef.hostView);
+        });
+        // Set the message
+        popupComponentRef.instance.message = message;
+        // Add to the DOM
+        document.body.appendChild(popup);
+      }
+      // This uses the new custom-element method to add the popup to the DOM.
+      showAsElement(message: string) {
+        // Create element
+        const popupEl: NgElement &amp; WithProperties&lt;PopupComponent&gt; = document.createElement('popup-element') as any;
+        // Listen to the close event
+        popupEl.addEventListener('closed', () =&gt; document.body.removeChild(popupEl));
+        // Set the message
+        popupEl.message = message;
+        // Add to the DOM
+        document.body.appendChild(popupEl);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;request-cache.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { HttpRequest, HttpResponse } from '@angular/common/http';
+    import { MessageService } from './messages/message.service';
+    export interface RequestCacheEntry {
+      url: string;
+      response: HttpResponse&lt;any&gt;;
+      lastRead: number;
+    }
+    export abstract class RequestCache {
+      abstract get(req: HttpRequest&lt;any&gt;): HttpResponse&lt;any&gt; | undefined;
+      abstract put(req: HttpRequest&lt;any&gt;, response: HttpResponse&lt;any&gt;): void
+    }
+    const maxAge = 30000; // maximum cache age (ms)
+    @Injectable()
+    export class RequestCacheWithMap implements RequestCache {
+      cache = new Map&lt;string, RequestCacheEntry&gt;();
+      constructor(private messenger: MessageService) { }
+      get(req: HttpRequest&lt;any&gt;): HttpResponse&lt;any&gt; | undefined {
+        const url = req.urlWithParams;
+        const cached = this.cache.get(url);
+        if (!cached) { return undefined; }
+        const isExpired = cached.lastRead &lt; (Date.now() - maxAge);
+        const expired = isExpired ? 'expired ' : '';
+        this.messenger.add(`Found ${expired}cached response for &quot;${url}&quot;.`);
+        return isExpired ? undefined : cached.response;
+      }
+      put(req: HttpRequest&lt;any&gt;, response: HttpResponse&lt;any&gt;): void {
+        const url = req.urlWithParams;
+        this.messenger.add(`Caching response from &quot;${url}&quot;.`);
+        const entry = { url, response, lastRead: Date.now() };
+        this.cache.set(url, entry);
+        // remove expired cache entries
+        const expired = Date.now() - maxAge;
+        this.cache.forEach(entry =&gt; {
+          if (entry.lastRead &lt; expired) {
+            this.cache.delete(entry.url);
+          }
+        });
+        this.messenger.add(`Request cache size: ${this.cache.size}.`);
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;selective-preloading-strategy.service.ts</summary>
+    <pre><code class='ts'>
+    import { Injectable } from '@angular/core';
+    import { PreloadingStrategy, Route } from '@angular/router';
+    import { Observable, of } from 'rxjs';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class SelectivePreloadingStrategyService implements PreloadingStrategy {
+      preloadedModules: string[] = [];
+      preload(
+        route: Route, // route to consider
+        // loader function that can load the routed module asynchronously
+        load: () =&gt; Observable&lt;any&gt;
+      ): Observable&lt;any&gt; {
+        if (route.data &amp;&amp; route.data['preload']) { // check flag from routes
+          // add the route path to the preloaded module array
+          this.preloadedModules.push(route.path);
+          // console.log('Preloaded: ' + route.path);
+          return load();
+        } else {
+          return of(null); // route should not preload, Observable of null
+        }
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;testing</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;http-client.spec.ts</summary>
+    <pre><code class='ts'>
+    // Http testing module and mocking controller
+    import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
+    // Other imports
+    import { TestBed } from '@angular/core/testing';
+    import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
+    import { HttpHeaders } from '@angular/common/http';
+
+    interface Data {
+      name: string;
+    }
+
+    const testUrl = '/data';
+
+    describe('HttpClient testing', () =&gt; {
+      let httpClient: HttpClient;
+      let httpTestingController: HttpTestingController;
+
+      beforeEach(() =&gt; {
+        TestBed.configureTestingModule({ imports: [ HttpClientTestingModule ] });
+        // Inject the http service and test controller for each test
+        httpClient = TestBed.inject(HttpClient);
+        httpTestingController = TestBed.inject(HttpTestingController);
+      });
+      afterEach(() =&gt; {
+        // After every test, assert that there are no more pending requests
+        httpTestingController.verify();
+      });
+
+      /// Tests begin ///
+      it('can test HttpClient.get', () =&gt; {
+        const testData: Data = {name: 'Test Data'};
+        // Make an HTTP GET request
+        httpClient.get&lt;Data&gt;(testUrl)
+          .subscribe(data =&gt;
+            // When observable resolves, result should match test data
+            expect(data).toEqual(testData)
+          );
+        // The following `expectOne()` will match the request's URL.
+        // If no requests or multiple requests matched that URL
+        // `expectOne()` would throw.
+        const req = httpTestingController.expectOne('/data');
+        // Assert that the request is a GET.
+        expect(req.request.method).toEqual('GET');
+        // Respond with mock data, causing Observable to resolve.
+        // Subscribe callback asserts that correct data was returned.
+        req.flush(testData);
+        // Finally, assert that there are no outstanding requests.
+        httpTestingController.verify();
+      });
+
+      it('can test HttpClient.get with matching header', () =&gt; {
+        const testData: Data = {name: 'Test Data'};
+        // Make an HTTP GET request with specific header
+        httpClient.get&lt;Data&gt;(testUrl, {
+            headers: new HttpHeaders({'Authorization': 'my-auth-token'})
+          })
+          .subscribe(data =&gt;
+            expect(data).toEqual(testData)
+          );
+          // Find request with a predicate function.
+        // Expect one request with an authorization header
+        const req = httpTestingController.expectOne(
+          req =&gt; req.headers.has('Authorization')
+        );
+        req.flush(testData);
+      });
+
+      it('can test multiple requests', () =&gt; {
+        let testData: Data[] = [
+          { name: 'bob' }, { name: 'carol' },
+          { name: 'ted' }, { name: 'alice' }
+        ];
+        // Make three requests in a row
+        httpClient.get&lt;Data[]&gt;(testUrl)
+          .subscribe(d =&gt; expect(d.length).toEqual(0, 'should have no data'));
+        httpClient.get&lt;Data[]&gt;(testUrl)
+          .subscribe(d =&gt; expect(d).toEqual([testData[0]], 'should be one element array'));
+        httpClient.get&lt;Data[]&gt;(testUrl)
+          .subscribe(d =&gt; expect(d).toEqual(testData, 'should be expected data'));
+        // get all pending requests that match the given URL
+        const requests = httpTestingController.match(testUrl);
+        expect(requests.length).toEqual(3);
+        // Respond to each request with different results
+        requests[0].flush([]);
+        requests[1].flush([testData[0]]);
+        requests[2].flush(testData);
+      });
+
+      it('can test for 404 error', () =&gt; {
+        const emsg = 'deliberate 404 error';
+        httpClient.get&lt;Data[]&gt;(testUrl).subscribe(
+          data =&gt; fail('should have failed with the 404 error'),
+          (error: HttpErrorResponse) =&gt; {
+            expect(error.status).toEqual(404, 'status');
+            expect(error.error).toEqual(emsg, 'message');
+          }
+        );
+        const req = httpTestingController.expectOne(testUrl);
+        // Respond with mock error
+        req.flush(emsg, { status: 404, statusText: 'Not Found' });
+      });
+
+      it('can test for network error', () =&gt; {
+        const emsg = 'simulated network error';
+        httpClient.get&lt;Data[]&gt;(testUrl).subscribe(
+          data =&gt; fail('should have failed with the network error'),
+          (error: HttpErrorResponse) =&gt; {
+            expect(error.error.message).toEqual(emsg, 'message');
+          }
+        );
+        const req = httpTestingController.expectOne(testUrl);
+        // Create mock ErrorEvent, raised when something goes wrong at the network level.
+        // Connection timeout, DNS error, offline, etc
+        const mockError = new ErrorEvent('Network error', {
+          message: emsg,
+          // The rest of this is optional and not used.
+          // Just showing that you could provide this too.
+          filename: 'HeroService.ts',
+          lineno: 42,
+          colno: 21
+        });
+        // Respond with mock error
+        req.error(mockError);
+      });
+
+      it('httpTestingController.verify should fail if HTTP response not simulated', () =&gt; {
+        // Sends request
+        httpClient.get('some/api').subscribe();
+        // verify() should fail because haven't handled the pending request.
+        expect(() =&gt; httpTestingController.verify()).toThrow();
+        // Now get and flush the request so that afterEach() doesn't fail
+        const req = httpTestingController.expectOne('some/api');
+        req.flush(null);
+      });
+
+      // Proves that verify in afterEach() really would catch error
+      // if test doesnt simulate the HTTP response
+      //
+      // Must disable this test because can't catch an error in an afterEach()
+      // Uncomment if you want to confirm that afterEach() does the job
+      // it('afterEach() should fail when HTTP response not simulated',() =&gt; {
+      //   // Sends request which is never handled by this test
+      //   httpClient.get('some/api').subscribe();
+      // });
+    });</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;translations</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;translations.component.html</summary>
+    <pre><code class='html'>
+    &lt;h1 i18n=&quot;User welcome|An introduction header for this sample@@introductionHeader&quot;&gt;
+      Hello i18n!
+    &lt;/h1&gt;
+
+    &lt;ng-container i18n&gt;I don't output any element&lt;/ng-container&gt;
+
+    &lt;br /&gt;
+
+    &lt;img [src]=&quot;logo&quot; i18n-title title=&quot;Angular logo&quot; /&gt;
+    &lt;br&gt;
+    &lt;button (click)=&quot;inc(1)&quot;&gt;+&lt;/button&gt; &lt;button (click)=&quot;inc(-1)&quot;&gt;-&lt;/button&gt;
+    &lt;span i18n&gt;Updated {minutes, plural, =0 {just now} =1 {one minute ago} other {{{minutes}} minutes ago}}&lt;/span&gt;
+    ({{minutes}})
+    &lt;br&gt;&lt;br&gt;
+    &lt;button
+      (click)=&quot;male()&quot;
+    &gt;&amp;#9794;&lt;/button&gt;
+    &lt;button
+      (click)=&quot;female()&quot;
+    &gt;&amp;#9792;&lt;/button&gt;
+    &lt;button
+      (click)=&quot;other()&quot;
+    &gt;&amp;#9895;&lt;/button&gt;
+    &lt;span i18n&gt;
+      The author is {gender, select, male {male} female {female} other {other}}
+    &lt;/span&gt;
+    &lt;br&gt;&lt;br&gt;
+    &lt;span i18n&gt;Updated: {minutes, plural,
+      =0 {just now}
+      =1 {one minute ago}
+      other {{{minutes}} minutes ago by {gender, select, male {male} female {female} other {other}}}}
+    &lt;/span&gt;
+      </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;translations.component.ts</summary>
+    <pre><code class='ts'>
+    import { Component, OnInit } from '@angular/core';
+
+    @Component({
+      selector: 'app-translations',
+      templateUrl: './translations.component.html'
+    })
+    export class TranslationsComponent implements OnInit {
+      constructor() { }
+      ngOnInit() { }
+
+      minutes = 0;
+      gender = 'female';
+      fly = true;
+      logo = 'https://angular.io/assets/images/logos/angular/angular.png';
+      heroes: string[] = ['Magneta', 'Celeritas', 'Dynama'];
+      inc(i: number) {
+        this.minutes = Math.min(5, Math.max(0, this.minutes + i));
+      }
+      male() { this.gender = 'male'; }
+      female() { this.gender = 'female'; }
+      other() { this.gender = 'other'; }
+
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;unless.directive.ts</summary>
+    <pre><code class='ts'>
+    import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+
+    /**
+    * Add the template content to the DOM unless the condition is true.
+    *
+    * If the expression assigned to `appUnless` evaluates to a truthy value
+    * then the templated elements are removed removed from the DOM,
+    * the templated elements are (re)inserted into the DOM.
+    *
+    * &lt;div *ngUnless=&quot;errorCount&quot; class=&quot;success&quot;&gt;
+    *   Congrats! Everything is great!
+    * &lt;/div&gt;
+    *
+    * ### Syntax
+    *
+    * - `&lt;div *appUnless=&quot;condition&quot;&gt;...&lt;/div&gt;`
+    * - `&lt;ng-template [appUnless]=&quot;condition&quot;&gt;&lt;div&gt;...&lt;/div&gt;&lt;/ng-template&gt;`
+    *
+    */
+    @Directive({ selector: '[appUnless]'})
+    export class UnlessDirective {
+      private hasView = false;
+
+      constructor(
+        private templateRef: TemplateRef&lt;any&gt;,
+        private viewContainer: ViewContainerRef) { }
+
+      @Input() set appUnless(condition: boolean) {
+        if (!condition &amp;&amp; !this.hasView) {
+          this.viewContainer.createEmbeddedView(this.templateRef);
+          this.hasView = true;
+        } else if (condition &amp;&amp; this.hasView) {
+          this.viewContainer.clear();
+          this.hasView = false;
+        }
+      }
+    }</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;assets</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;config.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;apiUrl&quot;: &quot;https://reqres.in/api&quot;,
+      &quot;textfile&quot;: &quot;tests-files.txt&quot;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;icons</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;textfile.txt</summary>
+    <pre><code class='txt'>
+    file content for example:
+    Requesting non-JSON data
+    []{};':&quot;,.&lt;&gt;/?=-+_</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;environments</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;environment.prod.ts</summary>
+    <pre><code class='ts'>
+    export const environment = {
+      production: true
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;environment.ts</summary>
+    <pre><code class='ts'>
+    // This file can be replaced during build by using the `fileReplacements` array.
+    // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
+    // The list of file replacements can be found in `angular.json`.
+
+    export const environment = {
+      production: false
+    };
+
+    /*
+    * For easier debugging in development mode, you can import the following file
+    * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
+    *
+    * This import should be commented out in production mode because it will have a negative impact
+    * on performance if an error is thrown.
+    */
+    // import 'zone.js/dist/zone-error';  // Included with Angular CLI.
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;index.html</summary>
+    <pre><code class='html'>
+    &lt;!doctype html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+      &lt;meta charset=&quot;utf-8&quot;&gt;
+      &lt;title&gt;AngularTour&lt;/title&gt;
+      &lt;base href=&quot;/&quot;&gt;
+
+      &lt;meta
+        name=&quot;viewport&quot;
+        content=&quot;width=device-width, initial-scale=1&quot;
+      &gt;
+      &lt;link rel=&quot;icon&quot; type=&quot;image/x-icon&quot; href=&quot;favicon.ico&quot;&gt;
+      &lt;link rel=&quot;manifest&quot; href=&quot;manifest.webmanifest&quot;&gt;
+      &lt;meta name=&quot;theme-color&quot; content=&quot;#1976d2&quot;&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+      &lt;app-root&gt;&lt;/app-root&gt;
+      &lt;noscript&gt;Please enable JavaScript to continue using this application.&lt;/noscript&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;karma.conf.js</summary>
+    <pre><code class='js'>
+    // Karma configuration file, see link for more information
+    // https://karma-runner.github.io/1.0/config/configuration-file.html
+
+    module.exports = function (config) {
+      config.set({
+        basePath: '',
+        // set as a testing framework
+        frameworks: ['jasmine', '@angular-devkit/build-angular'],
+        plugins: [
+          require('karma-jasmine'),
+          require('karma-chrome-launcher'),
+          require('karma-jasmine-html-reporter'),
+          require('karma-coverage-istanbul-reporter'),
+          require('@angular-devkit/build-angular/plugins/karma')
+        ],
+        client: {
+          clearContext: false // leave Jasmine Spec Runner output visible in browser
+        },
+        coverageIstanbulReporter: {
+          dir: require('path').join(__dirname, '../coverage'),
+          reports: ['html', 'lcovonly', 'text-summary'],
+          fixWebpackSourcePaths: true
+          // ,thresholds: {
+          //   statements: 80,
+          //   lines: 80,
+          //   branches: 80,
+          //   functions: 80
+          // }
+        },
+        reporters: ['progress', 'kjhtml'],
+        port: 9876,
+        colors: true,
+        logLevel: config.LOG_INFO,
+        autoWatch: true, // tests run in watch mode
+        browsers: ['Chrome'], // browser where the test should run
+        singleRun: false
+      });
+    };</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;locale</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;messages.ru.xlf</summary>
+    <pre><code class='xlf'>
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+    &lt;xliff version=&quot;1.2&quot; xmlns=&quot;urn:oasis:names:tc:xliff:document:1.2&quot;&gt;
+      &lt;file source-language=&quot;en&quot; datatype=&quot;plaintext&quot; original=&quot;ng2.template&quot;&gt;
+        &lt;body&gt;
+
+          &lt;trans-unit id=&quot;introductionHeader&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Hello i18n!&lt;/source&gt;
+            &lt;target&gt;Привет i18n!&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;1&lt;/context&gt;
+            &lt;/context-group&gt;
+            &lt;note priority=&quot;1&quot; from=&quot;description&quot;&gt;An introduction header for this sample&lt;/note&gt;
+            &lt;note priority=&quot;1&quot; from=&quot;meaning&quot;&gt;User welcome&lt;/note&gt;
+          &lt;/trans-unit&gt;
+
+          &lt;trans-unit id=&quot;ba0cc104d3d69bf669f97b8d96a4c5d8d9559aa3&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;I don&amp;apos;t output any element&lt;/source&gt;
+            &lt;target&gt;Я не вывожу элементов&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;5&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+
+          &lt;trans-unit id=&quot;701174153757adf13e7c24a248c8a873ac9f5193&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Angular logo&lt;/source&gt;
+            &lt;target&gt;Логотип&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;9&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+
+          &lt;trans-unit id=&quot;d69f6b42305f49332026fef24b40227f02e34594&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Updated &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {...} =1 {...} other {...}}&quot;/&gt;&lt;/source&gt;
+            &lt;target&gt;Обновленно &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {сейчас} =1 {1 минуту назад} other {много минут назад}}&quot;/&gt;&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;12&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;5a134dee893586d02bffc9611056b9cadf9abfad&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; minutes ago} }&lt;/source&gt;
+            &lt;target&gt;{VAR_PLURAL, plural, =0 {сейчас} =1 {1 минуту назад} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; минут назад} }&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;12&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+
+          &lt;trans-unit id=&quot;f99f34ac9bd4606345071bd813858dec29f3b7d1&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;The author is &lt;x id=&quot;ICU&quot; equiv-text=&quot;{gender, select, male {...} female {...} other {...}}&quot;/&gt;&lt;/source&gt;
+            &lt;target&gt;Автор &lt;x id=&quot;ICU&quot; equiv-text=&quot;{gender, select, male {...} female {...} other {...}}&quot;/&gt;&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;16&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;eff74b75ab7364b6fa888f1cbfae901aaaf02295&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_SELECT, select, male {male} female {female} other {other} }&lt;/source&gt;
+            &lt;target&gt;{VAR_SELECT, select, male {мужик} female {баба} other {ой,пиздец...} }&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;16&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+
+          &lt;trans-unit id=&quot;972cb0cf3e442f7b1c00d7dab168ac08d6bdf20c&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Updated: &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {...} =1 {...} other {...}}&quot;/&gt;
+            &lt;/source&gt;
+            &lt;target&gt;Обновленно: &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {...} =1 {...} other {...}}&quot;/&gt;&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;18&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;7151c2e67748b726f0864fc443861d45df21d706&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; minutes ago by {VAR_SELECT, select, male {male} female {female} other {other} }} }&lt;/source&gt;
+            &lt;target&gt;{VAR_PLURAL, plural, =0 {сичас} =1 {уже} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; недавно {VAR_SELECT, select, male {мужиком} female {бабой какой то} other {ХЗ кто} }} }&lt;/target&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;18&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+
+        &lt;/body&gt;
+      &lt;/file&gt;
+    &lt;/xliff&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;messages.xlf</summary>
+    <pre><code class='xlf'>
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+    &lt;xliff version=&quot;1.2&quot; xmlns=&quot;urn:oasis:names:tc:xliff:document:1.2&quot;&gt;
+      &lt;file source-language=&quot;en&quot; datatype=&quot;plaintext&quot; original=&quot;ng2.template&quot;&gt;
+        &lt;body&gt;
+          &lt;trans-unit id=&quot;introductionHeader&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;
+      Hello i18n!
+    &lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;1&lt;/context&gt;
+            &lt;/context-group&gt;
+            &lt;note priority=&quot;1&quot; from=&quot;description&quot;&gt;An introduction header for this sample&lt;/note&gt;
+            &lt;note priority=&quot;1&quot; from=&quot;meaning&quot;&gt;User welcome&lt;/note&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;ba0cc104d3d69bf669f97b8d96a4c5d8d9559aa3&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;I don&amp;apos;t output any element&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;5&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;701174153757adf13e7c24a248c8a873ac9f5193&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Angular logo&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;9&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;d69f6b42305f49332026fef24b40227f02e34594&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Updated &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {...} =1 {...} other {...}}&quot;/&gt;&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;12&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;5a134dee893586d02bffc9611056b9cadf9abfad&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; minutes ago} }&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;12&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;f99f34ac9bd4606345071bd813858dec29f3b7d1&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;The author is &lt;x id=&quot;ICU&quot; equiv-text=&quot;{gender, select, male {...} female {...} other {...}}&quot;/&gt;&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;16&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;eff74b75ab7364b6fa888f1cbfae901aaaf02295&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_SELECT, select, male {male} female {female} other {other} }&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;16&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;972cb0cf3e442f7b1c00d7dab168ac08d6bdf20c&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;Updated: &lt;x id=&quot;ICU&quot; equiv-text=&quot;{minutes, plural, =0 {...} =1 {...} other {...}}&quot;/&gt;
+    &lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;18&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+          &lt;trans-unit id=&quot;7151c2e67748b726f0864fc443861d45df21d706&quot; datatype=&quot;html&quot;&gt;
+            &lt;source&gt;{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {&lt;x id=&quot;INTERPOLATION&quot; equiv-text=&quot;{{minutes}}&quot;/&gt; minutes ago by {VAR_SELECT, select, male {male} female {female} other {other} }} }&lt;/source&gt;
+            &lt;context-group purpose=&quot;location&quot;&gt;
+              &lt;context context-type=&quot;sourcefile&quot;&gt;app/translations/translations.component.html&lt;/context&gt;
+              &lt;context context-type=&quot;linenumber&quot;&gt;18&lt;/context&gt;
+            &lt;/context-group&gt;
+          &lt;/trans-unit&gt;
+        &lt;/body&gt;
+      &lt;/file&gt;
+    &lt;/xliff&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;main.server.ts</summary>
+    <pre><code class='ts'>
+    import { enableProdMode } from '@angular/core';
+
+    import { environment } from './environments/environment';
+
+    if (environment.production) {
+      enableProdMode();
+    }
+
+    export { AppServerModule } from './app/app.server.module';
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;main.ts</summary>
+    <pre><code class='ts'>
+    import { enableProdMode } from '@angular/core';
+    import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+    import { AppModule } from './app/app.module';
+    import { environment } from './environments/environment';
+
+    if (environment.production) {
+      enableProdMode();
+    }
+
+    document.addEventListener('DOMContentLoaded', () =&gt; {
+      platformBrowserDynamic().bootstrapModule(AppModule)
+      .catch(err =&gt; console.error(err));
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;polyfills.ts</summary>
+    <pre><code class='ts'>
+    /**
+    * This file includes polyfills needed by Angular and is loaded before the app.
+    * You can add your own extra polyfills to this file.
+    *
+    * This file is divided into 2 sections:
+    *   1. Browser polyfills. These are applied before loading ZoneJS and are sorted by browsers.
+    *   2. Application imports. Files imported after ZoneJS that should be loaded before your main
+    *      file.
+    *
+    * The current setup is for so-called &quot;evergreen&quot; browsers; the last versions of browsers that
+    * automatically update themselves. This includes Safari &gt;= 10, Chrome &gt;= 55 (including Opera),
+    * Edge &gt;= 13 on the desktop, and iOS 10 and Chrome on mobile.
+    *
+    * Learn more in https://angular.io/guide/browser-support
+    */
+
+    /***************************************************************************************************
+    * BROWSER POLYFILLS
+    */
+
+    /** IE9, IE10, IE11, and Chrome &lt;55 requires all of the following polyfills.
+    *  This also includes Android Emulators with older versions of Chrome and Google Search/Googlebot
+    */
+
+    // import 'core-js/es6/symbol';
+    // import 'core-js/es6/object';
+    // import 'core-js/es6/function';
+    // import 'core-js/es6/parse-int';
+    // import 'core-js/es6/parse-float';
+    // import 'core-js/es6/number';
+    // import 'core-js/es6/math';
+    // import 'core-js/es6/string';
+    // import 'core-js/es6/date';
+    // import 'core-js/es6/array';
+    // import 'core-js/es6/regexp';
+    // import 'core-js/es6/map';
+    // import 'core-js/es6/weak-map';
+    // import 'core-js/es6/set';
+
+    /** IE10 and IE11 requires the following for NgClass support on SVG elements */
+    // import 'classlist.js';  // Run `npm install --save classlist.js`.
+
+    /** IE10 and IE11 requires the following for the Reflect API. */
+    // import 'core-js/es6/reflect';
+
+    /**
+    * Web Animations `@angular/platform-browser/animations`
+    * Only required if AnimationBuilder is used within the application and using IE/Edge or Safari.
+    * Standard animation support in Angular DOES NOT require any polyfills (as of Angular 6.0).
+    */
+    import 'web-animations-js';  // Run `npm install --save web-animations-js`.
+
+    /**
+    * By default, zone.js will patch all possible macroTask and DomEvents
+    * user can disable parts of macroTask/DomEvents patch by setting following flags
+    * because those flags need to be set before `zone.js` being loaded, and webpack
+    * will put import in the top of bundle, so user need to create a separate file
+    * in this directory (for example: zone-flags.ts), and put the following flags
+    * into that file, and then add the following code before importing zone.js.
+    * import './zone-flags.ts';
+    *
+    * The flags allowed in zone-flags.ts are listed here.
+    *
+    * The following flags will work for all browsers.
+    *
+    * (window as any).__Zone_disable_requestAnimationFrame = true; // disable patch requestAnimationFrame
+    * (window as any).__Zone_disable_on_property = true; // disable patch onProperty such as onclick
+    * (window as any).__zone_symbol__BLACK_LISTED_EVENTS = ['scroll', 'mousemove']; // disable patch specified eventNames
+    *
+    *  in IE/Edge developer tools, the addEventListener will also be wrapped by zone.js
+    *  with the following flag, it will bypass `zone.js` patch for IE/Edge
+    *
+    *  (window as any).__Zone_enable_cross_context_check = true;
+    *
+    */
+
+    /***************************************************************************************************
+    * Zone JS is required by default for Angular itself.
+    */
+    import 'zone.js/dist/zone';  // Included with Angular CLI.
+
+
+    /***************************************************************************************************
+    * APPLICATION IMPORTS
+    */
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;styles.css</summary>
+    <pre><code class='css'>
+    /* Master Styles */
+    h1 {
+    color: #369;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 250%;
+    }
+    h2, h3 {
+      color: #444;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: lighter;
+    }
+    body {
+      margin: 2em;
+    }
+    body, input[text], button {
+      font-family: Cambria, Georgia;
+    }
+    a {
+      cursor: pointer;
+      cursor: hand;
+    }
+
+    /* Navigation link styles */
+    nav a {
+      padding: 5px 10px;
+      text-decoration: none;
+      margin: 10px 10px 10px 0px;
+      display: inline-block;
+      background-color: #eee;
+      border-radius: 4px;
+    }
+    nav a:visited, a:link {
+      color: #607D8B;
+    }
+    nav a:hover {
+      color: #039be5;
+      background-color: #CFD8DC;
+    }
+    nav a.active {
+      color: #039be5;
+    }
+
+    /* everywhere else */
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .notes {
+      margin: 0 0 2em 0;
+      list-style-type: none;
+      padding: 0;
+      width: 15em;
+    }
+    .notes li {
+      position: relative;
+      cursor: pointer;
+      background-color: #EEE;
+      margin: .5em;
+      padding: .3em 0;
+      height: 1.6em;
+      border-radius: 4px;
+      overflow:hidden;
+    }
+    .notes li:hover {
+      color: #607D8B;
+      background-color: #DDD;
+    }
+    .notes li.selected {
+      background-color: #BBD8DC;
+    }
+    .notes a {
+      color: #888;
+      text-decoration: none;
+      position: relative;
+      display: block;
+      width: 250px;
+    }
+    .notes a:hover {
+    color:#607D8B;
+    }
+    .notes .id {
+      display: inline-block;
+      font-size: small;
+      color: white;
+      padding: 0.8em 0.7em 0 0.7em;
+      background-color: #607D8B;
+      line-height: 1em;
+      position: relative;
+      left: -1px;
+      top: -4px;
+      height: 1.8em;
+      min-width: 16px;
+      text-align: right;
+      margin-right: .8em;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .notes li &gt; .inner {
+      cursor: pointer;
+      background-color: #EEE;
+      height: 1.6em;
+      border-radius: 4px;
+      width: 19em;
+    }
+    .notes li:hover &gt; .inner {
+      color: #607D8B;
+      background-color: #DDD;
+      transform: translateX(.1em);
+    }
+
+    button {
+      background-color: #eee;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      cursor: hand;
+      font-family: Arial;
+    }
+    button:hover {
+      background-color: #cfd8dc;
+    }
+    button.delete {
+      position: relative;
+      left: 194px;
+      top: -32px;
+      background-color: gray !important;
+      color: white;
+    }
+    button:disabled {
+      background-color: #eee;
+      color: #aaa;
+      cursor: auto;
+    }
+
+    .w_100pc {
+      position: relative;
+      float: left;
+      width: 100%;
+    }
+    .w_32pc{
+      position: relative;
+      float: left;
+      width: 32%;
+    }
+    .w_24pc{
+      position: relative;
+      float: left;
+      width: 24%;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;test.ts</summary>
+    <pre><code class='ts'>
+    // This file is required by karma.conf.js and loads recursively all the .spec and framework files
+
+    import 'zone.js/dist/zone-testing';
+    import { getTestBed } from '@angular/core/testing';
+    import {
+      BrowserDynamicTestingModule,
+      platformBrowserDynamicTesting
+    } from '@angular/platform-browser-dynamic/testing';
+
+    declare const require: any;
+
+    // First, initialize the Angular testing environment.
+    getTestBed().initTestEnvironment(
+      BrowserDynamicTestingModule,
+      platformBrowserDynamicTesting()
+    );
+    // Then we find all the tests.
+    const context = require.context('./', true, /\.spec\.ts$/);
+    // And load the modules.
+    context.keys().map(context);
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tsconfig.app.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tsconfig.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/app&quot;,
+        &quot;types&quot;: []
+      },
+      &quot;exclude&quot;: [
+        &quot;test.ts&quot;,
+        &quot;**/*.spec.ts&quot;
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tsconfig.server.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;./tsconfig.app.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/app-server&quot;,
+        &quot;baseUrl&quot;: &quot;.&quot;
+      },
+      &quot;angularCompilerOptions&quot;: {
+        &quot;entryModule&quot;: &quot;app/app.server.module#AppServerModule&quot;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tsconfig.spec.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tsconfig.json&quot;,
+      &quot;compilerOptions&quot;: {
+        &quot;outDir&quot;: &quot;../out-tsc/spec&quot;,
+        &quot;types&quot;: [
+          &quot;jasmine&quot;,
+          &quot;node&quot;
+        ]
+      },
+      &quot;files&quot;: [
+        &quot;test.ts&quot;,
+        &quot;polyfills.ts&quot;
+      ],
+      &quot;include&quot;: [
+        &quot;**/*.spec.ts&quot;,
+        &quot;**/*.d.ts&quot;
+      ]
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tslint.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: &quot;../tslint.json&quot;,
+      &quot;rules&quot;: {
+        &quot;directive-selector&quot;: [
+          true,
+          &quot;attribute&quot;,
+          &quot;app&quot;,
+          &quot;camelCase&quot;
+        ],
+        &quot;component-selector&quot;: [
+          true,
+          &quot;element&quot;,
+          &quot;app&quot;,
+          &quot;kebab-case&quot;
+        ]
+      }
+    }
+    </code></pre></details>
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

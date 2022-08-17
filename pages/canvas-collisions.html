@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas collisions, tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, game, collisions, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas game collisions tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+  <h2>Collisions</h2>
+  <ul>
+    <li>Click and drag a figure</li>
+    <li>Double click on canvas area to add new figure</li>
+  </ul>
+
+  <div class="example">
+    <canvas
+      id="canvas"
+      width="500"
+      height="300"
+      style="border:1px solid #000000;"
+    >
+    </canvas>
+  </div>
+
+  <script>
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    // Constructor for Shape objects to hold data for all drawn objects.
+    // For now they will just be defined as rectangles.
+    function Shape(type, description) { // x, y, w, h, fill
+      this.x = description.x || 3;
+      this.y = description.y || 3;
+      this.fill = description.fill || '#AAAAAA';
+      this.colliding = false;
+      if(type == "circle") {
+        this.r = description.r || 3;
+        this.type = 'circle';
+      } else {
+        this.w = description.w || 1;
+        this.h = description.h || 1;
+        this.type = 'rectangle';
+      }
+    }
+    Shape.prototype.draw = function(ctx) {
+
+      ctx.globalAlpha = 1;
+      if (this.colliding) { ctx.globalAlpha = 0.33; }
+
+      if(this.type == "circle") {
+        ctx.beginPath();
+        ctx.arc(
+          this.x,
+          this.y,
+          this.r,
+          0,
+          2 * Math.PI,
+          false
+        );
+        ctx.fillStyle = this.fill || '#AAAAAA';
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.fillStyle = this.fill;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+      }
+    }
+    Shape.prototype.contains = function(mx, my) {
+      var result = false;
+      if (this.type == 'circle') {
+        var dx = this.x - mx;
+        var dy = this.y - my;
+        result = (dx * dx + dy * dy) <= this.r * this.r;
+      } else {
+        // make sure the Mouse X,Y fall in the area between
+        // the shape's X and (X + Width) and its Y and (Y + Height)
+        result = (this.x <= mx) && (this.x + this.w >= mx) && (this.y <= my) && (this.y + this.h >= my);
+      }
+      return result;
+    }
+
+    function CanvasState(canvas) {
+      this.canvas = canvas;
+      this.width = canvas.width;
+      this.height = canvas.height;
+      this.ctx = canvas.getContext('2d');
+
+      // This complicates things a little but fixes mouse co-ordinate problems
+      // when there's a border or padding. See getMouse for more detail
+      var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
+      if (document.defaultView && document.defaultView.getComputedStyle) {
+        this.stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
+        this.stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
+        this.styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
+        this.styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
+      }
+      // Some pages have fixed-position bars (like the stumbleupon bar) at the top or left of the page
+      // They will mess up mouse coordinates and this fixes that
+      var html = document.body.parentNode;
+      this.htmlTop = html.offsetTop;
+      this.htmlLeft = html.offsetLeft;
+
+      // **** Keep track of state! ****
+
+      this.valid = false; // when set to false, the canvas will redraw everything
+      this.shapes = [];  // the collection of things to be drawn
+      this.dragging = false; // Keep track of when we are dragging
+      // the current selected object. In the future we could turn this into an array for multiple selection
+      this.selection = null;
+      this.dragoffx = 0; // See mousedown and mousemove events for explanation
+      this.dragoffy = 0;
+
+      // This is an example of a closure!
+      // Right here "this" means the CanvasState. But we are making events on the Canvas itself,
+      // and when the events are fired on the canvas the variable "this" is going to mean the canvas!
+      // Since we still want to use this particular CanvasState in the events we have to save a reference to it.
+      // This is our reference!
+      var myState = this;
+
+      //fixes a problem where double clicking causes text to get selected on the canvas
+      canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
+
+      // Up, down, and move are for dragging
+      canvas.addEventListener('mousedown', function(e) {
+        var mouse = myState.getMouse(e);
+        var mx = mouse.x;
+        var my = mouse.y;
+        var shapes = myState.shapes;
+        var l = shapes.length;
+        for (var i = l-1; i >= 0; i--) {
+          if (shapes[i].contains(mx, my)) {
+            var mySel = shapes[i];
+            // Keep track of where in the object we clicked
+            // so we can move it smoothly (see mousemove)
+            myState.dragoffx = mx - mySel.x;
+            myState.dragoffy = my - mySel.y;
+            myState.dragging = true;
+            myState.selection = mySel;
+            myState.valid = false;
+            return;
+          }
+        }
+        // havent returned means we have failed to select anything.
+        // If there was an object selected, we deselect it
+        if (myState.selection) {
+          myState.selection = null;
+          myState.valid = false; // Need to clear the old selection border
+        }
+      }, true);
+      canvas.addEventListener('mousemove', function(e) {
+        if (myState.dragging){
+          var mouse = myState.getMouse(e);
+          // We don't want to drag the object by its top-left corner, we want to drag it
+          // from where we clicked. Thats why we saved the offset and use it here
+          myState.selection.x = mouse.x - myState.dragoffx;
+          myState.selection.y = mouse.y - myState.dragoffy;
+          myState.valid = false; // Something's dragging so we must redraw
+        }
+      }, true);
+      canvas.addEventListener('mouseup', function(e) {
+        myState.dragging = false;
+      }, true);
+      // double click for making new shapes
+      canvas.addEventListener('dblclick', function(e) {
+        var mouse = myState.getMouse(e);
+        var color = 'rgb('+getRandomInt(0,250)+','+getRandomInt(0,250)+','+getRandomInt(0,250)+')';
+        var types = [0,'circle'];
+        var type = types[Math.floor(Math.random()*types.length)];
+        if (type == 'circle') {
+          myState.addShape(
+            new Shape(
+              'circle',
+              {
+                x:mouse.x - 10,
+                y:mouse.y - 10,
+                r:getRandomInt(15,35),
+                fill:color
+              }
+            )
+          );
+        } else {
+          myState.addShape(
+            new Shape(
+              'rectangle',
+              {
+                x:mouse.x - 10,
+                y:mouse.y - 10,
+                w:getRandomInt(15,40),
+                h:getRandomInt(15,40),
+                fill:color
+              }
+            )
+          );
+        }
+      }, true);
+
+      // **** Options! ****
+
+      this.selectionColor = 'black';
+      this.selectionWidth = 3;
+      this.interval = 16;
+
+      this.ctx.setLineDash([3,3]); // set dashes for stroke
+
+      setInterval(function() { myState.draw(); }, myState.interval);
+    }
+    CanvasState.prototype.addShape = function(shape) {
+      this.shapes.push(shape);
+      this.valid = false;
+    }
+    CanvasState.prototype.clear = function() {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+
+    CanvasState.prototype.RectCircleColliding = function(circle, rect) {
+      // vertical & horizontal (distX/distY) distances between the circle and rectangle center
+      var distX = Math.abs(circle.x - rect.x - rect.w / 2);
+      var distY = Math.abs(circle.y - rect.y - rect.h / 2);
+
+      // If the distance is greater than halfCircle + halfRect, then they are too far apart to be colliding
+      if (distX > (rect.w / 2 + circle.r)) { return false; }
+      if (distY > (rect.h / 2 + circle.r)) { return false; }
+
+      // If the distance is less than halfRect then they are definitely colliding
+      if (distX <= (rect.w / 2)) { return true; }
+      if (distY <= (rect.h / 2)) { return true; }
+
+      // Test for collision at rect corner
+      // Think of a line from the rect center to any rect corner
+      // Now extend that line by the radius of the circle
+      // If the circle’s center is on that line they are colliding at exactly that rect corner
+      // Using Pythagoras formula to compare the distance between circle and rect centers
+      var dx = distX - rect.w / 2;
+      var dy = distY - rect.h / 2;
+      return (dx * dx + dy * dy <= (circle.r * circle.r));
+    }
+
+    // While draw is called as often as the INTERVAL variable demands,
+    // It only ever does something if the canvas gets invalidated by our code
+    CanvasState.prototype.draw = function() {
+      // if our state is invalid, redraw and validate!
+      if (!this.valid) {
+        var ctx = this.ctx;
+        var shapes = this.shapes;
+        var rcc = this.RectCircleColliding;
+        this.clear();
+
+        // ** Add stuff you want drawn in the background all the time here **
+
+        shapes.forEach(function(shape, index) {
+          shapes[index].colliding = false;
+        });
+
+        // todo: reduce repetition or move outside
+        shapes.forEach(function(this_shape, this_index) {
+          shapes.forEach(function(that_shape, that_index) {
+
+            if (this_index == that_index) return;
+
+            var collision = false;
+
+            // circle - circle
+            if (this_shape.type == 'circle' && that_shape.type == 'circle') {
+              var dx = this_shape.x - that_shape.x;
+              var dy = this_shape.y - that_shape.y;
+              var distance = Math.sqrt(dx * dx + dy * dy);
+              collision = (distance < this_shape.r + that_shape.r);
+            }
+            // circle - rect / rect - circle
+            else if (
+              (this_shape.type == 'circle' && that_shape.type == 'rectangle') ||
+              (this_shape.type == 'rectangle' && that_shape.type == 'circle')
+            ) {
+              var circle = (this_shape.type == 'circle') ? this_shape : that_shape;
+              var rect = (this_shape.type == 'rectangle') ? this_shape : that_shape;
+              collision = rcc(circle,rect);
+            }
+            // rect - rect
+            else
+            {
+              collision = (
+                this_shape.x < that_shape.x + that_shape.w &&
+                this_shape.x + this_shape.w > that_shape.x &&
+                this_shape.y < that_shape.y + that_shape.h &&
+                this_shape.h + this_shape.y > that_shape.y
+              ) ? true : false;
+            }
+
+            if (collision) {
+              shapes[this_index].colliding = true;
+              shapes[that_index].colliding = true;
+            }
+
+          })
+
+        });
+
+        // draw all shapes
+        var l = shapes.length;
+        for (var i = 0; i < l; i++) {
+          var shape = shapes[i];
+          // We can skip the drawing of elements that have moved off the screen:
+          if (shape.x > this.width || shape.y > this.height ||
+              shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
+          shapes[i].draw(ctx);
+        }
+
+        // draw selection
+        // right now this is just a stroke along the edge of the selected Shape
+        if (this.selection != null) {
+          ctx.strokeStyle = this.selectionColor;
+          ctx.lineWidth = this.selectionWidth;
+          var mySel = this.selection;
+          if (mySel.type == 'circle') {
+            ctx.beginPath();
+            ctx.arc(
+              mySel.x,
+              mySel.y,
+              mySel.r,
+              0,
+              2 * Math.PI,
+              false
+            );
+            ctx.stroke();
+          } else {
+            ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
+          }
+        }
+
+        // ** Add stuff you want drawn on top all the time here **
+
+        this.valid = true;
+
+        // console.log([shapes,this.selection])
+      }
+    }
+
+
+    // Creates an object with x and y defined, set to the mouse position relative to the state's canvas
+    // If you wanna be super-correct this can be tricky, we have to worry about padding and borders
+    CanvasState.prototype.getMouse = function(e) {
+      var element = this.canvas, offsetX = 0, offsetY = 0, mx, my;
+
+      // Compute the total offset
+      if (element.offsetParent !== undefined) {
+        do {
+          offsetX += element.offsetLeft;
+          offsetY += element.offsetTop;
+        } while ((element = element.offsetParent));
+      }
+
+      // Add padding and border style widths to offset
+      // Also add the <html> offsets in case there's a position:fixed bar
+      offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
+      offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
+
+      mx = e.pageX - offsetX;
+      my = e.pageY - offsetY;
+
+      // We return a simple javascript object (a hash) with x and y defined
+      return {x: mx, y: my};
+    }
+
+    // If you dont want to use <body onLoad='init()'>
+    // You could uncomment this init() reference and place the script reference inside the body tag
+    //init();
+
+    function init() {
+      var s = new CanvasState(document.getElementById('canvas'));
+
+      s.addShape(new Shape('rectangle', {x:40,y:40,w:30,h:50,fill:'#ffff00'})); // The default is gray
+      s.addShape(new Shape('rectangle', {x:80,y:140,w:50,h:40,fill:'#ff0000'}));
+      // Lets make some partially transparent
+      s.addShape(new Shape('rectangle', {x:160,y:150,w:60,h:20,fill:'#ff8000'}));
+      s.addShape(new Shape('rectangle', {x:240,y:80,w:30,h:20,fill:'#80ff00'}));
+      s.addShape(new Shape('rectangle', {x:300,y:80,w:25,h:40,fill:'#ff00bf'}));
+
+      // circles
+      s.addShape(new Shape('circle', {x:70,y:250,r:40,fill:'#00bfff'}));
+      s.addShape(new Shape('circle', {x:140,y:230,r:30,fill:'#0040ff'}));
+      s.addShape(new Shape('circle', {x:210,y:80,r:20,fill:'#8000ff'}));
+
+      // s.addShape(new Shape('circle', {x:125,y:80,r:20,fill:'rgba(245, 22, 79, .7)'}));
+    }
+
+    init();
+
+  </script>
+
+
+  <pre><code class="javascript">
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    // Constructor for Shape objects to hold data for all drawn objects.
+    // For now they will just be defined as rectangles.
+    function Shape(type, description) { // x, y, w, h, fill
+      this.x = description.x || 3;
+      this.y = description.y || 3;
+      this.fill = description.fill || '#AAAAAA';
+      this.colliding = false;
+      if(type == "circle") {
+        this.r = description.r || 3;
+        this.type = 'circle';
+      } else {
+        this.w = description.w || 1;
+        this.h = description.h || 1;
+        this.type = 'rectangle';
+      }
+    }
+    Shape.prototype.draw = function(ctx) {
+      ctx.globalAlpha = 1;
+      if (this.colliding) { ctx.globalAlpha = 0.33; }
+      if(this.type == "circle") {
+        ctx.beginPath();
+        ctx.arc(
+          this.x,
+          this.y,
+          this.r,
+          0,
+          2 * Math.PI,
+          false
+        );
+        ctx.fillStyle = this.fill || '#AAAAAA';
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.fillStyle = this.fill;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+      }
+    }
+    Shape.prototype.contains = function(mx, my) {
+      var result = false;
+      if (this.type == 'circle') {
+        var dx = this.x - mx;
+        var dy = this.y - my;
+        result = (dx * dx + dy * dy) <= this.r * this.r;
+      } else {
+        // make sure the Mouse X,Y fall in the area between
+        // the shape's X and (X + Width) and its Y and (Y + Height)
+        result = (this.x <= mx) && (this.x + this.w >= mx) && (this.y <= my) && (this.y + this.h >= my);
+      }
+      return result;
+    }
+
+    function CanvasState(canvas) {
+      this.canvas = canvas;
+      this.width = canvas.width;
+      this.height = canvas.height;
+      this.ctx = canvas.getContext('2d');
+      // This complicates things a little but fixes mouse co-ordinate problems
+      // when there's a border or padding. See getMouse for more detail
+      var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
+      if (document.defaultView && document.defaultView.getComputedStyle) {
+        this.stylePaddingLeft =
+          parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
+        this.stylePaddingTop =
+          parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
+        this.styleBorderLeft =
+          parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
+        this.styleBorderTop =
+          parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+      }
+      // Some pages have fixed-position bars (like the stumbleupon bar) at the top or left of the page
+      // They will mess up mouse coordinates and this fixes that
+      var html = document.body.parentNode;
+      this.htmlTop = html.offsetTop;
+      this.htmlLeft = html.offsetLeft;
+      // keep track of state !
+      this.valid = false; // when set to false, the canvas will redraw everything
+      this.shapes = [];  // the collection of things to be drawn
+      this.dragging = false; // Keep track of when we are dragging
+      // the current selected object. In the future we could turn this into an array for multiple selection
+      this.selection = null;
+      this.dragoffx = 0; // See mousedown and mousemove events for explanation
+      this.dragoffy = 0;
+      // This is an example of a closure!
+      // Right here "this" means the CanvasState. But we are making events on the Canvas itself,
+      // and when the events are fired on the canvas the variable "this" is going to mean the canvas!
+      // Since we still want to use this particular CanvasState in the events we have to save a reference to it.
+      // This is our reference!
+      var myState = this;
+      //fixes a problem where double clicking causes text to get selected on the canvas
+      canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
+      // Up, down, and move are for dragging
+      canvas.addEventListener('mousedown', function(e) {
+        var mouse = myState.getMouse(e);
+        var mx = mouse.x;
+        var my = mouse.y;
+        var shapes = myState.shapes;
+        var l = shapes.length;
+        for (var i = l-1; i >= 0; i--) {
+          if (shapes[i].contains(mx, my)) {
+            var mySel = shapes[i];
+            // Keep track of where in the object we clicked
+            // so we can move it smoothly (see mousemove)
+            myState.dragoffx = mx - mySel.x;
+            myState.dragoffy = my - mySel.y;
+            myState.dragging = true;
+            myState.selection = mySel;
+            myState.valid = false;
+            return;
+          }
+        }
+        // havent returned means we have failed to select anything.
+        // If there was an object selected, we deselect it
+        if (myState.selection) {
+          myState.selection = null;
+          myState.valid = false; // Need to clear the old selection border
+        }
+      }, true);
+      canvas.addEventListener('mousemove', function(e) {
+        if (myState.dragging){
+          var mouse = myState.getMouse(e);
+          // We don't want to drag the object by its top-left corner, we want to drag it
+          // from where we clicked. Thats why we saved the offset and use it here
+          myState.selection.x = mouse.x - myState.dragoffx;
+          myState.selection.y = mouse.y - myState.dragoffy;
+          myState.valid = false; // Something's dragging so we must redraw
+        }
+      }, true);
+      canvas.addEventListener('mouseup', function(e) {
+        myState.dragging = false;
+      }, true);
+      // double click for making new shapes
+      canvas.addEventListener('dblclick', function(e) {
+        var mouse = myState.getMouse(e);
+        var color = 'rgb('+getRandomInt(0,250)+','+getRandomInt(0,250)+','+getRandomInt(0,250)+')';
+        var types = [0,'circle'];
+        var type = types[Math.floor(Math.random()*types.length)];
+        if (type == 'circle') {
+          myState.addShape(
+            new Shape( 'circle', {
+                x:mouse.x - 10,
+                y:mouse.y - 10,
+                r:getRandomInt(15,35),
+                fill:color
+              }
+            )
+          );
+        } else {
+          myState.addShape(
+            new Shape( 'rectangle', {
+                x:mouse.x - 10,
+                y:mouse.y - 10,
+                w:getRandomInt(15,40),
+                h:getRandomInt(15,40),
+                fill:color
+              }
+            )
+          );
+        }
+      }, true);
+      // options !
+      this.selectionColor = 'black';
+      this.selectionWidth = 3;
+      this.interval = 16;
+      this.ctx.setLineDash([3,3]); // set dashes for stroke
+      setInterval(function() { myState.draw(); }, myState.interval);
+    }
+    CanvasState.prototype.addShape = function(shape) {
+      this.shapes.push(shape);
+      this.valid = false;
+    }
+    CanvasState.prototype.clear = function() {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+    CanvasState.prototype.RectCircleColliding = function(circle, rect) {
+      // vertical & horizontal (distX/distY) distances between the circle and rectangle center
+      var distX = Math.abs(circle.x - rect.x - rect.w / 2);
+      var distY = Math.abs(circle.y - rect.y - rect.h / 2);
+      // If the distance is greater than halfCircle + halfRect, then they are too far apart to be colliding
+      if (distX > (rect.w / 2 + circle.r)) { return false; }
+      if (distY > (rect.h / 2 + circle.r)) { return false; }
+      // If the distance is less than halfRect then they are definitely colliding
+      if (distX <= (rect.w / 2)) { return true; }
+      if (distY <= (rect.h / 2)) { return true; }
+      // Test for collision at rect corner
+      // Think of a line from the rect center to any rect corner
+      // Now extend that line by the radius of the circle
+      // If the circle’s center is on that line they are colliding at exactly that rect corner
+      // Using Pythagoras formula to compare the distance between circle and rect centers
+      var dx = distX - rect.w / 2;
+      var dy = distY - rect.h / 2;
+      return (dx * dx + dy * dy <= (circle.r * circle.r));
+    }
+    // While draw is called as often as the INTERVAL variable demands,
+    // It only ever does something if the canvas gets invalidated by our code
+    CanvasState.prototype.draw = function() {
+      // if our state is invalid, redraw and validate!
+      if (!this.valid) {
+        var ctx = this.ctx;
+        var shapes = this.shapes;
+        var rcc = this.RectCircleColliding;
+        this.clear();
+        // add stuff you want drawn in the background all the time here
+        shapes.forEach(function(shape, index) {
+          shapes[index].colliding = false;
+        });
+        // todo: reduce repetition or move outside
+        shapes.forEach(function(this_shape, this_index) {
+          shapes.forEach(function(that_shape, that_index) {
+            if (this_index == that_index) return;
+            var collision = false;
+            // circle - circle
+            if (this_shape.type == 'circle' && that_shape.type == 'circle') {
+              var dx = this_shape.x - that_shape.x;
+              var dy = this_shape.y - that_shape.y;
+              var distance = Math.sqrt(dx * dx + dy * dy);
+              collision = (distance < this_shape.r + that_shape.r);
+            }
+            // circle - rect / rect - circle
+            else if (
+              (this_shape.type == 'circle' && that_shape.type == 'rectangle') ||
+              (this_shape.type == 'rectangle' && that_shape.type == 'circle')
+            ) {
+              var circle = (this_shape.type == 'circle') ? this_shape : that_shape;
+              var rect = (this_shape.type == 'rectangle') ? this_shape : that_shape;
+              collision = rcc(circle,rect);
+            }
+            // rect - rect
+            else {
+              collision = (
+                this_shape.x < that_shape.x + that_shape.w &&
+                this_shape.x + this_shape.w > that_shape.x &&
+                this_shape.y < that_shape.y + that_shape.h &&
+                this_shape.h + this_shape.y > that_shape.y
+              ) ? true : false;
+            }
+            if (collision) {
+              shapes[this_index].colliding = true;
+              shapes[that_index].colliding = true;
+            }
+          })
+        });
+        // draw all shapes
+        var l = shapes.length;
+        for (var i = 0; i < l; i++) {
+          var shape = shapes[i];
+          // We can skip the drawing of elements that have moved off the screen:
+          if (shape.x > this.width || shape.y > this.height ||
+              shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
+          shapes[i].draw(ctx);
+        }
+        // draw selection
+        // right now this is just a stroke along the edge of the selected Shape
+        if (this.selection != null) {
+          ctx.strokeStyle = this.selectionColor;
+          ctx.lineWidth = this.selectionWidth;
+          var mySel = this.selection;
+          if (mySel.type == 'circle') {
+            ctx.beginPath();
+            ctx.arc(
+              mySel.x,
+              mySel.y,
+              mySel.r,
+              0,
+              2 * Math.PI,
+              false
+            );
+            ctx.stroke();
+          } else {
+            ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
+          }
+        }
+        // add stuff you want drawn on top all the time here
+        this.valid = true;
+        // console.log([shapes,this.selection])
+      }
+    }
+    // Creates an object with x and y defined, set to the mouse position relative to the state's canvas
+    // If you wanna be super-correct this can be tricky, we have to worry about padding and borders
+    CanvasState.prototype.getMouse = function(e) {
+      var element = this.canvas, offsetX = 0, offsetY = 0, mx, my;
+      // Compute the total offset
+      if (element.offsetParent !== undefined) {
+        do {
+          offsetX += element.offsetLeft;
+          offsetY += element.offsetTop;
+        } while ((element = element.offsetParent));
+      }
+      // Add padding and border style widths to offset
+      // Also add the html offsets in case there's a position:fixed bar
+      offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
+      offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
+      mx = e.pageX - offsetX;
+      my = e.pageY - offsetY;
+      // We return a simple javascript object (a hash) with x and y defined
+      return {x: mx, y: my};
+    }
+    // If you dont want to use &lt;body onLoad='init()'&gt;
+    // You could uncomment this init() reference and place the script reference inside the body tag
+    //init();
+    function init() {
+      var s = new CanvasState(document.getElementById('canvas'));
+      s.addShape(new Shape('rectangle', {x:40,y:40,w:30,h:50,fill:'#ffff00'})); // The default is gray
+      s.addShape(new Shape('rectangle', {x:80,y:140,w:50,h:40,fill:'#ff0000'}));
+      // Lets make some partially transparent
+      s.addShape(new Shape('rectangle', {x:160,y:150,w:60,h:20,fill:'#ff8000'}));
+      s.addShape(new Shape('rectangle', {x:240,y:80,w:30,h:20,fill:'#80ff00'}));
+      s.addShape(new Shape('rectangle', {x:300,y:80,w:25,h:40,fill:'#ff00bf'}));
+      // circles
+      s.addShape(new Shape('circle', {x:70,y:250,r:40,fill:'#00bfff'}));
+      s.addShape(new Shape('circle', {x:140,y:230,r:30,fill:'#0040ff'}));
+      s.addShape(new Shape('circle', {x:210,y:80,r:20,fill:'#8000ff'}));
+      // s.addShape(new Shape('circle', {x:125,y:80,r:20,fill:'rgba(245, 22, 79, .7)'}));
+    }
+    init();
+  </code></pre>
+
+
+<h2>Dynamic Collisions</h2>
+
+  <canvas
+    id="canvas2"
+    width="500"
+    height="300"
+    style="border:1px solid #000000;float:left;"
+  >
+  </canvas>
+
+  <script type="text/javascript">
+
+    // setup canvas
+
+    var canvas = document.querySelector('#canvas2');
+    var ctx = canvas.getContext('2d');
+
+    var width = canvas.width;
+    var height = canvas.height;
+
+    // function to generate random number
+
+    function random(min,max) {
+      var num = Math.floor(Math.random()*(max-min)) + min;
+      return num;
+    }
+
+    // define Ball constructor
+
+    function Ball(x, y, velX, velY, color, size) {
+      this.x = x;
+      this.y = y;
+      this.velX = velX;
+      this.velY = velY;
+      this.color = color;
+      this.size = size;
+    }
+
+    // define ball draw method
+
+    Ball.prototype.draw = function() {
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+      ctx.fill();
+    };
+
+    // define ball update method
+
+    Ball.prototype.update = function() {
+      if((this.x + this.size) >= width) {
+        this.velX = -(this.velX);
+      }
+
+      if((this.x - this.size) <= 0) {
+        this.velX = -(this.velX);
+      }
+
+      if((this.y + this.size) >= height) {
+        this.velY = -(this.velY);
+      }
+
+      if((this.y - this.size) <= 0) {
+        this.velY = -(this.velY);
+      }
+
+      this.x += this.velX;
+      this.y += this.velY;
+    };
+
+    // define ball collision detection
+
+    Ball.prototype.collisionDetect = function() {
+      for(var j = 0; j < balls.length; j++) {
+        if(!(this === balls[j])) {
+          var dx = this.x - balls[j].x;
+          var dy = this.y - balls[j].y;
+          var distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < this.size + balls[j].size) {
+            balls[j].color = this.color = 'rgb(' + random(0,255) + ',' + random(0,255) + ',' + random(0,255) +')';
+          }
+        }
+      }
+    };
+
+    // define array to store balls
+
+    var balls = [];
+
+    // define loop that keeps drawing the scene constantly
+
+    function loop() {
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(0,0,width,height);
+
+      while(balls.length < 10) {
+        var size = random(5,20);
+        var ball = new Ball(
+          // ball position always drawn at least one ball width
+          // away from the adge of the canvas, to avoid drawing errors
+          random(0 + size, width - size),
+          random(0 + size, height - size),
+          random(-3,3),
+          random(-3,3),
+          'rgb(' + random(0,255) + ',' + random(0,255) + ',' + random(0,255) +')',
+          size
+        );
+        balls.push(ball);
+      }
+
+      for(var i = 0; i < balls.length; i++) {
+        balls[i].draw();
+        balls[i].update();
+        balls[i].collisionDetect();
+      }
+
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+
+  <pre><code class="javascript">
+    // setup canvas
+    var canvas = document.querySelector('#canvas2');
+    var ctx = canvas.getContext('2d');
+    var width = canvas.width;
+    var height = canvas.height;
+    // generate random number
+    function random(min,max) {
+      var num = Math.floor(Math.random()*(max-min)) + min;
+      return num;
+    }
+    // define Ball constructor
+    function Ball(x, y, velX, velY, color, size) {
+      this.x = x;
+      this.y = y;
+      this.velX = velX;
+      this.velY = velY;
+      this.color = color;
+      this.size = size;
+    }
+    // define ball draw method
+    Ball.prototype.draw = function() {
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+      ctx.fill();
+    };
+    // define ball update method
+    Ball.prototype.update = function() {
+      if( (this.x + this.size) >= width ) { this.velX = -(this.velX); }
+      if( (this.x - this.size) <= 0 ) { this.velX = -(this.velX); }
+      if( (this.y + this.size) >= height ) { this.velY = -(this.velY); }
+      if( (this.y - this.size) <= 0 ) { this.velY = -(this.velY); }
+      this.x += this.velX;
+      this.y += this.velY;
+    };
+    // define ball collision detection
+    Ball.prototype.collisionDetect = function() {
+      for(var j = 0; j < balls.length; j++) {
+        if(!(this === balls[j])) {
+          var dx = this.x - balls[j].x;
+          var dy = this.y - balls[j].y;
+          var distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < this.size + balls[j].size) {
+            balls[j].color = this.color =
+              'rgb(' + random(0,255) + ',' + random(0,255) + ',' + random(0,255) +')';
+          }
+        }
+      }
+    };
+    // define array to store balls
+    var balls = [];
+    // define loop that keeps drawing the scene constantly
+    function loop() {
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(0,0,width,height);
+      while(balls.length < 10) {
+        var size = random(5,20);
+        var ball = new Ball(
+          // ball position always drawn at least one ball width
+          // away from the adge of the canvas, to avoid drawing errors
+          random(0 + size,width - size),
+          random(0 + size,height - size),
+          random(-3,3),
+          random(-3,3),
+          'rgb(' + random(0,255) + ',' + random(0,255) + ',' + random(0,255) +')',
+          size
+        );
+        balls.push(ball);
+      }
+      for(var i = 0; i < balls.length; i++) {
+        balls[i].draw();
+        balls[i].update();
+        balls[i].collisionDetect();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

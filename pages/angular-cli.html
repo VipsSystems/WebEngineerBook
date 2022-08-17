@@ -1,0 +1,2843 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Angular CLI tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="Angular, cli, commands, javascript, js, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+    p {
+      margin: .5rem;
+      float:left;
+    }
+    table {
+      /* margin:.5rem 0; */
+    }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Angular CLI tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="cli">CLI</h2>
+
+  <ul>
+    <li><code>npm install -g @angular/cli</code></li>
+    <li>Angular requires Node.js version 14.15.0 or later</li>
+    <li>in Windows, restart terminal window to start using, C:\Users\1\AppData\Roaming\npm should be in Path in Environment Variables  (depending of npm node_modules location)</li>
+    <li>apps are devloped in the context of an Angular <strong>workspace</strong> which contains the files for one or more projects (apps) and libraries</li>
+    <li><strong>project</strong> - set of files that comprise an app, a library, or end-to-end (e2e) tests</li>
+    <li>additional app or library in a workspace goes into a projects/ subfolder</li>
+    <li>angular.json - workspace configuration file, place where you can set per-project defaults for CLI command options, and specify configurations to use when the CLI builds a project for different targets</li>
+    <li><strong>ng</strong> commands:
+      <ul>
+        <li><strong>add</strong> - adds support for an external library to project</li>
+        <li><strong>analytics</strong></li>
+        <li><strong>build</strong> (b) - compiles an Angular app into an output directory named dist/ at the given output path, must be executed from within a workspace directory</li>
+        <li><strong>cache</strong></li>
+        <li><strong>completion</strong></li>
+        <li><strong>config</strong> - retrieves or sets Angular configuration values in the angular.json file for the workspace</li>
+        <li><strong>deploy</strong></li>
+        <li><strong>doc</strong> (d) - opens the official Angular documentation (angular.io) in a browser, and searches for a given keyword</li>
+        <li><strong>e2e</strong> (e) - builds and serves an Angular app, then runs end-to-end tests using Protractor</li>
+        <li><strong>extract-i18n</strong> - extracts i18n messages from source code</li>
+        <li><strong>generate</strong> (g) - generates and/or modifies files based on a schematic</li>
+        <li><strong>lint</strong> (l) - runs linting tools on Angular app code in a given project folder</li>
+        <li><strong>new</strong> (n) - creates a new workspace and an initial Angular  top level app</li>
+        <li><strong>run</strong> - runs an Architect target with an optional custom builder configuration defined in project</li>
+        <li><strong>serve</strong> (s) - builds and serves app, rebuilding on file changes</li>
+        <li><strong>test</strong> (t) - runs unit tests in a project</li>
+        <li><strong>update</strong> - updates application and its dependencies</li>
+        <li><strong>version</strong> (v) - outputs Angular CLI version</li>
+        <li>ng generate and ng add commands take as an argument the artifact or library to be generated or added to the current project then they define their own options in a schematic which are supplied to the command in the same format as immediate command options</li>
+      </ul>
+    </li>
+    <li>add <code>--help</code> after command to see help</li>
+    <li>ng <i>commandNameOrAlias requiredArg [optionalArg] [options]</i>
+      <ul>
+        <li>option names are prefixed with a double dash (--)</li>
+        <li>option aliases are prefixed with a single dash (-)</li>
+        <li>arguments are not prefixed</li>
+        <li>name of a generated artifact can be given as an argument to the command or specified with the --name option</li>
+        <li>--myOptionName is equivalent to --my-option-name</li>
+        <li>boolean options have two forms: --thisOption sets the flag, --noThisOption clears it</li>
+      </ul>
+    </li>
+    <li>update Angular to newer version : https://update.angular.io/</li>
+  </ul>
+
+  <pre><code class="python">
+    # install CLI
+    npm install -g @angular/cli
+    # create new workspace with named root folder
+    ng new my-app
+    # start app on local server
+    ng serve
+    ng serve --open # -o , open also in browser
+    # add component
+    ng generate component component-name      # with default, template in separate file
+    ng generate component component-name -it  # with intline template
+    ng generate component component-name --inline-style # empty styles array
+
+    ng generate service service-name
+
+    # create router module in a separate, top-level module
+    # --flat - put file in src/app instead of its own folder
+    # --routing - add routing module
+    # --module=app - register it in the imports array of the AppModule
+    ng generate module app-routing --flat --module=app
+    ng generate module heroes/heroes --module app --flat --routing
+
+    # add feature module and a component
+    ng generate module CustomerDashboard
+    ng generate component customer-dashboard/CustomerDashboard
+
+    # guard
+    ng generate guard auth/auth
+
+    # class for data
+    ng generate class hero
+
+    # In-memory Web API - emulates requests to real server
+    npm install angular-in-memory-web-api --save
+  </code></pre>
+
+  <details><summary>ng add <i>&lt;package-name&gt;</i> [options]</summary>
+
+    <p>Adds the npm package for a published library to your workspace, and configures the project in the current working directory to use that library, as specified by the library schematic, for example, adding @angular/pwa configures your project for PWA support: <code>ng add @angular/pwa</code></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--defaults=false|true</td>
+          <td>When true, disables interactive input prompts for options with a default</td>
+        </tr>
+        <tr>
+          <td>--dry-run=false|true</td>
+          <td>Run through and reports activity without writing out results.</td>
+        </tr>
+        <tr>
+          <td>--force=false|true</td>
+          <td>Force overwriting of existing files.</td>
+        </tr>
+        <tr>
+          <td>--interactive=false|true</td>
+          <td>When false, disables interactive input prompts</td>
+        </tr>
+        <tr>
+          <td>--registry=string</td>
+          <td>The NPM registry to use.</td>
+        </tr>
+        <tr>
+          <td>--skip-confirmation=false|true</td>
+          <td>Skip asking a confirmation prompt before installing and executing the package. Ensure package name is correct prior to using this option.</td>
+        </tr>
+        <tr>
+          <td>--verbose=false|true</td>
+          <td>Display additional details about internal operations during execution.</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng analytics [command]</summary>
+
+    <p>Configures the gathering of Angular CLI usage metrics</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>disable|off</td>
+          <td>Disables analytics gathering and reporting for the user</td>
+        </tr>
+        <tr>
+          <td>enable|on</td>
+          <td>Enables analytics gathering and reporting for the user</td>
+        </tr>
+        <tr>
+          <td>info</td>
+          <td>Prints analytics gathering and reporting configuration in the console</td>
+        </tr>
+        <tr>
+          <td>prompt</td>
+          <td>Prompts the user to set the analytics gathering status interactively</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><code>--global|-g</code> - configure analytics gathering and reporting globally in the callers home directory</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng build <i>&lt;project-name&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng b <i>&lt;project-name&gt;</i> [options]</summary>
+
+    <ul>
+      <li>compiles an Angular app into an output directory named dist/ at the given output path, must be executed from within a workspace directory</li>
+      <li><code>ng build --sourceMap=false --optimization=true --baseHref=''</code></li>
+      <li>produces production bundle by default</li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--allowed-common-js-dependencies=<var>[array]</var></td>
+          <td>A list of CommonJS packages that are allowed to be used without a build time warning</td>
+        </tr>
+        <tr>
+          <td>--aot=false|true</td>
+          <td>Build using Ahead of Time compilation.</td>
+        </tr>
+        <tr>
+          <td>--base-href=<var>baseHref</var></td>
+          <td>Base url for the application being built</td>
+        </tr>
+        <tr>
+          <td>--build-optimizer=false|true</td>
+          <td>Enables advanced build optimizations when using the 'aot' option.</td>
+        </tr>
+        <tr>
+          <td>--common-chunk=false|true</td>
+          <td>Use a separate bundle containing code used across multiple bundles</td>
+        </tr>
+        <tr>
+          <td>--configuration=<var>configuration</var> || -c</td>
+          <td>A named build target, as specified in the "configurations" section of angular.json. Each named target is accompanied by a configuration of option defaults for that target</td>
+        </tr>
+        <tr>
+          <td>--cross-origin=<var>none|anonymous|use-credentials</var></td>
+          <td>Define the crossorigin attribute setting of elements that provide CORS support.</td>
+        </tr>
+        <tr>
+          <td>--delete-output-path=false|true</td>
+          <td>Delete the output path before building</td>
+        </tr>
+        <tr>
+          <td>--extract-licenses=false|true</td>
+          <td>Extract all licenses in a separate file</td>
+        </tr>
+
+        <tr>
+          <td>--i18n-duplicate-translation=<var>warning|error|ignore</var></td>
+          <td>How to handle duplicate translations for i18n.</td>
+        </tr>
+        <tr>
+          <td>--i18n-missing-translation=<var>warning|error|ignore</var></td>
+          <td>How to handle missing translations for i18n.</td>
+        </tr>
+
+        <tr>
+          <td>--index=<var>index</var></td>
+          <td>The name of the index HTML file</td>
+        </tr>
+        <tr>
+          <td>--inline-style-language	=<var>css</var></td>
+          <td>The stylesheet language to use for the application's inline component styles: css|less|sass|scss</td>
+        </tr>
+        <tr>
+          <td>--localize</td>
+          <td>Translate the bundles in one or more locales.</td>
+        </tr>
+        <tr>
+          <td>--main=<var>main</var></td>
+          <td>The full path for the main entry point to the app, relative to the current workspace</td>
+        </tr>
+        <tr>
+          <td>--named-chunks=false|true</td>
+          <td>Use file name for lazy loaded chunks</td>
+        </tr>
+        <tr>
+          <td>--ngsw-config-path=<var>ngswConfigPath</var></td>
+          <td>Path to ngsw-config.json</td>
+        </tr>
+        <tr>
+          <td>--optimization=false|true</td>
+          <td>Enables optimization of the build output. Including minification of scripts and styles, tree-shaking, dead-code elimination, inlining of critical CSS and fonts inlining</td>
+        </tr>
+        <tr>
+          <td>--output-hashing=none|all|media|bundles</td>
+          <td>Define the output filename cache-busting hashing mode</td>
+        </tr>
+        <tr>
+          <td>--output-path=<var>outputPath</var></td>
+          <td>The full path for the new output directory, relative to the current workspace. By default, writes output to a folder named dist/ in the current project</td>
+        </tr>
+        <tr>
+          <td>--poll</td>
+          <td>Enable and define the file watching poll time period in milliseconds</td>
+        </tr>
+        <tr>
+          <td>--polyfills=<var>polyfills</var></td>
+          <td>The full path for the polyfills file, relative to the current workspace</td>
+        </tr>
+        <tr>
+          <td>--preserve-symlinks=false|true</td>
+          <td>Do not use the real path when resolving modules</td>
+        </tr>
+        <tr>
+          <td>--progress=false|true</td>
+          <td>Log progress to the console while building</td>
+        </tr>
+        <tr>
+          <td>--resources-output-path=<var>resourcesOutputPath</var></td>
+          <td>The path where style resources will be placed, relative to outputPath</td>
+        </tr>
+        <tr>
+          <td>--service-worker=false|true</td>
+          <td>Generates a service worker config for production builds</td>
+        </tr>
+        <tr>
+          <td>--source-map=false|true</td>
+          <td>Output sourcemaps</td>
+        </tr>
+        <tr>
+          <td>--stats-json=false|true</td>
+          <td>Generates a 'stats.json' file which can be analyzed using tools such as: 'webpack-bundle-analyzer' or webpack.github.io/analyse/</td>
+        </tr>
+        <tr>
+          <td>--subresource-integrity=false|true</td>
+          <td>Enables the use of subresource integrity validation</td>
+        </tr>
+        <tr>
+          <td>--ts-config=<var>tsConfig</var></td>
+          <td>The full path for the TypeScript configuration file, relative to the current workspace</td>
+        </tr>
+        <tr>
+          <td>--vendor-chunk=false|true</td>
+          <td>Use a separate bundle containing only vendor libraries</td>
+        </tr>
+        <tr>
+          <td>--verbose=false|true</td>
+          <td>Adds more details to output logging/td>
+        </tr>
+        <tr>
+          <td>--watch=false|true</td>
+          <td>Run build when files change</td>
+        </tr>
+        <tr>
+          <td>--web-worker-ts-config=conf</td>
+          <td>TS configuration for Web Worker modules</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng cache [command]</summary>
+
+    <p>configure persistent disk cache and retrieve cache statistics, amend the default cache settings with cli.cache object in Workspace Configuration:</p>
+
+    <pre><code class="json">
+    {
+      "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+      "version": 1,
+      "cli": {
+        "cache": {
+          // ...
+        }
+      },
+      "projects": {}
+    }
+    </code></pre>
+
+    <p>by default, disk cache is only enabled for local environments, value of environment can be one of the following: all - allows disk cache on all machines, local - allows disk cache only on development machines, ci - allows disk cache only on continuous integration (Ci) systems: <code>ng config cli.cache.environment|enabled|path all</code></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>clean</td>
+          <td>Deletes persistent disk cache from disk</td>
+        </tr>
+        <tr>
+          <td>disable|off</td>
+          <td>Disables persistent disk cache for all projects in the workspace</td>
+        </tr>
+        <tr>
+          <td>enable|on</td>
+          <td>Enables disk cache for all projects in the workspace</td>
+        </tr>
+        <tr>
+          <td>info</td>
+          <td>Prints persistent disk cache configuration and statistics in the console</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng completion [command]</summary>
+
+    <ul>
+      <li>Set up Angular CLI autocompletion for terminal, pressing the TAB key while in the middle of typing will display various commands and options available, enter <code>ng completion</code> to enable</li>
+      <li>supported for the Bash and Zsh shells on MacOS and Linux operating systems, Windows does not support autocompletion in native shells, such as Cmd and Powershell</li>
+      <li>works by configuring terminal to invoke the Angular CLI on startup to load the setup script, terminal must be able to find and execute the Angular CLI, typically through a global install that places the binary on the users $PATH, if command not found install CLI globally which you can do with the -g flag: <code>npm install -g @angular/cli</code></li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>script</td>
+          <td>Generate a bash and zsh real-time type-ahead autocompletion script</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng config <i>&lt;json-path&gt;</i> <i>&lt;value&gt;</i> [options]</summary>
+
+    <ul>
+      <li>retrieves or sets Angular configuration values in the angular.json file for the workspace</li>
+      <ul>
+        <li>json-path	- configuration key to set or query, in JSON path format: "a[3].foo.bar[2]", if no new value is provided, returns the current value of this key</li>
+        <li>value	- f provided, a new value for the given configuration key</li>
+      </ul>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tr>
+        <td></td>
+        <td><code>--global|-g</code> - configure analytics gathering and reporting globally in the callers home directory</td>
+      </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng deploy <i>&lt;project&gt;</i> [--options]</summary>
+
+    <ul>
+      <li>takes an optional project name, as specified in the projects section of the angular.json workspace configuration file, when a project name is not supplied, executes the deploy builder for the default project</li>
+      <li>to use the <code>ng deploy</code> command, use <code>ng add</code> to add a package that implements deployment capabilities to favorite platform</li>
+      <li>dding the package automatically updates workspace configuration, adding a deployment CLI builder</li>
+    </ul>
+
+    <pre><code class="json">
+    "projects": {
+      "my-project": {
+        ...
+        "architect": {
+          ...
+          "deploy": {
+            "builder": "@angular/fire:deploy",
+            "options": {}
+          }
+        }
+      }
+    }
+    </code></pre>
+
+    <p>by default, disk cache is only enabled for local environments, value of environment can be one of the following: all - allows disk cache on all machines, local - allows disk cache only on development machines, ci - allows disk cache only on continuous integration (Ci) systems: <code>ng config cli.cache.environment|enabled|path all</code></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--configuration || -c</td>
+          <td>One or more named builder configurations as a comma-separated list as specified in the "configurations" section in angular.json, builder uses the named configurations to run the given target</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng doc <i>&lt;keyword&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng d <i>&lt;keyword&gt;</i> [options]</summary>
+
+    <p>opens the official Angular documentation (angular.io) in a browser, and searches for a given keyword</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--search=false|true || -s
+          </td>
+          <td>When true, searches all of angular.io. Otherwise, searches only API reference documentation</td>
+        </tr>
+        <tr>
+          <td>--version=version
+          </td>
+          <td>Contains the version of Angular to use for the documentation. If not provided, the command uses your current Angular core version</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng e2e <i>&lt;project&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng e <i>&lt;project&gt;</i> [options]</summary>
+
+    <p>builds and serves an Angular app, then runs end-to-end tests using Protractor, must be executed from within a workspace directory, when a project name is not supplied, it will execute for all projects</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>--configuration=<var>configuration || -c</var>
+          </td>
+          <td>One or more named builder configurations as a comma-separated list as specified in the "configurations" section in angular.json. The builder uses the named configurations to run the given target
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng extract-i18n <i>&lt;project&gt;</i></summary>
+
+    <p>Extracts i18n messages from source code</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--browser-target</td>
+          <td>string</td>
+          <td>Browser builder target to extract i18n messages in the format of <code>project:target[:configuration]</code>, also pass in more than one configuration name as a comma-separated list: project:target:production,staging</td>
+        </tr>
+        <tr>
+          <td>--configuration</td>
+          <td>string</td>
+          <td>One or more named builder configurations as a comma-separated list as specified in the "configurations" section in angular.json, builder uses the named configurations to run the given target</td>
+        </tr>
+        <tr>
+          <td>--format</td>
+          <td>xmb|xlf|xlif|xliff|xlf2|xliff2|json|arb|legacy-migrate</td>
+          <td>Output format for the generated file</td>
+        </tr>
+        <tr>
+          <td>--out-file</td>
+          <td>string</td>
+          <td>Name of the file to output</td>
+        </tr>
+        <tr>
+          <td>--output-path</td>
+          <td>string</td>
+          <td>Path where output will be placed</td>
+        </tr>
+        <tr>
+          <td>--progress</td>
+          <td>boolean</td>
+          <td>Log progress to the console</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng generate <i>&lt;schematic&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng g <i>&lt;schematic&gt;</i> [options]</summary>
+
+    <p>generates and/or modifies files based on a schematic, in the given or default project</p>
+
+    <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td>
+              <code>--defaults=false|true</code>
+            </td>
+            <td>
+
+              <p>When true, disables interactive input prompts for options with a default</p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <code>--dry-run=false|true || -d</code>
+            </td>
+            <td>
+
+              <p>When true, runs through and reports activity without writing out results</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <code>--force=false|true || -f</code>
+            </td>
+            <td>
+
+              <p>When true, forces overwriting of existing files</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <code>--interactive=false|true</code>
+            </td>
+            <td>
+
+              <p>When false, disables interactive input prompts</p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <code>--strict=false|true</code>
+            </td>
+            <td>
+
+              <p>skip prompt for enabling strict mode: configure TypeScript and the Angular compiler for stricter type checking, and apply smaller bundle budgets by default</p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <code>--standalone=false|true</code>
+            </td>
+            <td>
+
+              <p>create standalone component</p>
+
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    <details><summary>ng generate app-shell [options]</summary>
+
+      <ul>
+        <li>app shell for running a server-side version of an app</li>
+      </ul>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--app-dir=<var>appDir</var></code>
+              </td>
+              <td>
+
+                <p>The name of the application directory, default: <code>app</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--app-id=<var>appId</var></code>
+              </td>
+              <td>
+
+                <p>The app ID to use in withServerTransition(), default: <code>serverApp</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--main=<var>main.server.ts</var></code>
+              </td>
+              <td>
+
+                <p>The name of the main entry-point file, default: <code>main.server.ts</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>app-name/var></code>
+              </td>
+              <td>
+
+                <p>The name of the related client app, string</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--root-module-class-name=<var>rootModuleClassName</var></code>
+              </td>
+              <td>
+
+                <p>The name of the root module class, default: <code>AppServerModule</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--root-module-file-name=<var>rootModuleFileName</var></code>
+              </td>
+              <td>
+
+                <p>The name of the root module file, default: <code>app.server.module.ts</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--route=<var>route</var></code>
+              </td>
+              <td>
+
+                <p>Route path used to produce the app shell, default: <code>shell</code></p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate application <i>&lt;name&gt;</i> [options]</summary>
+
+      <ul>
+        <li>new basic app definition in the "projects" subfolder of the workspace</li>
+      </ul>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--inline-style=false|true || -s</code>
+              </td>
+              <td>
+
+                <p>When true, includes styles inline in the root component.ts file. Only CSS styles can be included inline. Default is false, meaning that an external styles file is created and referenced in the root component.ts file</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--inline-template=false|true || -t</code>
+              </td>
+              <td>
+
+                <p>When true, includes template inline in the root component.ts file. Default is false, meaning that an external template file is created and referenced in the root component.ts file. </p>
+
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <code>--minimal=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, creates a bare-bones project without any testing frameworks. (Use for learning purposes only.)</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--prefix=<var>prefix</var> || -p</code>
+              </td>
+              <td>
+
+                <p>A prefix to apply to generated selectors</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--routing=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, creates a routing NgModule</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-install=false|true</code>
+              </td>
+              <td>
+
+                <p>Skip installing dependency packages</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-package-json=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not add dependencies to the "package.json" file</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true || -S</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the app</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--strict=false|true || -S</code>
+              </td>
+              <td>
+
+                <p>Creates an application with stricter bundle budgets settings</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--style=css|scss|sass|less</code>
+              </td>
+              <td>
+
+                <p>The file extension or preprocessor to use for style files</p>
+
+                <p><span>Default:</span> <code>css</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--view-encapsulation=Emulated|None|ShadowDom</code>
+              </td>
+              <td>
+
+                <p>The view encapsulation strategy to use in the new app</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate class <i>&lt;name&gt;</i> [options] </summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new class</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--type=<var>type</var></code>
+              </td>
+              <td>
+
+                <p>Adds a developer-defined type to the filename, in the format "name.type.ts"</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate component <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--change-detection=Default|OnPush || -c</code>
+              </td>
+              <td>
+
+                <p>The change detection strategy to use in the new component</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--display-block=false|true || -b</code>
+              </td>
+              <td>
+
+                <p>Specifies if the style will contain :host { display: block; }</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--export=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, the declaring NgModule exports this component</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, creates the new files at the top level of the current project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--inline-style=false|true || -s</code>
+              </td>
+              <td>
+
+                <p>When true, includes styles inline in the component.ts file. Only CSS styles can be included inline. By default, an external styles file is created and referenced in the component.ts file</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--inline-template=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, includes template inline in the component.ts file. By default, an external template file is created and referenced in the component.ts file</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--module=<var>module</var> || -m</code>
+              </td>
+              <td>
+
+                <p>The declaring NgModule</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--prefix=<var>prefix</var> || -p</code>
+              </td>
+              <td>
+
+                <p>The prefix to apply to the generated component selector</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--selector=<var>selector</var></code>
+              </td>
+              <td>
+
+                <p>The HTML selector to use for this component</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-import=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not import this component into the owning NgModule</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-selector=false|true</code>
+              </td>
+              <td>
+
+                <p>Specifies if the component should have a selector or not</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new component</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--standalone=false|true</code>
+              </td>
+              <td>
+
+                <p>Whether the generated component is standalone</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--type=<br>Component</code>
+              </td>
+              <td>
+
+                <p>Adds a developer-defined type to the filename, in the format "name.type.ts"</p>
+
+              </td>
+            </tr>
+          </tr>
+
+            <tr>
+              <td>
+                <code>--view-encapsulation=Emulated|None|ShadowDom || -v</code>
+              </td>
+              <td>
+
+                <p>The view encapsulation strategy to use in the new component</p>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate directive <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--export=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, the declaring NgModule exports this directive</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default), creates the new files at the top level of the current project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--module=<var>module</var></code>
+              </td>
+              <td>
+
+                <p>The declaring NgModule</p>
+                <p><span>Aliases:</span> -m</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--prefix=<var>prefix</var></code>
+              </td>
+              <td>
+
+                <p>A prefix to apply to generated selectors</p>
+                <p><span>Aliases:</span> -p</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--selector=<var>selector</var></code>
+              </td>
+              <td>
+
+                <p>The HTML selector to use for this directive</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-import=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not import this directive into the owning NgModule</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new class</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--standalone=false|true</code>
+              </td>
+              <td>
+
+                <p>Whether the generated component is standalone</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate enum &lt;name&gt; [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project in which to create the enum. Default is the configured default project for the workspace</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--type=<var>type</var></code>
+              </td>
+              <td>
+
+                <p>Adds a developer-defined type to the filename, in the format "name.type.ts"</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate guard <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default), creates the new files at the top level of the current project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--implements</code>
+              </td>
+              <td>
+
+                <p>Specifies which interfaces to implement</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new guard</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate interceptor <i>&lt;name&gt;</i> [options]</summary>
+
+      <p>Creates a new, generic interceptor definition in the given or default project</p>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default), creates the new files at the top level of the current project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new guard</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate interface <i>&lt;name&gt;</i> <i>&lt;type&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          <tr>
+            <td><code>&lt;<var>name</var>&gt;</code></td>
+            <td>
+              <p>The name of the interface</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><code>&lt;<var>type</var>&gt;</code></td>
+            <td>
+              <p>Adds a developer-defined type to the filename, in the format "name.type.ts"</p>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+
+        <table>
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td>
+                  <code>--prefix=<var>prefix</var></code>
+                </td>
+                <td>
+
+                  <p>A prefix to apply to generated selectors</p>
+
+                  <p><span>Default:</span> <code></code></p>
+
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <code>--project=<var>project</var></code>
+                </td>
+                <td>
+
+                  <p>The name of the project</p>
+
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+
+    </details>
+
+    <details><summary>ng generate library <i>&lt;name&gt;</i> [options]</summary>
+
+      <ul>
+        <li>library project in the current workspace</li>
+      </ul>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--entryFile=<var>entryFile</var></code>
+              </td>
+              <td>
+
+                <p>The path at which to create the library's public API file, relative to the workspace root</p>
+
+                <p><span>Default:</span> <code>public-api</code></p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--prefix=<var>prefix</var></code>
+              </td>
+              <td>
+
+                <p>A prefix to apply to generated selectors</p>
+
+                <p><span>Default:</span> <code>lib</code></p>
+                <p><span>Aliases:</span> -p</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-install=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not install dependency packages</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-package-json=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not add dependencies to the "package.json" file. </p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-ts-config=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not update "tsconfig.json" to add a path mapping for the new library. The path mapping is needed to use the library in an app, but can be disabled here to simplify development</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate module <i>&lt;name&gt;</i> [options] - NgModule</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, creates the new files at the top level of the current project root. </p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--module=<var>module</var></code>
+              </td>
+              <td>
+
+                <p>The declaring NgModule</p>
+                <p><span>Aliases:</span> -m</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--route=name</code>
+              </td>
+              <td>
+
+                <p>The route path for a lazy-loaded module. When supplied, creates a component in the new module, and adds the route to that component in the Routes array declared in the module provided in the --module option.</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--routing=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, creates a routing module</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--routing-scope=Child|Root</code>
+              </td>
+              <td>
+
+                <p>The scope for the new routing module</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate pipe <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--export=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, the declaring NgModule exports this pipe</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default) creates files at the top level of the project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--module=<var>module</var></code>
+              </td>
+              <td>
+
+                <p>The declaring NgModule</p>
+                <p><span>Aliases:</span> -m</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-import=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not import this pipe into the owning NgModule</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new pipe</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--standalone=false|true</code>
+              </td>
+              <td>
+
+                <p>create standalone component</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate resolver <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default) creates files at the top level of the project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new pipe</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate service <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--flat=false|true</code>
+              </td>
+              <td>
+
+                <p>When true (the default), creates files at the top level of the project</p>
+
+
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--skip-tests=false|true</code>
+              </td>
+              <td>
+
+                <p>When true, does not create "spec.ts" test files for the new service</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate service-worker [options]</summary>
+
+      <ul>
+        <li>pass to the "run" command to create a service worker</li>
+      </ul>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--target=<var>build</var></code>
+              </td>
+              <td>
+
+                <p>The target to apply service worker to</p>
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+    <details><summary>ng generate web-worker <i>&lt;name&gt;</i> [options]</summary>
+
+      <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>
+                <code>--project=<var>project</var></code>
+              </td>
+              <td>
+
+                <p>The name of the project</p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <code>--snippet=false|true</code>
+              </td>
+              <td>
+
+                <p>Add a worker creation snippet in a sibling file of the same name</p>
+
+
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+    </details>
+
+  </details>
+
+  <details><summary>ng lint <i>&lt;project&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng l <i>&lt;project&gt;</i> [options]</summary>
+
+    <p>runs linting tools on Angular app code in a given project folder, takes the name of the project, as specified in the projects section of the angular.json workspace configuration file, when a project name is not supplied, it will execute for all projects, default linting tool is TSLint, and the default configuration is specified in the project tslint.json file</p>
+
+    <pre><code>
+    "projects": {
+      "my-project": {
+        ...
+        "architect": {
+          ...
+          "lint": {
+            "builder": "@angular-eslint/builder:lint",
+            "options": {}
+          }
+        }
+      }
+    }
+    </code></pre>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            --configuration=<var>configuration</var> || -c
+          </td>
+          <td>
+
+            <p>The linting configuration to use</p>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng new <i>&lt;project&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng n <i>&lt;project&gt;</i> [options]</summary>
+
+    <p>creates a new workspace and an initial Angular app</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            --collection=<var>collection</var> || -c
+          </td>
+          <td>
+
+            <p>A collection of schematics to use in generating the initial app</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --commit=false|true
+          </td>
+          <td>
+
+            <p>Initial git repository commit information</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --create-application=false|true
+          </td>
+          <td>
+
+            <p>When true (the default), creates a new initial app project in the src folder of the new workspace. When false, creates an empty workspace with no initial app. You can then use the generate application command so that all apps are created in the projects folder</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --defaults=false|true
+          </td>
+          <td>
+
+            <p>When true, disables interactive input prompts for options with a default</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --directory=<var>directory</var>
+          </td>
+          <td>
+
+            <p>The directory name to create the workspace in</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --dry-run=false|true || -d
+          </td>
+          <td>
+
+            <p>When true, runs through and reports activity without writing out results</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --force=run=false|true || -f
+          </td>
+          <td>
+
+            <p>When true, forces overwriting of existing files</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --inline-style=false|true || -s
+          </td>
+          <td>
+
+            <p>When true, includes styles inline in the component TS file. By default, an external styles file is created and referenced in the component TS file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --inline-template=false|true || -t
+          </td>
+          <td>
+
+            <p>When true, includes template inline in the component TS file. By default, an external template file is created and referenced in the component TS file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --interactive=false|true
+          </td>
+          <td>
+
+            <p>When false, disables interactive input prompts</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --new-project-root=<var>newProjectRoot</var>
+          </td>
+          <td>
+
+            <p>The path where new projects will be created, relative to the new workspace root, default: projects</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --package-manager=<var>npm|yarn|pnpm|cnpm</var>
+          </td>
+          <td>
+
+            <p>The package manager used to install dependencies</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --prefix=<var>prefix</var> || -p
+          </td>
+          <td>
+
+            <p>The prefix to apply to generated selectors for the initial project, default: app</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --routing=false|true
+          </td>
+          <td>
+
+            <p>When true, generates a routing module for the initial project</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --skip-git=false|true || -g
+          </td>
+          <td>
+
+            <p>When true, does not initialize a git repository</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --skip-install=false|true
+          </td>
+          <td>
+
+            <p>When true, does not install dependency packages</p>
+
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --skip-tests=false|true || -S
+          </td>
+          <td>
+
+            <p>When true, does not generate "spec.ts" test files for the new project. </p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --strict=false|true
+          </td>
+          <td>
+
+            <p>Creates a workspace with stricter type checking and stricter bundle budgets settings, helps improve maintainability and catch bugs ahead of time</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --style=css|scss|sass|less
+          </td>
+          <td>
+
+            <p>The file extension or preprocessor to use for style files</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --view-encapsulation=Emulated|None|ShadowDom
+          </td>
+          <td>
+
+            <p>The view encapsulation strategy to use in the initial project</p>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng run <i>&lt;project&gt;</i>:target[:configuration]</summary>
+
+    <p>runs an Architect target with an optional custom builder configuration defined in project, define new targets and their configuration options in the "architect" section of the angular.json file</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            target
+          </td>
+          <td>
+
+            <p>The Architect target to run</p>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng serve <i>&lt;project&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng s <i>&lt;project&gt;</i> [options]</summary>
+
+    <p>builds and serves app, rebuilding on file changes</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            --allowed-hosts=<var>[array]</var>
+          </td>
+          <td>
+
+            <p>List of hosts that are allowed to access the dev server</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --browser-target=<var>browserTarget</var>
+          </td>
+          <td>
+
+            <p>A browser builder target to serve in the format of project:target[:configuration], also pass in more than one configuration name as a comma-separated list: project:target:production,staging</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --configuration=<var>configuration</var> || -c
+          </td>
+          <td>
+
+            <p>One or more named builder configurations as a comma-separated list as specified in the "configurations" section in angular.json, builder uses the named configurations to run the given target</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --disable-host-check=false|true
+          </td>
+          <td>
+
+            <p>Don't verify connected clients are part of allowed hosts</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --hmr=false|true
+          </td>
+          <td>
+
+            <p>Enable hot module replacement</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --host=<var>host</var>
+          </td>
+          <td>
+
+            <p>Host to listen on, default: localhost</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --live-reload=false|true
+          </td>
+          <td>
+
+            <p>Whether to reload the page on change, using live-reload</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --open=false|true || -o
+          </td>
+          <td>
+
+            <p>Opens the url in default browser</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --poll
+          </td>
+          <td>
+
+            <p>Enable and define the file watching poll time period in milliseconds</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --port
+          </td>
+          <td>
+
+            <p>Port to listen on, default: 4200</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --proxy-config=<var>proxyConfig</var>
+          </td>
+          <td>
+
+            <p>Proxy configuration file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --public-host=<var>publicHost</var>
+          </td>
+          <td>
+
+            <p>Specify the URL that the browser client will use</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --serve-path=<var>servePath</var>
+          </td>
+          <td>
+
+            <p>The pathname where the app will be served</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --ssl=false|true
+          </td>
+          <td>
+
+            <p>Serve using HTTPS</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --ssl-cert=<var>sslCert</var>
+          </td>
+          <td>
+
+            <p>SSL certificate to use for serving HTTPS</p>
+
+          </td>
+        </tr>||&nbsp;&nbsp;&nbsp;ng
+
+        <tr>
+          <td>
+            --ssl-key=<var>sslKey</var>
+          </td>
+          <td>
+
+            <p>SSL key to use for serving HTTPS</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --verbose=false|true
+          </td>
+          <td>
+
+            <p>Adds more details to output logging</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --watch=false|true
+          </td>
+          <td>
+
+            <p>Rebuild on change</p>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng test <i>&lt;project&gt;</i> [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng t <i>&lt;project&gt;</i> [options]</summary>
+
+    <p>runs unit tests in a project, takes the name of the project, as specified in the projects section of the angular.json workspace configuration file, when a project name is not supplied, it will execute for all projects</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            --browsers=<var>browsers</var>
+          </td>
+          <td>
+
+            <p>Override which browsers tests are run against</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --code-coverage=false|true
+          </td>
+          <td>
+
+            <p>Output a code coverage report</p>
+
+            Default: false</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --code-coverage-exclude
+          </td>
+          <td>
+
+            <p>Globs to exclude from code coverage</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --configuration=<var>configuration</var>
+          </td>
+          <td>
+
+            <p>One or more named builder configurations as a comma-separated list as specified in the "configurations" section in angular.json, builder uses the named configurations to run the given target</p>
+            <p>Aliases: -c</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --include=<var>[array]</var>
+          </td>
+          <td>
+            <p>Globs of files to include, relative to workspace or project root, 2 special cases: when a path to directory is provided, all spec files ending ".spec.@(ts|tsx)" will be included, when a path to a file is provided, and a matching spec file exists it will be included instead</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --include=<var>[array]</var>
+          </td>
+          <td>
+            <p>Globs of files to include, relative to workspace or project root, 2 special cases: when a path to directory is provided, all spec files ending ".spec.@(ts|tsx)" will be included, when a path to a file is provided, and a matching spec file exists it will be included instead</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --inline-style-language=<var>css|less|sass|scss</var>
+          </td>
+          <td>
+            <p>The stylesheet language to use for the application's inline component styles</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --karma-config=<var>karmaConfig</var>
+          </td>
+          <td>
+
+            <p>The name of the Karma configuration file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --main=<var>main</var>
+          </td>
+          <td>
+
+            <p>The name of the main entry-point file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --poll
+          </td>
+          <td>
+
+            <p>Enable and define the file watching poll time period in milliseconds</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --polyfills=<var>polyfills</var>
+          </td>
+          <td>
+
+            <p>The name of the polyfills file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --preserve-symlinks=false|true
+          </td>
+          <td>
+
+            <p>Do not use the real path when resolving modules</p>
+
+            Default: false</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --progress=false|true
+          </td>
+          <td>
+
+            <p>Log progress to the console while building</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --reporters
+          </td>
+          <td>
+
+            <p>Karma reporters to use. Directly passed to the karma runner</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --source-map=false|true
+          </td>
+          <td>
+
+            <p>Output sourcemaps</p>
+
+            Default: true</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --ts-config=<var>tsConfig</var>
+          </td>
+          <td>
+
+            <p>The name of the TypeScript configuration file</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --watch=false|true
+          </td>
+          <td>
+
+            <p>Run build when files change</p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --web-worker-ts-config
+          </td>
+          <td>
+
+            <p>TS configuration for Web Worker modules</p>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng update [packages..]</summary>
+
+    <ul>
+      <li>updates workspace and its dependencies</li>
+      <li>basic update to the current stable release of the core framework and CLI: <code>ng update @angular/cli @angular/core</code>, use the --next option to update to the next beta or pre-release version</li>
+      <li>update from one major version to another: <code>ng update @angular/cli@^10 @angular/core@^10</code></li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>
+            --allow-dirty=false|true
+          </td>
+          <td>
+            Whether to allow updating when the repository contains modified or untracked files
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --create-commits=false|true || -C
+          </td>
+          <td>
+            Create source control commits for updates and migrations
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --force=false|true
+          </td>
+          <td>
+            Ignore peer dependency version mismatches. Passes the '--force' flag to the package manager when installing packages
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --from
+          </td>
+          <td>
+            Version from which to migrate from, only available with a single package being updated, and only with 'migrate-only'
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --migrate-only=false|true
+          </td>
+          <td>
+            Only perform a migration, do not update the installed version
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --name
+          </td>
+          <td>
+            The name of the migration to run. Only available with a single package being updated, and only with 'migrate-only' option
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --next=false|true
+          </td>
+          <td>
+            Use the prerelease version, including beta and RCs
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --to
+          </td>
+          <td>
+            Version up to which to apply migrations, only available with a single package being updated, and only with 'migrate-only' option, requires 'from' to be specified, default to the installed version detected
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            --verbose=false|true
+          </td>
+          <td>
+            Display additional details about internal operations during execution
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </details>
+
+  <details><summary>ng version [options]&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;ng v [options]</summary>
+
+    <p>Angular CLI version</p>
+
+  </details>
+
+  </details>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

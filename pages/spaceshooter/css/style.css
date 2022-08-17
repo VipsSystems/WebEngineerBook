@@ -1,0 +1,105 @@
+/**
+ * Developed by Michal Goly on the 20/04/2016
+ */
+
+@font-face {
+    font-family: "kenvector_future_thin";
+    src: url("../assets/Bonus/kenvector_future_thin.ttf");
+}
+
+body {
+    background: url("../assets/Backgrounds/black.png") repeat;
+}
+
+#wrapper {
+    width: 600px;
+    height: 700px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    border: 5px solid #00f2e5;
+}
+
+#menu-page, #high-scores-page, #about-page, #canvas, #game-over-box {
+    position: absolute;
+    background: url("../assets/Backgrounds/blue.png") repeat;
+    color: #00f2e5;
+    width: 600px;
+    height: 700px;
+    text-align: center;
+    font-family: "kenvector_future_thin", serif;
+}
+
+h1 {
+    font-size: 3.8em;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    font-size: 2em;
+}
+
+#about-page li, #about-page p {
+    margin: 5px;
+}
+
+#about-page ul {
+    margin: 0;
+}
+
+#credits-h2 {
+    margin-bottom: 17px;
+}
+
+.about-li {
+    padding-top: 2px;
+    font-size: 0.5em;
+}
+
+a {
+    text-decoration: none;
+    color: #00f2e5;
+}
+
+a:visited {
+    color: #00f2e5;
+}
+
+a:hover {
+    color: #f2f2f2;
+}
+
+.light-grey {
+    color: #f2f2f2;
+}
+
+.about-li a {
+    color: #f2f2f2;
+}
+
+.back-button {
+    font-size: 1.3em;
+}
+
+#exit-button {
+    background-color: #00f2e5;
+    color: #f2f2f2;
+    border: none;
+    padding: 12px 22px;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+#name-field {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 1.3em;
+}
+
+#game-over-p {
+    font-size: 1.3em;
+}

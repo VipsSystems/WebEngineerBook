@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="html, html5, tags, elements, css, javascript, js, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+    ul li.li_style {
+      width: 400px;
+    }
+
+    #p_tag_id {
+      color: red;
+      font-family: courier;
+      font-size: 160%;
+      border: 1px solid powderblue;
+      padding: 30px;
+      margin: 30px;
+    }
+
+    table#t1 tr:nth-child(even) {
+      background-color: #eee;
+    }
+    table#t1 tr:nth-child(odd) {
+      background-color: #fff;
+    }
+    table#t1 th {
+      color: white;
+      background-color: black;
+    }
+
+    ul#list_menu {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333333;
+      float:left;
+    }
+    ul#list_menu li {
+      float: left;
+    }
+    ul#list_menu li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 16px;
+      text-decoration: none;
+    }
+    ul#list_menu li a:hover {
+      background-color: #111111;
+    }
+
+    .city {
+      background-color: tomato;
+      color: white;
+    }
+    #custom_header {
+      background-color: lightblue;
+      color: black;
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML and HTML5 tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="intro">Intro</h2>
+
+  <ul>
+    <li>HTML determines the structure of web pages:
+      <ul>
+        <li>Hypertext - text (often with embeds such as images, too) that is organized in order to connect related items</li>
+        <li>Markup - a style guide for typesetting anything to be printed in hardcopy or soft copy format</li>
+        <li>Language - a language that a computer system understands and uses to interpret commands</li>
+      </ul>
+    </li>
+    <li>Generally, contained in a file with <code>.html</code> extensions, or when returned by a server as a web page has response header <code>content-type: text/html; charset=utf-8</code></li>
+    <li>Used with assisted technologies such as CSS and JavaScript to make HTML beautiful and add interactivity, respectively</li>
+    <li>HTML tag - string of a specific format that defines a block or piece of HTML file content, most HTML tags have an opening tag containing the tag name, tag attributes, a closing tag containing a forward slash, and the tag name being closed, or tags that do not have a closing tag like &lt;img&gt;, it is best practice to end the tag with a forward slash</li>
+  </ul>
+
+  <pre><code class='html'>
+    &lt;!doctype html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+      &lt;meta charset="utf-8"&gt;
+      &lt;title&gt;Example page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+      &lt;h1&gt;This is a heading&lt;/h1&gt;
+      &lt;p&gt;This is an example of a basic HTML page.&lt;/p&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+  </code></pre>
+
+
+
+<h2 id="head">HEAD element</h2>
+
+  <ul>
+    <li><code>&lt;head&gt;</code> element is a container for metadata (info about page data)</li>
+  </ul>
+
+  <pre><code class='html'>
+    &lt;head&gt;
+
+      &lt;meta charset="UTF-8"/&gt;
+      &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;
+
+      &lt;meta name="description" content=""/&gt;
+      &lt;meta name="keywords" content=""/&gt;
+      &lt;meta name="author" content="AndreIT"/&gt;
+
+      &lt;!-- Refresh document every 30 seconds: --&gt;
+      &lt;!-- &lt;meta http-equiv="refresh" content="30"&gt; --&gt;
+      &lt;!-- specifies the base URL and base target for all relative URLs in a page: --&gt;
+      &lt;base href="" target="_blank"/&gt;
+
+      &lt;title&gt;HTML&lt;/title&gt;
+
+      &lt;link rel="stylesheet" href="../css/css.css"/&gt;
+
+      &lt;link rel="stylesheet" href="../js/highlight/styles/default.css"&gt;
+      &lt;script src="../js/highlight/highlight.pack.js"&gt;&lt;/script&gt;
+      &lt;script&gt;hljs.initHighlightingOnLoad();&lt;/script&gt;
+
+    &lt;/head&gt;
+  </code></pre>
+
+
+
+<h2 id="heading">Heading</h2>
+
+  <div class="example">
+    <h1>This is heading 1</h1>
+    <h2>This is heading 2</h2>
+    <h3>This is heading 3</h3>
+    <h4>This is heading 4</h4>
+    <h5>This is heading 5</h5>
+    <h6>This is heading 6</h6>
+  </div>
+
+  <pre><code class='html'>
+    &lt;h1&gt;This is heading 1&lt;/h1&gt;
+    &lt;h2&gt;This is heading 2&lt;/h2&gt;
+    &lt;h3&gt;This is heading 3&lt;/h3&gt;
+    &lt;h4&gt;This is heading 4&lt;/h4&gt;
+    &lt;h5&gt;This is heading 5&lt;/h5&gt;
+    &lt;h6&gt;This is heading 6&lt;/h6&gt;
+  </code></pre>
+
+
+
+<h2 id="paragraph">Paragraphs</h2>
+  <div class="example">
+    <p title="paragraph 'tooltip'">This is a paragraph.</p>
+    <p title='paragraph "tooltip"' >This is another paragraph.</p>
+    <p>
+      This is paragraph<br/>
+      with multiple<br/>
+      lines break
+    </p>
+    <br/>
+    <pre>
+      This is paragraph
+
+      of a preformatted text
+      which preserves both spaces and line breaks
+    </pre>
+  </div>
+
+  <pre><code class='html'>
+    &lt;p title="paragraph 'tooltip'"&gt;This is a paragraph.&lt;/p&gt;
+
+    &lt;p title='paragraph "tooltip"' &gt;This is another paragraph.&lt;/p&gt;
+
+    &lt;p&gt;
+      This is paragraph&lt;br/&gt;
+      with multiple&lt;br/&gt;
+      lines break
+    &lt;/p&gt;
+
+    &lt;pre&gt;
+      This is paragraph
+
+      of a preformatted text
+      which preserves both spaces and line breaks
+    &lt;/pre&gt;
+  </code></pre>
+
+
+
+<h2 id="formatting">Formatting</h2>
+
+  <div class="example">
+    <ul>
+      <li><b>bold</b></li>
+      <li><strong>strong ("important")</strong></li>
+      <li><i>italic</i></li>
+      <li><em>emphasized ("important")</em></li>
+      <li><small>small</small></li>
+      <li><mark>marked</mark></li>
+      <li><del>for deletion</del></li>
+      <li><ins>inserted</ins> (added into the line)</li>
+      <li><sub>subscripted</sub></li>
+      <li><sup>superscripted</sup></li>
+    </ul>
+  </div>
+
+  <pre><code class='html'>
+    &lt;b&gt;bold&lt;/b&gt;
+    &lt;strong&gt;strong ("important")&lt;/strong&gt;
+    &lt;i&gt;italic&lt;/i&gt;
+    &lt;em&gt;emphasized ("important")&lt;/em&gt;
+    &lt;small&gt;small&lt;/small&gt;
+    &lt;mark&gt;marked&lt;/mark&gt;
+    &lt;del&gt;for deletion&lt;/del&gt;
+    &lt;ins&gt;inserted&lt;/ins&gt; (added into the line)
+    &lt;sub&gt;subscripted&lt;/sub&gt;
+    &lt;sup&gt;superscripted&lt;/sup&gt;
+  </code></pre>
+
+
+
+<h2 id="quot">Quotation and Citation</h2>
+
+  <div class="example">
+
+    <p>This paragraph has a <q>short quotation</q>.</p>
+
+    <p>Here is a quote from WWF's website:</p>
+    <blockquote cite="http://www.worldwildlife.org/who/index.html">
+    For 50 years, WWF has been protecting the future of nature.
+    The world's leading conservation organization,
+    WWF works in 100 countries and is supported by
+    1.2 million members in the United States and
+    close to 5 million globally.
+    </blockquote>
+
+    <p>This paragraph has a <abbr title="abbr">an abbreviation (or an acronym)</abbr>.</p>
+
+    <p>
+    This paragraph has an address block
+    <address>
+    Written by John Doe.<br>
+    Visit us at:<br>
+    Example.com<br>
+    Box 564, Disneyland<br>
+    USA
+    </address>
+    </p>
+
+    <p><cite>This is a cite (title of a work)</cite> in a paragraph</p>
+
+    <bdo dir="rtl">This text will be written from right to left</bdo>
+
+    <p> This paragraph has a Bi-Directional Override : <bdo dir="rtl">This text will be written from right to left</bdo> ></p>
+
+  </div>
+
+  <pre><code class='html'>
+    &lt;p&gt;This paragraph has a &lt;q&gt;short quotation&lt;/q&gt;.&lt;/p&gt;
+
+    &lt;p&gt;Here is a quote from WWF's website:&lt;/p&gt;
+    &lt;blockquote cite="http://www.worldwildlife.org/who/index.html"&gt;
+    For 50 years, WWF has been protecting the future of nature.
+    The world's leading conservation organization,
+    WWF works in 100 countries and is supported by
+    1.2 million members in the United States and
+    close to 5 million globally.
+    &lt;/blockquote&gt;
+
+    &lt;p&gt;This paragraph has a
+    &lt;abbr title="abbr"&gt;an abbreviation (or an acronym)&lt;/abbr&gt;.&lt;/p&gt;
+
+    &lt;p&gt;
+      This paragraph has an address block
+      &lt;address&gt;
+      Written by John Doe.&lt;br&gt;
+      Visit us at:&lt;br&gt;
+      Example.com&lt;br&gt;
+      Box 564, Disneyland&lt;br&gt;
+      USA
+      &lt;/address&gt;
+    &lt;/p&gt;
+
+    &lt;p&gt;&lt;cite&gt;This is a cite (title of a work)&lt;/cite&gt; in a paragraph&lt;/p&gt;
+
+    &lt;bdo dir="rtl"&gt;This text will be written from right to left&lt;/bdo&gt;
+
+    &lt;p&gt; This paragraph has a Bi-Directional Override :
+    &lt;bdo dir="rtl"&gt;This text will be written from right to left&lt;/bdo&gt; &gt;&lt;/p&gt;
+  </code></pre>
+
+
+
+<h2 id="comments">HTML Comments</h2>
+
+  <div class="example">
+    <!-- This is a comment -->
+    <p>This is a paragraph having around html-comments.</p>
+    <!-- Remember to add more information here -->
+    <!-- Do not display this at the moment
+    <img border="0" src="pic_trulli.jpg" alt="Trulli">
+    -->
+  </div>
+
+  <pre><code class='html'>
+    &lt;!-- This is a comment --&gt;
+    &lt;p&gt;This is a paragraph having around html-comments.&lt;/p&gt;
+    &lt;!-- Remember to add more information here --&gt;
+    &lt;!-- Do not display this at the moment
+    &lt;img border="0" src="pic_trulli.jpg" alt="Trulli"&gt;
+    --&gt;
+  </code></pre>
+
+
+
+<h2 id="colors">Colors</h2>
+
+  <ul>
+    <li>colors are specified using predefined color names, or RGB, HEX, HSL, RGBA, HSLA values</li>
+    <li>color names: Tomato, Orange, DodgerBlue, MediumSeaGreen, Gray, SlateBlue, Violet, LightGray,...</li>
+    <li>set for HTML elements, using style attribute or CSS:</li>
+    <li style="background-color:DodgerBlue;" class="li_style">background color: with background-color property</li>
+    <li style="color:Tomato;" class="li_style">font color: with color property</li>
+    <li style="border:2px solid Violet;" class="li_style">border color: with border property</li>
+    <li style="background-color:rgb(255, 99, 71);" class="li_style">RGB value</li>
+    <li style="background-color:#ff6347;" class="li_style">HEX value</li>
+    <li style="background-color:hsl(9, 100%, 64%);" class="li_style">HSL value</li>
+    <li style="background-color:rgba(255, 99, 71, 0.5);" class="li_style">RGBA value</li>
+    <li style="background-color:hsla(9, 100%, 64%, 0.5);" class="li_style">HSLA value</li>
+  </ul>
+
+  <pre><code class='html'>
+    &lt;ul&gt;
+      &lt;li style="background-color:DodgerBlue;" class="li_style"&gt;
+        background color: with background-color property
+      &lt;/li&gt;
+      &lt;li style="color:Tomato;" class="li_style"&gt;font color: with color property&lt;/li&gt;
+      &lt;li style="border:2px solid Violet;" class="li_style"&gt;
+        border color: with border property
+      &lt;/li&gt;
+      &lt;li style="background-color:rgb(255, 99, 71);" class="li_style"&gt;RGB value&lt;/li&gt;
+      &lt;li style="background-color:#ff6347;" class="li_style"&gt;HEX value&lt;/li&gt;
+      &lt;li style="background-color:hsl(9, 100%, 64%);" class="li_style"&gt;HSL value&lt;/li&gt;
+      &lt;li style="background-color:rgba(255, 99, 71, 0.5);" class="li_style"&gt;RGBA value&lt;/li&gt;
+      &lt;li style="background-color:hsla(9, 100%, 64%, 0.5);" class="li_style"&gt;HSLA value&lt;/li&gt;
+    &lt;/ul&gt;
+  </code></pre>
+
+
+
+<h2 id="styles">Styles (CSS)</h2>
+
+  <ul>
+    <li>Style HTML elements using special syntax connected to document:</li>
+    <ul>
+      <li><strong>Inline</strong> - by using the <code>style</code> attribute in HTML elements</li>
+      <li><strong>Internal</strong> - by using a <code>&lt;style&gt;</code> element in the <code>&lt;head&gt;</code> section</li>
+      <li><strong>External</strong> - by using an external CSS file</li>
+    </ul>
+  </ul>
+
+  <pre><code class='ntml'>
+    &lt;head&gt;
+      ...
+      &lt;!-- External: --&gt;
+      &lt;link rel="stylesheet" href="../css/css.css"/&gt;
+      &lt;!-- Internal: --&gt;
+      &lt;style&gt;
+        // styles definition
+      &lt;/head&gt;
+    ...
+  </code></pre>
+
+  <div class="example">
+    <p id="p_tag_id">
+      This paragraph has a style described in internal CSS
+    </p>
+  </div>
+
+  <pre><code class='css'>
+    /*
+      style for:
+      &lt;p id="p_tag_id"&gt;This paragraph has a style described in internal CSS&lt;/p&gt;
+    */
+    #p_tag_id {
+      color: red;
+      font-family: courier;
+      font-size: 160%;
+      border: 1px solid powderblue;
+      padding: 30px;
+      margin: 30px;
+    }
+  </code></pre>
+
+
+
+<h2 id="id_classes">id and class attributes</h2>
+
+  <ul>
+    <li>id-attribute specifies a unique id for an HTML element, value must be unique within the HTML document, access by adding # in front of id-name</li>
+    <li>classes are used to access elements, and are defined as a value of class-attribute, accessed by CSS or Javascript by adding a period [.] in front of class name : .city , .town , ...</li>
+  </ul>
+
+  <div class="example">
+    <h1 id="custom_header">My Header</h1>
+    <span class="city">Tokyo</span> - is the capital of Japan<br>
+    <span class="city">Berlin</span> - is the capital of Germany<br>
+  </div>
+
+  <pre><code class='html'>
+    &lt;h1 id="custom_header"&gt;My Header&lt;/h1&gt;
+    &lt;span class="city"&gt;Tokyo&lt;/span&gt; - is the capital of Japan&lt;br&gt;
+    &lt;span class="city"&gt;Berlin&lt;/span&gt; - is the capital of Germany&lt;br&gt;
+  </code></pre>
+  <pre><code class='css'>
+    #custom_header {
+      background-color: lightblue;
+      color: black;
+      padding: 5px;
+      text-align: center;
+    }
+    .city {
+      background-color: tomato;
+      color: white;
+    }
+  </code></pre>
+
+  <pre><code class='javascript'>
+    // access in JavaScript
+    var x = document.getElementsByClassName("city")
+    document.getElementById("myHeader")
+  </code></pre>
+
+
+
+<h2 id="links">Links</h2>
+
+  <ul>
+    <li><code>target</code> attribute specifies where to open the linked page/document:</li>
+    <ul>
+      <li><code>_blank</code> - Opens the linked document in a new window or tab</li>
+      <li><code>_self</code> - Opens the linked document in the same window/tab as it was clicked (this is default)</li>
+      <li><code>_parent</code> - Opens the linked document in the parent frame</li>
+      <li><code>_top</code> - Opens the linked document in the full body of the window</li>
+      <li><code>framename</code> - Opens the linked document in a named frame</li>
+    </ul>
+    <li>use schema for specific action (<code>&lt;a href="schema:path"&gt;txt&lt;/a&gt;</code>):</li>
+    <ul>
+      <li><code>http://example.com</code></li>
+      <li><code>mailto:&lt;email&gt;[,&lt;email&gt;]*[?&lt;arguments&gt;]</code></li>
+      <li><code>tel:+3112345678</code></li>
+      <li><code>sms:&lt;phone_number&gt;[,&lt;phone_number&gt;]*[?body=&lt;message_body&gt;]</code></li>
+      <li><code>geopoint:latitude,longitude</code></li>
+    </ul>
+  </ul>
+
+  <div class="example">
+    Link (opened in new window):<br/>
+    <a href="http://example.com" title="Go to example.com" target="_blank">example.com</a><br/>
+    <br/><br/>
+    Image-Link (opened in new window):<br/>
+    <a href="http://example.com" target="_blank">
+      <img src="../images/colorpicker.gif" alt="colorpicker image" width="40" height="34">
+    </a>
+    <br/><br/>
+    Email link:<br/>
+    <a href="mailto:email@example.com">Send Email</a><br/>
+    <a href="mailto:email@example.com, secondemail@example.com">Send Emails</a><br/>
+    <a href="mailto:email@example.com?subject=Mail from our Website">Send Email with Subject</a><br/>
+    <a href="mailto:email@example.com?cc=secondemail@example.com, anotheremail@example.com, &bcc=lastemail@example.com">Send Email with Cc/Bcc</a>
+  </div>
+
+  <pre><code class='html'>
+    &lt;a href="http://example.com" title="Go to example.com" target="_blank"&gt;example.com&lt;/a&gt;&lt;br/&gt;
+
+    Image-Link (opened in new window):&lt;br/&gt;
+    &lt;a href="http://example.com" target="_blank"&gt;
+      &lt;img src="../images/colorpicker.gif" alt="colorpicker image" width="40" height="34"&gt;
+    &lt;/a&gt;
+
+    Email link:&lt;br/&gt;
+    &lt;a href="mailto:email@example.com"&gt;Send Email&lt;/a&gt;
+    &lt;a href="mailto:email@example.com, secondemail@example.com"&gt; Send Emails&lt;/a&gt;
+    &lt;a href="mailto:email@example.com?subject=Mail from our Website"&gt; Send Email with Subject&lt;/a&gt;
+    &lt;a href="mailto:email@example.com?cc=secondemail@example.com, anotheremail@example.com, &bcc=lastemail@example.com"&gt;
+      Send Email with Cc/Bcc&lt;/a&gt;
+  </code></pre>
+
+
+
+<h2 id="images">Images</h2>
+
+  <ul>
+    <li>always add <code>alt</code>-atttribute attribute</li>
+  </ul>
+
+  <div class="example">
+
+    <p>
+      <img src="../images/colorpicker.gif" alt="colorpicker image" style="float:right;width:40px;height:34px;"/><br/>
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+    </p>
+
+  </div>
+
+  <div class="example">
+
+    <p>
+      <img src="../images/colorpicker.gif" alt="colorpicker image" style="float:left;width:40px;height:34px;"/><br/>
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+      A paragraph with a floating image. A paragraph with a floating image. A paragraph with a floating image.
+    </p>
+
+  </div>
+
+  <pre><code class='html'>
+    &lt;p&gt;
+      &lt;img
+        src="../images/colorpicker.gif"
+        alt="colorpicker image"
+        style="float:right;width:80px;height:68px;"
+      /&gt;
+      A paragraph with a floating image...
+    &lt;/p&gt;
+    &lt;p&gt;
+      &lt;img
+        src="../images/colorpicker.gif"
+        alt="colorpicker image"
+        style="float:left;width:80px;height:68px;"
+      /&gt;
+      A paragraph with a floating image...
+    &lt;/p&gt;
+  </code></pre>
+
+  <h3>Image Maps</h3>
+
+  <ul>
+    <li>Image with areas as links</li>
+  </ul>
+
+  <div class="example">
+    <img src="../images/workplace.jpg" alt="Workplace" usemap="#workmap">
+    <map name="workmap">
+      <area shape="rect" coords="34,44,270,350" alt="Computer" href="../images/mac.jpg"/>
+      <area shape="rect" coords="290,172,333,250" alt="Phone" href="../images/cellphone.jpg"/>
+      <area shape="circle" coords="337,300,44" alt="Coffee" href="../images/coffee.jpg"/>
+    </map>
+  </div>
+
+  <pre><code class='html'>
+    &lt;img src="../images/workplace.jpg" alt="Workplace" usemap="#workmap"&gt;
+    &lt;map name="workmap"&gt;
+      &lt;area shape="rect" coords="34,44,270,350" alt="Computer" href="../images/mac.jpg"/&gt;
+      &lt;area shape="rect" coords="290,172,333,250" alt="Phone" href="../images/cellphone.jpg"/&gt;
+      &lt;area shape="circle" coords="337,300,44" alt="Coffee" href="../images/coffee.jpg"/&gt;
+    &lt;/map&gt;
+  </code></pre>
+
+  <pre><code class='html'>
+    &lt;img loading="lazy|eager" src="../images/workplace.jpg" alt="Workplace"/&gt;
+  </code></pre>
+
+  <h3>Background image</h3>
+  <div class="example">
+    <p style="background-image:url('../images/colorpicker.gif');text-align:center;">
+      Element <br/>
+      with background-image<br/>
+      and text over it
+    </p>
+  </div>
+
+  <pre><code class='html'>
+    &lt;p style="background-image:url('../images/colorpicker.gif');text-align:center;"&gt;
+      Element&lt;br/&gt;
+      with background-image&lt;br/&gt;
+      and text over it
+    &lt;/p&gt;
+  </code></pre>
+
+  <h3>picture - element</h3>
+  <ul>
+    <li>depending of viewport width, will be a different image</li>
+    <li>img element is required as the last child tag of the picture declaration block, used to provide backward compatibility for browsers that do not support the picture element, or if none of the source tags matched</li>
+  </ul>
+
+  <div class="example">
+
+    <picture>
+      <source media="(min-width: 900px)" srcset="../images/img_pink_flowers.jpg"/>
+      <source media="(min-width: 500px)" srcset="../images/img_white_flower.jpg"/>
+      <img src="../images/img_orange_flowers.jpg" alt="Flowers" style="width:auto;"/>
+    </picture>
+
+    <picture>
+      <source media="(min-width: 800px)" srcset="../images/img_pink_flowers.jpg 1x, images/img_white_flower.jpg 2x">
+      <img src="../images/img_orange_flowers.jpg" loading="lazy">
+    </picture>
+
+  </div>
+
+
+  <pre><code class='html'>
+    &lt;picture&gt;
+      &lt;source media="(min-width: 900px)" srcset="../images/img_pink_flowers.jpg"/&gt;
+      &lt;source media="(min-width: 500px)" srcset="../images/img_white_flower.jpg"/&gt;
+      &lt;img src="../images/img_orange_flowers.jpg" alt="Flowers" style="width:auto;"/&gt;
+    &lt;/picture&gt;
+
+    &lt;picture&gt;
+      &lt;source media="(min-width: 800px)" srcset="large.jpg 1x, larger.jpg 2x"&gt;
+      &lt;img src="photo.jpg" loading="lazy"&gt;
+    &lt;/picture&gt;
+  </code></pre>
+
+
+
+<h2 id="tables">Tables</h2>
+
+  <div class="example">
+
+    <table id="t1">
+      <caption>Sum of age years</caption>
+
+      <colgroup width="150">
+      <colgroup span="2" width="50">
+        <col span="2">
+      </colgroup>
+
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Age</th>
+        <th>Money</th>
+        <th>Debt</th>
+      </tr>
+
+      <tr>
+        <td>Jill</td>
+        <td>Smith</td>
+        <td>50</td>
+        <td>25000</td>
+        <td>250</td>
+      </tr>
+
+      <tr>
+        <td>Eve</td>
+        <td>Jackson</td>
+        <td>94</td>
+        <td>46840</td>
+        <td>570</td>
+      </tr>
+
+      <tr>
+        <td colspan="2">Sum:</td>
+        <td>144</td>
+        <td>533653</td>
+        <td>S364</td>
+      </tr>
+
+    </table>
+
+  </div>
+
+  <pre><code class='html'>
+    &lt;table id="t1"&gt;
+      &lt;caption&gt;Sum of age years&lt;/caption&gt;
+
+      &lt;colgroup width="150"&gt;
+      &lt;colgroup span="2" width="50"&gt;
+        &lt;col span="2"&gt;
+      &lt;/colgroup&gt;
+
+      &lt;tr&gt;
+        &lt;th&gt;Firstname&lt;/th&gt;
+        &lt;th&gt;Lastname&lt;/th&gt;
+        &lt;th&gt;Age&lt;/th&gt;
+        &lt;th&gt;Money&lt;/th&gt;
+        &lt;th&gt;Debt&lt;/th&gt;
+      &lt;/tr&gt;
+
+      &lt;tr&gt;
+        &lt;td&gt;Jill&lt;/td&gt;
+        &lt;td&gt;Smith&lt;/td&gt;
+        &lt;td&gt;50&lt;/td&gt;
+        &lt;td&gt;25000&lt;/td&gt;
+        &lt;td&gt;250&lt;/td&gt;
+      &lt;/tr&gt;
+
+      &lt;tr&gt;
+        &lt;td&gt;Eve&lt;/td&gt;
+        &lt;td&gt;Jackson&lt;/td&gt;
+        &lt;td&gt;94&lt;/td&gt;
+        &lt;td&gt;46840&lt;/td&gt;
+        &lt;td&gt;570&lt;/td&gt;
+      &lt;/tr&gt;
+
+      &lt;tr&gt;
+        &lt;td colspan="2"&gt;Sum:&lt;/td&gt;
+        &lt;td&gt;144&lt;/td&gt;
+        &lt;td&gt;533653&lt;/td&gt;
+        &lt;td&gt;S364&lt;/td&gt;
+      &lt;/tr&gt;
+
+    &lt;/table&gt;
+  </code></pre>
+
+  <pre><code class='css'>
+    table#t1 tr:nth-child(even) {
+      background-color: #eee;
+    }
+    table#t1 tr:nth-child(odd) {
+      background-color: #fff;
+    }
+    table#t1 th {
+      color: white;
+      background-color: black;
+    }
+  </code></pre>
+
+
+
+<h2 id="lists">Lists</h2>
+
+  <div class="example">
+
+    <h3>Unordered HTML List (square bullets)</h3>
+    <ul style="list-style-type:square">
+      <li>Coffee</li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ul>
+
+    <h3>Unordered HTML List (no bullets)</h3>
+    <ul style="list-style-type:none">
+      <li>Coffee</li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ul>
+
+    <h3>Ordered HTML List (numbered = default)</h3>
+    <ol type="1">
+      <li>Coffee</li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ol>
+
+    <h3>Ordered HTML List (uppercase letters)</h3>
+    <ol type="A">
+      <li>Coffee</li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ol>
+
+    <h3>Ordered HTML List (uppercase roman numbers)</h3>
+    <ol type="I">
+      <li>Coffee</li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ol>
+
+    <h3>Description Lists</h3>
+    <dl>
+      <dt>Coffee</dt>
+      <dd>- black hot drink</dd>
+      <dt>Milk</dt>
+      <dd>- white cold drink</dd>
+    </dl>
+
+    <h3>Nested Lists</h3>
+    <ul>
+      <li>Unordered list item</li>
+      <li>Nested list is lower
+      <ul>
+        <li>Black tea</li>
+        <li>Green tea</li>
+      </ul>
+      </li>
+      <li>Control List Counting in ordered list</li>
+      <ol start="50">
+        <li>this items number 50</li>
+        <li>this items number 51</li>
+        <li>this items number 52</li>
+      </ol>
+    </ul>
+
+    <h3>List as menu</h3>
+    <br>
+    <ul id="list_menu">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+  </div>
+
+  <pre><code class='html'>
+    Unordered HTML List (square bullets)
+    &lt;ul style="list-style-type:square"&gt;
+      &lt;li&gt;Coffee&lt;/li&gt;
+      &lt;li&gt;Tea&lt;/li&gt;
+      &lt;li&gt;Milk&lt;/li&gt;
+    &lt;/ul&gt;
+
+    Unordered HTML List (no bullets)
+    &lt;ul style="list-style-type:none"&gt;
+      &lt;li&gt;Coffee&lt;/li&gt;
+      &lt;li&gt;Tea&lt;/li&gt;
+      &lt;li&gt;Milk&lt;/li&gt;
+    &lt;/ul&gt;
+
+    Ordered HTML List (numbered = default)
+    &lt;ol type="1"&gt;
+      &lt;li&gt;Coffee&lt;/li&gt;
+      &lt;li&gt;Tea&lt;/li&gt;
+      &lt;li&gt;Milk&lt;/li&gt;
+    &lt;/ol&gt;
+
+    Ordered HTML List (uppercase letters)
+    &lt;ol type="A"&gt;
+      &lt;li&gt;Coffee&lt;/li&gt;
+      &lt;li&gt;Tea&lt;/li&gt;
+      &lt;li&gt;Milk&lt;/li&gt;
+    &lt;/ol&gt;
+
+    Ordered HTML List (uppercase roman numbers)
+    &lt;ol type="I"&gt;
+      &lt;li&gt;Coffee&lt;/li&gt;
+      &lt;li&gt;Tea&lt;/li&gt;
+      &lt;li&gt;Milk&lt;/li&gt;
+    &lt;/ol&gt;
+
+    Description Lists
+    &lt;dl&gt;
+      &lt;dt&gt;Coffee&lt;/dt&gt;
+      &lt;dd&gt;- black hot drink&lt;/dd&gt;
+      &lt;dt&gt;Milk&lt;/dt&gt;
+      &lt;dd&gt;- white cold drink&lt;/dd&gt;
+    &lt;/dl&gt;
+
+    Nested Lists
+    &lt;ul&gt;
+      &lt;li&gt;Unordered list item&lt;/li&gt;
+      &lt;li&gt;Nested list is lower
+      &lt;ul&gt;
+        &lt;li&gt;Black tea&lt;/li&gt;
+        &lt;li&gt;Green tea&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Control List Counting in ordered list&lt;/li&gt;
+      &lt;ol start="50"&gt;
+        &lt;li&gt;this items number 50&lt;/li&gt;
+        &lt;li&gt;this items number 51&lt;/li&gt;
+        &lt;li&gt;this items number 52&lt;/li&gt;
+      &lt;/ol&gt;
+    &lt;/ul&gt;
+
+    List as menu
+    &lt;ul id="list_menu"&gt;
+      &lt;li&gt;&lt;a href="#home"&gt;Home&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#news"&gt;News&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#contact"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="#about"&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  </code></pre>
+
+
+  <pre><code class='css'>
+    ul#list_menu {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333333;
+    }
+    ul#list_menu li {
+      float: left;
+    }
+    ul#list_menu li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 16px;
+      text-decoration: none;
+    }
+    ul#list_menu li a:hover {
+      background-color: #111111;
+    }
+  </code></pre>
+
+
+<h2 id="inline_block">Block and Inline Elements</h2>
+
+  <div class="example">
+
+    <div style="border:1px solid green;padding:5px;">
+      The <code>&lt;div&gt;</code> element is a block-level element.<br/>
+      A block-level element always starts on a new line and <br/>
+      takes up the full width available (stretches out to the left and right as far as it can)
+    </div>
+
+    <p>
+      This is <span style="border:1px solid red;padding:2px">an inline <code>&lt;span&gt;</code> element
+      inside</span> a paragraph
+    </p>
+
+  </div>
+
+  <pre><code class='html'>
+    &lt;div style="border:1px solid green;padding:5px;"&gt;
+      The &lt;code&gt;&lt;div&gt;&lt;/code&gt; element is a block-level element.&lt;br/&gt;
+      A block-level element always starts on a new line and &lt;br/&gt;
+      takes up the full width available (stretches out to the left and right as far as it can).
+    &lt;/div&gt;
+
+    &lt;p&gt;
+      This is &lt;span style="border:1px solid red;padding:2px"&gt;an inline &lt;code&gt;&lt;span&gt;&lt;/code&gt; element
+      inside&lt;/span&gt; a paragraph.
+    &lt;/p&gt;
+  </code></pre>
+
+
+
+<h2 id="iframe">iframe</h2>
+
+  <ul>
+    <li>Embed other HTML/documents into current</li>
+  </ul>
+
+  <div class="example">
+
+    <h3>Iframe</h3>
+    <iframe src="./js.html" style="border:3px dotted red;height:20em;width:90%;"></iframe><br/>
+
+    <h3>Iframe - Target for a Link</h3>
+    <iframe src="./html-form.html" name="iframe_b" style="border:3px dotted red;height:20em;width:90%;"></iframe>
+    <p><a href="./html-tags.html" target="iframe_b">Link to this page for iframe</a></p>
+    <p><a href="./html-media.html" target="iframe_b">Link to other page for iframe</a></p>
+
+  </div>
+
+
+  <pre><code class='html'>
+    &lt;iframe
+      src="./js.html"
+      loading="lazy"
+      style="border:3px dotted red;height:20em;width:90%;"
+    &gt;&lt;/iframe&gt;&lt;br/&gt;
+
+    &lt;iframe
+      src="./html-form.html"
+      loading="eager"
+      name="iframe_b"
+      style="border:3px dotted red;height:20em;width:90%;"
+    &gt;&lt;/iframe&gt;
+    &lt;p&gt;&lt;a
+      href="./html-tags.html"
+      target="iframe_b"
+    &gt;Link to this page for iframe&lt;/a&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;a
+      href="./html-media.html"
+      target="iframe_b"
+    &gt;Link to other page for iframe&lt;/a&gt;&lt;/p&gt;
+  </code></pre>
+
+
+
+<h2 id="plugins">Plug-ins</h2>
+
+  <ul>
+    <li><code>&lt;object&gt;</code> and <code>&lt;embed&gt;</code> elements define embedded objects within an HTML document, like Java applets, PDF readers, Flash Players</li>
+    <li>
+      Flash<br/>
+      <code>&lt;object width="400" height="50" data="bookmark.swf"&gt;</code><code>&lt;/object&gt;</code><br/>
+      <code>&lt;embed width="400" height="50" src="bookmark.swf"&gt;</code>
+    </li>
+    <li>
+      HTML<br/>
+      <code>&lt;object width="100%" height="500px" data="snippet.html"&gt;</code><code>&lt;/object&gt;</code><br/>
+      <code>&lt;embed width="100%" height="500px" src="snippet.html"&gt;</code>
+    </li>
+    <li>
+      image<br/>
+      <code>&lt;object data="audi.jpeg"&gt;</code><code>&lt;/object&gt;</code><br/>
+      <code>&lt;embed src="audi.jpeg""&gt;</code>
+    </li>
+    <li><code>&lt;embed&gt;</code> element does not have a closing tag, it can not contain alternative text</li>
+  </ul>
+
+
+
+<h2 id="javascript">JavaScript (JS)</h2>
+
+  <ul>
+    <li>embded into document with <code>script</code> tag inside header or document body after all elements definition</li>
+  </ul>
+
+  <div class="example">
+
+    <div id="js_html"></div><br/>
+    <div id="js_css">This text styles were set with JavaScript</div><br/>
+    <img id="js_image" src=""><br/>This image was set with JavaScript<br/>
+
+    <script>
+      document.getElementById("js_html").innerHTML = "Hello from JavaScript!";
+      document.getElementById("js_css").style.fontSize = "25px";
+      document.getElementById("js_css").style.color = "red";
+      document.getElementById("js_css").style.backgroundColor = "yellow";
+      document.getElementById("js_image").src = "../images/colorpicker.gif";
+    </script>
+    <noscript>Sorry, your browser does not support JavaScript!</noscript>
+
+  </div>
+
+  <pre><code class='html'>
+    &lt;div id="js_html"&gt;&lt;/div&gt;&lt;br/&gt;
+    &lt;div id="js_css"&gt;This text styles were set with JavaScript&lt;/div&gt;&lt;br/&gt;
+    &lt;img id="js_image"/ src=""&gt;&lt;br/&gt;This image was set with JavaScript&lt;br/&gt;
+
+    &lt;script&gt;
+      document.getElementById("js_html").innerHTML = "Hello from JavaScript!";
+      document.getElementById("js_css").style.fontSize = "25px";
+      document.getElementById("js_css").style.color = "red";
+      document.getElementById("js_css").style.backgroundColor = "yellow";
+      document.getElementById("js_image").src = "../images/colorpicker.gif";
+    &lt;/script&gt;
+    &lt;noscript&gt;Sorry, your browser does not support JavaScript!&lt;/noscript&gt;
+  </code></pre>
+
+
+
+<h2 id="filepath">filepath</h2>
+
+  <ul>
+    <li>absolute path (full URL to an internet file, recomended way !): src="http://www.example.com/images/picture.jpg"</li>
+    <li>relative path (relative to the current page):
+      <ul>
+        <li>src="picture.jpg" - picture.jpg is located in the same folder as the current page</li>
+        <li>src="../images/picture.jpg" - picture.jpg is located in the images folder in the current folder</li>
+        <li>src="/images/picture.jpg" - picture.jpg is located in the images folder at the root of the current web</li>
+        <li>src="../picture.jpg" - picture.jpg is located in the folder one level up from the current folder</li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="url">Uniform Resource Locators (URL)</h2>
+
+  <ul>
+    <li>scheme://prefix.domain:port/path/filename
+      <ul>
+        <li>http[https,ftp,file]://www.the.domain.com:80/path/to/that/thing</li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="compcode">Computer Code Elements</h2>
+
+  <div class="example">
+    Code sample:<br/>
+    <pre>
+      <code>
+        x = 5;
+        y = 6;
+        z = x + y;
+      </code>
+    </pre>
+    <p>Save the document by pressing <kbd>Ctrl + S</kbd></p>
+    <p>If you input wrong value, the program will return <samp>Error message!</samp></p>
+    We have a formula here: <var>Why</var> = <var>who</var><sup>3</sup>*<var>when</var><sup>2</sup>/<var>times</var>
+  </div>
+
+  <pre><code class='html'>
+    &lt;pre&gt;
+      &lt;code&gt;
+        x = 5;
+        y = 6;
+        z = x + y;
+      &lt;/code&gt;
+    &lt;/pre&gt;
+
+    &lt;p&gt;Save the document by pressing &lt;kbd&gt;Ctrl + S&lt;/kbd&gt;&lt;/p&gt;
+
+    &lt;p&gt;If you input wrong value, the program will return &lt;samp&gt;Error message!&lt;/samp&gt;&lt;/p&gt;
+
+    We have a formula here:
+    &lt;var&gt;Why&lt;/var&gt; = &lt;var&gt;who&lt;/var&gt;&lt;sup&gt;3&lt;/sup&gt;*&lt;var&gt;when&lt;/var&gt;&lt;sup&gt;2&lt;/sup&gt;/&lt;var&gt;times&lt;/var&gt;
+  </code></pre>
+
+
+
+<h2 id="entities">Entities and symbols</h2>
+
+  <ul>
+    <li><code>&amp;<i>entity_name</i>;</code> or <code>&amp;#<i>entity_number</i>;</code> (better support)</li>
+    <li>use <code>&amp;nbsp;</code> for additional spaces (which are trimmed to one in any text), example: text with&nbsp;&nbsp;additional&nbsp;&nbsp;&nbsp;spaces</li>
+    <li><a href="https://www.w3schools.com/charsets/ref_utf_punctuation.asp">W3C symbols lists</a></li>
+  </ul>
+
+  <div class="example">
+    &lt; &#60; &gt; &#62; &amp; &#38; &quot; &#34; &apos; &#39;<br/>
+    &cent; &#162; &pound; &#163; &yen; &#165; &euro; &#8364; &copy; &#169; &reg; &#174;<br/>
+    &#8482; &trade; &#8592; &larr; &#8593; &uarr; &#8594; &rarr; &#8595; &darr;<br/>
+    &#9824; &spades; &#9827; &clubs; &#9829; &hearts; &#9830; &diams;
+  </div>
+
+  <pre><code class='html'>
+    &amp;lt; &amp;#60; &amp;gt; &amp;#62; &amp;amp; &amp;#38; &amp;quot; &amp;#34; &amp;apos; &amp;#39;
+    &amp;cent; &amp;#162; &amp;pound; &amp;#163; &amp;yen; &amp;#165; &amp;euro; &amp;#8364; &amp;copy; &amp;#169; &amp;reg; &amp;#174;
+    &amp;#8482; &amp;trade; &amp;#8592; &amp;larr; &amp;#8593; &amp;uarr; &amp;#8594; &amp;rarr; &amp;#8595; &amp;darr;
+    &amp;#9824; &amp;spades; &amp;#9827; &amp;clubs; &amp;#9829; &amp;hearts; &amp;#9830; &amp;diams;
+  </code></pre>
+
+
+
+<h2 id="strict">Strict HTML</h2>
+
+  <ul>
+    <li>
+      close all elements : <code>&lt;tag&gt;...content...&lt;/tag&gt;</code>
+    </li>
+    <li>
+      even empty :
+      <ul>
+        <li>
+          <code>&lt;br/&gt;</code>
+        </li>
+        <li>
+          <code>&lt;hr/&gt;</code>
+        </li>
+        <li>
+          <code>&lt;img src="happy.gif" alt="Happy face"/&gt;</code>
+        </li>
+      </ul>
+    </li>
+    <li>
+      tag names and their attributes in lowercase : <code>&lt;br/&gt;</code>
+    </li>
+    <li>
+      attributes values must be quoted : <code>&lt;table width="100%"&gt;</code>
+    </li>
+    <li>
+      dont minimize attributes : ...checked="checked"... , disabled="disabled"
+    </li>
+  </ul>
+
+  <h3>convert from HTML to XHTML</h3>
+  <ul>
+    <li>use upper notes</li>
+    <li>add an XHTML <code>&lt;!DOCTYPE&gt;</code> to the first line of every page</li>
+    <li>add an xmlns attribute to the <code>&lt;html&gt;</code> element of every page</li>
+  </ul>
+
+
+
+<h2 id="html5_semantics">HTML5 tags</h2>
+
+  <h3>semantic tags</h3>
+  <ul>
+    <li><code>&lt;details&gt;</code> - additional details that the user can view or hide</li>
+    <li><code>&lt;summary&gt;</code> - visible heading for a <code>&lt;details&gt;</code> element</li>
+    <li><code>&lt;article&gt;</code> - Defines an article</li>
+    <li><code>&lt;aside&gt;</code> - content aside from the page content</li>
+    <li><code>&lt;figcaption&gt;</code> - caption for a <code>&lt;figure&gt;</code> element</li>
+    <li><code>&lt;figure&gt;</code> - self-contained content, like illustrations, diagrams, photos, code listings, etc.</li>
+    <li><code>&lt;footer&gt;</code> - footer for a document or section</li>
+    <li><code>&lt;header&gt;</code> - header for a document or section</li>
+    <li><code>&lt;main&gt;</code> - main content of a document</li>
+    <li><code>&lt;mark&gt;</code> - marked/highlighted text</li>
+    <li><code>&lt;nav&gt;</code> - navigation links</li>
+    <li><code>&lt;section&gt;</code> - section in a document</li>
+    <li><code>&lt;time [datetime="2008-02-14 20:00"] &gt;</code> - Defines a date/time</li>
+  </ul>
+
+  <h3>specific tags</h3>
+  <div class="example">
+    <progress value="25" max="100"></progress><br/>
+    <meter value="7" min="0" max="12">7 out of 12</meter><br/>
+    <meter value="0.73">73%</meter>
+  </div>
+
+  <pre><code class='html'>
+    &lt;progress value="25" max="100"&gt;&lt;/progress&gt;&lt;br/&gt;
+    &lt;meter value="7" min="0" max="12"&gt;7 out of 12&lt;/meter&gt;&lt;br/&gt;
+    &lt;meter value="0.73"&gt;73%&lt;/meter&gt;
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

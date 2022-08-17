@@ -1,0 +1,3 @@
+file content for example:
+Requesting non-JSON data
+[]{};':",.<>/?=-+_

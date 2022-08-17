@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content=""/>
+  <meta name="keywords" content=""/>
+  <meta name="author" content="AndreIT"/>
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <script src="highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <base href="" target="_blank"/>
+  <title>Angular</title>
+  <link rel="stylesheet" href="../css/css.css"/>
+
+  <script src="../js/react.development.js" crossorigin></script>
+  <script src="../js/react-dom.development.js" crossorigin></script>
+
+  <script src="../js/prop-types.js" crossorigin></script>
+  <script src="../js/babel.min.js" crossorigin></script>
+
+  <script src="../js/redux.js" crossorigin></script>
+  <script src="../js/react-redux.js" crossorigin></script>
+
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/chosen.jquery.min.js"></script>
+  <link rel="stylesheet" href="../css/chosen.min.css">
+
+  <script src="../js/underscore-min.js"></script>
+  <script src="../js/backbone-min.js"></script>
+
+  <script src="../js/utils.js"></script>
+
+</head>
+
+<body>
+
+<h2 id="router">react-router 5.0</h2>
+
+  <ul>
+
+    <li><code>npm install react-router-dom</code>
+      <ul>
+        <li>import { BrowserRouter as Router, Route, Link } from "react-router-dom";</li>
+        <li><strong>BrowserRouter</strong> - routed app wrapper</li>
+        <li><strong>Route</strong> - include anywhere you want to render content based on the location when it matches "path" prop, <u>route without "path" renders always, prop choices:</u>
+          <ul>
+            <li>component - when you have an existing component (React.Component or stateless functional component) to render</li>
+            <li>render - takes an inline function, should only be used when you have to pass in-scope variables to the component you want to render, dont use the component prop with an inline function to pass in-scope variables because you will get undesired component unmounts/remounts</li>
+          </ul>
+        </li>
+        <li><strong>Switch</strong> - group Routes together, not required, iterate over all of its children Route elements and only render the first one that matches the current location, when no match found, <u>component without "path" is rendered</u> (for example 404 page)</li>
+        <li><strong>Link</strong> - create links with "to" component</li>
+        <li><strong>NavLink</strong> - can style itself with "activeClassName" as active when its "to" prop matches the current location</li>
+        <li><strong>Redirect</strong> - to force navigation, when renders, will navigate using its "to" prop</li>
+      </ul>
+    </li>
+
+    <li>react-router - core</li>
+    <li>react-router-dom - DOM bindings</li>
+    <li>react-router-native - React Native bindings</li>
+    <li>react-router-config - static route config helpers</li>
+
+    <li>use <a href="https://github.com/ReactTraining/react-media">react-media</a> for complex UIs</li>
+
+    <li>code splitting - incrementally downloading the app
+      <ul>
+        <li>babel will need
+          <ul>
+            <li><code>npm install --save-dev @babel/plugin-syntax-dynamic-import</code></li>
+            <li>OR in .babelrc file: { "plugins": ["@babel/plugin-syntax-dynamic-import"] } </li>
+            <li>OR with babel cli: babel --plugins @babel/plugin-syntax-dynamic-import script.js</li>
+            <li>OR via Node API: require("@babel/core").transform("code", {<br>
+            &nbsp;&nbsp;plugins: ["@babel/plugin-syntax-dynamic-import"],<br>
+            });</li>
+          </ul>
+        </li>
+        <li>loadable-components: <code>npm install @loadable/component</code></li>
+      </ul>
+    </li>
+
+    <li>server rendering
+      <ul>
+        <li>wrap app into StaticRouter (instead of a BrowserRouter) and pass in the requested url from the server so the routes can match and a context prop</li>
+        <li>use the "context" prop to find out what the result of rendering was, if we find a context.url, then we know the app redirected, allows us to send a proper redirect from the server</li>
+      </ul>
+    </li>
+
+    <li>testing
+      <ul>
+        <li>Router relies on React context to work</li>
+        <li>wrap unit test in a StaticRouter or a MemoryRouter</li>
+      </ul>
+    </li>
+
+    <li>Redux integration
+      <ul>
+        <li>app can have a component that doesnt update when the location changes (child routes or active nav links dont update), happens if: component is connected to redux via connect()(Comp) OR component is not a "route component", meaning it is not rendered like so: &lt;Route component={SomeConnectedThing}/&gt;</li>
+        <li>find where you "connect" component and wrap it in withRouter</li>
+        <li>dont keep routes in Redux store at all</li>
+        <li>include the "history" object (provided to all route components) in the payload of the action, and async handler can use this to navigate when appropriate</li>
+        <li><a href="https://github.com/supasate/connected-react-router">connected-react-router</a> - Redux binding for React Router v4 </li>
+      </ul>
+    </li>
+
+  </ul>
+
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter, Route, Link } from "react-router-dom";
+    import { withRouter } from "react-router";
+
+    function Index() { return &lt;h2&gt;Home&lt;/h2&gt;; }
+    function Users() { return &lt;h2&gt;Users&lt;/h2&gt;; }
+    function Topics({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Topics&lt;/h2&gt;
+          &lt;Link to={`${match.url}/components`}&gt;Components&lt;/Link&gt;&nbsp;|&nbsp;
+          &lt;Link to={`${match.url}/props-v-state`}&gt;Props v. State&lt;/Link&gt;
+          &lt;Route path={`${match.path}/:id`} component={Topic} /&gt;
+          &lt;Route
+            exact
+            path={match.path}
+            render={()=&gt; &lt;h3&gt;Please select a topic&lt;/h3&gt;}
+          /&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Topic({ match }) {
+      return &lt;h3&gt;Requested Param: {match.params.id}&lt;/h3&gt;;
+    }
+
+    // component that will scroll the window up on every navigation
+    class ScrollToTop extends React.Component {
+      componentDidUpdate(prevProps) {
+        if (this.props.location.pathname !== prevProps.location.pathname) {
+          window.scrollTo(0, 0);
+        }
+      }
+      render() {
+        return this.props.children;
+      }
+    }
+    const ScrollToTopWithRouter = withRouter(ScrollToTop);
+
+    function AppRouter() {
+      const someVar = " are OK :)";
+      return (
+        &lt;BrowserRouter&gt;
+          &lt;ScrollToTopWithRouter&gt;
+            &lt;nav&gt;
+              &lt;Link to="/"&gt;Home&lt;/Link&gt;&nbsp;|&nbsp;
+              &lt;Link to="/users/"&gt;Users&lt;/Link&gt;&nbsp;|&nbsp;
+              &lt;Link to="/topics"&gt;Topics&lt;/Link&gt;
+            &lt;/nav&gt;
+            &lt;Route path="/" exact component={Index} /&gt;
+            &lt;Route
+              path="/users/"
+              render={props =&gt; &lt;Users {...props} extra={someVar}/&gt;}
+            /&gt;
+              &lt;Route path="/topics" component={Topics} /&gt;
+          &lt;/ScrollToTopWithRouter&gt;
+        &lt;/BrowserRouter&gt;
+      );
+    }
+    export default AppRouter;
+  </code></pre>
+
+
+  <h3>configure a fallback URL, serve index.html</h3>
+  <pre><code class="">
+    // --- Express
+    app.get('/*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'index.html'))
+    })
+
+    // --- WebpackDevServer, webpack.config.dev.js:
+    devServer: {
+      historyApiFallback: true
+    }
+  </code></pre>
+
+
+  <details><summary>Examples</summary>
+
+  <details><summary>--- Basic</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    function BasicExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/"&gt;Home&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/about"&gt;About&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/topics"&gt;Topics&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;hr /&gt;
+            &lt;Route exact path="/" component={Home} /&gt;
+            &lt;Route path="/about" component={About} /&gt;
+            &lt;Route path="/topics" component={Topics} /&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function Home() {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Home&lt;/h2&gt;
+        &lt;/div&gt;
+      );
+    }
+    function About() {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;About&lt;/h2&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Topics({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Topics&lt;/h2&gt;
+          &lt;ul&gt;
+            &lt;li&gt;
+              &lt;Link to={`${match.url}/rendering`}&gt;Rendering with React&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to={`${match.url}/components`}&gt;Components&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to={`${match.url}/props-v-state`}&gt;Props v. State&lt;/Link&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;Route path={`${match.path}/:topicId`} component={Topic} /&gt;
+          &lt;Route
+            exact
+            path={match.path}
+            render={() =&gt; &lt;h3&gt;Please select a topic.&lt;/h3&gt;}
+          /&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Topic({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h3&gt;{match.params.topicId}&lt;/h3&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default BasicExample;
+  </code></pre></details>
+
+  <details><summary>--- URL parameters</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    function ParamsExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;h2&gt;Accounts&lt;/h2&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/netflix"&gt;Netflix&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/zillow-group"&gt;Zillow Group&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/yahoo"&gt;Yahoo&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/modus-create"&gt;Modus Create&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;Route path="/:id" component={Child} /&gt;
+            {/*
+                It's possible to use regular expressions to control what param values should be matched.
+                  * "/order/asc"  - matched
+                  * "/order/desc" - matched
+                  * "/order/foo"  - not matched
+            */}
+            &lt;Route
+              path="/order/:direction(asc|desc)"
+              component={ComponentWithRegex}
+            /&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function Child({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h3&gt;ID: {match.params.id}&lt;/h3&gt;
+        &lt;/div&gt;
+      );
+    }
+    function ComponentWithRegex({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h3&gt;Only asc/desc are allowed: {match.params.direction}&lt;/h3&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default ParamsExample;
+  </code></pre></details>
+
+  <details><summary>--- Auth</summary>
+  <pre><code class="">
+    import React, { Component } from "react";
+    import {
+      BrowserRouter as Router,
+      Route,
+      Link,
+      Redirect,
+      withRouter
+    } from "react-router-dom";
+    ////////////////////////////////////////////////////////////
+    // 1. Click the public page
+    // 2. Click the protected page
+    // 3. Log in
+    // 4. Click the back button, note the URL each time
+    function AuthExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;AuthButton /&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/public"&gt;Public Page&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/protected"&gt;Protected Page&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;Route path="/public" component={Public} /&gt;
+            &lt;Route path="/login" component={Login} /&gt;
+            &lt;PrivateRoute path="/protected" component={Protected} /&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    const fakeAuth = {
+      isAuthenticated: false,
+      authenticate(cb) {
+        this.isAuthenticated = true;
+        setTimeout(cb, 100); // fake async
+      },
+      signout(cb) {
+        this.isAuthenticated = false;
+        setTimeout(cb, 100);
+      }
+    };
+    const AuthButton = withRouter(
+      ({ history }) =&gt;
+        fakeAuth.isAuthenticated ? (
+          &lt;p&gt;
+            Welcome!{" "}
+            &lt;button
+              onClick={() =&gt; {
+                fakeAuth.signout(() =&gt; history.push("/"));
+              }}
+            &gt;
+              Sign out
+            &lt;/button&gt;
+          &lt;/p&gt;
+        ) : (
+          &lt;p&gt;You are not logged in.&lt;/p&gt;
+        )
+    );
+    function PrivateRoute({ component: Component, ...rest }) {
+      return (
+        &lt;Route
+          {...rest}
+          render={props =&gt;
+            fakeAuth.isAuthenticated ? (
+              &lt;Component {...props} /&gt;
+            ) : (
+              &lt;Redirect
+                to={{
+                  pathname: "/login",
+                  state: { from: props.location }
+                }}
+              /&gt;
+            )
+          }
+        /&gt;
+      );
+    }
+    function Public() {
+      return &lt;h3&gt;Public&lt;/h3&gt;;
+    }
+    function Protected() {
+      return &lt;h3&gt;Protected&lt;/h3&gt;;
+    }
+    class Login extends Component {
+      state = { redirectToReferrer: false };
+      login = () =&gt; {
+        fakeAuth.authenticate(() =&gt; {
+          this.setState({ redirectToReferrer: true });
+        });
+      };
+      render() {
+        let { from } = this.props.location.state || { from: { pathname: "/" } };
+        let { redirectToReferrer } = this.state;
+        if (redirectToReferrer) return &lt;Redirect to={from} /&gt;;
+        return (
+          &lt;div&gt;
+            &lt;p&gt;You must log in to view the page at {from.pathname}&lt;/p&gt;
+            &lt;button onClick={this.login}&gt;Log in&lt;/button&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+    export default AuthExample;
+  </code></pre></details>
+
+  <details><summary>--- Custom Link</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    function CustomLinkExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;OldSchoolMenuLink activeOnlyWhenExact={true} to="/" label="Home" /&gt;
+            &lt;OldSchoolMenuLink to="/about" label="About" /&gt;
+            &lt;hr /&gt;
+            &lt;Route exact path="/" component={Home} /&gt;
+            &lt;Route path="/about" component={About} /&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function OldSchoolMenuLink({ label, to, activeOnlyWhenExact }) {
+      return (
+        &lt;Route
+          path={to}
+          exact={activeOnlyWhenExact}
+          children={({ match }) =&gt; (
+            &lt;div className={match ? "active" : ""}&gt;
+              {match ? "&gt; " : ""}
+              &lt;Link to={to}&gt;{label}&lt;/Link&gt;
+            &lt;/div&gt;
+          )}
+        /&gt;
+      );
+    }
+    function Home() {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Home&lt;/h2&gt;
+        &lt;/div&gt;
+      );
+    }
+    function About() {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;About&lt;/h2&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default CustomLinkExample;
+  </code></pre></details>
+
+  <details><summary>--- Preventing Transitions</summary>
+  <pre><code class="">
+    import React, { Component } from "react";
+    import { BrowserRouter as Router, Route, Link, Prompt } from "react-router-dom";
+    function PreventingTransitionsExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/"&gt;Form&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/one"&gt;One&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/two"&gt;Two&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;Route path="/" exact component={Form} /&gt;
+            &lt;Route path="/one" render={() =&gt; &lt;h3&gt;One&lt;/h3&gt;} /&gt;
+            &lt;Route path="/two" render={() =&gt; &lt;h3&gt;Two&lt;/h3&gt;} /&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    class Form extends Component {
+      state = { isBlocking: false };
+      render() {
+        let { isBlocking } = this.state;
+        return (
+          &lt;form
+            onSubmit={event =&gt; {
+              event.preventDefault();
+              event.target.reset();
+              this.setState({
+                isBlocking: false
+              });
+            }}
+          &gt;
+            &lt;Prompt
+              when={isBlocking}
+              message={location =&gt;
+                `Are you sure you want to go to ${location.pathname}`
+              }
+            /&gt;
+            &lt;p&gt;
+              Blocking?{" "}
+              {isBlocking ? "Yes, click a link or the back button" : "Nope"}
+            &lt;/p&gt;
+            &lt;p&gt;
+              &lt;input
+                size="50"
+                placeholder="type something to block transitions"
+                onChange={event =&gt; {
+                  this.setState({
+                    isBlocking: event.target.value.length &gt; 0
+                  });
+                }}
+              /&gt;
+            &lt;/p&gt;
+            &lt;p&gt;
+              &lt;button&gt;Submit to stop blocking&lt;/button&gt;
+            &lt;/p&gt;
+          &lt;/form&gt;
+        );
+      }
+    }
+    export default PreventingTransitionsExample;
+  </code></pre></details>
+
+  <details><summary>--- No Match</summary>
+  <pre><code class="">
+    import React from "react";
+    import {
+      BrowserRouter as Router,
+      Route,
+      Link,
+      Switch,
+      Redirect
+    } from "react-router-dom";
+    function NoMatchExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/"&gt;Home&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/old-match"&gt;Old Match, to be redirected&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/will-match"&gt;Will Match&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/will-not-match"&gt;Will Not Match&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/also/will/not/match"&gt;Also Will Not Match&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;Switch&gt;
+              &lt;Route path="/" exact component={Home} /&gt;
+              &lt;Redirect from="/old-match" to="/will-match" /&gt;
+              &lt;Route path="/will-match" component={WillMatch} /&gt;
+              &lt;Route component={NoMatch} /&gt;
+            &lt;/Switch&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function Home() {
+      return (
+        &lt;p&gt;
+          A &lt;code&gt;&lt;Switch&gt;&lt;/code&gt; renders the first child &lt;code&gt;&lt;Route&gt;&lt;/code&gt;{" "}
+          that matches. A &lt;code&gt;&lt;Route&gt;&lt;/code&gt; with no &lt;code&gt;path&lt;/code&gt; always
+          matches.
+        &lt;/p&gt;
+      );
+    }
+    function WillMatch() {
+      return &lt;h3&gt;Matched!&lt;/h3&gt;;
+    }
+    function NoMatch({ location }) {
+      return (
+        &lt;div&gt;
+          &lt;h3&gt;
+            No match for &lt;code&gt;{location.pathname}&lt;/code&gt;
+          &lt;/h3&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default NoMatchExample;
+  </code></pre></details>
+
+  <details><summary>--- Recursive Paths</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    const PEEPS = [
+      { id: 0, name: "Michelle", friends: [1, 2, 3] },
+      { id: 1, name: "Sean", friends: [0, 3] },
+      { id: 2, name: "Kim", friends: [0, 1, 3] },
+      { id: 3, name: "David", friends: [1, 2] }
+    ];
+    function find(id) {
+      return PEEPS.find(p =&gt; p.id == id);
+    }
+    function RecursiveExample() {
+      return (
+        &lt;Router&gt;
+          &lt;Person match={{ params: { id: 0 }, url: "" }} /&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function Person({ match }) {
+      let person = find(match.params.id);
+      return (
+        &lt;div&gt;
+          &lt;h3&gt;
+            {person.name}
+            's Friends
+          &lt;/h3&gt;
+          &lt;ul&gt;
+            {person.friends.map(id =&gt; (
+              &lt;li key={id}&gt;
+                &lt;Link to={`${match.url}/${id}`}&gt;{find(id).name}&lt;/Link&gt;
+              &lt;/li&gt;
+            ))}
+          &lt;/ul&gt;
+          &lt;Route path={`${match.url}/:id`} component={Person} /&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default RecursiveExample;
+  </code></pre></details>
+
+  <details><summary>--- Sidebar</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    // Each logical "route" has two components, one for
+    // the sidebar and one for the main area. We want to
+    // render both of them in different places when the
+    // path matches the current URL.
+    const routes = [
+      {
+        path: "/",
+        exact: true,
+        sidebar: () =&gt; &lt;div&gt;home!&lt;/div&gt;,
+        main: () =&gt; &lt;h2&gt;Home&lt;/h2&gt;
+      },
+      {
+        path: "/bubblegum",
+        sidebar: () =&gt; &lt;div&gt;bubblegum!&lt;/div&gt;,
+        main: () =&gt; &lt;h2&gt;Bubblegum&lt;/h2&gt;
+      },
+      {
+        path: "/shoelaces",
+        sidebar: () =&gt; &lt;div&gt;shoelaces!&lt;/div&gt;,
+        main: () =&gt; &lt;h2&gt;Shoelaces&lt;/h2&gt;
+      }
+    ];
+    function SidebarExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div style={{ display: "flex" }}&gt;
+            &lt;div
+              style={{
+                padding: "10px",
+                width: "40%",
+                background: "#f0f0f0"
+              }}
+            &gt;
+              &lt;ul style={{ listStyleType: "none", padding: 0 }}&gt;
+                &lt;li&gt;
+                  &lt;Link to="/"&gt;Home&lt;/Link&gt;
+                &lt;/li&gt;
+                &lt;li&gt;
+                  &lt;Link to="/bubblegum"&gt;Bubblegum&lt;/Link&gt;
+                &lt;/li&gt;
+                &lt;li&gt;
+                  &lt;Link to="/shoelaces"&gt;Shoelaces&lt;/Link&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+              {routes.map((route, index) =&gt; (
+                // You can render a &lt;Route&gt; in as many places
+                // as you want in app. It will render along
+                // with any other &lt;Route&gt;s that also match the URL.
+                // So, a sidebar or breadcrumbs or anything else
+                // that requires you to render multiple things
+                // in multiple places at the same URL is nothing
+                // more than multiple &lt;Route&gt;s.
+                &lt;Route
+                  key={index}
+                  path={route.path}
+                  exact={route.exact}
+                  component={route.sidebar}
+                /&gt;
+              ))}
+            &lt;/div&gt;
+            &lt;div style={{ flex: 1, padding: "10px" }}&gt;
+              {routes.map((route, index) =&gt; (
+                // Render more &lt;Route&gt;s with the same paths as
+                // above, but different components this time.
+                &lt;Route
+                  key={index}
+                  path={route.path}
+                  exact={route.exact}
+                  component={route.main}
+                /&gt;
+              ))}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    export default SidebarExample;
+  </code></pre></details>
+
+  <details><summary>--- Animated Transition</summary>
+  <pre><code class="">
+    import React from "react";
+    import { TransitionGroup, CSSTransition } from "react-transition-group";
+    import {
+      BrowserRouter as Router,
+      Switch,
+      Route,
+      Link,
+      Redirect
+    } from "react-router-dom";
+    import "./website/modules/examples/Animation/styles.css";
+    function AnimationExample() {
+      return (
+        &lt;Router&gt;
+          &lt;Route
+            render={({ location }) =&gt; (
+              &lt;div style={styles.fill}&gt;
+                &lt;Route
+                  exact
+                  path="/"
+                  render={() =&gt; &lt;Redirect to="/hsl/10/90/50" /&gt;}
+                /&gt;
+
+                &lt;ul style={styles.nav}&gt;
+                  &lt;NavLink to="/hsl/10/90/50"&gt;Red&lt;/NavLink&gt;
+                  &lt;NavLink to="/hsl/120/100/40"&gt;Green&lt;/NavLink&gt;
+                  &lt;NavLink to="/rgb/33/150/243"&gt;Blue&lt;/NavLink&gt;
+                  &lt;NavLink to="/rgb/240/98/146"&gt;Pink&lt;/NavLink&gt;
+                &lt;/ul&gt;
+
+                &lt;div style={styles.content}&gt;
+                  &lt;TransitionGroup&gt;
+                    {/* no different than other usage of
+                    CSSTransition, just make sure to pass
+                    `location` to `Switch` so it can match
+                    the old location as it animates out
+                */}
+                    &lt;CSSTransition
+                      key={location.key}
+                      classNames="fade"
+                      timeout={300}
+                    &gt;
+                      &lt;Switch location={location}&gt;
+                        &lt;Route exact path="/hsl/:h/:s/:l" component={HSL} /&gt;
+                        &lt;Route exact path="/rgb/:r/:g/:b" component={RGB} /&gt;
+                        {/* Without this `Route`, we would get errors during
+                        the initial transition from `/` to `/hsl/10/90/50`
+                    */}
+                        &lt;Route render={() =&gt; &lt;div&gt;Not Found&lt;/div&gt;} /&gt;
+                      &lt;/Switch&gt;
+                    &lt;/CSSTransition&gt;
+                  &lt;/TransitionGroup&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            )}
+          /&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function NavLink(props) {
+      return (
+        &lt;li style={styles.navItem}&gt;
+          &lt;Link {...props} style={{ color: "inherit" }} /&gt;
+        &lt;/li&gt;
+      );
+    }
+    function HSL({ match: { params } }) {
+      return (
+        &lt;div
+          style={{
+            ...styles.fill,
+            ...styles.hsl,
+            background: `hsl(${params.h}, ${params.s}%, ${params.l}%)`
+          }}
+        &gt;
+          hsl(
+          {params.h}, {params.s}
+          %, {params.l}
+          %)
+        &lt;/div&gt;
+      );
+    }
+    function RGB({ match: { params } }) {
+      return (
+        &lt;div
+          style={{
+            ...styles.fill,
+            ...styles.rgb,
+            background: `rgb(${params.r}, ${params.g}, ${params.b})`
+          }}
+        &gt;
+          rgb(
+          {params.r}, {params.g}, {params.b})
+        &lt;/div&gt;
+      );
+    }
+    const styles = {};
+    styles.fill = {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0
+    };
+    styles.content = {
+      ...styles.fill,
+      top: "40px",
+      textAlign: "center"
+    };
+    styles.nav = {
+      padding: 0,
+      margin: 0,
+      position: "absolute",
+      top: 0,
+      height: "40px",
+      width: "100%",
+      display: "flex"
+    };
+    styles.navItem = {
+      textAlign: "center",
+      flex: 1,
+      listStyleType: "none",
+      padding: "10px"
+    };
+    styles.hsl = {
+      ...styles.fill,
+      color: "white",
+      paddingTop: "20px",
+      fontSize: "30px"
+    };
+    styles.rgb = {
+      ...styles.fill,
+      color: "white",
+      paddingTop: "20px",
+      fontSize: "30px"
+    };
+    export default AnimationExample;
+  </code></pre></details>
+
+  <details><summary>--- Ambiguous Matches</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+    function AmbiguousExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/about"&gt;About Us (static)&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/company"&gt;Company (static)&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/kim"&gt;Kim (dynamic)&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/chris"&gt;Chris (dynamic)&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            {/*
+              Sometimes you want to have a whitelist of static paths
+              like "/about" and "/company" but also allow for dynamic
+              patterns like "/:user". The problem is that "/about"
+              is ambiguous and will match both "/about" and "/:user".
+              Most routers have an algorithm to decide for you what
+              it will match since they only allow you to match one
+              "route". React Router lets you match in multiple places
+              on purpose (sidebars, breadcrumbs, etc). So, when you
+              want to clear up any ambiguous matching, and not match
+              "/about" to "/:user", just wrap &lt;Route&gt;s in a
+              &lt;Switch&gt;. It will render the first one that matches.
+          */}
+            &lt;Switch&gt;
+              &lt;Route path="/about" component={About} /&gt;
+              &lt;Route path="/company" component={Company} /&gt;
+              &lt;Route path="/:user" component={User} /&gt;
+            &lt;/Switch&gt;
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    function About() {
+      return &lt;h2&gt;About&lt;/h2&gt;;
+    }
+    function Company() {
+      return &lt;h2&gt;Company&lt;/h2&gt;;
+    }
+    function User({ match }) {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;User: {match.params.user}&lt;/h2&gt;
+        &lt;/div&gt;
+      );
+    }
+    export default AmbiguousExample;
+  </code></pre></details>
+
+  <details><summary>--- Route Config</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    // Some folks find value in a centralized route config.
+    // A route config is just data. React is great at mapping
+    // data into components, and &lt;Route&gt; is a component.
+    ////////////////////////////////////////////////////////////
+    // first our route components
+    function Sandwiches() {
+      return &lt;h2&gt;Sandwiches&lt;/h2&gt;;
+    }
+    function Tacos({ routes }) {
+      return (
+        &lt;div&gt;
+          &lt;h2&gt;Tacos&lt;/h2&gt;
+          &lt;ul&gt;
+            &lt;li&gt;
+              &lt;Link to="/tacos/bus"&gt;Bus&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to="/tacos/cart"&gt;Cart&lt;/Link&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+          {routes.map((route, i) =&gt; (
+            &lt;RouteWithSubRoutes key={i} {...route} /&gt;
+          ))}
+        &lt;/div&gt;
+      );
+    }
+    function Bus() {
+      return &lt;h3&gt;Bus&lt;/h3&gt;;
+    }
+    function Cart() {
+      return &lt;h3&gt;Cart&lt;/h3&gt;;
+    }
+    ////////////////////////////////////////////////////////////
+    // then our route config
+    const routes = [
+      {
+        path: "/sandwiches",
+        component: Sandwiches
+      },
+      {
+        path: "/tacos",
+        component: Tacos,
+        routes: [
+          {
+            path: "/tacos/bus",
+            component: Bus
+          },
+          {
+            path: "/tacos/cart",
+            component: Cart
+          }
+        ]
+      }
+    ];
+
+    // wrap &lt;Route&gt; and use this everywhere instead, then when
+    // sub routes are added to any route it'll work
+    function RouteWithSubRoutes(route) {
+      return (
+        &lt;Route
+          path={route.path}
+          render={props =&gt; (
+            // pass the sub-routes down to keep nesting
+            &lt;route.component {...props} routes={route.routes} /&gt;
+          )}
+        /&gt;
+      );
+    }
+    function RouteConfigExample() {
+      return (
+        &lt;Router&gt;
+          &lt;div&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to="/tacos"&gt;Tacos&lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to="/sandwiches"&gt;Sandwiches&lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            {routes.map((route, i) =&gt; (
+              &lt;RouteWithSubRoutes key={i} {...route} /&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/Router&gt;
+      );
+    }
+    export default RouteConfigExample;
+  </code></pre></details>
+
+  <details><summary>--- Modal Gallery</summary>
+  <pre><code class="">
+    import React, { Component } from "react";
+    import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+    // This example shows how to render two different screens
+    // (or the same screen in a different context) at the same url,
+    // depending on how you got there.
+    //
+    // Click the colors and see them full screen, then "visit the
+    // gallery" and click on the colors. Note the URL and the component
+    // are the same as before but now we see them inside a modal
+    // on top of the old screen.
+    class ModalSwitch extends Component {
+      // We can pass a location to &lt;Switch/&gt; that will tell it to
+      // ignore the router's current location and use the location
+      // prop instead.
+      //
+      // We can also use "location state" to tell the app the user
+      // wants to go to `/img/2` in a modal, rather than as the
+      // main page, keeping the gallery visible behind it.
+      //
+      // Normally, `/img/2` wouldn't match the gallery at `/`.
+      // So, to get both screens to render, we can save the old
+      // location and pass it to Switch, so it will think the location
+      // is still `/` even though its `/img/2`.
+      previousLocation = this.props.location;
+      componentWillUpdate(nextProps) {
+        let { location } = this.props;
+        // set previousLocation if props.location is not modal
+        if (
+          nextProps.history.action !== "POP" &&
+          (!location.state || !location.state.modal)
+        ) {
+          this.previousLocation = this.props.location;
+        }
+      }
+      render() {
+        let { location } = this.props;
+        let isModal = !!(
+          location.state &&
+          location.state.modal &&
+          this.previousLocation !== location
+        ); // not initial render
+        return (
+          &lt;div&gt;
+            &lt;Switch location={isModal ? this.previousLocation : location}&gt;
+              &lt;Route exact path="/" component={Home} /&gt;
+              &lt;Route path="/gallery" component={Gallery} /&gt;
+              &lt;Route path="/img/:id" component={ImageView} /&gt;
+            &lt;/Switch&gt;
+            {isModal ? &lt;Route path="/img/:id" component={Modal} /&gt; : null}
+          &lt;/div&gt;
+        );
+      }
+    }
+    const IMAGES = [
+      { id: 0, title: "Dark Orchid", color: "DarkOrchid" },
+      { id: 1, title: "Lime Green", color: "LimeGreen" },
+      { id: 2, title: "Tomato", color: "Tomato" },
+      { id: 3, title: "Seven Ate Nine", color: "#789" },
+      { id: 4, title: "Crimson", color: "Crimson" }
+    ];
+    function Thumbnail({ color }) {
+      return (
+        &lt;div
+          style={{
+            width: 50,
+            height: 50,
+            background: color
+          }}
+        /&gt;
+      );
+    }
+    function Image({ color }) {
+      return (
+        &lt;div
+          style={{
+            width: "100%",
+            height: 400,
+            background: color
+          }}
+        /&gt;
+      );
+    }
+    function Home() {
+      return (
+        &lt;div&gt;
+          &lt;Link to="/gallery"&gt;Visit the Gallery&lt;/Link&gt;
+          &lt;h2&gt;Featured Images&lt;/h2&gt;
+          &lt;ul&gt;
+            &lt;li&gt;
+              &lt;Link to="/img/2"&gt;Tomato&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to="/img/4"&gt;Crimson&lt;/Link&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Gallery() {
+      return (
+        &lt;div&gt;
+          {IMAGES.map(i =&gt; (
+            &lt;Link
+              key={i.id}
+              to={{
+                pathname: `/img/${i.id}`,
+                // this is the trick!
+                state: { modal: true }
+              }}
+            &gt;
+              &lt;Thumbnail color={i.color} /&gt;
+              &lt;p&gt;{i.title}&lt;/p&gt;
+            &lt;/Link&gt;
+          ))}
+        &lt;/div&gt;
+      );
+    }
+    function ImageView({ match }) {
+      let image = IMAGES[parseInt(match.params.id, 10)];
+      if (!image) return &lt;div&gt;Image not found&lt;/div&gt;;
+      return (
+        &lt;div&gt;
+          &lt;h1&gt;{image.title}&lt;/h1&gt;
+          &lt;Image color={image.color} /&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Modal({ match, history }) {
+      let image = IMAGES[parseInt(match.params.id, 10)];
+      if (!image) return null;
+      let back = e =&gt; {
+        e.stopPropagation();
+        history.goBack();
+      };
+      return (
+        &lt;div
+          onClick={back}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            background: "rgba(0, 0, 0, 0.15)"
+          }}
+        &gt;
+          &lt;div
+            className="modal"
+            style={{
+              position: "absolute",
+              background: "#fff",
+              top: 25,
+              left: "10%",
+              right: "10%",
+              padding: 15,
+              border: "2px solid #444"
+            }}
+          &gt;
+            &lt;h1&gt;{image.title}&lt;/h1&gt;
+            &lt;Image color={image.color} /&gt;
+            &lt;button type="button" onClick={back}&gt;
+              Close
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    function ModalGallery() {
+      return (
+        &lt;Router&gt;
+          &lt;Route component={ModalSwitch} /&gt;
+        &lt;/Router&gt;
+      );
+    }
+    export default ModalGallery;
+  </code></pre></details>
+
+  <details><summary>--- Static Router</summary>
+  <pre><code class="">
+    import React, { Component } from "react";
+    import { StaticRouter, Route } from "react-router-dom";
+    // This example renders a route within a StaticRouter and populates its
+    // staticContext, which it then prints out. In the real world you would
+    // use the StaticRouter for server-side rendering:
+    //
+    // import express from "express";
+    // import ReactDOMServer from "react-dom/server";
+    //
+    // const app = express()
+    //
+    // app.get('*', (req, res) =&gt; {
+    //   let staticContext = {}
+    //
+    //   let html = ReactDOMServer.renderToString(
+    //     &lt;StaticRouter location={req.url} context={staticContext}&gt;
+    //       &lt;App /&gt; (includes the RouteStatus component below e.g. for 404 errors)
+    //     &lt;/StaticRouter&gt;
+    //   );
+    //
+    //   res.status(staticContext.statusCode || 200).send(html);
+    // });
+    //
+    // app.listen(process.env.PORT || 3000);
+    function RouteStatus(props) {
+      return (
+        &lt;Route
+          render={({ staticContext }) =&gt; {
+            // we have to check if staticContext exists
+            // because it will be undefined if rendered through a BrowserRouter
+            if (staticContext) {
+              staticContext.statusCode = props.statusCode;
+            }
+
+            return &lt;div&gt;{props.children}&lt;/div&gt;;
+          }}
+        /&gt;
+      );
+    }
+    function PrintContext(props) {
+      return &lt;p&gt;Static context: {JSON.stringify(props.staticContext)}&lt;/p&gt;;
+    }
+    class StaticRouterExample extends Component {
+      // This is the context object that we pass to the StaticRouter.
+      // It can be modified by routes to provide additional information
+      // for the server-side render
+      staticContext = {};
+      render() {
+        return (
+          &lt;StaticRouter location="/foo" context={this.staticContext}&gt;
+            &lt;div&gt;
+              &lt;RouteStatus statusCode={404}&gt;
+                &lt;p&gt;Route with statusCode 404&lt;/p&gt;
+                &lt;PrintContext staticContext={this.staticContext} /&gt;
+              &lt;/RouteStatus&gt;
+            &lt;/div&gt;
+          &lt;/StaticRouter&gt;
+        );
+      }
+    }
+    export default StaticRouterExample;
+  </code></pre></details>
+
+  <details><summary>--- Query Params</summary>
+  <pre><code class="">
+    import React from "react";
+    import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+    function ParamsDemo({ location }) {
+      let params = new URLSearchParams(location.search);
+      return (
+        &lt;div&gt;
+          &lt;p&gt;
+            React Router does not have any opinions about how parse URL query
+            strings. Some applications use simple key=value query strings, but
+            others embed arrays and objects in the query string. So it's up to you
+            to parse the search string yourself.
+          &lt;/p&gt;
+          &lt;p&gt;
+            In modern browsers that support{" "}
+            &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/URL"&gt;
+              the URL API
+            &lt;/a&gt;
+            , you can instantiate a &lt;code&gt;URLSearchParams&lt;/code&gt; object from{" "}
+            &lt;code&gt;location.search&lt;/code&gt; and use that.
+          &lt;/p&gt;
+          &lt;p&gt;
+            In{" "}
+            &lt;a href="https://caniuse.com/#feat=url"&gt;
+              browsers that do not support the URL API (read: IE)
+            &lt;/a&gt;{" "}
+            you can use a 3rd party library such as{" "}
+            &lt;a href="https://github.com/sindresorhus/query-string"&gt;query-string&lt;/a&gt;.
+          &lt;/p&gt;
+          &lt;div&gt;
+            &lt;h2&gt;Accounts&lt;/h2&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;Link to={{ pathname: "/account", search: "?name=netflix" }}&gt;
+                  Netflix
+                &lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to={{ pathname: "/account", search: "?name=zillow-group" }}&gt;
+                  Zillow Group
+                &lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to={{ pathname: "/account", search: "?name=yahoo" }}&gt;
+                  Yahoo
+                &lt;/Link&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;Link to={{ pathname: "/account", search: "?name=modus-create" }}&gt;
+                  Modus Create
+                &lt;/Link&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+
+            &lt;Child name={params.get("name")} /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    function Child({ name }) {
+      return (
+        &lt;div&gt;
+          {name ? (
+            &lt;h3&gt;
+              The &lt;code&gt;name&lt;/code&gt; in the query string is "{name}"
+            &lt;/h3&gt;
+          ) : (
+            &lt;h3&gt;There is no name in the query string&lt;/h3&gt;
+          )}
+        &lt;/div&gt;
+      );
+    }
+    function ParamsExample() {
+      return (
+        &lt;Router&gt;
+          &lt;Route component={ParamsDemo} /&gt;
+        &lt;/Router&gt;
+      );
+    }
+    export default ParamsExample;
+  </code></pre></details>
+
+  </details>
+
+  <details><summary>API</summary>
+
+  <details><summary>&lt;BrowserRouter&gt;</summary>
+  <pre><code class="">
+    // Router that uses the HTML5 history API (pushState, replaceState and the popstate event)
+    import { BrowserRouter } from 'react-router-dom'
+    &lt;BrowserRouter
+      basename={optionalString}
+      forceRefresh={optionalBool}
+      getUserConfirmation={optionalFunc}
+      keyLength={optionalNumber}
+    &gt;
+      &lt;App/&gt;
+    &lt;/BrowserRouter&gt;
+
+    // --- basename: string
+    // base URL for all locations
+    // if app is served from a sub-directory on server
+    // set this to the sub-directory
+    // properly formatted basename should have a leading slash, but no trailing slash
+    &lt;BrowserRouter basename="/calendar" /&gt;
+    &lt;Link to="/today"/&gt; // renders &lt;a href="/calendar/today"&gt;
+
+    // --- getUserConfirmation: func
+    // function to use to confirm navigation, defaults to using window.confirm
+    function getConfirmation(message, callback) {
+      const allowTransition = window.confirm(message);
+      callback(allowTransition);
+    }
+    &lt;BrowserRouter getUserConfirmation={getConfirmation} /&gt;;
+
+    // --- forceRefresh: bool
+    // if true, the router will use full page refreshes on page navigation
+    // for browsers that dont support the HTML5 history API
+    const supportsHistory = 'pushState' in window.history
+    &lt;BrowserRouter forceRefresh={!supportsHistory} /&gt;
+
+    // --- keyLength: number
+    // length of location.key, defaults to 6
+    &lt;BrowserRouter keyLength={12} /&gt;
+
+    // --- children: node
+    // a single child element to render
+  </code></pre></details>
+
+  <details><summary>&lt;HashRouter&gt;</summary>
+  <pre><code class="">
+    // Router that uses the hash portion of the URL (i.e. window.location.hash)
+    // !!! hash history does not support location.key or location.state
+    import { HashRouter } from 'react-router-dom'
+    &lt;HashRouter&gt;
+      &lt;App/&gt;
+    &lt;/HashRouter&gt;
+
+    // --- basename: string
+    // base URL for all locations
+    // properly formatted basename should have a leading slash, but no trailing slash
+    &lt;HashRouter basename="/calendar"/&gt;
+    &lt;Link to="/today"/&gt; // renders &lt;a href="#/calendar/today"&gt;
+
+    // --- getUserConfirmation: func
+    // to use to confirm navigation, defaults to using window.confirm
+    function getConfirmation(message, callback) {
+      const allowTransition = window.confirm(message);
+      callback(allowTransition);
+    }
+    &lt;HashRouter getUserConfirmation={getConfirmation} /&gt;;
+
+    // --- hashType: string
+    // type of encoding to use for window.location.hash
+    // available values are:
+    // "slash" (default) - Creates hashes like #/ and #/sunshine/lollipops
+    // "noslash" - Creates hashes like # and #sunshine/lollipops
+    // "hashbang" - Creates “ajax crawlable” (deprecated by Google) hashes like #!/ and #!/sunshine/lollipops
+
+    // --- children: node
+    // a single child element to render
+  </code></pre></details>
+
+  <details><summary>&lt;Link&gt;</summary>
+  <pre><code class="">
+    // provides declarative, accessible navigation around application
+    import { Link } from 'react-router-dom'
+    &lt;Link to="/about"&gt;About&lt;/Link&gt;
+
+    // pass props you like for "a" tag, such as a title, id, className, etc.
+
+    // --- to: string
+    // string representation of the location to link to,
+    // created by concatenating the location pathname, search, and hash properties
+    &lt;Link to="/courses?sort=name" /&gt;
+
+    // --- to: object
+    // object that can have any of the following properties:
+    // pathname - string representing the path to link to
+    // search - string representation of query parameters
+    // hash - hash to put in the URL, e.g. #a-hash
+    // state - state to persist to the location
+    &lt;Link
+      to={{
+        pathname: "/courses",
+        search: "?sort=name",
+        hash: "#the-hash",
+        state: { fromDashboard: true }
+      }}
+    /&gt;
+
+    // --- replace: bool
+    // when true, clicking the link will replace the current entry in the history stack
+    // instead of adding a new one
+    &lt;Link to="/courses" replace /&gt;
+
+    // --- innerRef: function
+    // allows access to the underlying ref of the component
+    const refCallback = node =&gt; {
+      // `node` refers to the mounted DOM element or null when unmounted
+    }
+    &lt;Link to="/" innerRef={refCallback} /&gt;
+
+    // --- innerRef: RefObject
+    // get the underlying ref of the component with React.createRef()
+    const anchorRef = React.createRef()
+    &lt;Link to="/" innerRef={anchorRef} /&gt;
+  </code></pre></details>
+
+  <details><summary>&lt;NavLink&gt;</summary>
+  <pre><code class="">
+    // special version of the Link
+    // will add styling attributes to the rendered element when it matches the current URL
+    import { NavLink } from 'react-router-dom'
+    &lt;NavLink to="/about"&gt;About&lt;/NavLink&gt;
+
+    // --- activeClassName: string
+    // class to give the element when it is active
+    // default given class is "active", will be joined with the "className" prop
+    &lt;NavLink to="/faq" activeClassName="selected"&gt;
+      FAQs
+    &lt;/NavLink&gt;
+
+    // --- activeStyle: object
+    // styles to apply to the element when it is active
+    &lt;NavLink
+      to="/faq"
+      activeStyle={{
+        fontWeight: "bold",
+        color: "red"
+      }}
+    &gt;
+      FAQs
+    &lt;/NavLink&gt;
+
+    // --- exact: bool
+    // when true, the active class/style will only be applied if the location is matched exactly
+    &lt;NavLink exact to="/profile"&gt;
+      Profile
+    &lt;/NavLink&gt;
+
+    // --- strict: bool
+    // when true, the trailing slash on a location pathname will be taken
+    // into consideration when determining if the location matches the current URL
+    // ee the "Route strict" documentation for more information
+    &lt;NavLink strict to="/events/"&gt;
+      Events
+    &lt;/NavLink&gt;
+
+    // --- isActive: func
+    // function to add extra logic for determining whether the link is active
+    // should be used if you want to do more than verify that the link pathname matches the current URL pathname
+    // only consider an event active if its event id is an odd number
+    const oddEvent = (match, location) =&gt; {
+      if (!match) {
+        return false
+      }
+      const eventID = parseInt(match.params.eventID)
+      return !isNaN(eventID) && eventID % 2 === 1
+    }
+    &lt;NavLink
+      to="/events/123"
+      isActive={oddEvent}
+    &gt;Event 123&lt;/NavLink&gt;
+
+    // --- location: object
+    // isActive compares the current history location (usually the current browser URL)
+    // o compare to a different location, a location can be passed
+
+    // --- aria-current: string
+    // value of the aria-current attribute used on an active link, available values are used to indicate:
+    // "page" (default) - link within a set of pagination links
+    // "step" -  link within a step indicator for a step-based process
+    // "location" - the image that is visually highlighted as the current component of a flow chart
+    // "date" - the current date within a calendar
+    // "time" - the current time within a timetable
+    // "true" - if the NavLink is active
+  </code></pre></details>
+
+  <details><summary>&lt;MemoryRouter&gt;</summary>
+  <pre><code class="">
+    // Router&gt; that keeps the history of "URL" in memory
+    // does not read or write to the address bar
+    // useful in tests and non-browser environments like React Native
+    import { MemoryRouter } from 'react-router'
+    &lt;MemoryRouter&gt;
+      &lt;App/&gt;
+    &lt;/MemoryRouter&gt;
+
+    // ---initialEntries: array
+    // array of locations in the history stack
+    // may be full-blown location objects with { pathname, search, hash, state } or simple string URLs
+    &lt;MemoryRouter
+      initialEntries={["/one", "/two", { pathname: "/three" }]}
+      initialIndex={1}
+    &gt;
+      &lt;App /&gt;
+    &lt;/MemoryRouter&gt;
+
+    // --- initialIndex: number
+    // initial location index in the array of initialEntries
+
+    // --- getUserConfirmation: func
+    // function to use to confirm navigation
+    // use this option when using MemoryRouter directly with a Prompt
+
+    // --- keyLength: number
+    // length of location.key, defaults to 6
+    &lt;MemoryRouter keyLength={12} /&gt;
+
+    // --- children: node
+    // a single child element to render
+  </code></pre></details>
+
+  <details><summary>&lt;Redirect&gt;</summary>
+  <pre><code class="">
+    // rendering, will navigate to a new location
+    // will override the current location in the history stack,
+    // like server-side redirects (HTTP 3xx) do
+    import { Route, Redirect } from 'react-router'
+    &lt;Route exact path="/" render={() =&gt; (
+      loggedIn ? (
+        &lt;Redirect to="/dashboard"/&gt;
+      ) : (
+        &lt;PublicHomePage/&gt;
+      )
+    )}/&gt;
+
+    // --- to: string
+    // URL to redirect to
+    // all URL parameters that are used in "to" must be covered by "from"
+    &lt;Redirect to="/somewhere/else" /&gt;
+
+    // --- to: object
+    // location to redirect to
+    // pathname can be any valid URL path that path-to-regexp@^1.7.0 understands
+    &lt;Redirect
+      to={{
+        pathname: "/login",
+        search: "?utm=your+face",
+        state: { referrer: currentLocation }
+      }}
+    /&gt;
+    // state object can be accessed via this.props.location.state
+    // in the redirected-to component
+    // new referrer key (which is not a special name)
+    // would then be accessed via this.props.location.state.referrer
+    // in the Login component pointed to by the pathname '/login'
+
+    // --- push: bool
+    // when true, redirecting will push a new entry
+    // onto the history instead of replacing the current one
+    &lt;Redirect push to="/somewhere/else" /&gt;
+
+    // --- from: string
+    // pathname to redirect from
+    // all matched URL parameters are provided to the pattern in "to"
+    // must contain all parameters that are used in to
+    // additional parameters not used by to are ignored.
+    // can only be used to match a location when rendering a Redirect inside of a Switch
+    // see "Switch children" for more details
+    &lt;Switch&gt;
+      &lt;Redirect from='/old-path' to='/new-path'/&gt;
+      &lt;Route path='/new-path' component={Place}/&gt;
+    &lt;/Switch&gt;
+    // Redirect with matched parameters
+    &lt;Switch&gt;
+      &lt;Redirect from='/users/:id' to='/users/profile/:id'/&gt;
+      &lt;Route path='/users/profile/:id' component={Profile}/&gt;
+    &lt;/Switch&gt;
+
+    // --- exact: bool
+    // match "from" exactly; equivalent to Route.exact
+
+    // --- strict: bool
+    // match "from" strictly; equivalent to Route.strict
+  </code></pre></details>
+
+  <details><summary>&lt;Route&gt;</summary>
+  <pre><code class="">
+    // render some UI when a location matches the routes path
+    import { BrowserRouter as Router, Route } from 'react-router-dom'
+    &lt;Router&gt;
+      &lt;div&gt;
+        &lt;Route exact path="/" component={Home}/&gt;
+        &lt;Route path="/news" component={NewsFeed}/&gt;
+      &lt;/div&gt;
+    &lt;/Router&gt;
+    // if the location of the app is "/" then the UI hierarchy will be something like:
+    &lt;div&gt;
+      &lt;Home/&gt;
+      &lt;!-- react-empty: 2 --&gt;
+    &lt;/div&gt;
+    // and if the location of the app is "/news" then the UI hierarchy will be:
+    &lt;div&gt;
+      &lt;!-- react-empty: 1 --&gt;
+      &lt;NewsFeed/&gt;
+    &lt;/div&gt;
+    // "react-empty" comments are just implementation details of React null rendering
+    // Route is always technically "rendered" even though its rendering null
+    // as soon as the app location matches the route path, component will be rendered
+    // ROUTE RENDER METHODS - ways to render something with a Route
+    &lt;Route component&gt;
+    &lt;Route render&gt;
+    &lt;Route children&gt;
+    // use only one of these props on a given Route
+    // ROUTE PROPS passed to render methods
+    match
+    location
+    history
+
+    // --- component
+    // React component to render only when the location matches
+    // will be rendered with route props
+    &lt;Route path="/user/:username" component={User} /&gt;;
+    function User({ match }) {
+      return &lt;h1&gt;Hello {match.params.username}!&lt;/h1&gt;;
+    }
+    // router uses React.createElement to create a new React element from the given component
+    // if you provide an inline function to the component prop,
+    // you would create a new component every render
+    // this results in the existing component unmounting
+    // and the new component mounting instead of just updating the existing component
+    // when using an inline function for inline rendering,
+    // use the render or the children prop (below)
+
+    // --- render: func
+    // for convenient inline rendering and wrapping
+    // without the undesired remounting explained above
+    // pass in a function to be called when the location matches,
+    // instead of having a new React element created for you using the component prop.
+    // prop receives all the same route props as the component render prop:
+    // convenient inline rendering
+    &lt;Route path="/home" render={() =&gt; &lt;div&gt;Home&lt;/div&gt;}/&gt;
+    // wrapping/composing
+    const FadingRoute = ({ component: Component, ...rest }) =&gt; (
+      &lt;Route {...rest} render={props =&gt; (
+        &lt;FadeIn&gt;
+          &lt;Component {...props}/&gt;
+        &lt;/FadeIn&gt;
+      )}/&gt;
+    )
+    &lt;FadingRoute path="/cool" component={Something}/&gt;
+    // !!! "Route component" takes precedence over "Route render"
+    // don't use both in the same Route
+
+    // --- children: func
+    // to render whether the path matches the location or not.
+    // works like render except that it gets called whether there is a match or not
+    // receives all the same route props as the component and render methods,
+    // except when a route fails to match the URL, then match is null
+    // his allows you to dynamically adjust UI based on whether or not the route matches
+    // adding an active class if the route matches:
+    &lt;ul&gt;
+      &lt;ListItemLink to="/somewhere" /&gt;
+      &lt;ListItemLink to="/somewhere-else" /&gt;
+    &lt;/ul&gt;;
+    const ListItemLink = ({ to, ...rest }) =&gt; (
+      &lt;Route
+        path={to}
+        children={({ match }) =&gt; (
+          &lt;li className={match ? "active" : ""}&gt;
+            &lt;Link to={to} {...rest} /&gt;
+          &lt;/li&gt;
+        )}
+      /&gt;
+    );
+    // this could also be useful for animations:
+    &lt;Route children={({ match, ...rest }) =&gt; (
+      {/* Animate will always render, so you can use lifecycles
+          to animate its child in and out */}
+      &lt;Animate&gt;
+        {match && &lt;Something {...rest}/&gt;}
+      &lt;/Animate&gt;
+    )}/&gt;
+    // !!! "Route component" and "Route render" take precedence over "Route children"
+    // dont use more than one in the same Route
+
+    // --- --- ---
+
+    // --- path: string | string[]
+    // path or array of paths
+    // routes without a path always match
+    &lt;Route path="/users/:id" component={User} /&gt;
+    &lt;Route path={["/users/:id", "/profile/:id"]} component={User} /&gt;
+
+    // --- exact: bool
+    // when true, will only match if the path matches the location.pathname exactly
+    &lt;Route exact path="/one" component={About} /&gt;
+
+    path 	location.pathname 	exact 	matches?
+    /one 	/one/two 	          true 	  no
+    /one 	/one/two 	          false 	yes
+
+    // --- strict: bool
+    // when true, a path that has a trailing slash
+    // will only match a location.pathname with a trailing slash
+    // has no effect when there are additional URL segments in the location.pathname
+    &lt;Route strict path="/one/" component={About} /&gt;
+
+    path 	  location.pathname 	matches?
+    /one/   /one 	              no
+    /one/   /one/ 	            yes
+    /one/   /one/two 	           yes
+    // can be used to enforce that a location.pathname has no trailing slash,
+    // but in order to do this both strict and exact must be true
+
+    &lt;Route exact strict path="/one" component={About} /&gt;
+
+    path 	location.pathname 	matches?
+    /one 	/one 	              yes
+    /one 	/one/ 	            no
+    /one 	/one/two 	          no
+
+    // --- location: object
+    // Route element tries to match its path to the current history location
+    // usually the current browser URL
+    // location with a different pathname can also be passed for matching.
+    //bwhen you need to match to a location other than the current history location,
+    // as shown in the Animated Transitions example.
+    // if a Route element is wrapped in a Switch and matches the location
+    // passed to the Switch (or the current history location),
+    // then the location prop passed to Route will be overridden
+    // by the one used by the Switch
+
+    // --- sensitive: bool
+    // when true, will match if the path is case sensitive
+    &lt;Route sensitive path="/one" component={About} /&gt;
+
+    path 	location.pathname 	sensitive 	matches?
+    /one 	/one 	              true 	      yes
+    /One 	/one 	              true 	      no
+    /One 	/one 	              false 	    yes
+  </code></pre></details>
+
+  <details><summary>&lt;Router&gt;</summary>
+  <pre><code class="">
+    // common low-level interface for all router components
+    // typically apps will use one of the high-level routers instead:
+    &lt;BrowserRouter&gt;
+    &lt;HashRouter&gt;
+    &lt;MemoryRouter&gt;
+    &lt;NativeRouter&gt;
+    &lt;StaticRouter&gt;
+    // most common use-case for using the low-level Router
+    // is to synchronize a custom history with a state management lib
+    // like Redux or Mobx
+    // this is not required to use state management libs alongside React Router,
+    // its only for deep integration
+    import { Router } from "react-router";
+    import { createBrowserHistory } from "history";
+    const history = createBrowserHistory()
+    &lt;Router history={history}&gt;
+      &lt;App/&gt;
+    &lt;/Router&gt;
+
+    // --- history: object
+    // history object to use for navigation
+    import { createBrowserHistory } from "history";
+    const customHistory = createBrowserHistory();
+    &lt;Router history={customHistory} /&gt;;
+
+    // --- children: node
+    // a single child element to render
+    &lt;Router&gt;
+      &lt;App /&gt;
+    &lt;/Router&gt;
+  </code></pre></details>
+
+  <details><summary>&lt;StaticRouter&gt;</summary>
+  <pre><code class="">
+    // Router that never changes location
+    // useful in server-side rendering scenarios
+    // when the user isnt actually clicking around,
+    // so the location never actually changes
+    // also useful in simple tests when you just need to plug in a location
+    // and make assertions on the render output.
+    // example node server that sends a 302 status code for Redirect
+    // and regular HTML for other requests:
+    import { createServer } from "http";
+    import React from "react";
+    import ReactDOMServer from "react-dom/server";
+    import { StaticRouter } from "react-router";
+    createServer((req, res) =&gt; {
+      // This context object contains the results of the render
+      const context = {};
+      const html = ReactDOMServer.renderToString(
+        &lt;StaticRouter location={req.url} context={context}&gt;
+          &lt;App /&gt;
+        &lt;/StaticRouter&gt;
+      );
+      // context.url will contain the URL to redirect to if a &lt;Redirect&gt; was used
+      if (context.url) {
+        res.writeHead(302, {
+          Location: context.url
+        });
+        res.end();
+      } else {
+        res.write(html);
+        res.end();
+      }
+    }).listen(3000);
+
+    // --- basename: string
+    // base URL for all locations
+    // properly formatted basename should have a leading slash, but no trailing slash
+    &lt;StaticRouter basename="/calendar"&gt;
+      &lt;Link to="/today"/&gt; // renders &lt;a href="/calendar/today"&gt;
+    &lt;/StaticRouter&gt;
+
+    // --- location: string
+    // URL the server received, probably req.url on a node server
+    &lt;StaticRouter location={req.url}&gt;
+      &lt;App /&gt;
+    &lt;/StaticRouter&gt;
+    // --- location: object
+    // location object shaped like { pathname, search, hash, state }
+    &lt;StaticRouter location={{ pathname: "/bubblegum" }}&gt;
+      &lt;App /&gt;
+    &lt;/StaticRouter&gt;
+
+    // --- context: object
+    // plain JS object, during the render, components can add properties
+    // to the object to store information about the render
+    const context = {}
+    &lt;StaticRouter context={context}&gt;
+      &lt;App /&gt;
+    &lt;/StaticRouter&gt;
+    // when a Route matches, it will pass the context object
+    // to the component it renders as the staticContext prop
+    // check Server Rendering for information on how to do this yourself
+    // after the render, these properties can be used to to configure the server response
+    if (context.status === "404") {
+      // ...
+    }
+
+    // --- children: node
+    // a single child element to render
+  </code></pre></details>
+
+  <details><summary>&lt;Switch&gt;</summary>
+  <pre><code class="">
+    // enders the first child Route or Redirect that matches the location
+    // Switch renders a route exclusively, in contrast,
+    // every Route that matches the location renders inclusively:
+    &lt;Route path="/about" component={About}/&gt;
+    &lt;Route path="/:user" component={User}/&gt;
+    &lt;Route component={NoMatch}/&gt;
+    // if the URL is /about, then About, User, and NoMatch will all render
+    // because they all match the path
+    // this is by design, allowing us to compose Routes into our apps in many ways,
+    // like sidebars and breadcrumbs, bootstrap tabs, etc.
+    // if we are at /about we dont want to also match /:user
+    // (or show our “404” page):
+    import { Switch, Route } from 'react-router'
+    &lt;Switch&gt;
+      &lt;Route exact path="/" component={Home}/&gt;
+      &lt;Route path="/about" component={About}/&gt;
+      &lt;Route path="/:user" component={User}/&gt;
+      &lt;Route component={NoMatch}/&gt;
+    &lt;/Switch&gt;
+    // now, if we are at /about, Switch will start looking for a matching Route
+    // "Route path='/about'" will match and Switch will stop looking for matches
+    // and render About, similarly, if we are at /michael then User will render.
+    // also useful for animated transitions since the matched Route
+    // is rendered in the same position as the previous one
+    &lt;Fade&gt;
+      &lt;Switch&gt;
+        {/* there will only ever be one child here */}
+        &lt;Route/&gt;
+        &lt;Route/&gt;
+      &lt;/Switch&gt;
+    &lt;/Fade&gt;
+    &lt;Fade&gt;
+      &lt;Route/&gt;
+      &lt;Route/&gt;
+      {/* there will always be two children here,
+          one might render null though, making transitions
+          a bit more cumbersome to work out */}
+    &lt;/Fade&gt;
+
+    // --- location: object
+    // location object to be used for matching children elements
+    // instead of the current history location (usually the current browser URL)
+
+    // --- children: node
+    // all children of a Switch should be Route or Redirect elements
+    // only the first child to match the current location will be rendered.
+    // Route elements are matched using their "path" prop
+    // and Redirect elements are matched using their "from" prop.
+    // Route with no "path" prop or a Redirect with no "from" prop
+    // will always match the current location.
+    // when you include a Redirect in a Switch, it can use any of the Route location
+    // matching props: path, exact, and strict.
+    // "from" is just an alias for the path prop.
+    // if a location prop is given to the Switch,
+    // it will override the location prop on the matching child element
+    &lt;Switch&gt;
+      &lt;Route exact path="/" component={Home} /&gt;
+      &lt;Route path="/users" component={Users} /&gt;
+      &lt;Redirect from="/accounts" to="/users" /&gt;
+      &lt;Route component={NoMatch} /&gt;
+    &lt;/Switch&gt;
+  </code></pre></details>
+
+  <details><summary>history</summary>
+  <pre><code class="">
+    // history object is mutable
+    // it is recommended to access the location from the render props
+    // of Route, not from history.location
+    // this ensures assumptions about React are correct in lifecycle hooks
+    class Comp extends React.Component {
+      componentDidUpdate(prevProps) {
+        // will be true
+        const locationChanged = this.props.location !== prevProps.location;
+        // INCORRECT, will *always* be false because history is mutable.
+        const locationChanged =
+          this.props.history.location !== prevProps.history.location;
+      }
+    }
+    &lt;Route component={Comp} /&gt;;
+  </code></pre></details>
+
+  <details><summary>location</summary>
+  <pre><code class="">
+    // represent where the app is now, where you want it to go,
+    // or even where it was, looks like this:
+    {
+      key: 'ac3df4', // not with HashHistory!
+      pathname: '/somewhere'
+      search: '?some=search-string',
+      hash: '#howdy',
+      state: {
+        [userDefined]: true
+      }
+    }
+
+    // router will provide you with a location object in a few places:
+    // "Route component" as this.props.location
+    // "Route render" as ({ location }) =&gt; ()
+    // "Route children" as ({ location }) =&gt; ()
+    // "withRouter" as this.props.location
+
+    // location object is never mutated
+    // use it in the lifecycle hooks to determine when navigation happens,
+    // this is really useful for data fetching and animation
+    componentWillReceiveProps(nextProps) {
+      if (nextProps.location !== this.props.location) {
+        // navigated!
+      }
+    }
+
+    // provide locations instead of strings to the various places that navigate:
+    // Web/Native "Link to"
+    // Redirect to
+    // history.push
+    // history.replace
+
+    // normally, use a string,
+    // if you need to add some "location state" that will be available
+    // whenever the app returns to that specific location,
+    // use a location object instead
+    // useful if you want to branch UI based on navigation history
+    // instead of just paths (like modals)
+    // usually all you need
+    &lt;Link to="/somewhere"/&gt;
+    // but you can use a location instead
+    const location = {
+      pathname: '/somewhere',
+      state: { fromDashboard: true }
+    }
+    &lt;Link to={location}/&gt;
+    &lt;Redirect to={location}/&gt;
+    history.push(location)
+    history.replace(location)
+
+    // pass a location to the following components: Route, Switch
+    // this will prevent them from using the actual location in the router state
+    // useful for animation and pending navigation,
+    // or any time you want to trick a component into rendering
+    // at a different location than the real one
+  </code></pre></details>
+
+  <details><summary>match</summary>
+  <pre><code class="">
+    // contains information about how a "Route path" matched the URL:
+    // params - (object) Key/value pairs parsed from the URL
+    //          corresponding to the dynamic segments of the path
+    // isExact - (boolean) true if the entire URL was matched (no trailing characters)
+    // path - (string) The path pattern used to match. Useful for building nested Route
+    // url - (string) The matched portion of the URL. Useful for building nested Link
+
+    // access in:
+    // "Route component" as this.props.match
+    // "Route render" as ({ match }) =&gt; ()
+    // "Route children" as ({ match }) =&gt; ()
+    // "withRouter" as this.props.match
+    // "matchPath" as the return value
+
+    // if a Route does not have a path, and therefore always matches,
+    // you will get the closest parent match, same goes for withRouter
+
+    // --- null matches
+    // Route that uses the children prop will call its children function
+    // even when the route path does not match the current location
+    // match will be null.
+    // default way to "resolve" URLs is to join the match.url string to the "relative" path
+    `${match.url}/relative-path`;
+    // is considered unsafe to attempt to join "relative" paths inside of a Route
+    // when using the children prop, you will end up with a TypeError
+    // similar situation occurs when you use a pathless Route
+    // inside of a Route that generates a null match object
+    // location.pathname = '/matches'
+    &lt;Route path='/does-not-match' children={({ match }) =&gt; (
+      // match === null
+      &lt;Route render={({ match:pathlessMatch }) =&gt; (
+        // pathlessMatch === ???
+      )}/&gt;
+    )}/&gt;
+    // pathless Route inherit their match object from their parent
+    // if their parent match is null, then their match will also be null
+    //   a) any child routes/links will have to be absolute because
+    //      there is no parent to resolve with
+    //   b) a pathless route whose parent match can be null
+    //      will need to use the children prop to render
+  </code></pre></details>
+
+  <details><summary>matchPath</summary>
+  <pre><code class="">
+    // use the same matching code that Route uses
+    // except outside of the normal render cycle,
+    // like gathering up data dependencies before rendering on the server
+    import { matchPath } from "react-router";
+    const match = matchPath("/users/123", {
+      path: "/users/:id",
+      exact: true,
+      strict: false
+    });
+
+    // --- pathname
+    // first argument is the pathname you want to match
+    // if you are using this on the server with Node.js, it would be req.path
+
+    // --- props
+    // second argument are the props to match against,
+    // they are identical to the matching props Route accepts:
+    {
+      path, // like /users/:id; either a single string or an array of strings
+        strict, // optional, defaults to false
+        exact; // optional, defaults to false
+    }
+  </code></pre></details>
+
+  <details><summary>withRouter</summary>
+  <pre><code class="">
+    // higher-order component
+    // get access to the history object properties and the closest Route "match"
+    // will pass updated match, location, and history props
+    // to the wrapped component whenever it renders
+    import React from "react";
+    import PropTypes from "prop-types";
+    import { withRouter } from "react-router";
+    // simple component that shows the pathname of the current location
+    class ShowTheLocation extends React.Component {
+      static propTypes = {
+        match: PropTypes.object.isRequired,
+        location: PropTypes.object.isRequired,
+        history: PropTypes.object.isRequired
+      };
+      render() {
+        const { match, location, history } = this.props;
+        return &lt;div&gt;You are now at {location.pathname}&lt;/div&gt;;
+      }
+    }
+    // create a new component that is "connected" (to borrow redux
+    // terminology) to the router.
+    const ShowTheLocationWithRouter = withRouter(ShowTheLocation);
+
+    // does not subscribes to location changes
+    // like React Redux connect does for state changes,
+    // re-renders after location changes propagate out from the Router component.
+    // withRouter does not re-render on route transitions
+    // unless its parent component re-renders
+
+    // static methods and properties:
+    // all non-react specific static methods and properties
+    // of the wrapped component are automatically copied to the "connected" component
+
+    // --- Component.WrappedComponent
+    // exposed as the static property WrappedComponent on the returned component,
+    // which can be used for testing the component in isolation, among other things
+
+    // MyComponent.js
+    export default withRouter(MyComponent)
+    // MyComponent.test.js
+    import MyComponent from './MyComponent'
+    render(&lt;MyComponent.WrappedComponent location={{...}} ... /&gt;)
+
+    // --- wrappedComponentRef: func
+    A function that will be passed as the ref prop to the wrapped component
+    class Container extends React.Component {
+      componentDidMount() {
+        this.component.doSomething();
+      }
+      render() {
+        return &lt;MyComponent wrappedComponentRef={c =&gt; (this.component = c)} /&gt;;
+      }
+    }
+  </code></pre></details>
+
+  </details>
+
+  <details><summary>Redux</summary>
+  <pre><code class="">
+    // before
+    export default connect(mapStateToProps)(Something)
+
+    // after
+    import { withRouter } from 'react-router-dom'
+    export default withRouter(connect(mapStateToProps)(Something))
+  </code></pre></details>
+
+  <details><summary>complex UIs</summary>
+  <pre><code class="">
+    const App = () =&gt; (
+      &lt;AppLayout&gt;
+        &lt;Route path="/invoices" component={Invoices} /&gt;
+      &lt;/AppLayout&gt;
+    );
+    const Invoices = () =&gt; (
+      &lt;Layout&gt;
+        {/* always show the nav */}
+        &lt;InvoicesNav /&gt;
+        &lt;Media query={PRETTY_SMALL}&gt;
+          {screenIsSmall =&gt;
+            screenIsSmall ? (
+              // small screen has no redirect
+              &lt;Switch&gt;
+                &lt;Route exact path="/invoices/dashboard" component={Dashboard} /&gt;
+                &lt;Route path="/invoices/:id" component={Invoice} /&gt;
+              &lt;/Switch&gt;
+            ) : (
+              // large screen does!
+              &lt;Switch&gt;
+                &lt;Route exact path="/invoices/dashboard" component={Dashboard} /&gt;
+                &lt;Route path="/invoices/:id" component={Invoice} /&gt;
+                &lt;Redirect from="/invoices" to="/invoices/dashboard" /&gt;
+              &lt;/Switch&gt;
+            )
+          }
+        &lt;/Media&gt;
+      &lt;/Layout&gt;
+    );
+  </code></pre></details>
+
+  <details><summary>testing</summary>
+  <pre><code class="">
+    import { render } from "react-dom";
+    import React from "react";
+    import { Route, Link, MemoryRouter } from "react-router-dom";
+    import { Simulate } from "react-addons-test-utils";
+    // a way to render any part of app inside a MemoryRouter
+    // you pass it a list of steps to execute when the location
+    // changes, it will call back to you with stuff like
+    // "match" and "location", and "history" so you can control
+    // the flow and make assertions.
+    const renderTestSequence = ({
+      initialEntries,
+      initialIndex,
+      subject: Subject,
+      steps
+    }) =&gt; {
+      const div = document.createElement("div");
+      class Assert extends React.Component {
+        componentDidMount() { this.assert(); }
+        componentDidUpdate() { this.assert(); }
+        assert() {
+          const nextStep = steps.shift();
+          if (nextStep) { nextStep({ ...this.props, div }); }
+          else { unmountComponentAtNode(div); }
+        }
+        render() { return this.props.children; }
+      }
+      class Test extends React.Component {
+        render() {
+          return (
+            &lt;MemoryRouter
+              initialIndex={initialIndex}
+              initialEntries={initialEntries}
+            &gt;
+              &lt;Route
+                render={props =&gt; (
+                  &lt;Assert {...props}&gt;
+                    &lt;Subject /&gt;
+                  &lt;/Assert&gt;
+                )}
+              /&gt;
+            &lt;/MemoryRouter&gt;
+          );
+        }
+      }
+      render(&lt;Test /&gt;, div);
+    };
+    // our Subject, the App, but you can test any sub
+    // section of app too
+    const App = () =&gt; (
+      &lt;div&gt;
+        &lt;Route
+          exact
+          path="/"
+          render={() =&gt; (
+            &lt;div&gt;
+              &lt;h1&gt;Welcome&lt;/h1&gt;
+            &lt;/div&gt;
+          )}
+        /&gt;
+        &lt;Route
+          path="/dashboard"
+          render={() =&gt; (
+            &lt;div&gt;
+              &lt;h1&gt;Dashboard&lt;/h1&gt;
+              &lt;Link to="/" id="click-me"&gt;
+                Home
+              &lt;/Link&gt;
+            &lt;/div&gt;
+          )}
+        /&gt;
+      &lt;/div&gt;
+    );
+    // the actual test!
+    it("navigates around", done =&gt; {
+      renderTestSequence({
+        // tell it the subject you are testing
+        subject: App,
+        // and the steps to execute each time the location changes
+        steps: [
+          // initial render
+          ({ history, div }) =&gt; {
+            // assert the screen says what we think it should
+            console.assert(div.innerHTML.match(/Welcome/));
+            // now we can imperatively navigate as the test
+            history.push("/dashboard");
+          },
+          // second render from new location
+          ({ div }) =&gt; {
+            console.assert(div.innerHTML.match(/Dashboard/));
+            // or we can simulate clicks on Links instead of
+            // using history.push
+            Simulate.click(div.querySelector("#click-me"), {
+              button: 0
+            });
+          },
+          // final render
+          ({ location }) =&gt; {
+            console.assert(location.pathname === "/");
+            // youll want something like "done()" so test
+            // fails if you never make it here
+            done();
+          }
+        ]
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>server rendering</summary>
+  <pre><code class="">
+    import { createRoot } from 'react-dom/client';
+    // --- CLIENT
+    function RedirectWithStatus({ from, to, status }) {
+      return (
+        &lt;Route
+          render={({ staticContext }) =&gt; {
+            // there is no `staticContext` on the client, so
+            // we need to guard against that here
+            if (staticContext) staticContext.status = status;
+            return &lt;Redirect from={from} to={to} /&gt;;
+          }}
+        /&gt;
+      );
+    }
+    function NotFound() {
+      return (
+        &lt;Status code={404}&gt;
+          &lt;div&gt;
+            &lt;h1&gt;Sorry, can't find that.&lt;/h1&gt;
+          &lt;/div&gt;
+        &lt;/Status&gt;
+      );
+    }
+    function Status({ code, children }) {
+      return (
+        &lt;Route
+          render={({ staticContext }) =&gt; {
+            if (staticContext) staticContext.status = code;
+            return children;
+          }}
+        /&gt;
+      );
+    }
+    function App() {
+      return (
+        &lt;Switch&gt;
+          {/* some other routes */}
+          &lt;Route path="/about" component={About} /&gt;
+          &lt;RedirectWithStatus status={301} from="/users" to="/profiles" /&gt;
+          &lt;RedirectWithStatus status={302} from="/courses" to="/dashboard" /&gt;
+          &lt;Route component={NotFound} /&gt;
+        &lt;/Switch&gt;
+      );
+    }
+    const rootElement = document.getElementById('root');
+    const root = createRoot(rootElement);
+    root.render(
+      &lt;BrowserRouter&gt;
+        &lt;App /&gt;
+      &lt;/BrowserRouter&gt;
+    );
+
+    // --- SERVER
+    import { createServer } from "http";
+    import React from "react";
+    import ReactDOMServer from "react-dom/server";
+    import { StaticRouter } from "react-router";
+    import App from "./App";
+    createServer((req, res) =&gt; {
+      const context = {};
+      const html = ReactDOMServer.renderToString(
+        &lt;StaticRouter
+          location={req.url}
+          context={context}
+        &gt;
+          &lt;App /&gt;
+        &lt;/StaticRouter&gt;
+      );
+      if (context.url) {
+        res.writeHead(301, {
+          Location: context.url
+        });
+        res.end();
+      } else {
+        res.write(`
+          &lt;!doctype html&gt;
+          &lt;div id="app"&gt;${html}&lt;/div&gt;
+        `);
+        res.end();
+      }
+    }).listen(3000);
+  </code></pre></details>
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+</body>
+</html>

@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JavaScript files, form, ajax, fetch tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="javascript, js, files, form, formdata, fetch, ajax, url, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>JavaScript files, form, ajax, fetch tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="ajax">AJAX</h2>
+
+  <ul>
+    <li>XMLHttpRequest object - used to exchange data with a web server and update parts of a web page, without reloading the whole page</li>
+    <li>properties
+    <ul>
+      <li>onreadystatechange - EventHandler, called when readyState attribute changes, triggered four times (1-4)</li>
+      <li>readyState - state of the request
+        <ul>
+          <li>0 = UNSENT - client has been created. open() not called yet</li>
+          <li>1 = OPENED - open() has been called</li>
+          <li>2 = HEADERS_RECEIVED - send() has been called, and headers and status are available</li>
+          <li>3 = LOADING - processing; responseText holds partial data</li>
+          <li>4 = DONE - operation is complete</li>
+        </ul>
+      </li>
+      <li>status - HTTP status code of the response of the request
+        <ul>
+          <li>200: "OK"</li>
+          <li>403: "Forbidden"</li>
+          <li>404: "Page not found"</li>
+          <li>...e</li>
+        </ul>
+      </li>
+      <li>statusText - entire text of the response message ("200 OK", ...)</li>
+      <li>timeout - number of milliseconds a request can take before automatically being terminated</li>
+      <li>ontimeout - EventHandler that is called whenever the request times out</li>
+      <li>upload - XMLHttpRequestUpload, representing the upload process</li>
+      <li>withCredentials - whether or not cross-site Access-Control requests should be made using credentials such as cookies or authorization headers</li>
+      <li>responseType - enumerated value that defines the response type: arraybuffer|blob|document|json|text,""</li>
+      <li>responseURL - serialized URL of the response or the empty string if the URL is null</li>
+      <li>response - returns ArrayBuffer, Blob, Document, JavaScript object, or a DOMString, depending on the value of responseType that contains the response entity body</li>
+      <li>responseText - DOMString(raw HTML) that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent</li>
+      <li>responseXML - DOM object containing a parsed XML document, or null if the request was unsuccessful, has not yet been sent, or cannot be parsed as XML or HTML, unavailable to workers</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>abort() - aborts the request if it has already been sent</li>
+      <li>getAllResponseHeaders() - all the response headers, separated by CRLF, as a string, or null if no response has been received</li>
+      <li>getResponseHeader(headerName) - text of the specified header, or null if either the response has not yet been received or the header doesn't exist in the response</li>
+      <li>open(method,url[,async,user,password]) - initializes a request in JS code, to initialize a request from native code, use openRequest() instead</li>
+      <li>overrideMimeType(mimeType) - overrides the MIME type returned by the server</li>
+      <li>send(body) - send the request, if the request is asynchronous (which is the default), this method returns as soon as the request is sent</li>
+      <li>setRequestHeader() - sets the value of an HTTP request header, call after open(), but before send()</li>
+    </ul>
+    </li>
+    <li>setting overrideMimeType does not work from a Worker</li>
+    <li>cross-site requests (Cross-Origin Resource Sharing (CORS)): as long as the server is configured to allow requests from your web application's origin, XMLHttpRequest will work, otherwise, an INVALID_ACCESS_ERR exception is thrown</li>
+    <li>to bypassing the cache- append a timestamp to the URL, being sure to include a "?" or "&" as appropriate</li>
+  </ul>
+
+  <div id="ajax_tests" class="example h_5">
+    <button onclick="ajax_ok()">ajax_ok</button>
+    <input type="text" id="ajax_ok" value="php/ajax_json.php"/><br>
+    <button onclick="ajax_abort()">ajax_abort</button>
+    <input type="text" id="ajax_abort" value="php/ajax_abort.php"/>
+  </div>
+
+  <div id="ajax_results" class="example"></div>
+
+  <script>
+    var ajax_results = document.getElementById("ajax_results");
+    var ts = null;
+    var loger = (x) => {
+      ajax_results.innerHTML += x;
+      ajax_results.innerHTML += " <strong>+"+(new Date()-ts)+"ms</strong><br>";
+      ts = new Date();
+    }
+
+    function ajax_ok(){
+      ts = new Date();
+      ajax_results.innerHTML = "";
+      ajax_request(
+        document.getElementById("ajax_ok").value,
+        loger,
+        loger
+      );
+    }
+    function ajax_abort(){
+      ts = new Date();
+      ajax_results.innerHTML = "";
+      ajax_request(
+        document.getElementById("ajax_abort").value,
+        loger,
+        loger
+      );
+    }
+
+    function ajax_request(url, on_load, on_error) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          on_load(xhr.response + ", readyState - DONE [4]");
+          loger(xhr.getAllResponseHeaders().trim().split(/[\r\n]+/).map((v)=>(v+"<br>")));
+          // xhr.getResponseHeader("Last-Modified")
+        } else {
+          // loger(xhr.getAllResponseHeaders());
+          switch(xhr.readyState){
+            case 0:
+              loger("readyState - UNSENT [0]");
+              break;
+            case 1:
+              loger("readyState - OPENED [1]");
+              break;
+            case 2:
+              loger("readyState - HEADERS_RECEIVED [2]");
+              break;
+            case 3:
+              loger("readyState - LOADING [3]");
+              break;
+          }
+        }
+      }
+
+      // every request will be unique, bypassing the cache
+      xhr.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime());
+      // transaction starts transferring data
+      xhr.onloadstart = function () {
+        loger(url+", onloadstart");
+      }
+      // called periodically, before success completely
+      xhr.onprogress = function (e) {
+        if (e.lengthComputable) {
+          loger(xhr.status+": "+xhr.statusText+" ["+(e.loaded/e.total*100)+"%], onprogress");
+        } else {
+          // Unable to compute progress information since the total size is unknown
+          loger(xhr.status+": "+xhr.statusText+", onprogress");
+        }
+      }
+      // request completed succesfully
+      xhr.onload = function () {
+        on_load(xhr.response);
+      }
+      xhr.onloadend = function(e) {
+        loger(xhr.status+": "+xhr.statusText+" ["+(e.loaded/e.total*100)+"%], onloadend");
+      }
+      xhr.onabort = function () {
+        loger(xhr.status+": "+xhr.statusText+", onabort");
+      }
+      xhr.ontimeout = function () {
+        on_error(xhr.status+": "+xhr.statusText+", ontimeout: "+5000+"ms");
+      }
+      // transaction fails due to an error
+      xhr.onerror = function () {
+        on_error(xhr.status+": "+xhr.statusText+", "+xhr.response+", onerror");
+      }
+      xhr.send('');
+      // xhr.send("foo=bar&lorem=ipsum");
+      // xhr.send('string');
+      // xhr.send(new Blob());
+      // xhr.send(new Int8Array());
+      // xhr.send(document);
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;button onclick="ajax_ok()"&gt;ajax_ok&lt;/button&gt;
+    &lt;input type="text" id="ajax_ok" value="php/ajax_json.php"/&gt;
+    &lt;button onclick="ajax_abort()"&gt;ajax_abort&lt;/button&gt;
+    &lt;input type="text" id="ajax_abort" value="php/ajax_abort.php"/&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var ajax_results = document.getElementById("ajax_results");
+    var ts = null;
+    var loger = (x) => {
+      ajax_results.innerHTML += x;
+      ajax_results.innerHTML += " +"+(new Date()-ts)+"ms";
+      ts = new Date();
+    }
+    function ajax_ok(){
+      ts = new Date();
+      ajax_results.innerHTML = "";
+      ajax_request(
+        document.getElementById("ajax_ok").value,
+        loger,
+        loger
+      );
+    }
+    function ajax_abort(){
+      ts = new Date();
+      ajax_results.innerHTML = "";
+      ajax_request(
+        document.getElementById("ajax_abort").value,
+        loger,
+        loger
+      );
+    }
+    function ajax_request(url, on_load, on_error) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          on_load(xhr.response + ", readyState - DONE [4]");
+          loger(xhr.getAllResponseHeaders().trim().split(/[\r\n]+/).map((v)=>(v+" ")));
+          // xhr.getResponseHeader("Last-Modified")
+        } else {
+          // loger(xhr.getAllResponseHeaders());
+          switch(xhr.readyState){
+            case 0:
+              loger("readyState - UNSENT [0]");
+              break;
+            case 1:
+              loger("readyState - OPENED [1]");
+              break;
+            case 2:
+              loger("readyState - HEADERS_RECEIVED [2]");
+              break;
+            case 3:
+              loger("readyState - LOADING [3]");
+              break;
+          }
+        }
+      }
+      // every request will be unique, bypassing the cache
+      xhr.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime());
+      // transaction starts transferring data
+      xhr.onloadstart = function () {
+        loger(url+", onloadstart");
+      }
+      // called periodically, before success completely
+      xhr.onprogress = function (e) {
+        if (e.lengthComputable) {
+          loger(xhr.status+": "+xhr.statusText+" ["+(e.loaded/e.total*100)+"%], onprogress");
+        } else {
+          // Unable to compute progress information since the total size is unknown
+          loger(xhr.status+": "+xhr.statusText+", onprogress");
+        }
+      }
+      // request completed succesfully
+      xhr.onload = function () {
+        on_load(xhr.response);
+      }
+      xhr.onloadend = function(e) {
+        loger(xhr.status+": "+xhr.statusText+" ["+(e.loaded/e.total*100)+"%], onloadend");
+      }
+      xhr.onabort = function () {
+        loger(xhr.status+": "+xhr.statusText+", onabort");
+      }
+      xhr.ontimeout = function () {
+        on_error(xhr.status+": "+xhr.statusText+", ontimeout: "+5000+"ms");
+      }
+      // transaction fails due to an error
+      xhr.onerror = function () {
+        on_error(xhr.status+": "+xhr.statusText+", "+xhr.response+", onerror");
+      }
+      xhr.send('');
+      // xhr.send("foo=bar&lorem=ipsum");
+      // xhr.send('string');
+      // xhr.send(new Blob());
+      // xhr.send(new Int8Array());
+      // xhr.send(document);
+    }
+  </code></pre>
+
+
+
+<h2 id="ajax_xml">AJAX+XML</h2>
+
+
+  <div class="example h_4">
+    choose or click on catalog entry
+    <input type="button" onclick="ax_cds.ax_prev()" value="ax_prev()">
+    <input type="button" onclick="ax_cds.ax_next()" value="ax_next()">
+  </div>
+  <div id="ax_info" class="example h_3"></div>
+  <div class="example h20">
+    <table id="ax_catalog" style="cursor:pointer;"></table>
+  </div>
+
+  <script>
+    var ax_catalog = document.getElementById("ax_catalog"),
+        ax_info = document.getElementById("ax_info");
+
+    const ax_cds = {
+      ax_index: 0,
+      ax_len: 0,
+      ax_xml_catalog: "",
+      show_entry(i) {
+        var entry = this.ax_xml_catalog[i];
+        ax_info.innerHTML = entry.getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += " - ";
+        ax_info.innerHTML += entry.getElementsByTagName("TITLE")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += " [";
+        ax_info.innerHTML += entry.getElementsByTagName("YEAR")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += "]";
+      },
+      show_all() {
+        table="<tr><th>Artist</th><th>Title</th><th>Year</th></tr>";
+        for (i = 0; i < this.ax_len; i++) {
+          table += "<tr onclick='ax_cds.show_entry(" + i + ")'><td>";
+          table += this.ax_xml_catalog[i].getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue;
+          table += "</td><td>";
+          table +=  this.ax_xml_catalog[i].getElementsByTagName("TITLE")[0].childNodes[0].nodeValue;
+          table += "</td><td>";
+          table +=  this.ax_xml_catalog[i].getElementsByTagName("YEAR")[0].childNodes[0].nodeValue;
+          table += "</td></tr>";
+        }
+        ax_catalog.innerHTML += table;
+      },
+      load_xml(callback) {
+        var obj = this;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              obj.ax_xml_catalog = this.responseXML.getElementsByTagName("CD");
+              obj.ax_len = obj.ax_xml_catalog.length;
+              callback();
+            } else {
+              // ax_info.innerHTML = "unable to load XML-catalog";
+            }
+        };
+        xmlhttp.open("GET", "cd_catalog.xml", true);
+        xmlhttp.send();
+      },
+      ax_prev() {
+        if (this.ax_index > 0) {
+          this.show_entry(--this.ax_index);
+        }
+      },
+      ax_next() {
+        if (this.ax_index < this.ax_len-1) {
+          this.show_entry(++this.ax_index);
+        }
+      }
+    };
+    ax_cds.load_xml(()=>{ax_cds.show_all()});
+  </script>
+
+  <pre><code class="html">
+    &lt;input type="button" onclick="ax_cds.ax_prev()" value="ax_prev()"&gt;
+    &lt;input type="button" onclick="ax_cds.ax_next()" value="ax_next()"&gt;
+
+    &lt;div id="ax_info"&gt;&lt;/div&gt;
+
+    &lt;table id="ax_catalog" style="cursor:pointer;"&gt;&lt;/table&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var ax_catalog = document.getElementById("ax_catalog"),
+        ax_info = document.getElementById("ax_info");
+
+    const ax_cds = {
+      ax_index: 0,
+      ax_len: 0,
+      ax_xml_catalog: "",
+      show_entry(i) {
+        var entry = this.ax_xml_catalog[i];
+        ax_info.innerHTML = entry.getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += " - ";
+        ax_info.innerHTML += entry.getElementsByTagName("TITLE")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += " [";
+        ax_info.innerHTML += entry.getElementsByTagName("YEAR")[0].childNodes[0].nodeValue;
+        ax_info.innerHTML += "]";
+      },
+      show_all() {
+        table="&lt;tr&gt;&lt;th&gt;Artist&lt;/th&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Year&lt;/th&gt;&lt;/tr&gt;";
+        for (i = 0; i &lt; this.ax_len; i++) {
+          table += "&lt;tr onclick='ax_cds.show_entry(" + i + ")'&gt;&lt;td&gt;";
+          table += this.ax_xml_catalog[i].getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue;
+          table += "&lt;/td&gt;&lt;td&gt;";
+          table +=  this.ax_xml_catalog[i].getElementsByTagName("TITLE")[0].childNodes[0].nodeValue;
+          table += "&lt;/td&gt;&lt;td&gt;";
+          table +=  this.ax_xml_catalog[i].getElementsByTagName("YEAR")[0].childNodes[0].nodeValue;
+          table += "&lt;/td&gt;&lt;/tr&gt;";
+        }
+        ax_catalog.innerHTML = table;
+      },
+      load_xml(callback) {
+        var obj = this;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              obj.ax_xml_catalog = this.responseXML.getElementsByTagName("CD");
+              obj.ax_len = obj.ax_xml_catalog.length;
+              callback();
+            } else {
+              // ax_info.innerHTML = "unable to load XML-catalog";
+            }
+        };
+        xmlhttp.open("GET", "cd_catalog.xml", true);
+        xmlhttp.send();
+      },
+      ax_prev() {
+        if (this.ax_index &gt; 0) {
+          this.show_entry(--this.ax_index);
+        }
+      },
+      ax_next() {
+        if (this.ax_index &lt; this.ax_len-1) {
+          this.show_entry(++this.ax_index);
+        }
+      }
+    };
+    ax_cds.load_xml(()=&gt;{ax_cds.show_all()});
+  </code></pre>
+
+  <pre><code class="xml">
+    &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+      &lt;CATALOG&gt;
+        &lt;CD&gt;
+          &lt;TITLE&gt;Empire Burlesque&lt;/TITLE&gt;
+          &lt;ARTIST&gt;Bob Dylan&lt;/ARTIST&gt;
+          &lt;COUNTRY&gt;USA&lt;/COUNTRY&gt;
+          &lt;COMPANY&gt;Columbia&lt;/COMPANY&gt;
+          &lt;PRICE&gt;10.90&lt;/PRICE&gt;
+          &lt;YEAR&gt;1985&lt;/YEAR&gt;
+        &lt;/CD&gt;
+        &lt;CD&gt;
+          &lt;TITLE&gt;Hide your heart&lt;/TITLE&gt;
+          &lt;ARTIST&gt;Bonnie Tyler&lt;/ARTIST&gt;
+          &lt;COUNTRY&gt;UK&lt;/COUNTRY&gt;
+          &lt;COMPANY&gt;CBS Records&lt;/COMPANY&gt;
+          &lt;PRICE&gt;9.90&lt;/PRICE&gt;
+          &lt;YEAR&gt;1988&lt;/YEAR&gt;
+        &lt;/CD&gt;
+      ...
+  </code></pre>
+
+
+<h2 id="forms">Forms</h2>
+
+  <ul>
+    <li><code>&lt;form&gt;</code> element properties
+    <ul>
+      <li>action - sets or returns the value of the action attribute in a form</li>
+      <li>target - sets or returns the value of the target attribute in a form: _blank|_self|_parent|_top|framename</li>
+      <li>method - sets or returns the value of the method attribute in a form: get|post</li>
+      <li>enctype - sets or returns the value of the enctype attribute in a form
+        <ul>
+          <li>application/x-www-form-urlencoded(default) - all characters are encoded before sent</li>
+          <li><strong>multipart/form-data</strong> - recommended one for files since you can upload multiple files and chunks of files</li>
+          <li>text/plain - spaces are converted to "+" symbols, but no special characters are encoded</li>
+        </ul>
+      </li>
+      <li>acceptCharset - sets or returns the value of the accept-charset attribute in a form: UTF-8</li>
+      <li>autocomplete - sets or returns the value of the autocomplete attribute in a form: on|off</li>
+      <li>noValidate - sets or returns whether the form-data should be validated or not, on submission</li>
+      <li>name - sets or returns the value of the name attribute in a form</li>
+      <li>elements - collection of all elements in a form</li>
+      <li>length - number of elements in a form</li>
+    </ul>
+    </li>
+    <li><code>&lt;form&gt;</code> element methods
+    <ul>
+      <li>reset() - resets a form</li>
+      <li>submit() - submits a form</li>
+    </ul>
+    </li>
+  </ul>
+
+  <div class="example w-50 h-20">
+    <form
+      name="myForm"
+      action="/action_page.php"
+      enctype="text/plain"
+      onsubmit="return validateForm()"
+      method="post"
+    >
+      F.Name: <input type="text" name="fname" maxlength="30" required value="First Name"/><br>
+      L.Name: <input type="text" name="lname" maxlength="30" required value=""/><br>
+      Age: <input type="number" name="age" min="1" max="30" value="50" /><br>
+      Email: <input type="email" name="email" value="wrong.email.com" /><br>
+      URL: <input type="url" name="url" value="right.address.com" /><br>
+      Pass (only numbers): <input type="password" name="pass" pattern="[0-9]{4}" value="ABCD" /><br>
+      Country:
+      <select name="country" id="country">
+        <option value="ch">Switzerland</option>
+        <option value="fr">France</option>
+        <option value="de">Germany</option>
+        <option value="nl">The Netherlands</option>
+      </select><br>
+      ZIP: <input type="text"name="zip"/><br>
+      Select files smaller than 75 kB: <input type="file" multiple name="input_files" id="input_files" /><br>
+      <input type="submit" value="Submit" /><br>
+    </form>
+  </div>
+  <div id="form_tests_result" class="example w-50 h-20"></div>
+
+  <script>
+    var form_tests_result = document.getElementById("form_tests_result");
+
+    function validateForm() {
+      var fname = document.forms["myForm"]["fname"].value;
+      var lname = document.forms["myForm"]["lname"].value;
+      var age = document.forms["myForm"]["age"].value;
+      var email = document.forms["myForm"]["email"].value;
+      var url = document.forms["myForm"]["url"].value;
+      var pass = document.forms["myForm"]["pass"].value;
+
+      // CLASSIC check of input fields
+      if (x == "") {
+        alert("Name must be filled out");
+        return false;
+      }
+      // If x is Not a Number or less than one or greater than 10
+      if (isNaN(x) || x < 1 || x > 10) {
+        alert("Age is not valid");
+        return false;
+      }
+
+      // CONSTRAINTS
+      document.forms["myForm"].checkValidity();  // false - some values are not filled
+      age.checkValidity(); // false
+      // invalid-event is fired every time checkValidity() is called
+      document.getElementById('input-1').addEventListener('invalid', function() {
+        //...
+      }, false);
+
+      fname.validity.valid; // true - valid fill (required with value)
+      lname.validity.valueMissing; // true - input with required-attribute and no value
+
+      fname.validationMessage; // false
+
+      fname.validity.customError; // false
+      fname.setCustomValidity('Invalid'); // set the validationMessage property of an input element
+      fname.validity.customError; // true - custom validity message is set
+
+      pass.validity.patternMismatch; // false - value does not match its pattern attribute
+
+      document.forms["myForm"]["fname"].willValidate; //undefined
+
+      age.validity.rangeOverflow; // true - value is greater than its max attribute
+      age.validity.rangeUnderflow; // false - value is NOT less than its min attribute
+      age.validity.stepMismatch; // false - value is valid per its step attribute
+
+      name.validity.tooLong; // false
+
+      email.validity.typeMismatch; // true - value is invalid per its type attribute
+      url.validity.typeMismatch; // false - value is NOT invalid per its type attribute
+    }
+
+    // CONSTRAINTS functions for changes check
+    function checkZIP() {
+      // For each country, defines the pattern that the ZIP has to follow
+      var constraints = {
+        ch : [ '^(CH-)?\\d{4}$', "Switzerland ZIPs, exactly 4 digits: e.g. CH-1950 or 1950" ],
+        fr : [ '^(F-)?\\d{5}$' , "France ZIPs, exactly 5 digits: e.g. F-75012 or 75012" ],
+        de : [ '^(D-)?\\d{5}$' , "Germany ZIPs, exactly 5 digits: e.g. D-12345 or 12345" ],
+        nl : [ '^(NL-)?\\d{4}\\s*([A-RT-Z][A-Z]|S[BCE-RT-Z])$',
+             "Nederland ZIPs, exactly 4 digits, followed by 2 letters except SA, SD and SS" ]
+      };
+      var country = document.forms["myForm"]["country"].value; // Read the country id
+      var ZIPField = document.forms["myForm"]["zip"]; // Get the NPA field
+      var constraint = new RegExp(constraints[country][0], ""); // Build the constraint checker
+      if (constraint.test(ZIPField.value)) { // Check it!
+        // The ZIP follows the constraint, we use the ConstraintAPI to tell it
+        ZIPField.setCustomValidity("");
+      }
+      else {
+        // The ZIP doesn't follow the constraint, we use the ConstraintAPI to
+        // give a message about the format required for this country
+        ZIPField.setCustomValidity(constraints[country][1]);
+        form_tests_result.innerHTML = constraints[country][1]+"<br>";
+      }
+    }
+    function checkFileSize() {
+      var input_files = document.getElementById("input_files");
+      var fileList = input_files.files;
+      // now here you can work with multiple files from list ...
+      // if there is (at least) one file selected
+      if (fileList.length > 0) {
+        for (var i = 0, numFiles = fileList.length; i < numFiles; i++) {
+          if (fileList[i].size > 75 * 1024) { // Check the constraint
+            var msg = fileList[i].name+" must not be larger than 75 kB ["+fileList[i].size+" B already]";
+            input_files.setCustomValidity(msg);
+            form_tests_result.innerHTML += msg+"<br>";
+            return;
+          }
+        }
+      }
+      // No custom constraint violation
+      input_files.setCustomValidity("");
+    }
+    window.onload = function () {
+      document.forms["myForm"]["country"].onchange = checkZIP;
+      document.forms["myForm"]["zip"].oninput = checkZIP;
+      document.forms["myForm"]["input_files"].onchange = checkFileSize;
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;form
+      name="myForm"
+      action="/action_page.php"
+      enctype="text/plain"
+      onsubmit="return validateForm()"
+      method="post"
+    &gt;
+      F.Name: &lt;input type="text" name="fname" maxlength="30" required value="First Name"/&gt;
+      L.Name: &lt;input type="text" name="lname" maxlength="30" required value=""/&gt;
+      Age: &lt;input type="number" name="age" min="1" max="30" value="50" /&gt;
+      Email: &lt;input type="email" name="email" value="wrong.email.com" /&gt;
+      URL: &lt;input type="url" name="url" value="right.address.com" /&gt;
+      Pass: &lt;input type="password" name="pass" pattern="[0-9]{4}" value="ABCD" /&gt;
+      Country:
+      &lt;select id="Country"&gt;
+        &lt;option value="ch"&gt;Switzerland&lt;/option&gt;
+        &lt;option value="fr"&gt;France&lt;/option&gt;
+        &lt;option value="de"&gt;Germany&lt;/option&gt;
+        &lt;option value="nl"&gt;The Netherlands&lt;/option&gt;
+      &lt;/select&gt;
+      ZIP: &lt;input type="text"name="zip"/&gt;
+      Select files smaller than 75 kB: &lt;input type="file" multiple id="input_files" /&gt;
+      &lt;input type="submit" value="Submit" /&gt;
+      &lt;span id="form_msg"&gt;&lt;/span&gt;
+    &lt;/form&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var form_tests_result = document.getElementById("form_tests_result");
+
+    function validateForm() {
+      var fname = document.forms["myForm"]["fname"].value;
+      var lname = document.forms["myForm"]["lname"].value;
+      var age = document.forms["myForm"]["age"].value;
+      var email = document.forms["myForm"]["email"].value;
+      var url = document.forms["myForm"]["url"].value;
+      var pass = document.forms["myForm"]["pass"].value;
+
+      // CLASSIC check of input fields
+      if (x == "") {
+        alert("Name must be filled out");
+        return false;
+      }
+      // If x is Not a Number or less than one or greater than 10
+      if (isNaN(x) || x < 1 || x > 10) {
+        alert("Age is not valid");
+        return false;
+      }
+
+      // CONSTRAINTS
+      document.forms["myForm"].checkValidity();  // false - some values are not filled
+      age.checkValidity(); // false
+      // invalid-event is fired every time checkValidity() is called
+      document.getElementById('input-1').addEventListener('invalid', function() {
+        //...
+      }, false);
+
+      fname.validity.valid; // true - valid fill (required with value)
+      lname.validity.valueMissing; // true - input with required-attribute and no value
+
+      fname.validationMessage; // false
+
+      fname.validity.customError; // false
+      fname.setCustomValidity('Invalid'); // set the validationMessage property of an input element
+      fname.validity.customError; // true - custom validity message is set
+
+      pass.validity.patternMismatch; // false - value does not match its pattern attribute
+
+      document.forms["myForm"]["fname"].willValidate; //undefined
+
+      age.validity.rangeOverflow; // true - value is greater than its max attribute
+      age.validity.rangeUnderflow; // false - value is NOT less than its min attribute
+      age.validity.stepMismatch; // false - value is valid per its step attribute
+
+      name.validity.tooLong; // false
+
+      email.validity.typeMismatch; // true - value is invalid per its type attribute
+      url.validity.typeMismatch; // false - value is NOT invalid per its type attribute
+    }
+
+    // CONSTRAINTS functions for changes check
+    function checkZIP() {
+      // For each country, defines the pattern that the ZIP has to follow
+      var constraints = {
+        ch : [ '^(CH-)?\\d{4}$', "Switzerland ZIPs, exactly 4 digits: e.g. CH-1950 or 1950" ],
+        fr : [ '^(F-)?\\d{5}$' , "France ZIPs, exactly 5 digits: e.g. F-75012 or 75012" ],
+        de : [ '^(D-)?\\d{5}$' , "Germany ZIPs, exactly 5 digits: e.g. D-12345 or 12345" ],
+        nl : [ '^(NL-)?\\d{4}\\s*([A-RT-Z][A-Z]|S[BCE-RT-Z])$',
+              "Nederland ZIPs, exactly 4 digits, followed by 2 letters except SA, SD and SS" ]
+      };
+      var country = document.forms["myForm"]["country"].value; // Read the country id
+      var ZIPField = document.forms["myForm"]["zip"]; // Get the NPA field
+      var constraint = new RegExp(constraints[country][0], ""); // Build the constraint checker
+      if (constraint.test(ZIPField.value)) { // Check it!
+        // The ZIP follows the constraint, we use the ConstraintAPI to tell it
+        ZIPField.setCustomValidity("");
+      }
+      else {
+        // The ZIP doesn't follow the constraint, we use the ConstraintAPI to
+        // give a message about the format required for this country
+        ZIPField.setCustomValidity(constraints[country][1]);
+        form_tests_result.innerHTML = constraints[country][1];
+      }
+    }
+    function checkFileSize() {
+      var input_files = document.getElementById("input_files");
+      var fileList = input_files.files;
+      // now here you can work with multiple files from list ...
+      // if there is (at least) one file selected
+      if (fileList.length &gt; 0) {
+        for (var i = 0, numFiles = fileList.length; i &lt; numFiles; i++) {
+          if (fileList[i].size &gt; 75 * 1024) { // Check the constraint
+            var msg = fileList[i].name+" must not be larger than 75 kB ["+fileList[i].size+" B already]";
+            input_files.setCustomValidity(msg);
+            form_tests_result.innerHTML += msg;
+            return;
+          }
+        }
+      }
+      // No custom constraint violation
+      input_files.setCustomValidity("");
+    }
+    window.onload = function () {
+      document.forms["myForm"]["country"].onchange = checkZIP;
+      document.forms["myForm"]["zip"].oninput = checkZIP;
+      document.forms["myForm"]["input_files"].onchange = checkFileSize;
+    }
+  </code></pre>
+
+
+
+<h2 id="ajax_forms">AJAX+Forms</h2>
+
+  <div class="example">
+    Form Receiver :
+    <input type="text" value="php/form_submit.php" id="form_receiver"/>
+  </div>
+
+  <h3>GET method</h3>
+  <h4>Registration example</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="get" onsubmit="AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" />
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h3>POST method</h3>
+  <h4>Registration example: application/x-www-form-urlencoded (default)</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="post" onsubmit="AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" />
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h4>Registration example: text/plain</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="post" enctype="text/plain"
+      onsubmit="AJAXSubmit(this); return false;">
+    <p>
+      Your name: <input type="text" name="user" />
+    </p>
+    <p>
+      Your message:<br />
+      <textarea name="message" cols="40" rows="8"></textarea>
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h4>Upload example: multipart/form-data</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="post" enctype="multipart/form-data"
+      onsubmit="AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" /><br />
+      Sex:
+      <input id="sex_male" type="radio" name="sex" value="male" />
+      <label for="sex_male">Male</label>
+      <input id="sex_female" type="radio" name="sex" value="female" />
+      <label for="sex_female">Female</label><br />
+      Password: <input type="password" name="secret" /><br />
+      What do you prefer:
+      <select name="image_type">
+        <option>Books</option>
+        <option>Cinema</option>
+        <option>TV</option>
+      </select>
+    </p>
+    <p>
+      Post MULTIPLE photos:
+      <input type="file" multiple name="photos[]">
+    </p>
+    <p>
+      <input id="vehicle_bike" type="checkbox" name="vehicle[]" value="Bike" />
+      <label for="vehicle_bike">I have a bike</label><br />
+      <input id="vehicle_car" type="checkbox" name="vehicle[]" value="Car" />
+      <label for="vehicle_car">I have a car</label>
+    </p>
+    <p>
+      Describe yourself:<br />
+      <textarea name="description" cols="50" rows="8"></textarea>
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h4>RESPONSE</h4>
+  <pre>
+  <code id="ajax_forms_results">
+  </code></pre>
+
+  <script>
+    "use strict";
+
+    var AJAXSubmit = (function () {
+      function ajaxSuccess () {
+        document.getElementById("ajax_forms_results").innerHTML =
+          this.responseText;
+      }
+      function submitData (data) {
+        var xhr = new XMLHttpRequest();
+        xhr.submittedData = data;
+        xhr.onload = ajaxSuccess;
+        if (data.technique == "get") {
+          xhr.open(
+            "get",
+            data.receiver.replace(/(?:\?.*)?$/,
+            data.segments.length > 0 ? "?" + data.segments.join("&") : ""),
+            true
+          );
+          xhr.send(null);
+        } else {
+          xhr.open("post", data.receiver, true);
+          if (data.technique == "mp-fd") {
+            var sBoundary = "---------------------------" + Date.now().toString(16);
+            xhr.setRequestHeader("Content-Type", "multipart\/form-data; boundary=" + sBoundary);
+            xhr.sendAsBinary("--" + sBoundary + "\r\n" +
+            data.segments.join("--" + sBoundary + "\r\n") + "--" + sBoundary + "--\r\n");
+          } else {
+            // enctype is application/x-www-form-urlencoded or text/plain
+            xhr.setRequestHeader("Content-Type", data.contentType);
+            xhr.send(data.segments.join(data.technique == "text" ? "\r\n" : "&"));
+          }
+        }
+      }
+      function processStatus (data) {
+        if (data.status > 0) { return; }
+        // form is now totally serialized! do something before sending it to the server...
+        // doSomething(data);...
+        // console.log("AJAXSubmit - The form is now serialized. Submitting...");
+        submitData (data);
+      }
+      function pushSegment (fr_evt) {
+        this.owner.segments[this.segmentIdx] += fr_evt.target.result + "\r\n";
+        this.owner.status--;
+        processStatus(this.owner);
+      }
+      function encode_uri(str) {
+        return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+          return '%' + c.charCodeAt(0).toString(16);
+        });
+      }
+      function SubmitRequest (form) {
+        var field_type, field, file_reader, file_nr, file,
+            is_post = form.method.toLowerCase() === "post";
+        // serializing form...
+        // mp-fd = multipart/form-data
+        // text = text/plain
+        // xform = application/x-www-form-urlencoded
+        this.contentType = ((is_post && form.enctype) ?
+                            form.enctype : "application\/x-www-form-urlencoded");
+        this.technique = is_post ? this.contentType === "multipart\/form-data" ? "mp-fd"
+            : this.contentType === "text\/plain" ? "text" : "xform" : "get";
+        // this.receiver = form.action;
+        this.receiver = document.getElementById("form_receiver").value;
+        this.status = 0;
+        this.segments = [];
+        for (var form_input = 0; form_input < form.elements.length; form_input++) {
+          field = form.elements[form_input];
+          if (!field.hasAttribute("name")) { continue; }
+          field_type = (( field.nodeName.toUpperCase() === "INPUT") ?
+                          field.getAttribute("type").toUpperCase() : "TEXT");
+          if (field_type === "FILE" && field.files.length > 0) {
+            if (this.technique == "mp-fd") {
+              for (file_nr = 0; file_nr < field.files.length; file_nr++) {
+                file = field.files[file_nr];
+                file_reader = new FileReader();
+                // custom properties
+                file_reader.segmentIdx = this.segments.length;
+                file_reader.owner = this;
+                // end of custom properties
+                file_reader.onload = pushSegment;
+                this.segments.push("Content-Disposition: form-data; name=\"" +
+                    field.name + "\"; filename=\"" + encode_uri(file.name) +
+                    "\"\r\nContent-Type: " + file.type + "\r\n\r\n");
+                this.status++;
+                file_reader.readAsBinaryString(file);
+              }
+            } else {
+              // application/x-www-form-urlencoded or text/plain
+              // or GET and files will not be sent!
+              for (
+                file_nr = 0;
+                file_nr < field.files.length;
+                this.segments.push(
+                  encode_uri(field.name) + "=" + encode_uri(field.files[file_nr++].name)
+                )
+              );
+            }
+          } else if (
+            (field_type !== "RADIO" && field_type !== "CHECKBOX") || field.checked
+          ) {
+            // submit _all_ submit buttons
+            // field type is not FILE or is FILE but is empty
+            if (this.technique == "mp-fd") {
+              this.segments.push(
+                "Content-Disposition: form-data; name=\"" +
+                field.name + "\"\r\n\r\n" + field.value + "\r\n"
+              );
+            } else {
+              // application/x-www-form-urlencoded or text/plain or method is GET
+              this.segments.push(
+                encode_uri(field.name) + "=" + encode_uri(field.value)
+              );
+            }
+          }
+        }
+        processStatus(this);
+      }
+      return function (form) {
+        if (!form.action) { return; }
+        new SubmitRequest(form);
+      };
+    })();
+    if (!XMLHttpRequest.prototype.sendAsBinary) {
+      XMLHttpRequest.prototype.sendAsBinary = function(sData) {
+        var nBytes = sData.length, ui8Data = new Uint8Array(nBytes);
+        for (var nIdx = 0; nIdx < nBytes; nIdx++) {
+          ui8Data[nIdx] = sData.charCodeAt(nIdx) & 0xff;
+        }
+        // send as ArrayBufferView...
+        this.send(ui8Data);
+        // or as ArrayBuffer (legacy)...: this.send(ui8Data.buffer); */
+      };
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;form
+      action="php/form_submit.php"
+      method="post"
+      enctype="multipart/form-data"
+      onsubmit="AJAXSubmit(this); return false;"
+    &gt;...
+
+    &lt;input type="file" multiple name="photos[]"&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    "use strict";
+    var AJAXSubmit = (function () {
+      function ajaxSuccess () {
+        document.getElementById("ajax_forms_results").innerHTML =
+          this.responseText;
+      }
+      function submitData (data) {
+        var xhr = new XMLHttpRequest();
+        xhr.submittedData = data;
+        xhr.onload = ajaxSuccess;
+        if (data.technique == "get") {
+          xhr.open(
+            "get",
+            data.receiver.replace(/(?:\?.*)?$/,
+            data.segments.length > 0 ? "?" + data.segments.join("&") : ""),
+            true
+          );
+          xhr.send(null);
+        } else {
+          xhr.open("post", data.receiver, true);
+          if (data.technique == "mp-fd") {
+            var sBoundary = "---------------------------" + Date.now().toString(16);
+            xhr.setRequestHeader("Content-Type", "multipart\/form-data; boundary=" + sBoundary);
+            xhr.sendAsBinary("--" + sBoundary + "\r\n" +
+            data.segments.join("--" + sBoundary + "\r\n") + "--" + sBoundary + "--\r\n");
+          } else {
+            // enctype is application/x-www-form-urlencoded or text/plain
+            xhr.setRequestHeader("Content-Type", data.contentType);
+            xhr.send(data.segments.join(data.technique == "text" ? "\r\n" : "&"));
+          }
+        }
+      }
+      function processStatus (data) {
+        if (data.status > 0) { return; }
+        // form is now totally serialized! do something before sending it to the server...
+        // doSomething(data);...
+        // console.log("AJAXSubmit - The form is now serialized. Submitting...");
+        submitData (data);
+      }
+      function pushSegment (fr_evt) {
+        this.owner.segments[this.segmentIdx] += fr_evt.target.result + "\r\n";
+        this.owner.status--;
+        processStatus(this.owner);
+      }
+      function encode_uri(str) {
+        return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+          return '%' + c.charCodeAt(0).toString(16);
+        });
+      }
+      function SubmitRequest (form) {
+        var field_type, field, file_reader, file_nr, file,
+            is_post = form.method.toLowerCase() === "post";
+        // serializing form...
+        // mp-fd = multipart/form-data
+        // text = text/plain
+        // xform = application/x-www-form-urlencoded
+        this.contentType = ((is_post && form.enctype) ?
+                            form.enctype : "application\/x-www-form-urlencoded");
+        this.technique = is_post ? this.contentType === "multipart\/form-data" ? "mp-fd"
+            : this.contentType === "text\/plain" ? "text" : "xform" : "get";
+        // this.receiver = form.action;
+        this.receiver = document.getElementById("form_receiver").value;
+        this.status = 0;
+        this.segments = [];
+        for (var form_input = 0; form_input < form.elements.length; form_input++) {
+          field = form.elements[form_input];
+          if (!field.hasAttribute("name")) { continue; }
+          field_type = (( field.nodeName.toUpperCase() === "INPUT") ?
+                          field.getAttribute("type").toUpperCase() : "TEXT");
+          if (field_type === "FILE" && field.files.length > 0) {
+            if (this.technique == "mp-fd") {
+              for (file_nr = 0; file_nr < field.files.length; file_nr++) {
+                file = field.files[file_nr];
+                file_reader = new FileReader();
+                // custom properties
+                file_reader.segmentIdx = this.segments.length;
+                file_reader.owner = this;
+                // end of custom properties
+                file_reader.onload = pushSegment;
+                this.segments.push("Content-Disposition: form-data; name=\"" +
+                    field.name + "\"; filename=\"" + encode_uri(file.name) +
+                    "\"\r\nContent-Type: " + file.type + "\r\n\r\n");
+                this.status++;
+                file_reader.readAsBinaryString(file);
+              }
+            } else {
+              // application/x-www-form-urlencoded or text/plain
+              // or GET and files will not be sent!
+              for (
+                file_nr = 0;
+                file_nr < field.files.length;
+                this.segments.push(
+                  encode_uri(field.name) + "=" + encode_uri(field.files[file_nr++].name)
+                )
+              );
+            }
+          } else if (
+            (field_type !== "RADIO" && field_type !== "CHECKBOX") || field.checked
+          ) {
+            // submit _all_ submit buttons
+            // field type is not FILE or is FILE but is empty
+            if (this.technique == "mp-fd") {
+              this.segments.push(
+                "Content-Disposition: form-data; name=\"" +
+                field.name + "\"\r\n\r\n" + field.value + "\r\n"
+              );
+            } else {
+              // application/x-www-form-urlencoded or text/plain or method is GET
+              this.segments.push(
+                encode_uri(field.name) + "=" + encode_uri(field.value)
+              );
+            }
+          }
+        }
+        processStatus(this);
+      }
+      return function (form) {
+        if (!form.action) { return; }
+        new SubmitRequest(form);
+      };
+    })();
+    if (!XMLHttpRequest.prototype.sendAsBinary) {
+      XMLHttpRequest.prototype.sendAsBinary = function(sData) {
+        var nBytes = sData.length, ui8Data = new Uint8Array(nBytes);
+        for (var nIdx = 0; nIdx < nBytes; nIdx++) {
+          ui8Data[nIdx] = sData.charCodeAt(nIdx) & 0xff;
+        }
+        // send as ArrayBufferView...
+        this.send(ui8Data);
+        // or as ArrayBuffer (legacy)...: this.send(ui8Data.buffer); */
+      };
+    }
+  </code></pre>
+
+
+
+<h2 id="formdata">FormData</h2>
+
+  <ul>
+    <li>FormData interface provides a way to easily construct a set of key/value pairs representing form fields and their values, which can then be easily sent using the XMLHttpRequest.send() method, it uses the same format a form would use if the encoding type were set to "multipart/form-data"</li>
+    <li>object implementing FormData can directly be used in a for...of structure, instead of entries(): for (var p of myFormData) is equivalent to for (var p of myFormData.entries())</li>
+    <li><strong>new FormData(form_el)</strong> - constructor, creates a new FormData object </li>
+    <li>methods
+    <ul>
+      <li>set(key,value[,filename]) - <strong>sets</strong> a new value for an existing key inside a FormData object, or adds the key/value if it does not already exist</li>
+      <li>append(key,value[,filename]) - <strong>appends</strong> a new value onto an existing key inside a FormData object, or adds the key if it does not already exist</li>
+      <li>get(key) - returns the first value associated with a given key from within a FormData object</li>
+      <li>getAll(key) - array of all the values associated with a given key from within a FormData</li>
+      <li>delete(key) - deletes a key/value pair from a FormData object</li>
+      <li>has(key) - Boolean, whether a FormData object contains a certain key/value pair</li>
+      <li>keys() - iterator, allows to go through all keys of the key/value pairs contained in this object</li>
+      <li>values() - iterator, allows to go through all values of the key/value pairs contained in this object</li>
+      <li>entries() - iterator, allows to go through all key/value pairs contained in this object</li>
+    </ul>
+    </li>
+    <li>FormData() constructor and append() are the only things supported in IE/Edge</li>
+    <li>text/plain encoding is not supported by the FormData API</li>
+  </ul>
+
+  <div id="fd_tests" class="example w-50 h-20">
+    <form id="fd_form" name="fd_form" onsubmit="fd_tests_submit(); return false;">
+      <div>
+        <label for="username">Enter name:</label>
+        <input type="text" id="fd_username" name="username">
+      </div>
+      <div>
+        <label for="useracc">Enter account number:</label>
+        <input type="text" id="fd_useracc" name="useracc">
+      </div>
+      <div>
+        <label for="userfile">Upload file:</label>
+        <input type="file" id="fd_userfile" name="userfile">
+      </div>
+    <input type="submit" value="Submit!">
+    </form>
+  </div>
+
+
+  <div id="fd_tests_result" class="example w-50 h-20">
+  </div>
+
+  <script>
+    function fd_tests_submit () {
+      var fd_tests_result = document.getElementById("fd_tests_result");
+      var fd_form = document.getElementById('fd_form');
+      var fd = new FormData(fd_form);
+      fd_tests_result.innerHTML = "";
+      for(var pair of fd) {
+        fd_tests_result.innerHTML += pair[0]+ ' = '+ pair[1]+"<br>";
+      }
+      fd_tests_result.innerHTML += "-----keys-----<br>";
+      for (var key of fd.keys()) {
+        fd_tests_result.innerHTML += key+"<br>";
+      }
+      fd_tests_result.innerHTML += "-----values-----<br>";
+      for (var value of fd.values()) {
+        fd_tests_result.innerHTML += value+"<br>";
+      }
+      fd_tests_result.innerHTML += "-----file-----<br>";
+      fd_tests_result.innerHTML += fd.get('userfile').name+"<br>";
+      fd_tests_result.innerHTML += fd.get('userfile').type+"<br>";
+      fd_tests_result.innerHTML += fd.get('userfile').size+"<br>";
+      fd_tests_result.innerHTML += fd.get('userfile').lastModified+"<br>";
+    }
+
+    var formData = new FormData(); // Currently empty
+    formData.append('username', 'Chris'); // add a key/value pair
+    // formData.append('userpic', myFileInput.files[0], 'chris.jpg');
+    formData.append('this_thing', 'will be deleted');
+    formData.delete('this_thing');
+    formData.get('username'); // Returns "Chris"
+    formData.append('username', 'Bob');
+    formData.getAll('username'); // Returns ["Chris", "Bob"]
+  </script>
+
+  <pre><code class="javascript">
+    function fd_tests_submit () {
+      var fd_tests_result = document.getElementById("fd_tests_result");
+      var fd_form = document.getElementById('fd_form');
+      var fd = new FormData(fd_form);
+      fd_tests_result.innerHTML = "";
+      for(var pair of fd) {
+        fd_tests_result.innerHTML += pair[0]+ ' = '+ pair[1];
+      }
+      fd_tests_result.innerHTML += "-----keys-----";
+      for (var key of fd.keys()) {
+        fd_tests_result.innerHTML += key;
+      }
+      fd_tests_result.innerHTML += "-----values-----";
+      for (var value of fd.values()) {
+        fd_tests_result.innerHTML += value;
+      }
+      fd_tests_result.innerHTML += "-----file-----";
+      fd_tests_result.innerHTML += fd.get('userfile').name;
+      fd_tests_result.innerHTML += fd.get('userfile').type;
+      fd_tests_result.innerHTML += fd.get('userfile').size;
+      fd_tests_result.innerHTML += fd.get('userfile').lastModified;
+    }
+
+    var formData = new FormData(); // Currently empty
+    formData.append('username', 'Chris'); // add a key/value pair
+    formData.append('userpic', myFileInput.files[0], 'chris.jpg');
+    formData.append('this_thing', 'will be deleted');
+    formData.delete('this_thing');
+    formData.get('username'); // Returns "Chris"
+    formData.append('username', 'Bob');
+    formData.getAll('username'); // Returns ["Chris", "Bob"]
+  </code></pre>
+
+
+
+<h2 id="ajax_formdata">AJAX+FormData</h2>
+
+  <div class="example">
+    Form Receiver :
+    <input type="text" value="php/form_submit.php" id="fd_form_receiver"/>
+  </div>
+
+  <h3>GET method</h3>
+  <div class="example">
+  <form action="php/form_submit.php" method="get" onsubmit="fd_AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" />
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h3>POST method</h3>
+  <h4>Enctype: application/x-www-form-urlencoded (default)</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="post" onsubmit="fd_AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" />
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h4>Enctype: multipart/form-data</h4>
+  <div class="example">
+  <form action="php/form_submit.php" method="post" enctype="multipart/form-data"
+      onsubmit="fd_AJAXSubmit(this); return false;">
+    <p>
+      First name: <input type="text" name="firstname" /><br />
+      Last name: <input type="text" name="lastname" /><br />
+      Sex:
+      <input id="s_male" type="radio" name="sex" value="male" />
+      <label for="s_male">Male</label>
+      <input id="s_female" type="radio" name="sex" value="female" />
+      <label for="s_female">Female</label><br />
+      Password: <input type="password" name="secret" /><br />
+      What do you prefer:
+      <select name="image_type">
+        <option>Books</option>
+        <option>Cinema</option>
+        <option>TV</option>
+      </select>
+    </p>
+    <p>
+      Post MULTIPLE photos:
+      <input type="file" multiple name="photos[]">
+    </p>
+    <p>
+      <input id="v_bike" type="checkbox" name="vehicle[]" value="Bike" />
+      <label for="v_bike">I have a bike</label><br />
+      <input id="v_car" type="checkbox" name="vehicle[]" value="Car" />
+      <label for="v_car">I have a car</label>
+    </p>
+    <p>
+      Describe yourself:<br />
+      <textarea name="description" cols="50" rows="8"></textarea>
+    </p>
+    <br>
+    <input type="submit" value="Submit" />
+  </form>
+  </div>
+
+  <h4>RESPONSE</h4>
+  <pre>
+  <code id="fd_forms_results">
+  </code></pre>
+
+  <script>
+    "use strict";
+    function ajaxSuccess () {
+      document.getElementById("fd_forms_results").innerHTML = this.responseText;
+    }
+    function fd_AJAXSubmit (form_el) {
+      if (!form_el.action) { return; }
+      // var receiver = form.action;
+      var receiver = document.getElementById("fd_form_receiver").value;
+      var xhr = new XMLHttpRequest();
+      xhr.onload = ajaxSuccess;
+      if (form_el.method.toLowerCase() === "post") {
+        xhr.open("post", receiver);
+        xhr.send(new FormData(form_el));
+      } else {
+        var field, file_type, file_nr, search_str = "";
+        for (var nItem = 0; nItem < form_el.elements.length; nItem++) {
+          field = form_el.elements[nItem];
+          if (!field.hasAttribute("name")) { continue; }
+          file_type = field.nodeName.toUpperCase() === "INPUT" ?
+              field.getAttribute("type").toUpperCase() : "TEXT";
+          if (file_type === "FILE") {
+            for (file_nr = 0; file_nr < field.files.length;
+                search_str += "&" + escape(field.name) + "=" + escape(field.files[file_nr++].name));
+          } else if ((file_type !== "RADIO" && file_type !== "CHECKBOX") || field.checked) {
+            search_str += "&" + escape(field.name) + "=" + escape(field.value);
+          }
+        }
+        xhr.open("get", form_el.action.replace(/(?:\?.*)?$/, search_str.replace(/^&/, "?")), true);
+        xhr.send(null);
+      }
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;form
+      action="php/form_submit.php"
+      method="post"
+      enctype="multipart/form-data"
+      onsubmit="fd_AJAXSubmit(this); return false;"
+    &gt;...
+
+    &lt;input type="file" multiple name="photos[]"&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    "use strict";
+    function ajaxSuccess () {
+      console.log(this.responseText);
+    }
+    function AJAXSubmit (form_el) {
+      if (!form_el.action) { return; }
+      var xhr = new XMLHttpRequest();
+      xhr.onload = ajaxSuccess;
+      if (form_el.method.toLowerCase() === "post") {
+        xhr.open("post", form_el.action);
+        xhr.send(new FormData(form_el));
+      } else {
+        var field, file_type, file_nr, search_str = "";
+        for (var nItem = 0; nItem < form_el.elements.length; nItem++) {
+          field = form_el.elements[nItem];
+          if (!field.hasAttribute("name")) { continue; }
+          file_type = field.nodeName.toUpperCase() === "INPUT" ?
+              field.getAttribute("type").toUpperCase() : "TEXT";
+          if (file_type === "FILE") {
+            for (file_nr = 0; file_nr < field.files.length;
+                search_str += "&" + escape(field.name) + "=" + escape(field.files[file_nr++].name));
+          } else if ((file_type !== "RADIO" && file_type !== "CHECKBOX") || field.checked) {
+            search_str += "&" + escape(field.name) + "=" + escape(field.value);
+          }
+        }
+        xhr.open("get", form_el.action.replace(/(?:\?.*)?$/, search_str.replace(/^&/, "?")), true);
+        xhr.send(null);
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="fetch">Fetch</h2>
+
+  <ul>
+    <li><strong>interfaces</strong> for fetching resources (including across the network), provides a generic definition of Request and Response objects (and other things involved with network requests)</li>
+    <li><strong>fetch(url_or_req_obj[,init])</strong> - fetch a resource, returns a Promise that resolves to a Response object, rejects with a TypeError
+      <ul>
+        <li><strong>init</strong> - options object with custom settings:</li>
+        <li>method - request method, e.g., GET|POST</li>
+        <li>headers - any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values</li>
+        <li>body - any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body</li>
+        <li>mode - mode you want to use for the request, e.g., cors|no-cors|same-origin</li>
+        <li>credentials - request credentials you want to use for the request: omit|same-origin|include, to automatically send cookies for the current domain, this option must be provided</li>
+        <li>cache - cache mode you want to use for the request: default|no-store|reload|no-cache|force-cache|only-if-cached</li>
+        <li>redirect - redirect mode to use: follow (automatically follow redirects), error (abort with an error if a redirect occurs), or manual (handle redirects manually)</li>
+        <li>referrerPolicy - specifies the value of the referer HTTP header: no-referrer|no-referrer-when-downgrade| origin|origin-when-cross-origin| unsafe-url</li>
+        <li>integrity - contains the subresource integrity value of the request (e.g., sha256-BpfB6...SnFSE=)</li>
+        <li>keepalive - used to allow the request to outlive the page, fetch with the keepalive flag is a replacement for the Navigator.sendBeacon() API</li>
+        <li>signal - an AbortSignal object instance; allows you to communicate with a fetch request and abort it if desired via an AbortController</li>
+      </ul>
+    </li>
+    <li><strong>Request</strong> - represents a resource request, constructor uses the same parameters as fetch
+      <ul>
+        <li><strong>properties:</strong></li>
+        <li>cache - cache mode of the request (e.g., default|reload|no-cache)</li>
+        <li>context - context of the request (e.g., audio|image|iframe, etc.)</li>
+        <li>credentials - credentials of the request (e.g., omit|same-origin|include). The default is "same-origin"</li>
+        <li>destination - string indicating the type of content being requested (RequestDestination enum)</li>
+        <li>headers - contains the associated Headers object of the request</li>
+        <li>integrity - subresource integrity value of the request (e.g., sha256-BpfBw...h2nFSE=)</li>
+        <li>method - request's method (GET|POST, etc.)</li>
+        <li>mode - mode of the request (e.g., cors, no-cors, same-origin, navigate.)</li>
+        <li>redirect - mode for how redirects are handled. It may be one of follow|error|manual</li>
+        <li>referrer - referrer of the request (e.g., client)</li>
+        <li>referrerPolicy - referrer policy of the request (e.g., no-referrer)</li>
+        <li>url - URL of the request</li>
+        <li><strong>methods:</strong></li>
+        <li>clone() - creates a copy of the current Request object</li>
+        <li><u>Request implements Body, so it has its properties and methods available</u></li>
+      </ul>
+      </li>
+    <li><strong>Response</strong> - represents the response to a request, constructor: new Response([body,init]), where body is null|BlobBufferSource| FormData|ReadableStream|URLSearchParams|USVString, and init is ob with status,statusText,headers_str_or_obj
+      <ul>
+        <li><strong>properties:</strong></li>
+        <li>headers - Headers object associated with the respons</li>
+        <li>ok - boolean stating whether the response was successful (status in the range 200-299) or not</li>
+        <li>redirected - whether or not the response is the result of a redirect; that is, its URL list has more than one entry</li>
+        <li>status - status code of the response (e.g., 200 for a success)</li>
+        <li>statusText - status message corresponding to the status code (e.g., OK for 200)</li>
+        <li>type - type of the response (e.g., basic, cors)</li>
+        <li>url - URL of the response</li>
+        <li>useFinalURL - Boolean stating whether this is the final URL of the response</li>
+        <li><strong>methods:</strong></li>
+        <li>clone() - creates a clone of a Response object, copy will fail if the body of the original request or response has already been read, but reading the body of a cloned response or request will not cause it to be marked as read in the original</li>
+        <li>error() - returns new Response object associated with a network error</li>
+        <li>redirect() - creates new response with a different URL</li>
+        <li><u>Response implements Body, so it has its properties and methods available</u></li>
+      </ul>
+    </li>
+    <li><strong>Headers</strong> - represents response/request headers, allows to query them and take different actions depending on the results
+      <ul>
+        <li>set(key,value[,filename]) - <strong>sets</strong> a new value for an existing key inside a FormData object, or adds the key/value if it does not already exist</li>
+        <li>append(key,value[,filename]) - <strong>appends</strong> a new value onto an existing key inside a FormData object, or adds the key if it does not already exist</li>
+        <li>get(key) - returns the first value associated with a given key from within a FormData object</li>
+        <li>delete(key) - deletes a key/value pair from a FormData object</li>
+        <li>has(key) - Boolean, whether a FormData object contains a certain key/value pair</li>
+        <li>keys() - iterator, allows to go through all keys of the key/value pairs contained in this object</li>
+        <li>values() - iterator, allows to go through all values of the key/value pairs contained in this object</li>
+        <li>entries() - iterator, allows to go through all key/value pairs contained in this object</li>
+      </ul>
+    </li>
+    <li><strong>Body</strong>(mixin) - provides methods relating to the body of the response/request, allowing you to declare what its content type is and how it should be handled, is an instance of any of the following types: ArrayBuffer, ArrayBufferView (Uint8Array and friends), Blob/File, string, URLSearchParams, FormData
+      <ul>
+        <li><strong>properties:</strong></li>
+        <li>body - simple getter used to expose a ReadableStream of the body contents</li>
+        <li>bodyUsed - Boolean that indicates whether the body has been read</li>
+        <li><strong>methods:</strong></li>
+        <li>arrayBuffer() - takes a Response stream and reads it to completion, returns a promise that resolves with an ArrayBuffer</li>
+        <li>blob() - takes a Response stream and reads it to completion, returns a promise that resolves with a Blob</li>
+        <li>formData() - takes a Response stream and reads it to completion, returns a promise that resolves with a FormData object</li>
+        <li>json() - takes a Response stream and reads it to completion, returns a promise that resolves with the result of parsing the body text as JSON</li>
+        <li>text() - takes a Response stream and reads it to completion, returns a promise that resolves with a USVString (text)</li>
+      </ul>
+    </li>
+    <li>Promise returned from fetch() wont reject on HTTP error status even if the response is an HTTP 404 or 500, it will resolve normally (with ok status set to false), and it will only reject on network failure or if anything prevented the request from completing</li>
+    <li>for security reasons, some headers can only be controlled by the user agent, these headers include the forbidden header names  and forbidden response header names</li>
+    <li><strong>Guard</strong> is a feature of Headers objects, with possible values of immutable, request, request-no-cors, response, or none, depending on where the header is used, when a new Headers object is created using the Headers() constructor, its guard is set to none (the default), when a Request or Response object is created, it has an associated Headers object whose guard is set as summarized below</li>
+    <li>header's guard affects the set(), delete(), and append() methods which change the header's contents. A TypeError is thrown if you try to modify a Headers object whose guard is immutable, the operation will work if: guard is request and the header name isn't a forbidden header name; guard is request-no-cors and the header name/value is a simple header; guard is response and the header name isn't a forbidden response header name</li>
+    <li></li>
+    <li><a href="https://github.com/github/fetch">fetch</a> - window.fetch polyfill</li>
+    <li><a href="https://github.com/bitinn/node-fetch">node-fetch</a> - module that brings window.fetch to Node.js </li>
+  </ul>
+
+  <div id="fetch_tests_result" class="example">
+  </div>
+
+  <script>
+    var ftr = document.querySelector('#fetch_tests_result');
+
+    var myHeaders = new Headers({'Content-Type': 'application/json'});
+    // same as: new Headers([['Content-Type', 'application/json']]);
+    // myHeaders.get('Content-Type') // should return 'application/json'
+    var myInit = {
+      method: 'POST',
+      headers: myHeaders,
+      //headers: { 'Content-Type': 'image/jpeg' },
+      mode: 'cors',
+      cache: 'default'
+    };
+    var myRequest = new Request('php/ajax_json.php');
+    // same as:
+    // var myRequest = new Request('php/ajax_json.php', {method: 'POST',... }'});
+
+    // var newRequest = myRequest.clone(); // a copy of the request is now stored in newRequest
+
+    // myRequest.url; // http://web-engineer-book/php/ajax_json.php
+    // myRequest.method; // POST
+    // myRequest.credentials; // same-origin
+    // myRequest.bodyUsed; // true
+
+    fetch(myRequest).then(function(response) {
+      var contentType = response.headers.get("content-type");
+      if(
+        response.ok &&
+        contentType &&
+        contentType.includes("application/json")
+      ) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    }).then(function(response) {
+      for (chapter in response) {
+        ftr.innerHTML += chapter+"<br>";
+        for (chapter_data in response[chapter]) {
+          ftr.innerHTML += response[chapter][chapter_data]+"<br>";
+        }
+      }
+    })
+    // get image content
+    // .then(response => response.blob())
+    // .then(blob => {
+    //   myImage.src = URL.createObjectURL(blob);
+    // })
+    .catch(error => {
+      console.error(error);
+    });
+  </script>
+
+  <pre><code class="javascript">
+    if (self.fetch) {
+      // run my fetch request here
+    } else {
+      // do something with XMLHttpRequest?
+    }
+
+    var ftr = document.querySelector('#fetch_tests_result');
+
+    var myHeaders = new Headers({'Content-Type': 'application/json'});
+    // same as: new Headers([['Content-Type', 'application/json']]);
+    // myHeaders.get('Content-Type') // should return 'application/json'
+    var myInit = {
+      method: 'POST',
+      headers: myHeaders,
+      //headers: { 'Content-Type': 'image/jpeg' },
+      mode: 'cors',
+      cache: 'default'
+    };
+    var myRequest = new Request('php/ajax_json.php');
+
+    // same as:
+    // var myRequest = new Request('php/ajax_json.php', {method: 'POST',... });
+
+    var newRequest = myRequest.clone(); // a copy of the request is now stored in newRequest
+    // or: var newRequest = new Request(myRequest, myInit);
+
+    // myRequest.url; // http://web-engineer-book/php/ajax_json.php
+    // myRequest.method; // POST
+    // myRequest.credentials; // same-origin
+    // myRequest.bodyUsed; // true
+
+    fetch(myRequest).then(function(response) {
+      var contentType = response.headers.get("content-type");
+      if (
+        response.ok &&
+        contentType &&
+        contentType.includes("application/json")
+      ) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    }).then(function(response) {
+      for (chapter in response) {
+        ftr.innerHTML += chapter;
+        for (chapter_data in response[chapter]) {
+          ftr.innerHTML += response[chapter][chapter_data];
+        }
+      }
+    })
+    // get image content
+    // .then(response => response.blob())
+    // .then(blob => {
+    //   myImage.src = URL.createObjectURL(blob);
+    // })
+    .catch(error => {
+      console.error(error);
+    });
+
+    // ----------
+
+    var myBlob = new Blob();
+    var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
+    var myResponse = new Response(myBlob,init);
+
+    // ---------- example POST method implementation
+
+    postData(`http://example.com/answer`, {answer: 42})
+      .then(data => console.log(JSON.stringify(data))) // JSON-string from `response.json()` call
+      .catch(error => console.error(error));
+
+    function postData(url = ``, data = {}) {
+      // Default options are marked with *
+      return fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, cors, *same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, same-origin, *omit
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            // "Content-Type": "application/x-www-form-urlencoded",
+        },
+        redirect: "follow", // manual, *follow, error
+        referrer: "no-referrer", // no-referrer, *client
+        body: JSON.stringify(data), // body data type must match "Content-Type" header
+      })
+      .then(response => response.json()); // parses response to JSON
+    }
+
+    // ---------- upload JSON data
+
+    var url = 'https://example.com/profile';
+    var data = {username: 'example'};
+    fetch(url, {
+      method: 'POST', // or 'PUT'
+      body: JSON.stringify(data), // data can be `string` or {object}!
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+    .then(response => console.log('Success:', JSON.stringify(response)))
+    .catch(error => console.error('Error:', error));
+
+    // ---------- upload FILE
+
+    var formData = new FormData();
+    var fileField = document.querySelector("input[type='file']");
+    formData.append('username', 'abc123');
+    formData.append('avatar', fileField.files[0]);
+    fetch('https://example.com/profile/avatar', {
+      method: 'PUT',
+      body: formData
+    })
+    .then(response => response.json())
+    .catch(error => console.error('Error:', error))
+    .then(response => console.log('Success:', JSON.stringify(response)));
+
+    // ---------- upload multiple FILES
+
+    var formData = new FormData();
+    var photos = document.querySelector("input[type='file'][multiple]");
+    formData.append('title', 'My Vegas Vacation');
+    formData.append('photos', photos.files);
+    fetch('https://example.com/posts', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(response => console.log('Success:', JSON.stringify(response)))
+    .catch(error => console.error('Error:', error));
+  </code></pre>
+
+  <table>
+    <tr>
+      <td>new object's type</td>
+      <td>creating constructor</td>
+      <td>guard setting of associated <code>Headers</code></td>
+    </tr>
+    <tr>
+      <td rowspan="2"><code>Request</code></td>
+      <td><code>Request()</code></td>
+      <td><code>request</code></td>
+    </tr>
+    <tr>
+      <td><code>Request()</code> with <code>mode</code> of <code>no-cors</code></td>
+      <td><code>request-no-cors</code></td>
+    </tr>
+    <tr>
+      <td rowspan="2"><code>Response</code></td>
+      <td><code>Response()</code></td>
+      <td><code>response</code></td>
+    </tr>
+    <tr>
+      <td><code>error()</code> or <code>redirect()</code> methods</td>
+      <td><code>immutable</code></td>
+    </tr>
+  </table>
+
+<h2 id="url">URL interface</h2>
+
+  <ul>
+    <li>URL interface represents an object providing static methods used to parse, construct, normalise, and encode URLs</li>
+    <li>new URL(url,[base_for_relative_url]) - constructor</li>
+    <li>properties
+    <ul>
+      <li>href - whole URL</li>
+      <li>origin - origin, that is its scheme, its domain and its port</li>
+      <li>host - domain (that is the hostname) followed by (if with port) a ':' and the port</li>
+      <li>protocol - protocol scheme, including the final ':'</li>
+      <li>hostname - domain</li>
+      <li>port - port number</li>
+      <li>pathname - initial '/' followed by the path</li>
+      <li>search - '?' followed by the parameters</li>
+      <li>searchParams - URLSearchParams object allowing to access the GET query arguments contained in the URL</li>
+      <li>hash - '#' followed by the fragment identifier</li>
+      <li>username - username specified before the domain name</li>
+      <li>password - password specified before the domain name</li>
+    </ul>
+    </li>
+    <li>methods (as from URLUtils)
+    <ul>
+      <li>toString() - whole URL, alias for URLUtils.href, though it can't be used to modify the value</li>
+      <li>toJSON() - whole URL, same string as the href property, supposed to only be invoked by the JSON.stringify() method</li>
+    </ul>
+    </li>
+    <li>static methods
+    <ul>
+      <li>URL.createObjectURL(obj) - unique blob URL from File, Blob or MediaSource, that is a URL with blob: as its scheme, followed by an opaque string uniquely identifying the object in the browser</li>
+      <li>URL.revokeObjectURL(objURL) - revokes an object URL previously created using URL.createObjectURL()</li>
+      <li>see <u>Files tricks</u> for examples</li>
+    </ul>
+    </li>
+  </ul>
+
+  <div id="url_tests" class="example">
+    <a href="https://usr:psw@dev.moz.org:123/en-US/docs/Hyper?yes=1&no=0#ooops" id="tests_link">tests link</a>
+  </div>
+
+  <script>
+    var url_tests = document.getElementById("url_tests");
+    var link = document.getElementById("tests_link");
+    var url = new URL("https://usr:psw@dev.moz.org:123/en-US/docs/Hyper?yes=1&no=0#ooops");
+    var obj = {key: url};
+    var url_2 = new URL("../cats", url);
+
+    url_tests.innerHTML +=
+    "link.toString(): " + link.toString() + "<br>" +
+    "link.hostname: " + link.hostname + "<br>" +
+    "url.href: " + url.href + "<br>" +
+    "url.origin: " + url.origin + "<br>" +
+    "url.host: " + url.host + "<br>" +
+    "url.protocol: " + url.protocol + "<br>" +
+    "url.hostname: " + url.hostname + "<br>" +
+    "url.port: " + url.port + "<br>" +
+    "url.pathname: " + url.pathname + "<br>" +
+    "url.search: " + url.search + "<br>" +
+    "url.searchParams.get('yes'): " + url.searchParams.get('yes') + "<br>" +
+    "url.hash: " + url.hash + "<br>" +
+    "url.username: " + url.username + "<br>" +
+    "url.password: " + url.password + "<br>" +
+    "JSON.stringify(obj): " + JSON.stringify(obj) + "<br>" +
+    "------------------------------------------------<br>";
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href + "<br>";
+    url_2.hash = 'cat';
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href + "<br>";
+    url_2.pathname = 'демон.html';
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href;
+  </script>
+
+  <pre><code class="javascript">
+    var url_tests = document.getElementById("url_tests");
+    var link = document.getElementById("tests_link");
+    var url = new URL("https://usr:psw@dev.moz.org:123/en-US/docs/Hyper?yes=1&no=0#ooops");
+    var obj = {key: url};
+    var url_2 = new URL("../cats", url);
+
+    url_tests.innerHTML +=
+    "link.toString(): " + link.toString() +
+    "link.hostname: " + link.hostname +
+    "url.href: " + url.href +
+    "url.origin: " + url.origin +
+    "url.host: " + url.host +
+    "url.protocol: " + url.protocol +
+    "url.hostname: " + url.hostname +
+    "url.port: " + url.port +
+    "url.pathname: " + url.pathname +
+    "url.search: " + url.search +
+    "url.searchParams.get('yes'): " + url.searchParams.get('yes') +
+    "url.hash: " + url.hash +
+    "url.username: " + url.username +
+    "url.password: " + url.password +
+    "JSON.stringify(obj): " + JSON.stringify(obj) +
+    "------------------------------------------------";
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href;
+    url_2.hash = 'cat';
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href;
+    url_2.pathname = 'демон.html';
+    url_tests.innerHTML +=
+    "url_2.href: " + url_2.href;
+
+    const response = await fetch(new URL('http://www.example.com/демон.html'));
+
+    (new URL(document.location)).searchParams
+
+    // https://developer.mozilla.org/
+    var a = new URL("/", "https://developer.mozilla.org");
+    // https://developer.mozilla.org/
+    var b = new URL("https://developer.mozilla.org");
+    // https://developer.mozilla.org/en-US/docs
+    var c = new URL('en-US/docs', b);
+    // https://developer.mozilla.org/en-US/docs
+    var d = new URL('/en-US/docs', b);
+    // https://developer.mozilla.org/en-US/docs
+    var f = new URL('/en-US/docs', d);
+    // https://developer.mozilla.org/en-US/docs
+    var g = new URL('/en-US/docs', "https://developer.mozilla.org/fr-FR/toto");
+    // https://developer.mozilla.org/en-US/docs
+    var h = new URL('/en-US/docs', a);
+    // TypeError exception as '' is not a valid URL
+    var i = new URL('/en-US/docs', '');
+    // TypeError exception as '/en-US/docs' is not a valid URL
+    var j = new URL('/en-US/docs');
+    // http://www.example.com/
+    var k = new URL('http://www.example.com', 'https://developers.mozilla.com');
+    // http://www.example.com/
+    var l = new URL('http://www.example.com', b);
+  </code></pre>
+
+
+
+<h2 id="filereader">FileReader</h2>
+
+  <ul>
+    <li>FileReader object lets web applications asynchronously read the contents of files (or raw data buffers) stored on the user's computer, using File or Blob objects to specify the file or data to read</li>
+    <li>File objects may be obtained from a FileList object returned as a result of a user selecting files using the input element, from a drag and drop operation's DataTransfer object</li>
+    <li>properties
+    <ul>
+      <li>error - DOMException representing the error that occurred while reading the file</li>
+      <li>readyState - state of the FileReader:
+        <ul>
+          <li>EMPTY - 0 - No data has been loaded yet</li>
+          <li>LOADING - 1 - Data is currently being loaded</li>
+          <li>DONE - 2 - The entire read request has been completed</li>
+        </ul>
+      </li>
+      <li>result - file's contents, is only valid after the read operation is complete, and the format of the data depends on which of the methods was used to initiate the read operation</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>abort() - aborts the read operation. Upon return, the readyState will be DONE</li>
+      <li>readAsArrayBuffer() - ArrayBuffer containing binary data</li>
+      <li>readAsBinaryString(blob_or_file) - raw binary data from the file in a string</li>
+      <li>readAsDataURL(blob_or_file) - string with a data: URL representing the file's data, to retrieve only the Base64 encoded string, you must remove data:*/*;base64, from the string</li>
+      <li>readAsText(blob_or_file[,encoding]) - text in a string</li>
+    </ul>
+    </li>
+  </ul>
+
+  <div class="example">
+    <input type="file" id="fr_file"/>
+    <select id="frr">
+      <option value="t">readAsText()</option>
+      <option value="ab">readAsArrayBuffer()</option>
+      <option value="bs">readAsBinaryString()</option>
+      <option value="du">readAsDataURL()</option>
+    </select>
+    <button onclick="readWithFileReader()">Read with FileReader()</button>
+    <button onclick="canvasToBlob()">Canvas to Blob</button>
+  </div>
+
+  <div id="fr_result" class="example h-10"></div></div>
+
+  <div id="fr_content" class="example h-20"></div>
+
+  <script>
+    var fr_result = document.getElementById("fr_result");
+    var fr_content = document.getElementById("fr_content");
+
+    // var fileInput = document.querySelector('input[type="file"]');
+    function readWithFileReader() {
+      // var file = fileInput.files.item(0);
+      var file = document.getElementById("fr_file").files.item(0),
+          reader = new FileReader(),
+          frr = document.getElementById("frr").value;
+      fr_result.innerHTML = 'reader.readyState = EMPTY [0]<br>';
+      reader.onabort = ()=>{fr_result.innerHTML+='ABORTED<br>'};
+      reader.onerror = ()=>{fr_result.innerHTML+='ERROR<br>'};
+      reader.onloadstart = ()=>{fr_result.innerHTML+='LOAD START<br>'};
+      reader.onprogress = ()=>{fr_result.innerHTML+='PROGRESS<br>'};
+      // each time the reading operation is completed (success or failure)
+      reader.onloadend = ()=>{fr_result.innerHTML+='LOAD END<br>'};
+      try {
+        if (frr == 'ab') {
+          reader.readAsArrayBuffer(file);
+        } else if (frr == 'bs') {
+          reader.readAsBinaryString(file);
+        } else if (frr == 'du') {
+          reader.readAsDataURL(file);
+        } else {
+          reader.readAsText(file);
+        }
+        fr_result.innerHTML += 'reader.readyState = LOADING [1]<br>';
+        // reading operation is successfully completed
+        reader.onload = function () {
+          fr_result.innerHTML += 'reader.readyState = DONE [2]<br>';
+          fr_content.innerHTML = reader.result;
+        };
+        return;
+      } catch (e) {
+        fr_result.innerHTML += e+'<br>'; return;
+      } finally {
+        fr_result.innerHTML += 'should be readed already...<br>';
+      }
+    }
+
+    function canvasToBlob () {
+      var canvas = document.createElement('canvas');
+      var height = 200;
+      var width  = 200;
+      canvas.width  = width;
+      canvas.height = height;
+      var ctx = canvas.getContext('2d');
+      ctx.strokeStyle = '#090';
+      ctx.beginPath();
+      ctx.arc(width/2, height/2, width/2 - width/10, 0, Math.PI*2);
+      ctx.stroke();
+      canvas.toBlob(function (blob) {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          fr_result.innerHTML = '';
+          fr_content.innerHTML = reader.result;
+        }
+        reader.readAsDataURL(blob);
+      });
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;input type="file" id="fr_file"/&gt;
+    &lt;select id="frr"&gt;
+      &lt;option value="t"&gt;readAsText()&lt;/option&gt;
+      &lt;option value="ab"&gt;readAsArrayBuffer()&lt;/option&gt;
+      &lt;option value="bs"&gt;readAsBinaryString()&lt;/option&gt;
+      &lt;option value="du"&gt;readAsDataURL()&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;button onclick="readWithFileReader()"&gt;Read with FileReader()&lt;/button&gt;
+    &lt;button onclick="canvasToBlob()"&gt;Canvas to Blob&lt;/button&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var fr_result = document.getElementById("fr_result");
+    var fr_content = document.getElementById("fr_content");
+
+    // var fileInput = document.querySelector('input[type="file"]');
+    function readWithFileReader() {
+      // var file = fileInput.files.item(0);
+      var file = document.getElementById("fr_file").files.item(0),
+          reader = new FileReader(),
+          frr = document.getElementById("frr").value;
+      fr_result.innerHTML = 'reader.readyState = EMPTY [0]';
+      reader.onabort = ()=>{fr_result.innerHTML+='ABORTED'};
+      reader.onerror = ()=>{fr_result.innerHTML+='ERROR'};
+      reader.onloadstart = ()=>{fr_result.innerHTML+='LOAD START'};
+      reader.onprogress = ()=>{fr_result.innerHTML+='PROGRESS'};
+      // each time the reading operation is completed (success or failure)
+      reader.onloadend = ()=>{fr_result.innerHTML+='LOAD END'};
+      try {
+        if (frr == 'ab') {
+          reader.readAsArrayBuffer(file);
+        } else if (frr == 'bs') {
+          reader.readAsBinaryString(file);
+        } else if (frr == 'du') {
+          reader.readAsDataURL(file);
+        } else {
+          reader.readAsText(file);
+        }
+        fr_result.innerHTML += 'reader.readyState = LOADING [1]';
+        // reading operation is successfully completed
+        reader.onload = function () {
+          fr_result.innerHTML += 'reader.readyState = DONE [2]';
+          fr_content.innerHTML = reader.result;
+        };
+        return;
+      } catch (e) {
+        fr_result.innerHTML += e; return;
+      } finally {
+        fr_result.innerHTML += 'should be readed already...';
+      }
+    }
+
+    function canvasToBlob () {
+      var canvas = document.createElement('canvas');
+      var height = 200;
+      var width  = 200;
+      canvas.width  = width;
+      canvas.height = height;
+      var ctx = canvas.getContext('2d');
+      ctx.strokeStyle = '#090';
+      ctx.beginPath();
+      ctx.arc(width/2, height/2, width/2 - width/10, 0, Math.PI*2);
+      ctx.stroke();
+      canvas.toBlob(function (blob) {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          fr_result.innerHTML = '';
+          fr_content.innerHTML = reader.result;
+        }
+        reader.readAsDataURL(blob);
+      });
+    }
+  </code></pre>
+
+
+
+<h2 id="filestricks">Files tricks</h2>
+
+
+  <div id="filestricks" class="example"
+    ondragenter="prevent_all(event)"
+    ondragover="prevent_all(event)"
+    ondrop="f_drop(event)"
+  >
+    Select one or multiple files and output them in below sections by type:<br>
+    <p><input id="trick_files" type="file" onchange="trickFilesSize(this);" multiple></p>
+    <p><label for="trick_files">LABEL element for #trick_files</label></p>
+    <p><button onclick="trickFileHide()">trickFileHide()</button></p>
+    <p><button onclick="trickFileClick()">trickFileClick()</button></p>
+    <p><input type="text" value="php/form_submit.php" id="trick_upload_url"/></p>
+    <p><button onclick="tricksFilesUpload()">tricksFilesUpload()</button></p>
+    <p>or drop files here from OS :)</p>
+  </div>
+
+  <div id="filestricks_result" class="example"></div>
+
+  <div id="filestricks_log" class="example"></div>
+
+  <iframe
+  id="pdf_viewer"
+  class="example"
+  ></iframe>
+  <video controls style="height:300px;width:48%;" id="trick_video" class="example w-50"></video>
+  <audio controls style="height:300px;width:48%;" id="trick_audio" class="example w-50"></audio>
+
+  <script>
+    var filestricks = document.getElementById("filestricks");
+    var fs_res = document.getElementById("filestricks_result");
+    var fs_log = document.getElementById("filestricks_log");
+    var pdf_viewer = document.getElementById("pdf_viewer");
+    var trick_video = document.getElementById("trick_video");
+    var trick_audio = document.getElementById("trick_audio");
+
+    var trick_files = document.getElementById("trick_files");
+    var trick_upload_url = document.getElementById("trick_upload_url").value;
+
+    function trickFilesSize(el) {
+      showInfo(trick_files.files);
+    }
+    function showInfo(all_files) {
+      var total_bytes = 0,
+          total_files = all_files.length,
+          total_bytes = 0,
+          files_desc = "";
+      fs_res.innerHTML = "<strong>"+total_files+" file(s):</strong><br>";
+      for (var file_nr = 0; file_nr < total_files; file_nr++) {
+        files_desc += all_files[file_nr].name+" = ";
+        files_desc += sizeDesc(all_files[file_nr].size)+" ["+all_files[file_nr].type+"]<br>";
+        total_bytes += all_files[file_nr].size;
+        if (all_files[file_nr].type.startsWith('image/')){
+          // using FileReader
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = document.createElement("img");
+            img.setAttribute("height","50px");
+            img.src = e.target.result;
+            fs_res.appendChild(img);
+          };
+          reader.readAsDataURL(all_files[file_nr]);
+          // // using URL
+          // var img = document.createElement("img");
+          // img.setAttribute("height","50px");
+          // img.src = window.URL.createObjectURL(all_files[file_nr]);
+          // fs_res.appendChild(img);
+          // img.onload = function() {
+          //   window.URL.revokeObjectURL(this.src);
+          // }
+        }
+
+        // ERRORS !?
+        // if (all_files[file_nr].type == 'application/pdf'){
+        //   var obj_url = pdf_viewer.setAttribute(
+        //     'src',
+        //     window.URL.createObjectURL(all_files[file_nr])
+        //   );
+        //   window.URL.revokeObjectURL(obj_url);
+        // }
+
+        if (all_files[file_nr].type.startsWith('audio/')){
+          var obj_url = trick_audio.setAttribute(
+            'src',
+            window.URL.createObjectURL(all_files[file_nr])
+          );
+          window.URL.revokeObjectURL(obj_url);
+        }
+        if (all_files[file_nr].type.startsWith('video/')){
+          var obj_url = trick_video.setAttribute(
+            'src',
+            window.URL.createObjectURL(all_files[file_nr])
+          );
+          window.URL.revokeObjectURL(obj_url);
+          // video.play()
+        }
+      }
+      fs_res.innerHTML += files_desc;
+      fs_res.innerHTML += "<strong>TOTAL SIZE: "+sizeDesc(total_bytes)+"</strong><br>";
+    }
+    function sizeDesc (bytes) {
+      var res = bytes+" bytes"
+      for (
+        var byte_types = ["Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"],
+        byte_type = 0,
+        b = bytes / 1024;
+        b > 1;
+        b /= 1024,
+        byte_type++
+      ) {
+        res = b.toFixed(3) + " " + byte_types[byte_type]
+      }
+      return res;
+    }
+    function trickFileHide() {
+      if (trick_files.style.display === "none") {
+        trick_files.style.display = "block";
+      } else {
+        trick_files.style.display = "none";
+      }
+    }
+    function trickFileClick() {
+      trick_files.click();
+    }
+
+    function tricksFilesUpload() {
+      fs_log.innerHTML = "";
+      for (var file_nr = 0; file_nr < trick_files.files.length; file_nr++) {
+        fs_log.innerHTML += trick_files.files[file_nr].name+"<br>";
+        fileUpload(trick_files.files[file_nr]);
+      }
+    }
+    function fileUpload(file) {
+      var xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", function(e) {
+        if (e.lengthComputable) {
+          var percentage = Math.round((e.loaded * 100) / e.total);
+          fs_log.innerHTML += percentage+"%<br>";
+        }
+      }, false);
+      // xhr.upload.addEventListener(
+      //   "load", // abort, error, ...
+      //   (e) => {fs_log.innerHTML += "100%<br>"},
+      //   false
+      // );
+      xhr.open(
+        "POST",
+        trick_upload_url
+      );
+      xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+      var reader = new FileReader();
+      reader.onload = (e) => {xhr.send(e.target.result)};
+      reader.readAsBinaryString(file);
+    }
+
+    // div id="filestricks"
+    // style="float:left;margin-left:1em;width:37%;height:300px;overflow:auto;font-size:1em;border:3px dotted gray;"
+    // ondragenter="prevent_all(event)"
+    // ondragover="prevent_all(event)"
+    // ondrop="f_drop(event)">
+    function prevent_all(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    function f_drop(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      showInfo(e.dataTransfer.files)
+    }
+  </script>
+
+  <pre><code class="html">
+    &lt;div id="filestricks" class="example"
+      ondragenter="prevent_all(event)"
+      ondragover="prevent_all(event)"
+      ondrop="f_drop(event)"
+    &gt;
+      Select one or multiple files and output them in below sections by type:
+      &lt;input id="trick_files" type="file" onchange="trickFilesSize(this);" multiple&gt;
+      &lt;label for="trick_files"&gt;LABEL element for #trick_files&lt;/label&gt;
+      &lt;button onclick="trickFileHide()"&gt;trickFileHide()&lt;/button&gt;
+      &lt;button onclick="trickFileClick()"&gt;trickFileClick()&lt;/button&gt;
+      &lt;input type="text" value="php/form_submit.php" id="trick_upload_url"/&gt;
+      &lt;button onclick="tricksFilesUpload()"&gt;tricksFilesUpload()&lt;/button&gt;
+      or drop files here from OS :)
+    &lt;/div&gt;
+    &lt;div id="filestricks_result" class="example"&gt;&lt;/div&gt;
+    &lt;div id="filestricks_log" class="example"&gt;&lt;/div&gt;
+    &lt;iframe
+    id="pdf_viewer"
+    class="example"
+    &gt;&lt;/iframe&gt;
+    &lt;video controls style="height:300px;width:48%;" id="trick_video"&gt;&lt;/video&gt;
+    &lt;audio controls style="height:300px;width:48%;" id="trick_audio"&gt;&lt;/audio&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var filestricks = document.getElementById("filestricks");
+    var fs_res = document.getElementById("filestricks_result");
+    var fs_log = document.getElementById("filestricks_log");
+    var pdf_viewer = document.getElementById("pdf_viewer");
+    var trick_video = document.getElementById("trick_video");
+    var trick_audio = document.getElementById("trick_audio");
+
+    var trick_files = document.getElementById("trick_files");
+    var trick_upload_url = document.getElementById("trick_upload_url").value;
+
+    // input id="trick_files" type="file" onchange="trickFilesSize(this);" multiple
+    function trickFilesSize(el) {
+      showInfo(trick_files.files);
+    }
+
+    function showInfo(all_files) {
+      var total_bytes = 0,
+          total_files = all_files.length,
+          total_bytes = 0,
+          files_desc = "";
+      fs_res.innerHTML = total_files+" file(s):";
+      for (var file_nr = 0; file_nr &lt; total_files; file_nr++) {
+        files_desc += all_files[file_nr].name+" = ";
+        files_desc += sizeDesc(all_files[file_nr].size)+" ["+all_files[file_nr].type+"]";
+        total_bytes += all_files[file_nr].size;
+        if (all_files[file_nr].type.startsWith('image/')){
+          // using FileReader
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = document.createElement("img");
+            img.setAttribute("height","50px");
+            img.src = e.target.result;
+            fs_res.appendChild(img);
+          };
+          reader.readAsDataURL(all_files[file_nr]);
+          // // using URL
+          // var img = document.createElement("img");
+          // img.setAttribute("height","50px");
+          // img.src = window.URL.createObjectURL(all_files[file_nr]);
+          // fs_res.appendChild(img);
+          // img.onload = function() {
+          //   window.URL.revokeObjectURL(this.src);
+          // }
+        }
+        // ERRORS !?
+        if (all_files[file_nr].type == 'application/pdf'){
+          var obj_url = pdf_viewer.setAttribute(
+            'src',
+            window.URL.createObjectURL(all_files[file_nr])
+          );
+          window.URL.revokeObjectURL(obj_url);
+        }
+        if (all_files[file_nr].type.startsWith('audio/')){
+          var obj_url = trick_audio.setAttribute(
+            'src',
+            window.URL.createObjectURL(all_files[file_nr])
+          );
+          window.URL.revokeObjectURL(obj_url);
+        }
+        if (all_files[file_nr].type.startsWith('video/')){
+          var obj_url = trick_video.setAttribute(
+            'src',
+            window.URL.createObjectURL(all_files[file_nr])
+          );
+          window.URL.revokeObjectURL(obj_url);
+          // video.play()
+        }
+      }
+      fs_res.innerHTML += files_desc;
+      fs_res.innerHTML += "TOTAL SIZE: "+sizeDesc(total_bytes);
+    }
+    function sizeDesc (bytes) {
+      var res = bytes+" bytes"
+      for (
+        var byte_types = ["Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"],
+        byte_type = 0,
+        b = bytes / 1024;
+        b > 1;
+        b /= 1024,
+        byte_type++
+      ) {
+        res = b.toFixed(3) + " " + byte_types[byte_type]
+      }
+      return res;
+    }
+
+    function tricksFilesUpload() {
+      fs_log.innerHTML = "";
+      for (var file_nr = 0; file_nr < trick_files.files.length; file_nr++) {
+        fs_log.innerHTML += trick_files.files[file_nr].name;
+        fileUpload(trick_files.files[file_nr]);
+      }
+    }
+    function fileUpload(file) {
+      var xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", function(e) {
+        if (e.lengthComputable) {
+          var percentage = Math.round((e.loaded * 100) / e.total);
+          fs_log.innerHTML += percentage+"%";
+        }
+      }, false);
+      // xhr.upload.addEventListener(
+      //   "load", // abort, error, ...
+      //   (e) => {fs_log.innerHTML += "100%"},
+      //   false
+      // );
+      xhr.open(
+        "POST",
+        trick_upload_url
+      );
+      xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+      var reader = new FileReader();
+      reader.onload = (e) => {xhr.send(e.target.result)};
+      reader.readAsBinaryString(file);
+    }
+
+    function prevent_all(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    function f_drop(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      showInfo(e.dataTransfer.files)
+    }
+
+    function trickFileHide() {
+      if (trick_files.style.display === "none") {
+        trick_files.style.display = "block";
+      } else {
+        trick_files.style.display = "none";
+      }
+    }
+    function trickFileClick() {
+      trick_files.click();
+    }
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

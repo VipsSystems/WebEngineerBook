@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas game, angle movement, tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, game, angle movement, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+  canvas {
+      border:1px solid #d3d3d3;
+      background-color: #f1f1f1;
+  }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas game angle movement tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body onload="startGame()">
+
+  <h2>Angle movement</h2>
+
+  <ul>
+    <li>Click on canvas and use keyboard to move tank</li>
+  </ul>
+
+  <div class="example">
+    <canvas
+      id="canvas"
+    ></canvas>
+  </div>
+
+  <script>
+
+    var myGamePieceRotating;
+    var myGamePieceCircle;
+    var myGamePieceTank;
+
+    function startGame() {
+      myGamePieceRotating = new component(30, 30, "red", 80, 75);
+      myGamePieceCircle = new component(30, 30, "blue", 100, 150);
+      myGamePieceTank = new component(30, 30, "../images/tank.png", 200, 200, "image");
+
+      myGameArea.start();
+    }
+
+    var myGameArea = {
+      canvas : document.getElementById("canvas"), // OR document.createElement("canvas"),
+      start : function() {
+        this.canvas.width = 480;
+        this.canvas.height = 270;
+        this.context = this.canvas.getContext("2d");
+        // document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
+
+        this.interval = setInterval(updateGameArea, 20);
+
+        this.canvas.id = "canvas";
+        this.canvas.setAttribute("tabindex", "1");
+
+        document.getElementById("canvas").addEventListener('keydown', function (e) {
+          e.preventDefault();
+          myGameArea.keys = (myGameArea.keys || []);
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        }, false);
+        document.getElementById("canvas").addEventListener('keyup', function (e) {
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        }, false);
+      },
+      stop : function() {
+        clearInterval(this.interval);
+      },
+      clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+    }
+
+    function component(width, height, color, x, y, type) {
+      this.type = type;
+      if (this.type == "image") {
+        this.image = new Image();
+        this.image.src = color;
+      }
+
+      this.width = width;
+      this.height = height;
+      this.x = x;
+      this.y = y;
+      this.speed = 1;
+      this.angle = 0;
+      this.moveAngle = 1;
+
+      this.update = function() {
+        ctx = myGameArea.context;
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        if (this.type == "image") {
+          ctx.drawImage(
+            this.image,
+            this.width / -2,
+            this.height / -2,
+            this.width,
+            this.height
+          );
+        } else {
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            this.width / -2,
+            this.height / -2,
+            this.width,
+            this.height
+          );
+        }
+
+        ctx.restore();
+      }
+      this.newPos = function() {
+        this.angle += this.moveAngle * Math.PI / 180;
+        this.x += this.speed * Math.sin(this.angle);
+        this.y -= this.speed * Math.cos(this.angle);
+      }
+    }
+
+    function updateGameArea() {
+      myGameArea.clear();
+
+      myGamePieceRotating.angle += 1 * Math.PI / 180;
+      myGamePieceRotating.update();
+
+      myGamePieceCircle.newPos();
+      myGamePieceCircle.update();
+
+      myGamePieceTank.moveAngle = 0;
+      myGamePieceTank.speed = 0;
+      if (myGameArea.keys && myGameArea.keys[37]) {myGamePieceTank.moveAngle = -1; }
+      if (myGameArea.keys && myGameArea.keys[39]) {myGamePieceTank.moveAngle = 1; }
+      if (myGameArea.keys && myGameArea.keys[38]) {myGamePieceTank.speed= 1; }
+      if (myGameArea.keys && myGameArea.keys[40]) {myGamePieceTank.speed= -1; }
+      myGamePieceTank.newPos();
+      myGamePieceTank.update();
+
+    }
+
+  </script>
+
+  <pre><code class="javascript">
+
+    // &lt;body onload="startGame()"&gt;
+
+    var myGamePieceRotating;
+    var myGamePieceCircle;
+    var myGamePieceTank;
+    function startGame() {
+      myGamePieceRotating = new component(30, 30, "red", 80, 75);
+      myGamePieceCircle = new component(30, 30, "blue", 100, 150);
+      myGamePieceTank = new component(30, 30, "../images/tank.png", 200, 200, "image");
+      myGameArea.start();
+    }
+    var myGameArea = {
+      canvas : document.getElementById("canvas"), // OR document.createElement("canvas"),
+      start : function() {
+        this.canvas.width = 480;
+        this.canvas.height = 270;
+        this.context = this.canvas.getContext("2d");
+        // document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
+        this.interval = setInterval(updateGameArea, 20);
+        this.canvas.id = "canvas";
+        this.canvas.setAttribute("tabindex", "1");
+        document.getElementById("canvas").addEventListener('keydown', function (e) {
+          e.preventDefault();
+          myGameArea.keys = (myGameArea.keys || []);
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        }, false);
+        document.getElementById("canvas").addEventListener('keyup', function (e) {
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        }, false);
+      },
+      stop : function() { clearInterval(this.interval); },
+      clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+    }
+
+    function component(width, height, color, x, y, type) {
+      this.type = type;
+      if (this.type == "image") {
+        this.image = new Image();
+        this.image.src = color;
+      }
+      this.width = width;
+      this.height = height;
+      this.x = x;
+      this.y = y;
+      this.speed = 1;
+      this.angle = 0;
+      this.moveAngle = 1;
+      this.update = function() {
+        ctx = myGameArea.context;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        if (this.type == "image") {
+          ctx.drawImage(
+            this.image,
+            this.width / -2,
+            this.height / -2,
+            this.width,
+            this.height
+          );
+        } else {
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            this.width / -2,
+            this.height / -2,
+            this.width,
+            this.height
+          );
+        }
+        ctx.restore();
+      }
+      this.newPos = function() {
+        this.angle += this.moveAngle * Math.PI / 180;
+        this.x += this.speed * Math.sin(this.angle);
+        this.y -= this.speed * Math.cos(this.angle);
+      }
+    }
+    function updateGameArea() {
+      myGameArea.clear();
+      myGamePieceRotating.angle += 1 * Math.PI / 180;
+      myGamePieceRotating.update();
+      myGamePieceCircle.newPos();
+      myGamePieceCircle.update();
+      myGamePieceTank.moveAngle = 0;
+      myGamePieceTank.speed = 0;
+      if (myGameArea.keys && myGameArea.keys[37]) {myGamePieceTank.moveAngle = -1; }
+      if (myGameArea.keys && myGameArea.keys[39]) {myGamePieceTank.moveAngle = 1; }
+      if (myGameArea.keys && myGameArea.keys[38]) {myGamePieceTank.speed= 1; }
+      if (myGameArea.keys && myGameArea.keys[40]) {myGamePieceTank.speed= -1; }
+      myGamePieceTank.newPos();
+      myGamePieceTank.update();
+    }
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

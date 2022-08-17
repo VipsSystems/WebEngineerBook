@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Programming tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="programming, build, application, pattern, principles, solid, osi, layer, trend, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Programming tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="build">Build</h2>
+
+  <ul>
+    <li>Focus
+      <ul>
+        <li>UX - enables user to promptly identify the exact feature/function they are looking for in the app, correct usage of design elements such as text alignment, image placement, color selection etc. direct the user attention i.e. help them focus on the things that might convert them to buyers</li>
+        <li>Usability - easy to navigate, user interface, easy to use and understand: search a product, read reviews, compare it to other products, add to cart, checkout etc. - in as limited steps as possible</li>
+        <li>Branding -  most tend to overlook, reflection of your brand in terms of logo, company values etc</li>
+      </ul>
+    </li>
+    <li>Features
+      <ul>
+        <li>Secure Payment Gateway - Stripe, PayPal, Braintree Payments etc.</li>
+        <li>Product Image Quality</li>
+        <li>Reviews</li>
+        <li>Dedicated "Discounts" Feature - abandoned carts represent significant lost revenue: retargeting users by offering special discounts on the products they left in their cart, retrieve lost sales by offering special discounts</li>
+        <li>Product Comparisons</li>
+        <li>Push Notifications</li>
+        <li>QR Codes</li>
+        <li>New Features by Experimenting with Advanced Tech</li>
+      </ul>
+    </li>
+    <li>layers
+      <ul>
+        <li>domain - define define units which play the role of entities and business rules and have a direct relationship to domain, most isolated and important layer of software, and it may be used by the application layer to define use cases</li>
+        <li>application - defines the actual behavior of application, thus being responsible for performing interactions among units of the domain layer, can delegates the persistence responsibility to the infrastructure layer, can also be used as an adapter to the infrastructure layer: may not know details about specific implementations just what is able to do</li>
+        <li>infrastructure - lowest layer of all, boundary to whatever is external to application: database, email services, queue engines, etc.</li>
+        <li>input interfaces - holds all the entry points of our application, such as controllers, the CLI, websockets, graphic user interfaces (in case of desktop applications), and so on, should not have any knowledge about business rules, use cases, persistence technologies, and not even about other kinds of logic, should only receive user input (like URL parameters), pass it on to the use case and finally return a response to the user</li>
+      </ul>
+    </li>
+    <li>
+      common feature of multilayer applications is the use of the repository pattern to communicate with the database or some other external persistence service (like an API), repository objects are essentially treated as collections, and the layers using them (domain and application) dont need to know which persistence technology lies underneath, the idea here is that the repository interface belongs to the domain layer, and the implementation, in turn, belongs to the infrastructure layer - i.e. the domain only knows about methods and parameters accepted by the repository, makes both layers more flexible, even with regards to testing, since JS doesnt implement the concept of interfaces, we can imagine our own, and based on that create a concrete implementation on the infrastructure layer
+    </li>
+  </ul>
+
+  <img src="../images/question-to-build-app-graph.jpg"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+
+<h2 id="patterns">Patterns</h2>
+
+  <h3>Creational</h3>
+
+  <img src="../images/pro-design(1).png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+  <h3>Structural</h3>
+  <img src="../images/pro-design(4).png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+  <h3>Behavioral</h3>
+  <img src="../images/pro-design(2).png"
+  style="position:relative;width:80%;margin-left:10%;">
+  <img src="../images/pro-design(3).png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+
+<h2 id="principles">Principles</h2>
+
+  <ul>
+    <li>clean and modular design, which would be easy to test, debug, and maintain in the future</li>
+    <li><strong>DRY (Dont repeat yourself)</strong> - dont write duplicate code, instead use abstraction to abstract common things in one place, block of code in more than two places consider making a separate method, or if you use a hard-coded value more than one time make them public final constant</li>
+    <li><strong>Encapsulate</strong> - encapsulate the code you expect or suspect to be changed in future, easy to test and maintain proper code, making variable and methods private by default and increasing access step by step like from a private to protected and not public, the Factory design pattern is one example of Encapsulation which encapsulates object creation code and provides flexibility to introduce a new product later with no impact on existing code</li>
+    <li><strong>Favor Composition over Inheritance</strong> (<u>Java example</u>)
+      <ul>
+        <li>from flexibility point of view - with Inheritance, you have to define which class you are extending in code, it cannot be changed at runtime, but with Composition you just define a Type which you want to use, which can hold its different implementation</li>
+        <li>limited code reuse with Inheritance - with Inheritance you can only extend one class, which means your code can only reuse just one class, not more than one, for functionalities from multiple class, use Composition: Authenticater, Authorizer etc, but with Inheritance you just stuck with only class</li>
+        <li>unit testing - when you design your class using Inheritance, you must need parent class in order to test child class, there is no way you can provide mock implementation of parent class</li>
+        <li>final classes - Composition allows code reuse even from final classes, which is not possible using Inheritance because you cannot extend final class in Java, which is necessary for Inheritance to reuse code</li>
+        <li>encapsulation - in case of Inheritance, sub class is dependent upon super class behavior. If parent classes changes its behavior than child class is also get affected. If classes are not properly documented and child class has not used the super class in a way it should be used, any change in super class can break functionality in sub class</li>
+        <li>Composition provides better way to reuse code and same time protect the class you are reusing from any of its client, but Inheritance doesnt offer that guarantee</li>
+        <li>sometime though Inheritance is necessary, mainly when you are creating class from same family</li>
+      </ul>
+    </li>
+    <li><strong>Programming for Interface not implementation</strong> - will lead to flexible code which can work with any new implementation of the interface</li>
+    <li><strong>Delegation principles</strong> - dont do all stuff by yourself, delegate it to the respective class, no duplication of code and pretty easy to modify behavior, event delegation is another example of this principle, where an event is delegated to handlers for handling</li>
+  </ul>
+
+
+
+<h2 id="solid">S.O.L.I.D.</h2>
+
+  <ul>
+    <li>principles designed for building software out modular, encapsulated, extendable and composable components</li>
+    <li><strong>S: Single Responsibility Principle</strong> - class, software components and microservices should be responsible for only one thing, put related features together, to change for the same reason and separate features if they will change for different reasons, reduces coupling between the individual component of the software and code</li>
+    <li><strong>O: Open-Closed Principle</strong> - classes, modules, functions should be open for extension, not modification, extend child classes rather then overloading parent (use it as base), prevents someone from changing already tried and tested code, ideally, if you are adding new functionality only than your code should be tested</li>
+    <li><strong>L: Liskov Substitution Principle</strong> - universal methods for classes and sub-classes, and universal call independent of final object
+      <ul>
+        <li>derived class or subclass must enhance functionality, but not reduce them</li>
+        <li>subtypes must be substitutable for supertype, methods or functions which uses superclass type must be able to work with the object of subclass without any issue</li>
+        <li>IF super-class (Animal) has a method that accepts a super-class type (Animal) parameter, its sub-class(Pigeon) should accept as argument a super-class type (Animal type) or sub-class type(Pigeon type), IF super-class returns a super-class type (Animal), its sub-class should return a super-class type (Animal type) or sub-class type(Pigeon)</li>
+        <li>closely related to the Single responsibility principle and Interface Segregation Principle</li>
+      </ul>
+    </li>
+    <li><strong>I: Interface Segregation</strong> - fine grained interfaces that are client specific
+      <ul>
+        <li>clients should not be forced to depend upon interfaces that they do not use: sub-classes should not be forced to depend on methods that they do not need or use, interfaces should perform only one job, any extra grouping of behavior should be abstracted away to another interface</li>
+        <li>happens mostly when one interface contains more than one functionality, and the client only needs one functionality and no other</li>
+      </ul>
+    </li>
+    <li><strong>D:Dependency Injection or Inversion</strong> - dependency should be on abstractions not concretions, slasses should less be dependent of services they are using, expose universal interfaces
+    <ul>
+      <li>High-level modules should not depend upon low-level modules, both should depend upon abstractions</li>
+      <li>Abstractions should not depend on details, details should depend upon abstractions</li>
+      <li>any class which is injected by DI framework is easy to test with the mock object and easier to maintain because object creation code is centralized in the framework and client code is not littered with that</li>
+    </ul>
+    </li>
+  </ul>
+
+  <img src="../images/solid.jpg"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+
+<h2 id="osi">OSI layers</h2>
+
+  <img src="../images/osi-0.jpg"
+  style="position:relative;width:60%;margin-left:20%;">
+
+  <img src="../images/osi-1.jpg"
+  style="position:relative;width:96%;margin-left:2%;">
+
+
+
+<h2 id="trends">Trends</h2>
+
+  <ul>
+    <li>AR/VR
+      <ul>
+        <li>Mobile AR disruption</li>
+        <li>AR in marketing &amp; advertising</li>
+        <li>AR in healthcare</li>
+        <li>AR in manufacturing</li>
+      </ul>
+    </li>
+    <li>IoT/Smart things
+      <ul>
+        <li>Smart homes &amp; smart areas</li>
+        <li>Routers equipped with more securities</li>
+        <li>Self-driving cars</li>
+        <li>IoT in healthcare</li>
+      </ul>
+    </li>
+    <li>AI/machine learning
+      <ul>
+        <li>AI automated DevOps through AIOps</li>
+        <li>AI-enabled chips</li>
+        <li>Automated machine learning</li>
+        <li>Interoperability among neural networks</li>
+      </ul>
+    </li>
+    <li>Beacons
+      <ul>
+        <li>Mobile payments beacons</li>
+        <li>AI-enabled chips</li>
+        <li>Automated machine learning</li>
+        <li>Beacon treasure hunting</li>
+      </ul>
+    </li>
+    <li>Cloud
+      <ul>
+        <li>Quantum computing</li>
+        <li>Hybrid cloud solutions</li>
+        <li>Evolution of cloud services and solutions</li>
+      </ul>
+    </li>
+    <li>Mobile wallets
+      <ul>
+        <li>Over 2 billion mobile wallet users</li>
+        <li>More secure mobile wallets</li>
+        <li>Contactless payment</li>
+      </ul>
+    </li>
+    <li>Blockchain
+      <ul>
+        <li>beyond bitcoin &amp; smart contracts</li>
+        <li>Asset tokenization</li>
+        <li>BAAS (Blockchain-as-a-service)</li>
+        <li>Trading on crypto-currencies exchange</li>
+        <li>Crypto space and gaming</li>
+      </ul>
+    </li>
+    <li>Wearables
+      <ul>
+        <li>Wearable technology claims first spot in fitness trends 2019</li>
+        <li>Increase in wearable watches causes decrease in sale of traditional watches.</li>
+      </ul>
+    </li>
+    <li>On-demand development apps
+      <ul>
+        <li>More focus on B2B sector</li>
+        <li>More industries to embrace On-demand applications</li>
+      </ul>
+    </li>
+  </ul>
+
+  <img src="../images/digital-wallet-trends-smart-speaker.png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

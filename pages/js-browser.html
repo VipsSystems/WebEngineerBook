@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JavaScript browser objects tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="javascript, js, browser, window, screen, location, history, navigator, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>JavaScript browser objects tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="window">window.*</h2>
+
+  <ul>
+    <li>Browser Object Model (BOM) allows JavaScript to "talk to" the browser</li>
+    <li><code>window</code> - represents browser window</li>
+    <li>all global JavaScript objects, functions, and variables automatically become members of the window object</li>
+    <li>global <strong>variables are properties</strong> of the window object</li>
+    <li>global <strong>functions are methods</strong> of the window object</li>
+    <li><strong>document</strong> object (of the HTML DOM) is a property of the window object: window.document.getElementById("header") is the same as document.getElementById("header")</li>
+    <li>browser window (the browser viewport) is NOT including toolbars and scrollbars</li>
+    <li>properties
+    <ul>
+      <li>self - current window</li>
+      <li>parent - parent window of the current window</li>
+      <li>opener - reference to the window that created the window</li>
+      <li>top - topmost browser window</li>
+      <li>name - sets or returns the name of a window</li>
+      <li>status - sets or returns the text in the statusbar of a window</li>
+      <li>defaultStatus - sets or returns the default text in the statusbar of a window</li>
+      <li>closed - whether a window has been closed or not</li>
+      <li>screen - Screen object for the window</li>
+      <li>history - History object for the window</li>
+      <li>console - reference to the Console object</li>
+      <li>document - Document object for the window</li>
+      <li>location - Location object for the window</li>
+      <li>navigator - Navigator object for the window</li>
+      <li>performance - Performance object, which can be used to gather performance information about the current document</li>
+      <li>crypto(window.crypto||window.msCrypto) - Crypto object associated to the global object, allows web pages access to certain cryptographic related services</li>
+      <li>localStorage</li>
+      <li>sessionStorage</li>
+      <li>innerWidth - width of a window's content area (viewport) including scrollbars</li>
+      <li>innerHeight - height of the window's content area (viewport) including scrollbars</li>
+      <li>outerWidth - width of the browser window, including toolbars/scrollbars</li>
+      <li>outerHeight - height of the browser window, including toolbars/scrollbars</li>
+      <li>devicePixelRatio - ratio of pixel sizes: the size of one CSS pixel to the size of one physical pixel</li>
+      <li>pageXOffset|scrollX - pixels the current document has been scrolled (horizontally) from the upper left corner of the window</li>
+      <li>pageYOffset|scrollY - pixels the current document has been scrolled (vertically) from the upper left corner of the window</li>
+      <li>screenTop - vertical coordinate of the window relative to the screen</li>
+      <li>screenLeft - horizontal coordinate of the window relative to the screen</li>
+      <li>screenX -  horizontal coordinate of the window relative to the screen</li>
+      <li>screenY - vertical coordinate of the window relative to the screen</li>
+      <li>frameElement - iframe element in which the current window is inserted</li>
+      <li>frames - returns all iframe elements in the current window</li>
+      <li>length - number of iframe elements in the current window</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>alert() - displays an alert box with a message and an OK button</li>
+      <li>prompt() - displays a dialog box that prompts the visitor for input</li>
+      <li>confirm() - displays a dialog box with a message and an OK and a Cancel button</li>
+      <li>open() - opens a new browser window</li>
+      <li>close() - closes the current window</li>
+      <li>stop() - stops the window from loading</li>
+      <li>focus() - sets focus to the current window</li>
+      <li>blur() - removes focus from the current window</li>
+      <li>print() - prints the content of the current window</li>
+      <li>resizeBy(plus_w,plus_h) - resizes the window by the specified pixels</li>
+      <li>resizeTo(w,h) - resizes the window to the specified width and height</li>
+      <li>scrollBy(x,y) - scrolls the document by the specified number of pixels</li>
+      <li>scrollTo(x,y) - scrolls the document to the specified coordinates</li>
+      <li>moveBy(x,y) - moves a window relative to its current position</li>
+      <li>moveTo(x,y) - moves a window to the specified position</li>
+      <li>setTimeout() - calls a function or evaluates an expression after a specified number of milliseconds</li>
+      <li>setInterval() - calls a function or evaluates an expression at specified intervals (in milliseconds)</li>
+      <li>clearTimeout() - clears a timer set with setTimeout()</li>
+      <li>clearInterval() - clears a timer set with setInterval()</li>
+      <li>requestAnimationFrame() - requests the browser to call a function to update an animation before the next repaint</li>
+      <li>atob() - decodes a base-64 encoded string</li>
+      <li>btoa() - encodes a string in base-64</li>
+      <li>getComputedStyle(el [,pseudoEl]) - gets the current computed CSS styles applied to an element</li>
+      <li>getSelection() - Selection object representing the range of text selected by the user</li>
+      <li>matchMedia(css_MQString) - MediaQueryList object representing the specified CSS media query string
+        <ul>
+          <li>properties: <strong>matches</strong> and <strong>media</strong></li>
+          <li>methods: <strong>addListener(functionref)</strong> and <strong>removeListener(functionref)</strong></li>
+        </ul>
+      </li>
+    </ul>
+    </li>
+    <li>canvas can appear too blurry on retina screens, window.devicePixelRatio to determine how much extra pixel density should be added to allow for a sharper image</li>
+  </ul>
+
+  <h3>Current window</h3>
+
+  <div id="window_checks" class="example">window_checks</div>
+
+  <div id="window_current" class="example w-50 h-30">w_current</div>
+  <div id="window_parent" class="example w-50 h-30">w_parent</div>
+
+  <div class="example">
+    <h3>this window</h3>
+    <button onclick="scrollWin(0, 50)">Scroll down</button>
+    <button onclick="scrollWin(0, -50)">Scroll up</button>
+    <button onclick="scrollWin(100, 0)">Scroll right</button>
+    <button onclick="scrollWin(-100, 0)">Scroll left</button>
+    <button onclick="scrollWinTo(300, 1500)">scrollWinTo(300, 1500)</button>
+  </div>
+
+  <div id="window_test" class="example">
+    <h3>new window</h3>
+    <button onclick="openWin()">Open "myWindow"</button>
+    <button onclick="closeWin()">Close "myWindow"</button><br>
+    <button onclick="checkWin()">Has "myWindow" been closed?</button><br>
+    <button onclick="resizeWinTo()">Resize "myWindow" to 800px * 600px</button>
+    <button onclick="resizeWinBy()">Make "myWindow" smaller</button>
+    <button onclick="moveWinTo()">Move "myWindow"</button>
+    <button onclick="moveWinBy()">Move "myWindow" by 75 * 50px</button>
+  </div>
+
+  <div id="window_test_result" class="example"></div>
+
+  <script>
+    var myWindow,
+      wtr = document.getElementById("window_test_result");
+    function openWin() {
+      myWindow = window.open(
+        "http://web-engineer-book/js-browser.html#window",
+        "myWindow",
+        "width=250, height=250"
+      );
+    }
+    function checkWin() {
+      if (!myWindow) {
+        wtr.innerHTML = "myWindow has never been opened";
+      } else {
+        if (myWindow.closed) {
+          wtr.innerHTML = "myWindow is closed";
+        } else {
+          wtr.innerHTML = "myWindow is opened";
+        }
+      }
+    }
+    function closeWin(){ if(myWindow){ myWindow.close(); } }
+    function resizeWinTo() {
+      myWindow.resizeTo(800, 600); myWindow.focus();
+    }
+    function resizeWinBy() {
+      myWindow.resizeBy(-100, -50); myWindow.focus();
+    }
+    function moveWinTo() {
+      myWindow.moveTo(150, 150); myWindow.focus();
+    }
+
+    function moveWinBy() {
+      myWindow.moveBy(75, 50); myWindow.focus();
+    }
+
+    function scrollWin(x, y) {
+      window.scrollBy(x, y);
+    }
+    function scrollWinTo(x, y) {
+      window.scrollTo(x, y);
+    }
+
+    var wc = document.getElementById("window_current");
+    var wp = document.getElementById("window_parent");
+    var w_current = window.self;
+    var w_parent = window.parent;
+    var w_checks = document.getElementById("window_checks");
+    function windows_tests() {
+      wc.innerHTML = "<strong>w_current</strong><br>" +
+      "name: " + w_current.name + "<br>" +
+      "status: " + w_current.status + "<br>" +
+      "defaultStatus: " + w_current.defaultStatus + "<br>" +
+      "closed: " + w_current.closed + "<br>" +
+      "innerWidth: " + w_current.innerWidth + "<br>" +
+      "innerHeight: " + w_current.innerHeight + "<br>" +
+      "outerWidth: " + w_current.outerWidth + "<br>" +
+      "outerHeight: " + w_current.outerHeight + "<br>" +
+      "pageXOffset= " + w_current.pageXOffset + "<br>" +
+      "scrollX: " + w_current.scrollX + "<br>" +
+      "pageYOffset: " + w_current.pageYOffset + "<br>" +
+      "scrollY: " + w_current.scrollY + "<br>" +
+      "screenTop: " + w_current.screenTop + "<br>" +
+      "screenLeft: " + w_current.screenLeft + "<br>" +
+      "screenX: " + w_current.screenX + "<br>" +
+      "screenY: " + w_current.screenY + "<br>" +
+      "frameElement: " + w_current.frameElement + "<br>" +
+      "frames: " + w_current.frames + "<br>" +
+      "length: " + w_current.length + "<br>" +
+      "screen: " + w_current.screen + "<br>" +
+      "history: " + w_current.history + "<br>" +
+      "console: " + w_current.console + "<br>" +
+      "document: " + w_current.document + "<br>" +
+      "navigator: " + w_current.navigator + "<br>" +
+      "localStorage: " + w_current.localStorage + "<br>" +
+      "sessionStorage: " + w_current.sessionStorage + "<br>" +
+      "location: " + w_current.location;
+
+      wp.innerHTML = "<strong>w_parent</strong><br>" +
+      "name: " + w_parent.name + "<br>" +
+      "status: " + w_parent.status + "<br>" +
+      "defaultStatus: " + w_parent.defaultStatus + "<br>" +
+      "closed: " + w_parent.closed + "<br>" +
+      "innerWidth: " + w_parent.innerWidth + "<br>" +
+      "innerHeight: " + w_parent.innerHeight + "<br>" +
+      "outerWidth: " + w_parent.outerWidth + "<br>" +
+      "outerHeight: " + w_parent.outerHeight + "<br>" +
+      "pageXOffset: " + w_parent.pageXOffset + "<br>" +
+      "scrollX: " + w_parent.scrollX + "<br>" +
+      "pageYOffset= " + w_parent.pageYOffset + "<br>" +
+      "scrollY: " + w_parent.scrollY + "<br>" +
+      "screenTop: " + w_parent.screenTop + "<br>" +
+      "screenLeft: " + w_parent.screenLeft + "<br>" +
+      "screenX: " + w_parent.screenX + "<br>" +
+      "screenY: " + w_parent.screenY + "<br>" +
+      "frameElement: " + w_parent.frameElement + "<br>" +
+      "frames: " + w_parent.frames + "<br>" +
+      "length: " + w_parent.length + "<br>" +
+      "screen: " + w_parent.screen + "<br>" +
+      "history: " + w_parent.history + "<br>" +
+      "console= " + w_parent.console + "<br>" +
+      "document: " + w_parent.document + "<br>" +
+      "navigator: " + w_parent.navigator + "<br>" +
+      "localStorage: " + w_parent.localStorage + "<br>" +
+      "sessionStorage: " + w_parent.sessionStorage + "<br>" +
+      "location: " + w_parent.location;
+
+      w_checks.innerHTML = "";
+      if (window.matchMedia("(max-width: 700px)").matches) {
+        w_checks.innerHTML += "viewport width <= 700 pixels<br>";
+      } else {
+        w_checks.innerHTML += "viewport width > 700 pixels<br>";
+      }
+
+      w_checks.innerHTML += "this box width: " +
+      window.getComputedStyle(w_checks, null).getPropertyValue("width") + "<br>";
+
+      var str = "Hello World!";
+      var enc = window.btoa(str);
+      var dec = window.atob(enc);
+      w_checks.innerHTML += "Encoded String: " + enc + "<br>" + "Decoded String: " + dec + "<br>";
+
+      w_checks.innerHTML += "text selection (window.getSelection()):<br>" + window.getSelection() + "<br>";
+      w_checks.innerHTML += "selections count: " + window.getSelection().rangeCount + "<br>";
+    }
+    setInterval(windows_tests,200);
+  </script>
+
+  <pre><code class="javascript">
+    var myWindow,
+      wtr = document.getElementById("window_test_result");
+    function openWin() {
+        "http://web-engineer-book/js-browser.html#window",
+        "myWindow",
+        "width=250, height=250"
+      );
+    }
+    function checkWin() {
+      if (!myWindow) {
+        wtr.innerHTML = "myWindow has never been opened!";
+      } else {
+        if (myWindow.closed) {
+          wtr.innerHTML = "myWindow has been closed!";
+        } else {
+          wtr.innerHTML = "myWindow has not been closed!";
+        }
+      }
+    }
+    function closeWin(){ if(myWindow){ myWindow.close(); } }
+    function resizeWinTo() {
+      myWindow.resizeTo(800, 600); myWindow.focus();
+    }
+    function resizeWinBy() {
+      myWindow.resizeBy(-100, -50); myWindow.focus();
+    }
+    function moveWinTo() {
+      myWindow.moveTo(150, 150); myWindow.focus();
+    }
+
+    function moveWinBy() {
+      myWindow.moveBy(75, 50); myWindow.focus();
+    }
+
+    function scrollWin(x, y) {
+      window.scrollBy(x, y);
+    }
+    function scrollWinTo(x, y) {
+      window.scrollTo(x, y);
+    }
+
+    var wc = document.getElementById("window_current");
+    var wp = document.getElementById("window_parent");
+    var w_current = window.self;
+    var w_parent = window.parent;
+    var w_checks = document.getElementById("window_checks");
+    function windows_tests() {
+      wc.innerHTML = "w_current.name = " + w_current.name +
+      "w_current.status = " + w_current.status +
+      // .....
+      "w_current.location = " + w_current.location;
+
+      wp.innerHTML = "w_parent.name = " + w_parent.name +
+      "w_parent.status = " + w_parent.status +
+      // .....
+      "w_parent.location = " + w_parent.location;
+
+      w_checks.innerHTML = "";
+      if (window.matchMedia("(max-width: 700px)").matches) {
+        w_checks.innerHTML += "viewport width &lt;= 700 pixels";
+      } else {
+        w_checks.innerHTML += "viewport width > 700 pixels";
+      }
+
+      w_checks.innerHTML += "this box width: " +
+      window.getComputedStyle(w_checks, null).getPropertyValue("width");
+
+      var str = "Hello World!";
+      var enc = window.btoa(str);
+      var dec = window.atob(enc);
+      w_checks.innerHTML += "Encoded String: " + enc + "Decoded String: " + dec;
+
+      w_checks.innerHTML += "text selection (window.getSelection()):" + window.getSelection();
+      w_checks.innerHTML += "selections count: " + window.getSelection().rangeCount;
+    }
+    setInterval(windows_tests,200);
+
+    // matchMedia listeners
+    function matchMediaFunction(x) {
+      if (x.matches) { // If media query matches
+        document.body.style.backgroundColor = "yellow";
+      } else {
+        document.body.style.backgroundColor = "pink";
+      }
+    }
+    var x = window.matchMedia("(min-width: 700px)")
+    matchMediaFunction(x) // Call listener function at run time
+    x.addListener(matchMediaFunction) // Attach listener function on state changes
+
+    all computed styles of an object
+    cssObj = window.getComputedStyle(elem, null)
+    for (i = 0; i &lt; cssObj.length; i++) {
+        cssObjProp = cssObj.item(i)
+        txt += cssObjProp + " = " + cssObj.getPropertyValue(cssObjProp);
+    }
+
+    // computed styles of a first letter (usage of pseudo element)
+    // window.getComputedStyle(elem, "first-letter").getPropertyValue("font-size");
+  </code></pre>
+
+
+
+<h2 id="screen">screen.*</h2>
+
+  <ul>
+    <li>screen object contains information about the visitor's screen</li>
+    <li>properties
+    <ul>
+      <li>availWidth - width of the screen (excluding the Windows Taskbar)</li>
+      <li>availHeight - height of the screen (excluding the Windows Taskbar)</li>
+      <li>width - total width of the screen</li>
+      <li>height - total height of the screen</li>
+      <li>colorDepth - bit depth of the color palette for displaying images</li>
+      <li>pixelDepth - color resolution (in bits per pixel) of the screen</li>
+      <li>orientation - current orientation of the screen (instance of ScreenOrientation)
+        <ul>
+          <li>properties
+            <ul>
+              <li>type</li>
+              <li>angle</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>lockOrientation(orientation) - locks the screen into the specified orientation
+        <ul>
+          <li>default</li>
+          <li>landscape</li>
+          <li>portrait</li>
+          <li>portrait-primary</li>
+          <li>portrait-secondary</li>
+          <li>landscape-primary</li>
+          <li>landscape-secondary</li>
+        </ul>
+      </li>
+      <li>unlock() - unlocks the orientation of the containing document from its default orientation</li>
+    </ul>
+    </li>
+  </ul>
+
+  <div class="example w-50 h-15">
+    <select id="or_select" style="width:250px;height:2em;">
+      <option value="default">default</option>
+      <option value="landscape">landscape</option>
+      <option value="portrait">portrait</option>
+      <option value="portrait-primary">portrait-primary</option>
+      <option value="portrait-secondary">portrait-secondary</option>
+      <option value="landscape-primary">landscape-primary</option>
+      <option value="landscape-secondary">landscape-secondary</option>
+    </select>
+    <button onclick="lock_or()" style="width:250px;height:2em;">lockOrientation(...)</button>
+    <button onclick="unlock_or()" style="width:250px;height:2em;">unlockOrientation()</button>
+  </div>
+  <div id="screen_test" class="example w-50 h-15"></div>
+
+  <script>
+    var st = document.getElementById("screen_test");
+
+    screen.or = (screen.msOrientation||screen.orientation||screen.mozOrientation);
+    screen.lock_or = (screen.lockOrientation||screen.mozLockOrientation||screen.msLockOrientation);
+    screen.unlock_or = (
+      screen.unlockOrientation ||
+      screen.mozUnlockOrientation ||
+      screen.msUnlockOrientation ||
+      ( screen.orientation && screen.orientation.unlock )
+    );
+    // or.onchange = function(e) { screen_tests() }
+    screen.or.addEventListener('change', function(e) { screen_tests() });
+    function lock_or() {
+      screen.lock_or( document.getElementById("or_select").value );
+    }
+    function unlock_or() {
+      screen.unlock_or();
+    }
+
+    function getDocumentPPI() {
+      var elem = document.createElement('div');
+      elem.style.width = '1in';
+      document.body.appendChild(elem);
+      var ppi = elem.offsetWidth;
+      // var ppi = document.defaultView.getComputedStyle(elem, null).getPropertyValue('width');
+      document.body.removeChild(elem);
+      return ppi;
+    }
+
+    function screen_tests() {
+      st.innerHTML = "screen.availWidth: " + screen.availWidth + "<br>" +
+      "screen.availHeight: " + screen.availHeight + "<br>" +
+      "screen.width: " + screen.width + "<br>" +
+      "screen.height: " + screen.height + "<br>" +
+      "screen.colorDepth: " + screen.colorDepth + "<br>" +
+      "screen.orientation.type : " + screen.or.type + "<br>" +
+      "screen.orientation.angle : " + screen.or.angle + "<br>" +
+      "getDocumentPPI(): " + getDocumentPPI();;
+    }
+    setInterval(screen_tests,1000);
+  </script>
+
+  <pre><code class="javascript">
+    var st = document.getElementById("screen_test");
+
+    screen.or = (screen.msOrientation||screen.orientation||screen.mozOrientation);
+    screen.lock_or = (screen.lockOrientation||screen.mozLockOrientation||screen.msLockOrientation);
+    screen.unlock_or = (
+      screen.unlockOrientation ||
+      screen.mozUnlockOrientation ||
+      screen.msUnlockOrientation ||
+      ( screen.orientation &amp;&amp; screen.orientation.unlock )
+    );
+    // or.onchange = function(e) { screen_tests() }
+    screen.or.addEventListener('change', function(e) { screen_tests() });
+    function lock_or() {
+      screen.lock_or( document.getElementById("or_select").value );
+    }
+    function unlock_or() {
+      screen.unlock_or();
+    }
+
+    function getDocumentPPI() {
+      var elem = document.createElement('div');
+      elem.style.width = '1in';
+      document.body.appendChild(elem);
+      var ppi = elem.offsetWidth;
+      // var ppi = document.defaultView.getComputedStyle(elem, null).getPropertyValue('width');
+      document.body.removeChild(elem);
+      return ppi;
+    }
+
+    function screen_tests() {
+      st.innerHTML = "screen.availWidth: " + screen.availWidth +
+      "screen.availHeight: " + screen.availHeight +
+      "screen.width: " + screen.width +
+      "screen.height: " + screen.height +
+      "screen.colorDepth: " + screen.colorDepth +
+      "screen.orientation.type : " + screen.or.type +
+      "screen.orientation.angle : " + screen.or.angle +
+      "getDocumentPPI(): " + getDocumentPPI();
+    }
+    setInterval(screen_tests,1000);
+  </code></pre>
+
+
+
+<h2 id="location">location.*</h2>
+
+  <ul>
+    <li>window.location(or simply location) object can be used to get the current page address (URL) and to redirect the browser to a new page</li>
+    <li>properties
+    <ul>
+      <li>protocol - sets or returns the protocol of a URL</li>
+      <li>hostname - sets or returns the hostname of a URL</li>
+      <li>port - sets or returns the port number of a URL</li>
+      <li>origin - returns the protocol, hostname and port number of a URL</li>
+      <li>href - sets or returns the entire URL (absolute, relative, to an anchor, protocol(ftp://|mailto:|file://))</li>
+      <li>host - sets or returns the hostname and port number of a URL</li>
+      <li>pathname - sets or returns the path name of a URL</li>
+      <li>hash - sets or returns the anchor part (#) of a URL</li>
+      <li>search - sets or returns the querystring part of a URL</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>reload([forceGet]) - reloads the current document (same as the reload button), forceGet - specifies the type of reloading: false(default) - reloads the current page from the cache, true - reloads the current page from the server</li>
+      <li>assign() - loads a new document</li>
+      <li>replace() - replaces the current document with a new one (it is not possible to navigate "back" to the original document)</li>
+    </ul>
+    </li>
+    <li>most browsers will not display default port numbers (80 for http and 443 for https)</li>
+  </ul>
+
+  <div id="location_test" class="example h-15"></div>
+
+  <script>
+    var location_test = document.getElementById("location_test");
+    location_test.innerHTML = "location.protocol: " + location.protocol + "<br>" +
+    "location.hostname: " + location.hostname + "<br>" +
+    "location.port: " + location.port + "<br>" +
+    "location.origin: " + location.origin + "<br>" +
+    "location.href: " + location.href + "<br>" +
+    "location.host: " + location.host + "<br>" +
+    "location.pathname: " + location.pathname + "<br>" +
+    "location.hash: " + location.hash + "<br>" +
+    "location.search: " + location.search;
+  </script>
+
+  <pre><code class="javascript">
+    var location_test = document.getElementById("location_test");
+    location_test.innerHTML = "location.protocol: " + location.protocol +
+    "location.hostname: " + location.hostname +
+    "location.port: " + location.port +
+    "location.origin: " + location.origin +
+    "location.href: " + location.href +
+    "location.host: " + location.host +
+    "location.pathname: " + location.pathname +
+    "location.hash: " + location.hash +
+    "location.search: " + location.search;
+  </code></pre>
+
+
+
+<h2 id="history">history.*</h2>
+
+  <ul>
+    <li>history object contains the URLs visited by the user (within a browser window)</li>
+    <li>properties
+    <ul>
+      <li>length - number of URLs in the history list
+        <ul>
+          <li>maximum length is 50</li>
+          <li>IE and Opera start at 0, while Firefox, Chrome, and Safari start at 1</li>
+          <li>returns at least 1, because the list includes the currently loaded page</li>
+          <li>property is useful to find out how many pages the user has visited in the current browsing session</li>
+          <li>read-only</li>
+        </ul>
+      </li>
+      <li>state - state of the current history entry</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>back() - loads the previous URL in the history list, equivalent to history.go(-1)</li>
+      <li>forward() - loads the next URL in the history list, equivalent to history.go(1)</li>
+      <li>go(number(-1|1|-3|...)|URL) - loads a specific URL from the history list</li>
+      <li>pushState(state_obj,title,URL) - add history entries
+        <ul>
+          <li>state object can be anything that can be serialized (if over 640k, use *Storage), associated with the new history entry, whenever the user navigates to the new state, a <strong>popstate</strong> event is fired, and the <strong>state</strong> property of the event contains a copy of the history entry's state object</li>
+          <li>never causes a <strong>hashchange</strong> event to be fired, even if the new URL differs from the old URL only in its hash</li>
+          <li>new URL can be any URL in the same origin as the current URL. In contrast, setting window.location keeps you at the same document only if you modify only the hash</li>
+          <li>you don't have to change the URL if you don't want to. In contrast, setting window.location = "#foo"; creates a new history entry only if the current hash isn't #foo</li>
+          <li>you can associate arbitrary data with your new history entry, with the hash-based approach, you need to encode all of the relevant data into a short string</li>
+          <li>if title is subsequently used by browsers, this data can be utilized (independent of, say, the hash)</li>
+        </ul>
+      </li>
+      <li>replaceState(state_obj,title,URL) - modifies the current history entry instead of creating a new one
+        <ul>
+          <li>doesn't prevent the creation of a new entry in the global browser history</li>
+          <li>useful when you want to update the state object or URL of the current history entry in response to some user action</li>
+        </ul>
+      </li>
+    </ul>
+    </li>
+  </ul>
+
+  <div class="example w-50 h-15">
+      <button onclick="history.back()" style="width:250px;height:2em;">history.back()</button>
+      <button onclick="history.forward()" style="width:250px;height:2em;">history.forward()</button>
+      <button onclick="history.go(-1)" style="width:250px;height:2em;">history.go(-1)</button>
+      <button onclick="history.go(-2)" style="width:250px;height:2em;">history.go(-2)</button>
+      <button onclick="history.go(2)" style="width:250px;height:2em;">history.go(2)</button>
+      <button onclick="history.go(1)" style="width:250px;height:2em;">history.go(1)</button>
+    </div>
+  <div id="history_tests" class="example w-50 h-15"></div>
+
+  <script>
+    document.getElementById("history_tests").innerHTML =
+      "history.length: " + history.length + "<br>" +
+      "history.state: " + history.state;
+  </script>
+
+  <h3>AJAX navigation</h3>
+
+  <h4>include/*</h4>
+
+  <pre><code class="html">
+    &lt;!-- include/header.php --&gt;
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+    &lt;script type="text/javascript" src="../js/ajax_nav.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="../css/style.css" /&gt;
+
+    &lt;!-- include/before_content.php --&gt;
+    &lt;p&gt;
+      &lt;a class="ajax-nav" href="first_page.php"&gt;First example&lt;/a&gt;
+      &lt;a class="ajax-nav" href="second_page.php"&gt;Second example&lt;/a&gt;
+      &lt;a class="ajax-nav" href="third_page.php"&gt;Third example&lt;/a&gt;
+      &lt;a class="ajax-nav" href="unexisting.php"&gt;Unexisting page&lt;/a&gt;
+    &lt;/p&gt;
+
+    &lt;!-- include/after_content.php --&gt;
+    &lt;p&gt;This is the footer. It is shared between all ajax pages.&lt;/p&gt;
+  </code></pre>
+
+  <h4>first_page.php , ...</h4>
+
+  <pre><code class="html">
+    &lt;?php
+    $page_title = "First page";
+    $as_json = false;
+    if (isset($_GET["view_as"]) &amp;&amp; $_GET["view_as"] == "json") {
+      $as_json = true;
+      ob_start();
+    } else {
+      ?&gt;
+      &lt;!doctype html&gt;
+      &lt;html&gt;
+      &lt;head&gt;
+        &lt;?php
+        include "include/header.php";
+        echo "&lt;title&gt;" . $page_title . "&lt;/title&gt;";
+        ?&gt;
+      &lt;/head&gt;
+
+      &lt;body&gt;
+
+      &lt;?php include "include/before_content.php"; ?&gt;
+
+      &lt;p&gt;This paragraph is ...&lt;/p&gt;
+
+      &lt;div id="ajax-content"&gt;
+    &lt;?php } ?&gt;
+
+      &lt;p&gt;This is the content of &lt;strong&gt;first_page.php&lt;/strong&gt;.&lt;/p&gt;
+
+    &lt;?php
+    if ($as_json) {
+      echo json_encode(array("page" =&gt; $page_title, "content" =&gt; ob_get_clean()));
+    } else {
+      ?&gt;
+      &lt;/div&gt;
+
+      &lt;p&gt;This paragraph is ...&lt;/p&gt;
+
+      &lt;?php
+      include "include/after_content.php";
+      echo "&lt;/body&gt;\n&lt;/html&gt;";
+    }
+  </code></pre>
+
+  <h4>js/ajax_nav.js</h4>
+
+  <pre><code class="javascript">
+    "use strict";
+    const ajaxRequest = new (function () {
+      const sTargetId = "ajax-content",
+        sViewKey = "view_as",
+        sAjaxClass = "ajax-nav",
+        rSearch = /\?.*$/,
+        rHost = /^[^\?]*\?*&amp;*/,
+        rView = new RegExp("&amp;" + sViewKey + "\\=[^&amp;]*|&amp;*$", "i"),
+        rEndQstMark = /\?$/,
+        oLoadingBox = document.createElement("div"),
+        oCover = document.createElement("div"),
+        oLoadingImg = new Image(),
+        oPageInfo = {
+          title: null,
+          url: location.href
+        }, oHTTPStatus = {
+          100: "Continue",
+          101: "Switching Protocols",
+          102: "Processing",
+          200: "OK",
+          201: "Created",
+          202: "Accepted",
+          203: "Non-Authoritative Information",
+          204: "No Content",
+          205: "Reset Content",
+          206: "Partial Content",
+          207: "Multi-Status",
+          208: "Already Reported",
+          226: "IM Used",
+          300: "Multiple Choices",
+          301: "Moved Permanently",
+          302: "Found",
+          303: "See Other",
+          304: "Not Modified",
+          305: "Use Proxy",
+          306: "Reserved",
+          307: "Temporary Redirect",
+          308: "Permanent Redirect",
+          400: "Bad Request",
+          401: "Unauthorized",
+          402: "Payment Required",
+          403: "Forbidden",
+          404: "Not Found",
+          405: "Method Not Allowed",
+          406: "Not Acceptable",
+          407: "Proxy Authentication Required",
+          408: "Request Timeout",
+          409: "Conflict",
+          410: "Gone",
+          411: "Length Required",
+          412: "Precondition Failed",
+          413: "Request Entity Too Large",
+          414: "Request-URI Too Long",
+          415: "Unsupported Media Type",
+          416: "Requested Range Not Satisfiable",
+          417: "Expectation Failed",
+          422: "Unprocessable Entity",
+          423: "Locked",
+          424: "Failed Dependency",
+          425: "Unassigned",
+          426: "Upgrade Required",
+          427: "Unassigned",
+          428: "Precondition Required",
+          429: "Too Many Requests",
+          430: "Unassigned",
+          431: "Request Header Fields Too Large",
+          500: "Internal Server Error",
+          501: "Not Implemented",
+          502: "Bad Gateway",
+          503: "Service Unavailable",
+          504: "Gateway Timeout",
+          505: "HTTP Version Not Supported",
+          506: "Variant Also Negotiates (Experimental)",
+          507: "Insufficient Storage",
+          508: "Loop Detected",
+          509: "Unassigned",
+          510: "Not Extended",
+          511: "Network Authentication Required"
+        };
+      function closeReq () {
+        oLoadingBox.parentNode &amp;&amp; document.body.removeChild(oLoadingBox);
+        bIsLoading = false;
+      }
+      function abortReq () {
+        if (!bIsLoading) { return; }
+        oReq.abort();
+        closeReq();
+      }
+      function ajaxError () {
+        alert("Unknown error.");
+      }
+      function ajaxLoad () {
+        var vMsg, nStatus = this.status;
+        switch (nStatus) {
+          case 200:
+            vMsg = JSON.parse(this.responseText);
+            document.title = oPageInfo.title = vMsg.page;
+            document.getElementById(sTargetId).innerHTML = vMsg.content;
+            if (bUpdateURL) {
+              history.pushState(oPageInfo, oPageInfo.title, oPageInfo.url);
+              bUpdateURL = false;
+            }
+            break;
+          default:
+            vMsg = nStatus + ": " + (oHTTPStatus[nStatus] || "Unknown");
+            switch (Math.floor(nStatus / 100)) {
+              /*
+              case 1:
+              // Informational 1xx
+              console.log("Information code " + vMsg);
+              break;
+              case 2:
+              // Successful 2xx
+              console.log("Successful code " + vMsg);
+              break;
+              case 3:
+              // Redirection 3xx
+              console.log("Redirection code " + vMsg);
+              break;
+              */
+              case 4:
+                /* Client Error 4xx */
+                alert("Client Error #" + vMsg);
+                break;
+              case 5:
+                /* Server Error 5xx */
+                alert("Server Error #" + vMsg);
+                break;
+              default:
+                /* Unknown status */
+                ajaxError();
+            }
+        }
+        closeReq();
+      }
+      function filterURL (sURL, sViewMode) {
+        return sURL.replace(rSearch, "") +
+          ("?" + sURL.replace(rHost, "&amp;").
+          replace(rView, sViewMode ? "&amp;" + sViewKey + "=" + sViewMode : "").
+          slice(1)).replace(rEndQstMark, "");
+      }
+      function getPage (sPage) {
+        if (bIsLoading) { return; }
+        oReq = new XMLHttpRequest();
+        bIsLoading = true;
+        oReq.onload = ajaxLoad;
+        oReq.onerror = ajaxError;
+        if (sPage) { oPageInfo.url = filterURL(sPage, null); }
+        oReq.open("get", filterURL(oPageInfo.url, "json"), true);
+        oReq.send();
+        oLoadingBox.parentNode || document.body.appendChild(oLoadingBox);
+      }
+      function requestPage (sURL) {
+        if (history.pushState) {
+          bUpdateURL = true;
+          getPage(sURL);
+        } else { // Ajax navigation is not supported
+          location.assign(sURL);
+        }
+      }
+      function processLink () {
+        if (this.className === sAjaxClass) {
+          requestPage(this.href);
+          return false;
+        }
+        return true;
+      }
+      function init () {
+        oPageInfo.title = document.title;
+        for (
+          var oLink, nIdx = 0, nLen = document.links.length;
+          nIdx &lt; nLen;
+          document.links[nIdx++].onclick = processLink
+        );
+      }
+      var oReq, bIsLoading = false, bUpdateURL = false;
+      oLoadingBox.id = "ajax-loader";
+      oCover.onclick = abortReq;
+      oLoadingImg.src = "data:image/gif;base64,...==";
+      oCover.appendChild(oLoadingImg);
+      oLoadingBox.appendChild(oCover);
+      onpopstate = function (oEvent) {
+        bUpdateURL = false;
+        oPageInfo.title = oEvent.state.title;
+        oPageInfo.url = oEvent.state.url;
+        getPage();
+      };
+      window.addEventListener ? addEventListener("load", init, false) :
+        window.attachEvent ? attachEvent("onload", init) : (onload = init);
+      // Public methods
+      this.open = requestPage;
+      this.stop = abortReq;
+      this.rebuildLinks = init;
+    })();
+  </code></pre>
+
+
+
+<h2 id="navigator">navigator.*</h2>
+
+  <ul>
+    <li>contains information about the browser</li>
+    <li>properties
+    <ul>
+      <li>userAgent - user-agent header sent by the browser to the server</li>
+      <li>appName - name</li>
+      <li>appCodeName- code name</li>
+      <li>appVersion - version information</li>
+      <li>product - engine name</li>
+      <li>language - language of the browser</li>
+      <li>languages - array of DOMStrings representing the user's preferred languages</li>
+      <li>platform - for which platform the browser is compiled</li>
+      <li>oscpu - string that identifies the current operating system</li>
+      <li>cookieEnabled - whether cookies are enabled</li>
+      <li>javaEnabled() - whether or not the browser has Java enabled</li>
+      <li>geolocation - Geolocation object that can be used to locate the user's position</li>
+      <li>onLine - whether the browser is online</li>
+      <li>connection - NetworkInformation object containing information about the system's connection, such as the current bandwidth of the user's device or whether the connection is metered
+        <ul>
+          <li>properties</li>
+          <li>downlink - effective bandwidth estimate in megabits per second, rounded to the nearest multiple of 25 kilobits per seconds</li>
+          <li>downlinkMax - maximum downlink speed, in megabits per second (Mbps), for the underlying connection technology</li>
+          <li>effectiveType - effective type of the connection meaning one of slow-2g|2g|3g|4g, value is determined using a combination of recently observed round-trip time and downlink values</li>
+          <li>rtt - estimated effective round-trip time of the current connection, rounded to the nearest multiple of 25 milliseconds</li>
+          <li>type - type of connection a device is using to communicate with the network, one of the following values:  bluetooth|cellular|ethernet|none|wifi|wimax|other|unknown</li>
+          <li>events</li>
+          <li>onchange - connection information changes and the change is fired on this objec</li>
+          <li>methods (inherits from EventTarget)</li>
+        </ul>
+      </li>
+      <li>storage - StorageManager object used to access the overall storage capabilities of the browser for the current site or app</li>
+      <li>deviceMemory - amount of device memory in gigabytes, given by rounding to the nearest power of 2 and dividing that number by 1024</li>
+      <li>hardwareConcurrency - number of logical processors available to run threads on the user's computer</li>
+      <li>serviceWorker - ServiceWorkerContainer object for the associated document, which provides access to registration, removal, upgrade, and communication with the ServiceWorker</li>
+      <li>mimeTypes -  MimeTypeArray object, list of MIME types recognized by the browser</li>
+      <li>mediaCapabilities - MediaCapabilities object that can expose information about the decoding and encoding capabilities for a given format and output capabilities as defined by the Media Capabilities API</li>
+      <li>mediaDevices - MediaDevices object, which provides access to connected media input devices like cameras and microphones, as well as screen sharing</li>
+      <li>activeVRDisplays - array containing every VRDisplay object that is currently presenting (VRDisplay.ispresenting is true)</li>
+      <li>maxTouchPoints - maximum number of simultaneous touch contact points are supported by the current device</li>
+      <li>plugins - PluginArray object, listing the Plugin objects describing the plugins installed in the application</li>
+      <li>locks - LockManager object which provides methods for requesting a new Lock object and querying for an existing Lock object
+        <ul>
+          <li>request(var promise = name[, {mode:exclusive|shared, ifAvailable:false, steal:false, signal:AbortController.signal}], callback) - requests a Lock object with parameters specifying its name and characteristics, requested Lock is passed to a callback, while the function itself returns a Promise that resolves with undefined</li>
+          <li>query() - returns a Promise that resolves with a LockManagerSnapshot which contains information about held and pending locks</li>
+        </ul>
+      </li>
+      <li>permissions - Permissions object that can be used to query and update permission status of APIs covered by the Permissions API
+        <ul>
+          <li>query(PermissionDescriptorObj) - state of a user permission on the global scope for a given API via Object:
+            <ul>
+              <li>name : (API name) accelerometer | accessibility-events | ambient-light-sensor | background-sync | camera | clipboard-read | clipboard-write | geolocation | gyroscope | magnetometer | microphone | midi | notifications | payment-handler | persistent-storage | push</li>
+              <li>userVisibleOnly : (Push only, not supported in Firefox, false), whether you want to show a notification for every message or be able to send silent push notifications</li>
+              <li>sysex : (Midi only, false)  whether you need and/or receive system exclusive messages</li>
+            </ul>
+          </li>
+          <li>request() - equests permission to use a given API. This is not currently supported in any browser</li>
+          <li>revoke() - revokes the permission currently set on a given API</li>
+        </ul>
+      </li>
+      <li>credentials - CredentialsContainer interface, which exposes methods to request-credentials and  notifies the user agent when an interesting event occurs, such as a successful sign-in or sign-out, can be used for feature detection</li>
+      <li>doNotTrack - user's do-not-track setting = 1 if the user has requested not to be tracked by web sites, content, or advertising, use window.doNotTrack for IE/Edge</li>
+      <li>usb</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>sendBeaconurl [,ArrayBufferView|Blob|DOMString|FormData]) - can be used to asynchronously transfer a small amount of data over HTTP to a web server</li>
+      <li>vibrate(pattern) - pulses the vibration hardware on the device, if such hardware exists. If the device doesn't support vibration, this method has no effect. If a vibration pattern is already in progress when this method is called, the previous pattern is halted and the new one begins instead</li>
+    </ul>
+    </li>
+    <li>"Netscape" is the appName for both IE11, Chrome, Firefox, and Safari</li>
+    <li>"Mozilla" is the appCodeName for both Chrome, Firefox, IE, Safari, and Opera</li>
+    <li>do not rely on <strong>product</strong>, most browsers returns "Gecko" as product name !!</li>
+    <li>information from the navigator object can often be misleading, and should not be used to detect browser versions because:
+      <ul>
+        <li>different browsers can use the same name</li>
+        <li>navigator data can be changed by the browser owner</li>
+        <li>some browsers misidentify themselves to bypass site tests</li>
+        <li>browsers cannot report new operating systems, released later than the browser</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div id="navigator_tests" class="example"></div>
+
+  <script>
+    var nt = document.getElementById("navigator_tests");
+    nt.innerHTML =
+      "navigator.userAgent: " + navigator.userAgent + "<br>" +
+      "navigator.appName: " + navigator.appName + "<br>" +
+      "navigator.appCodeName: " + navigator.appCodeName + "<br>" +
+      "navigator.appVersion: " + navigator.appVersion + "<br>" +
+      "navigator.product: " + navigator.product + "<br>" +
+      "navigator.language: " + navigator.language + "<br>" +
+      "navigator.languages: " + navigator.languages + "<br>" +
+      "navigator.platform: " + navigator.platform + "<br>" +
+      "navigator.cookieEnabled: " + navigator.cookieEnabled + "<br>" +
+      "navigator.javaEnabled(): " + navigator.javaEnabled() + "<br>" +
+      "navigator.geolocation: " + navigator.geolocation + "<br>" +
+      "navigator.onLine: " + navigator.onLine + "<br>" +
+      "navigator.deviceMemory: " + navigator.deviceMemory + "<br>" +
+      "navigator.hardwareConcurrency: " + navigator.hardwareConcurrency + "<br>" +
+      "navigator.serviceWorker: " + navigator.serviceWorker + "<br>" +
+      "navigator.activeVRDisplays: " + navigator.activeVRDisplays + "<br>" +
+      "navigator.maxTouchPoints: " + navigator.maxTouchPoints + "<br>" +
+      "navigator.plugins: " + navigator.plugins + "<br>" +
+      "navigator.oscpu: " + navigator.oscpu + "<br>" +
+      "navigator.mimeTypes: " + navigator.mimeTypes + "<br>" +
+      "navigator.mediaCapabilities: " + navigator.mediaCapabilities + "<br>" +
+      "navigator.doNotTrack: " + navigator.doNotTrack + "<br>" +
+      "window.doNotTrack: " + window.doNotTrack + "<br>";
+
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+    if (connection) {
+      nt.innerHTML += "navigator.connection: " + connection + "<br>" +
+      // Network type that browser uses
+      "connection.type: " + connection.type + "<br>" +
+      // Effective bandwidth estimate
+      "connection.downlink: " + connection.downlink + "<br>" +
+      // Effective round-trip time estimate
+      "connection.rtt: " + connection.rtt + "<br>" +
+      // Upper bound on the downlink speed of the first network hop
+      "connection.downlinkMax: " + connection.downlinkMax + "<br>" +
+      // Effective connection type determined using a combination of recently
+      // observed rtt and downlink values
+      "connection.effectiveType: " + connection.effectiveType + "<br>" +
+      // True if the user has requested a reduced data usage mode from the user agent
+      "connection.saveData: " + connection.saveData + "<br>";
+
+      var type = connection.type;
+      function updateConnectionStatus() {
+        nt.innerHTML += "Connection type changed from " + type + " to " + connection.type + "<br>";
+      }
+      connection.addEventListener('change', updateConnectionStatus);
+    } else {
+      nt.innerHTML += "navigator.connection NOT supported...<br>";
+    }
+
+    if ('activeVRDisplays' in navigator) {
+      nt.innerHTML += "activeVRDisplays:<br>"
+      for(var i = 0; i < navigator.activeVRDisplays.length; i++) {
+        nt.innerHTML += "Display " + navigator.activeVRDisplays[i].displayId + " is active" + "<br>";
+      }
+    } else {
+      nt.innerHTML += "navigator.activeVRDisplays NOT supported...<br>";
+    }
+
+    nt.innerHTML += "Plugins:<br>";
+    for(var i = 0; i < navigator.plugins.length; i++) {
+      nt.innerHTML += navigator.plugins[i].name + " - " +
+      navigator.plugins[i].filename + " - " +
+      navigator.plugins[i].description + " - " +
+      (navigator.plugins[i].version?navigator.plugins[i].version:"") + "<br>";
+    }
+
+    nt.innerHTML += "mimeTypes:<br>"
+    for(var i = 0; i < navigator.mimeTypes.length; i++) {
+      nt.innerHTML += "mimeType " + navigator.mimeTypes[i].type + "<br>";
+    }
+
+    // obtain the usage estimates and present the percentage of storage capacity currently used to the user
+    nt.innerHTML += "Percentage of storage capacity:";
+    navigator.storage.estimate().then(function(estimate) {
+      nt.innerHTML += (estimate.usage / estimate.quota).toFixed(2) + "<br>";
+    });
+  </script>
+
+  <pre><code class="javascript">
+    var nt = document.getElementById("navigator_tests");
+    nt.innerHTML =
+      "navigator.userAgent: " + navigator.userAgent +
+      "navigator.appName: " + navigator.appName +
+      "navigator.appCodeName: " + navigator.appCodeName +
+      "navigator.appVersion: " + navigator.appVersion +
+      "navigator.product: " + navigator.product +
+      "navigator.language: " + navigator.language +
+      "navigator.languages: " + navigator.languages +
+      "navigator.platform: " + navigator.platform +
+      "navigator.cookieEnabled: " + navigator.cookieEnabled +
+      "navigator.javaEnabled(): " + navigator.javaEnabled() +
+      "navigator.geolocation: " + navigator.geolocation +
+      "navigator.onLine: " + navigator.onLine +
+      "navigator.deviceMemory: " + navigator.deviceMemory +
+      "navigator.hardwareConcurrency: " + navigator.hardwareConcurrency +
+      "navigator.serviceWorker: " + navigator.serviceWorker +
+      "navigator.activeVRDisplays: " + navigator.activeVRDisplays +
+      "navigator.maxTouchPoints: " + navigator.maxTouchPoints +
+      "navigator.plugins: " + navigator.plugins +
+      "navigator.oscpu: " + navigator.oscpu +
+      "navigator.mimeTypes: " + navigator.mimeTypes +
+      "navigator.mediaCapabilities: " + navigator.mediaCapabilities +
+      "navigator.doNotTrack: " + navigator.doNotTrack +
+      "window.doNotTrack: " + window.doNotTrack;
+
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+    if (connection) {
+      nt.innerHTML += "navigator.connection: " + connection +
+      // Network type that browser uses
+      "connection.type: " + connection.type +
+      // Effective bandwidth estimate
+      "connection.downlink: " + connection.downlink +
+      // Effective round-trip time estimate
+      "connection.rtt: " + connection.rtt +
+      // Upper bound on the downlink speed of the first network hop
+      "connection.downlinkMax: " + connection.downlinkMax +
+      // Effective connection type determined using a combination of recently
+      // observed rtt and downlink values
+      "connection.effectiveType: " + connection.effectiveType +
+      // True if the user has requested a reduced data usage mode from the user agent
+      "connection.saveData: " + connection.saveData;
+
+      var type = connection.type;
+      function updateConnectionStatus() {
+        nt.innerHTML += "Connection type changed from " + type + " to " + connection.type;
+      }
+      connection.addEventListener('change', updateConnectionStatus);
+    } else {
+      nt.innerHTML += "navigator.connection NOT supported...";
+    }
+
+    if ('activeVRDisplays' in navigator) {
+      nt.innerHTML += "activeVRDisplays:"
+      for(var i = 0; i &lt; navigator.activeVRDisplays.length; i++) {
+        nt.innerHTML += "Display " + navigator.activeVRDisplays[i].displayId + " is active";
+      }
+    } else {
+      nt.innerHTML += "navigator.activeVRDisplays NOT supported...";
+    }
+
+    nt.innerHTML += "Plugins:";
+    for(var i = 0; i &lt; navigator.plugins.length; i++) {
+      nt.innerHTML += navigator.plugins[i].name + " - " +
+      navigator.plugins[i].filename + " - " +
+      navigator.plugins[i].description + " - " +
+      (navigator.plugins[i].version?navigator.plugins[i].version:"");
+    }
+
+    nt.innerHTML += "mimeTypes:"
+    for(var i = 0; i &lt; navigator.mimeTypes.length; i++) {
+      nt.innerHTML += "mimeType " + navigator.mimeTypes[i].type;
+    }
+
+    // obtain the usage estimates and present the percentage of storage capacity currently used to the user
+    nt.innerHTML += "Percentage of storage capacity:";
+    navigator.storage.estimate().then(function(estimate) {
+      nt.innerHTML += (estimate.usage / estimate.quota).toFixed(2);
+    });
+  </code></pre>
+
+
+
+<h2 id="geolocation">geolocation</h2>
+
+  <ul>
+    <li>navigator.geolocation - get the geographical position of a user, available <strong>only</strong> in secure contexts (HTTPS)</li>
+    <li>properties
+    <ul>
+      <li>coordinates - position and altitude of the device on Earth</li>
+      <li>position - position of the concerned device at a given time
+        <ul>
+          <li>position.coords - Coordinates object that defines the current location</li>
+          <li>position.timestamp - DOMTimeStamp representing the time at which the location was retrieved</li>
+        </ul>
+      </li>
+      <li>positionError - reason of an error occurring when using the geolocating device</li>
+      <li>positionOptions - object containing option properties to pass as a parameter of Geolocation.getCurrentPosition() and Geolocation.watchPosition()</li>
+    </ul>
+    </li>
+    <li>methods
+    <ul>
+      <li>getCurrentPosition() - current position of the device</li>
+      <li>watchPosition(success[,error,options]) - used to register a handler function that will be called automatically each time the position of the device changes, returns a watch ID for clearWatch()</li>
+      <li>clearWatch(id) - unregister location/error monitoring handlers previously installed using Geolocation.watchPosition()</li>
+    </ul>
+    </li>
+  </ul>
+
+  <div class="example">
+    <button onclick="geoFind()">Show my location</button>
+  </div>
+  <div id="geolocation_tests" class="example"></div>
+
+  <script>
+    function geoFind() {
+      var gt = document.getElementById("geolocation_tests");
+      if (!navigator.geolocation){
+        gt.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+        return;
+      }
+      function geo_success(position) {
+        var pos_date = new Date(position.timestamp);
+        gt.innerHTML =
+        "Latitude: " + position.coords.latitude + "°<br>" +
+        "Longitude: " + position.coords.longitude + "°<br>" +
+        "accuracy: " + position.coords.accuracy + "<br>" +
+        "altitude: " + position.coords.altitude + "<br>" +
+        "altitudeAccuracy: " + position.coords.altitudeAccuracy + "<br>" +
+        "heading: " + position.coords.heading + "<br>" +
+        "speed: " + position.coords.speed + "<br>" +
+        "timestamp: " + pos_date.toDateString();
+        // --- FOR <div id="mapholder"></div> :
+        // var latlon = new google.maps.LatLng(lat, lon)
+        // var mapholder = document.getElementById('mapholder')
+        // mapholder.style.height = '250px';
+        // mapholder.style.width = '500px';
+        // var myOptions = {
+        //   center:latlon,zoom:14,
+        //   mapTypeId:google.maps.MapTypeId.ROADMAP,
+        //   mapTypeControl:false,
+        //   navigationControlOptions:{
+        //     style:google.maps.NavigationControlStyle.SMALL
+        //   }
+        // }
+        // var map = new google.maps.Map(document.getElementById("mapholder"), myOptions);
+        // var marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+        // --- JUST IMAGE :
+        var img = new Image();
+        img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" +
+          latitude + "," + longitude + "&zoom=13&size=300x300&sensor=false";
+        gt.appendChild(img);
+      }
+      function geo_error(error) {
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            gt.innerHTML = "User denied the request for Geolocation."
+          break;
+          case error.POSITION_UNAVAILABLE:
+            gt.innerHTML = "Location information is unavailable."
+          break;
+          case error.TIMEOUT:
+            gt.innerHTML = "The request to get user location timed out."
+          break;
+          case error.UNKNOWN_ERROR:
+            gt.innerHTML = "An unknown error occurred."
+          break;
+        }
+      }
+      gt.innerHTML = "<p>Locating…</p>";
+      navigator.geolocation.getCurrentPosition(
+        geo_success,
+        geo_error
+      );
+      // navigator.geolocation.watchPosition(
+      //   geo_success,
+      //   geo_error,
+      //   {
+      //     enableHighAccuracy: false,
+      //     maximumAge: 3000,
+      //     timeout: 3000
+      //   }
+      // );
+    }
+  </script>
+
+  <pre><code class="javascript">
+    function geoFind() {
+      var gt = document.getElementById("geolocation_tests");
+      if (!navigator.geolocation){
+        gt.innerHTML = "Geolocation is not supported by your browser";
+        return;
+      }
+      function geo_success(position) {
+        var pos_date = new Date(position.timestamp);
+        gt.innerHTML =
+        "Latitude: " + position.coords.latitude + "°" +
+        "Longitude: " + position.coords.longitude + "°" +
+        "accuracy: " + position.coords.accuracy +
+        "altitude: " + position.coords.altitude +
+        "altitudeAccuracy: " + position.coords.altitudeAccuracy +
+        "heading: " + position.coords.heading +
+        "speed: " + position.coords.speed +
+        "timestamp: " + pos_date.toDateString();
+        // --- FOR &lt;div id="mapholder"&gt;&lt;/div&gt; :
+        // var latlon = new google.maps.LatLng(lat, lon)
+        // var mapholder = document.getElementById('mapholder')
+        // mapholder.style.height = '250px';
+        // mapholder.style.width = '500px';
+        // var myOptions = {
+        //   center:latlon,zoom:14,
+        //   mapTypeId:google.maps.MapTypeId.ROADMAP,
+        //   mapTypeControl:false,
+        //   navigationControlOptions:{
+        //     style:google.maps.NavigationControlStyle.SMALL
+        //   }
+        // }
+        // var map = new google.maps.Map(document.getElementById("mapholder"), myOptions);
+        // var marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+        // --- JUST IMAGE :
+        var img = new Image();
+        img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" +
+          latitude + "," + longitude + "&zoom=13&size=300x300&sensor=false";
+        gt.appendChild(img);
+      }
+      function geo_error(error) {
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            gt.innerHTML = "User denied the request for Geolocation."
+          break;
+          case error.POSITION_UNAVAILABLE:
+            gt.innerHTML = "Location information is unavailable."
+          break;
+          case error.TIMEOUT:
+            gt.innerHTML = "The request to get user location timed out."
+          break;
+          case error.UNKNOWN_ERROR:
+            gt.innerHTML = "An unknown error occurred."
+          break;
+        }
+      }
+      gt.innerHTML = "Locating";
+      navigator.geolocation.getCurrentPosition(
+        geo_success,
+        geo_error
+      );
+      // navigator.geolocation.watchPosition(
+      //   geo_success,
+      //   geo_error,
+      //   {
+      //     enableHighAccuracy: false,
+      //     maximumAge: 3000,
+      //     timeout: 3000
+      //   }
+      // );
+    }
+  </code></pre>
+
+
+
+<h2 id="alert">Alert/Confirm/Prompt</h2>
+
+  <ul>
+    <li>alert box is often used if you want to make sure information comes through to the user</li>
+    <li>confirm box is often used if you want the user to verify or accept something</li>
+    <li>prompt box is often used if you want the user to input a value before entering a page</li>
+  </ul>
+
+  <div class="example">
+    <button onclick="to_confirm()">confirm()</button>
+    <span id="toc">confirm result...</span><br>
+    <button onclick="to_prompt()">prompt()</button>
+    <span id="top">prompt result...</span><br>
+    <button onclick="alert('Hello\nthis is a\nmultiline alert\n:)')">alert()</button>
+  </div>
+
+  <script>
+    function to_confirm() {
+      if (confirm("Press a button!")) {
+          document.getElementById("toc").innerHTML = "You pressed OK!";
+      } else {
+          document.getElementById("toc").innerHTML = "You pressed Cancel!";
+      }
+    }
+    function to_prompt() {
+      var person = prompt("Please enter your name:", "Andrei");
+      if (person == null || person == "") {
+          document.getElementById("top").innerHTML = "User cancelled the prompt.";
+      } else {
+          document.getElementById("top").innerHTML = "Hello " + person + "! How are you today?";
+      }
+    }
+  </script>
+
+  <pre><code class="javascript">
+    function to_confirm() {
+      if (confirm("Press a button!")) {
+        document.getElementById("toc").innerHTML = "You pressed OK!";
+      } else {
+        document.getElementById("toc").innerHTML = "You pressed Cancel!";
+      }
+    }
+    function to_prompt() {
+      var person = prompt("Please enter your name:", "Andrei");
+      if (person == null || person == "") {
+        document.getElementById("top").innerHTML = "User cancelled the prompt.";
+      } else {
+        document.getElementById("top").innerHTML = "Hello " + person + "! How are you today?";
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="timing">Timing</h2>
+
+  <ul>
+    <li>window object allows execution of code at specified time intervals, these time intervals are called timing events</li>
+    <li>setTimeout(fn, ms) - executes a function, after waiting a specified number of milliseconds</li>
+    <li>clearTimeout(timeoutVar) - stops the execution of the function specified in setTimeout()</li>
+    <li>setInterval(fn, ms) - repeats the execution of the function continuously</li>
+    <li>clearInterval(timeoutVar) - stops the executions of the function specified in the setInterval()</li>
+  </ul>
+
+  <div class="example">
+    <p id="timeout_clock"></p>
+    <button onclick="startTimeoutClock()">startTimeoutClock</button>
+    <button onclick="stopTimeoutClock()">stopTimeoutClock</button>
+    <p id="interval_clock"></p>
+    <button onclick="startIntervalClock()">startIntervalClock</button>
+    <button onclick="stopIntervalClock()">stopIntervalClock</button>
+  </div>
+
+  <script>
+    var timeout_clock = document.getElementById('timeout_clock'),
+        interval_clock = document.getElementById('interval_clock'),
+        tc,
+        ic;
+
+    var checkTime = (i) => (i<10)?"0"+i:i; // add leading zero
+    function startTimeoutClock() {
+      var today = new Date(),
+          h = today.getHours(),
+          m = today.getMinutes(),
+          s = today.getSeconds();
+      m = checkTime(today.getMinutes());
+      s = checkTime(today.getSeconds());
+      timeout_clock.innerHTML = h + ":" + m + ":" + s;
+      tc = setTimeout(startTimeoutClock, 500);
+    }
+    function stopTimeoutClock() {
+      clearTimeout(tc);
+      timeout_clock.innerHTML = "timeoutClock stopped";
+    }
+    startTimeoutClock();
+
+    function startIntervalClock() {
+      ic = setInterval(
+        () => {d = new Date(); interval_clock.innerHTML = d.toLocaleTimeString()},
+        1000
+      );
+    }
+    function stopIntervalClock() {
+      clearInterval(ic);
+      interval_clock.innerHTML = "intervalClock stopped";
+    }
+    startIntervalClock();
+  </script>
+
+  <pre><code class="javascript">
+    var timeout_clock = document.getElementById('timeout_clock'),
+        interval_clock = document.getElementById('interval_clock'),
+        tc,
+        ic;
+
+    var checkTime = (i) => (i&lt;10)?"0"+i:i; // add leading zero
+    function startTimeoutClock() {
+      var today = new Date(),
+          h = today.getHours(),
+          m = today.getMinutes(),
+          s = today.getSeconds();
+      m = checkTime(m);
+      s = checkTime(s);
+      timeout_clock.innerHTML = h + ":" + m + ":" + s;
+      tc = setTimeout(startTimeoutClock, 500);
+    }
+    function stopTimeoutClock() {
+      clearTimeout(tc);
+      timeout_clock.innerHTML = "timeoutClock stopped";
+    }
+    startTimeoutClock();
+
+    function startIntervalClock() {
+      ic = setInterval(
+        () => {d = new Date(); interval_clock.innerHTML = d.toLocaleTimeString()},
+        1000
+      );
+    }
+    function stopIntervalClock() {
+      clearInterval(ic);
+      interval_clock.innerHTML = "intervalClock stopped";
+    }
+    startIntervalClock();
+  </code></pre>
+
+
+
+<h2 id="cookie">cookie</h2>
+
+  <ul>
+    <li>document.cookie property - let you store user information in web pages</li>
+    <li>invented to solve the problem "how to remember information about the user"</li>
+    <li>when a browser requests a web page from a server, cookies belonging to the page is added to the request</li>
+    <li>none of the examples below will work if your browser has local cookies support turned off</li>
+    <li>document.cookie will return all cookies in one string much like: "cookie1=value;cookie2=value; cookie3=value;"</li>
+  </ul>
+
+  <div id="cookie_tests" class="example w-50 h-20">
+    <input type="text" id="cookie_key" value="cookie_key" class="tests-input"/><br>
+    <input type="text" id="cookie_value" value="cookie_value" class="tests-input"/><br>
+    <button type="button" onclick="cookieGet()">cookieGet</button><br>
+    <button type="button" onclick="cookieSet()">cookieSet</button><br>
+    <button type="button" onclick="cookieDel()">cookieDel</button><br>
+    <button type="button" onclick="cookieExists()">cookieExists</button><br>
+    <button type="button" onclick="cookieKeys()">cookieKeys</button>
+  </div>
+  <div id="cookie_tests_result" class="example w-50 h-20"></div>
+
+  <script>
+    var ctr = document.getElementById("cookie_tests_result");
+    var cookie_key = document.getElementById("cookie_key");
+    var cookie_value = document.getElementById("cookie_value");
+
+    function cookieGet () {
+      ctr.innerHTML += docCookies.getItem(cookie_key.value)+"<br>";
+    }
+    function cookieSet () {
+      if (docCookies.setItem(cookie_key.value,cookie_value.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+"="+cookie_value.value+" is set<br>";
+      } else {
+        ctr.innerHTML += "Problem :(<br>";
+      }
+    }
+    function cookieDel () {
+      if (docCookies.removeItem(cookie_key.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+" removed<br>";
+      } else {
+        ctr.innerHTML += "Problem :(<br>";
+      }
+    }
+    function cookieExists () {
+      if (docCookies.hasItem(cookie_key.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+" exists<br>";
+      } else {
+        ctr.innerHTML += "No such cookie :(<br>";
+      }
+    }
+    function cookieKeys () {
+      console.log(document.cookie)
+      ctr.innerHTML += "*** cookies ***<br>";
+      docCookies.keys().map((k)=>{
+        ctr.innerHTML += k+"<br>";
+      })
+      ctr.innerHTML += "***************<br>";
+    }
+
+    // cookies reader/writer framework with full unicode support:
+    // docCookies.getItem(key)
+    // docCookies.setItem(key,val[,exp_seconds,path,domain,secure])
+    // docCookies.removeItem(key)
+    // docCookies.hasItem(key)
+    // docCookies.keys(key[,path,domain])
+    var docCookies = {
+      getItem: function (sKey) {
+        if (!sKey) { return null; }
+        return decodeURIComponent(
+          document.cookie.replace(
+            new RegExp("(?:(?:^|.*;)\\s*" +
+            encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") +
+            "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1"
+          )
+        ) || null;
+      },
+      setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure, bHttpOnly) {
+        // vEnd - max-age in seconds (31536e3 for a year, Infinity for a never-expire)
+        // or expires date in GMTString format or as Date object
+        // if not, the specified the cookie will expire at the end of the session
+        // sPath - must be absolute
+        // from where the cookie will be readable. E.g., "/", "/mydir"
+        // defaults to the current path of the current document location
+        // sDomain -from where the cookie will be readable
+        // "example.com", ".example.com" (all subdomains) or "subdomain.example.com"
+        // defaults to the host portion of the current document location
+        // bSecure -
+        // cookie will be transmitted only over secure protocol as https
+        // bHttpOnly -
+        // cookie is available only for server and NOT with document.cookie
+        if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+        var sExpires = "";
+        if (vEnd) {
+          switch (vEnd.constructor) {
+            case Number:
+              sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+              break;
+            case String:
+              sExpires = "; expires=" + vEnd;
+              break;
+            case Date:
+              sExpires = "; expires=" + vEnd.toUTCString();
+              break;
+          }
+        }
+        document.cookie = encodeURIComponent(sKey) + "=" +
+          encodeURIComponent(sValue) +
+          sExpires +
+          (sDomain ? "; domain=" + sDomain : "") +
+          (sPath ? "; path=" + sPath : "") +
+          (bSecure ? "; secure" : "") +
+          (bHttpOnly ? "; HttpOnly" : "");
+        return true;
+      },
+      removeItem: function (sKey, sPath, sDomain) {
+        if (!this.hasItem(sKey)) { return false; }
+        document.cookie = encodeURIComponent(sKey) +
+        "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" +
+        (sDomain ? "; domain=" + sDomain : "") +
+        (sPath ? "; path=" + sPath : "");
+        return true;
+      },
+      hasItem: function (sKey) {
+        if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+        return (
+          new RegExp("(?:^|;\\s*)" +
+          encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") +
+          "\\s*\\=")
+        ).test(document.cookie);
+      },
+      keys: function () {
+        var aKeys = document.cookie.replace(
+          /((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, ""
+        ).split(/\s*(?:\=[^;]*)?;\s*/);
+        for (var nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) {
+          aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
+        }
+        return aKeys;
+      },
+      // create a GMTString from a relative time
+      maxAgeToGMT: function (nMaxAge) {
+        return nMaxAge === Infinity ? "Fri, 31 Dec 9999 23:59:59 GMT" :
+        (new Date(nMaxAge * 1e3 + Date.now())).toUTCString();
+      }
+    };
+  </script>
+
+  <pre><code class="javascript">
+    var ctr = document.getElementById("cookie_tests_result");
+    var cookie_key = document.getElementById("cookie_key");
+    var cookie_value = document.getElementById("cookie_value");
+
+    function cookieGet () {
+      ctr.innerHTML += docCookies.getItem(cookie_key.value);
+    }
+    function cookieSet () {
+      if (docCookies.setItem(cookie_key.value,cookie_value.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+"="+cookie_value.value+" is set";
+      } else {
+        ctr.innerHTML += "Problem :(";
+      }
+    }
+    function cookieDel () {
+      if (docCookies.removeItem(cookie_key.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+" removed";
+      } else {
+        ctr.innerHTML += "Problem :(";
+      }
+    }
+    function cookieExists () {
+      if (docCookies.hasItem(cookie_key.value)) {
+        ctr.innerHTML += "Ok, "+cookie_key.value+" exists";
+      } else {
+        ctr.innerHTML += "No such cookie :(";
+      }
+    }
+    function cookieKeys () {
+      console.log(document.cookie)
+      ctr.innerHTML += "*** cookies ***";
+      docCookies.keys().map((k)=>{
+        ctr.innerHTML += k;
+      })
+      ctr.innerHTML += "***************";
+    }
+
+    // cookies reader/writer framework with full unicode support:
+    // docCookies.getItem(key)
+    // docCookies.setItem(key,val[,exp_seconds,path,domain,secure])
+    // docCookies.removeItem(key)
+    // docCookies.hasItem(key)
+    // docCookies.keys(key[,path,domain])
+    var docCookies = {
+      getItem: function (sKey) {
+        if (!sKey) { return null; }
+        return decodeURIComponent(
+          document.cookie.replace(
+            new RegExp("(?:(?:^|.*;)\\s*" +
+            encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&amp;") +
+            "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1"
+          )
+        ) || null;
+      },
+      setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+        // vEnd - max-age in seconds (31536e3 for a year, Infinity for a never-expire)
+        // or expires date in GMTString format or as Date object
+        // if not, the specified the cookie will expire at the end of the session
+        // sPath - must be absolute
+        // from where the cookie will be readable. E.g., "/", "/mydir"
+        // defaults to the current path of the current document location
+        // sDomain -from where the cookie will be readable
+        // "example.com", ".example.com" (all subdomains) or "subdomain.example.com"
+        // defaults to the host portion of the current document location
+        // bSecure -
+        // cookie will be transmitted only over secure protocol as https
+        if (
+          !sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)
+        ) { return false; }
+        var sExpires = "";
+        if (vEnd) {
+          switch (vEnd.constructor) {
+            case Number:
+              sExpires = vEnd === Infinity ?
+                "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+              break;
+            case String:
+              sExpires = "; expires=" + vEnd;
+              break;
+            case Date:
+              sExpires = "; expires=" + vEnd.toUTCString();
+              break;
+          }
+        }
+        document.cookie = encodeURIComponent(sKey) + "=" +
+          encodeURIComponent(sValue) +
+          sExpires +
+          (sDomain ? "; domain=" + sDomain : "") +
+          (sPath ? "; path=" + sPath : "") +
+          (bSecure ? "; secure" : "");
+        return true;
+      },
+      removeItem: function (sKey, sPath, sDomain) {
+        if (!this.hasItem(sKey)) { return false; }
+        document.cookie = encodeURIComponent(sKey) +
+        "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" +
+        (sDomain ? "; domain=" + sDomain : "") +
+        (sPath ? "; path=" + sPath : "");
+        return true;
+      },
+      hasItem: function (sKey) {
+        if (
+          !sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)
+        ) { return false; }
+        return (
+          new RegExp("(?:^|;\\s*)" +
+          encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&amp;") +
+          "\\s*\\=")
+        ).test(document.cookie);
+      },
+      keys: function () {
+        var aKeys = document.cookie.replace(
+          /((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, ""
+        ).split(/\s*(?:\=[^;]*)?;\s*/);
+        for (var nLen = aKeys.length, nIdx = 0; nIdx &lt; nLen; nIdx++) {
+          aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
+        }
+        return aKeys;
+      },
+      // create a GMTString from a relative time
+      maxAgeToGMT: function (nMaxAge) {
+        return nMaxAge === Infinity ? "Fri, 31 Dec 9999 23:59:59 GMT" :
+        (new Date(nMaxAge * 1e3 + Date.now())).toUTCString();
+      }
+    };
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas clock, tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, clock, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas clock tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2>Clock</h2>
+
+  <div class="example">
+    <canvas
+      id="canvas"
+      width="400"
+      height="400"
+      style="background-color:black"
+    ></canvas>
+  </div>
+
+  <script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var radius = canvas.height / 2;
+    ctx.translate(radius, radius); // center the point of rotation
+    radius = radius * 0.90
+    drawClock();
+    setInterval(drawClock, 1000/60);
+
+    function drawClock() {
+      drawFace(ctx, radius);
+      drawTime(ctx, radius);
+      drawNumbers(ctx, radius);
+    }
+
+    function drawFace(ctx, radius) {
+      var grad;
+
+      // white circle
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, 2*Math.PI);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+
+      // gradient circle
+      grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05); // radial gradient (95% and 105% of original clock radius)
+      grad.addColorStop(0, '#595959');
+      grad.addColorStop(0.5, '#c9c9c9');
+      grad.addColorStop(1, '#595959');
+      ctx.strokeStyle = grad; // gradient as the stroke style of the drawing object
+      ctx.lineWidth = radius*0.1; // line width of the drawing object (10% of radius)
+      ctx.stroke(); // draw the circle
+
+      // clock center
+      // ctx.beginPath();
+      // ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+      // ctx.fill();
+    }
+
+    function drawNumbers(ctx, radius) {
+      var ang;
+      var num;
+      ctx.font = radius*0.15 + "px arial"; // font size (of the drawing object) to 15% of the
+      ctx.fillStyle = 'black';
+      // text alignment to the middle and the center of the print position
+      ctx.textBaseline="middle";
+      ctx.textAlign="center";
+      // calculate the print position (for 12 numbers) to 85% of the radius, rotated (PI/6) for each number
+      for(num = 1; num < 13; num++){
+        ang = num * Math.PI / 6;
+        ctx.rotate(ang);
+        ctx.translate(0, -radius*0.85);
+        ctx.rotate(-ang);
+        ctx.fillText(num.toString(), 0, 0);
+        ctx.rotate(ang);
+        ctx.translate(0, radius*0.85);
+        ctx.rotate(-ang);
+      }
+    }
+
+    function drawTime(ctx, radius){
+        // use Date to get hour, minute, second
+        var now = new Date();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var length = radius*0.84;
+
+        // get milliseconds and add zeroes in front, for seconds
+        var ms = now.getMilliseconds();
+        while (ms.toString().length < 3) {
+          ms = "0" + ms;
+        }
+        var second = now.getSeconds()+'.'+ms;
+
+        // ctx.globalAlpha=0.7; // set opacity for future drawings
+        //hour
+        hour=hour%12;
+        hour=(hour*Math.PI/6)+
+        (minute*Math.PI/(6*60))+
+        (second*Math.PI/(360*60));
+        drawHand(ctx, hour, length, 30, "#00ace6");
+        //minute
+        minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+        drawHand(ctx, minute, length, 20, "#73e600");
+        //second
+        second=(second*Math.PI/30);
+        drawHand(ctx, second, length, 10, "#ff6600");
+        // ctx.globalAlpha=1; // set opacity for future drawings
+    }
+
+    function drawHand(ctx, pos, length, width, color) {
+
+        ctx.strokeStyle = color; // grd_radial, grd_linear
+
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.rotate(pos);
+        ctx.moveTo(0,-length);
+        ctx.lineTo(0, -length);
+        ctx.stroke();
+        ctx.rotate(-pos);
+        ctx.strokeStyle = "black"; // grd_radial, grd_linear
+
+        // ctx.beginPath();
+        // ctx.lineWidth = width;
+        // ctx.lineCap = "round";
+        // ctx.moveTo(0,0);
+        // ctx.rotate(pos);
+        // ctx.lineTo(0, -length);
+        // ctx.stroke();
+        // ctx.rotate(-pos);
+    }
+  </script>
+
+  <pre><code class="javascript">
+    /*
+    &ltcanvas
+      id="canvas"
+      width="400"
+      height="400"
+      style="background-color:black"
+    &gt&lt/canvas&gt
+    */
+
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var radius = canvas.height / 2;
+    ctx.translate(radius, radius); // center the point of rotation
+    radius = radius * 0.90
+    drawClock();
+    setInterval(drawClock, 1000/60);
+
+    function drawClock() {
+      drawFace(ctx, radius);
+      drawTime(ctx, radius);
+      drawNumbers(ctx, radius);
+    }
+
+    function drawFace(ctx, radius) {
+      var grad;
+      // white circle
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, 2*Math.PI);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      // gradient circle
+      grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05); // radial gradient (95% and 105% of original clock radius)
+      grad.addColorStop(0, '#595959');
+      grad.addColorStop(0.5, '#c9c9c9');
+      grad.addColorStop(1, '#595959');
+      ctx.strokeStyle = grad; // gradient as the stroke style of the drawing object
+      ctx.lineWidth = radius*0.1; // line width of the drawing object (10% of radius)
+      ctx.stroke(); // draw the circle
+      // clock center
+      // ctx.beginPath();
+      // ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+      // ctx.fill();
+    }
+
+    function drawNumbers(ctx, radius) {
+      var ang;
+      var num;
+      ctx.font = radius*0.15 + "px arial"; // font size (of the drawing object) to 15% of the
+      ctx.fillStyle = 'black';
+      // text alignment to the middle and the center of the print position
+      ctx.textBaseline="middle";
+      ctx.textAlign="center";
+      // calculate the print position (for 12 numbers) to 85% of the radius, rotated (PI/6) for each number
+      for(num = 1; num < 13; num++){
+        ang = num * Math.PI / 6;
+        ctx.rotate(ang);
+        ctx.translate(0, -radius*0.85);
+        ctx.rotate(-ang);
+        ctx.fillText(num.toString(), 0, 0);
+        ctx.rotate(ang);
+        ctx.translate(0, radius*0.85);
+        ctx.rotate(-ang);
+      }
+    }
+
+    function drawTime(ctx, radius){
+        // use Date to get hour, minute, second
+        var now = new Date();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var length = radius*0.84;
+        // get milliseconds and add zeroes in front, for seconds
+        var ms = now.getMilliseconds();
+        while (ms.toString().length < 3) {
+          ms = "0" + ms;
+        }
+        var second = now.getSeconds()+'.'+ms;
+        // ctx.globalAlpha=0.7; // set opacity for future drawings
+        //hour
+        hour=hour%12;
+        hour=(hour*Math.PI/6)+
+        (minute*Math.PI/(6*60))+
+        (second*Math.PI/(360*60));
+        drawHand(ctx, hour, length, 30, "#00ace6");
+        //minute
+        minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+        drawHand(ctx, minute, length, 20, "#73e600");
+        //second
+        second=(second*Math.PI/30);
+        drawHand(ctx, second, length, 10, "#ff6600");
+        // ctx.globalAlpha=1; // set opacity for future drawings
+    }
+
+    function drawHand(ctx, pos, length, width, color) {
+        ctx.strokeStyle = color; // grd_radial, grd_linear
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.rotate(pos);
+        ctx.moveTo(0,-length);
+        ctx.lineTo(0, -length);
+        ctx.stroke();
+        ctx.rotate(-pos);
+        ctx.strokeStyle = "black"; // grd_radial, grd_linear
+        // ctx.beginPath();
+        // ctx.lineWidth = width;
+        // ctx.lineCap = "round";
+        // ctx.moveTo(0,0);
+        // ctx.rotate(pos);
+        // ctx.lineTo(0, -length);
+        // ctx.stroke();
+        // ctx.rotate(-pos);
+    }
+  </code></pre>
+
+
+  <div class="example">
+    <canvas
+      id="canvas2"
+      width="150"
+      height="150"
+    ></canvas>
+  </div>
+
+  <script>
+    function clock() {
+      var now = new Date();
+      var ctx = document.getElementById('canvas2').getContext('2d');
+      ctx.save();
+      ctx.clearRect(0, 0, 150, 150);
+      ctx.translate(75, 75);
+      ctx.scale(0.4, 0.4);
+      ctx.rotate(-Math.PI / 2);
+      ctx.strokeStyle = 'black';
+      ctx.fillStyle = 'white';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+
+      // Hour marks
+      ctx.save();
+      for (var i = 0; i < 12; i++) {
+        ctx.beginPath();
+        ctx.rotate(Math.PI / 6);
+        ctx.moveTo(100, 0);
+        ctx.lineTo(120, 0);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Minute marks
+      ctx.save();
+      ctx.lineWidth = 5;
+      for (i = 0; i < 60; i++) {
+        if (i % 5!= 0) {
+          ctx.beginPath();
+          ctx.moveTo(117, 0);
+          ctx.lineTo(120, 0);
+          ctx.stroke();
+        }
+        ctx.rotate(Math.PI / 30);
+      }
+      ctx.restore();
+
+      var sec = now.getSeconds();
+      var min = now.getMinutes();
+      var hr  = now.getHours();
+      hr = hr >= 12 ? hr - 12 : hr;
+
+      ctx.fillStyle = 'black';
+
+      // write Hours
+      ctx.save();
+      ctx.rotate(hr * (Math.PI / 6) + (Math.PI / 360) * min + (Math.PI / 21600) *sec);
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(-20, 0);
+      ctx.lineTo(80, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // write Minutes
+      ctx.save();
+      ctx.rotate((Math.PI / 30) * min + (Math.PI / 1800) * sec);
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(-28, 0);
+      ctx.lineTo(112, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // Write seconds
+      ctx.save();
+      ctx.rotate(sec * Math.PI / 30);
+      ctx.strokeStyle = '#D40000';
+      ctx.fillStyle = '#D40000';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-30, 0);
+      ctx.lineTo(83, 0);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(95, 0, 10, 0, Math.PI * 2, true);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+      ctx.arc(0, 0, 3, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = '#325FA2';
+      ctx.arc(0, 0, 142, 0, Math.PI * 2, true);
+      ctx.stroke();
+
+      ctx.restore();
+
+      window.requestAnimationFrame(clock);
+    }
+
+    window.requestAnimationFrame(clock);
+  </script>
+
+  <pre><code class="javascript">
+    /*
+      &lt;canvas id="canvas2" width="150" height="150"&gt;&lt;/canvas&gt;
+    */
+
+    function clock() {
+      var now = new Date();
+      var ctx = document.getElementById('canvas2').getContext('2d');
+      ctx.save();
+      ctx.clearRect(0, 0, 150, 150);
+      ctx.translate(75, 75);
+      ctx.scale(0.4, 0.4);
+      ctx.rotate(-Math.PI / 2);
+      ctx.strokeStyle = 'black';
+      ctx.fillStyle = 'white';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+
+      // Hour marks
+      ctx.save();
+      for (var i = 0; i < 12; i++) {
+        ctx.beginPath();
+        ctx.rotate(Math.PI / 6);
+        ctx.moveTo(100, 0);
+        ctx.lineTo(120, 0);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Minute marks
+      ctx.save();
+      ctx.lineWidth = 5;
+      for (i = 0; i < 60; i++) {
+        if (i % 5!= 0) {
+          ctx.beginPath();
+          ctx.moveTo(117, 0);
+          ctx.lineTo(120, 0);
+          ctx.stroke();
+        }
+        ctx.rotate(Math.PI / 30);
+      }
+      ctx.restore();
+
+      var sec = now.getSeconds();
+      var min = now.getMinutes();
+      var hr  = now.getHours();
+      hr = hr >= 12 ? hr - 12 : hr;
+
+      ctx.fillStyle = 'black';
+
+      // write Hours
+      ctx.save();
+      ctx.rotate(hr * (Math.PI / 6) + (Math.PI / 360) * min + (Math.PI / 21600) *sec);
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(-20, 0);
+      ctx.lineTo(80, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // write Minutes
+      ctx.save();
+      ctx.rotate((Math.PI / 30) * min + (Math.PI / 1800) * sec);
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(-28, 0);
+      ctx.lineTo(112, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // Write seconds
+      ctx.save();
+      ctx.rotate(sec * Math.PI / 30);
+      ctx.strokeStyle = '#D40000';
+      ctx.fillStyle = '#D40000';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-30, 0);
+      ctx.lineTo(83, 0);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(95, 0, 10, 0, Math.PI * 2, true);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+      ctx.arc(0, 0, 3, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = '#325FA2';
+      ctx.arc(0, 0, 142, 0, Math.PI * 2, true);
+      ctx.stroke();
+
+      ctx.restore();
+
+      window.requestAnimationFrame(clock);
+    }
+
+    window.requestAnimationFrame(clock);
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Spaceshooter game code, Web Engineer Book">
+  <meta name="keywords" content="spaceshooter, game, , js, html, css, animation, collision, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Spaceshooter game code - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+  <h2>SpaceShooter game code, content of "shooter" folder</h2>
+
+  <details><summary>index.html</summary>
+  <pre><code class="html">
+    &lt;!DOCTYPE html&gt;
+    &lt;html lang="en"&gt;
+    &lt;head&gt;
+      &lt;meta charset="utf-8" /&gt;
+      &lt;meta http-equiv="Content-type" content="text/html; charset=utf-8" /&gt;
+      &lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
+      &lt;meta name="keywords" content="spaceshooter, JavaScript, game, html5, canvas" /&gt;
+      &lt;meta name="author" content="Michal Goly" /&gt;
+      &lt;title&gt;Space Shooter&lt;/title&gt;
+      &lt;link rel="stylesheet" href="../css/style.css" /&gt;
+
+      &lt;script src="../js/jquery-3.4.0.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/game.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/inputManager.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/assetsManager.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/collisionManager.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/scorePanel.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/gameplayManager.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/background.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/spacecraft.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/bullet.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/meteor.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/enemy.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/powerUp.js"&gt;&lt;/script&gt;
+
+      &lt;script&gt;
+        $(document).ready(function () {
+          $("#high-scores-page").hide();
+          $("#about-page").hide();
+          $("#canvas").hide();
+          $("#game-over-box").hide();
+          $("#start-game-button").click(function() {
+            $("#menu-page").hide();
+            $("#game-over-box").hide();
+            $("#canvas").show();
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            var game = new Game(canvas, context);
+            game.newGame();
+            game.run();
+          });
+          $("#high-scores-button").click(function() {
+            $("#menu-page").hide();
+            $("#high-scores-page").show();
+            var scores = JSON.parse(localStorage.getItem("scores"));
+            if (scores === null) {
+              scores = [];
+            }
+            scores.sort(function(score1, score2) {
+              return score2.points - score1.points;
+            });
+            if (scores.length &lt; 10) {
+              for (var i = 0; i &lt; scores.length; i++) {
+                $("#scores-ul").append(
+                  "&lt;li&gt;" + scores[i].name + " : &lt;span class='light-grey'&gt;" +
+                    scores[i].points + "&lt;/span&gt;&lt;/li&gt;");
+              }
+            } else {
+              for (var i = 0; i &lt; 10; i++) {
+                $("#scores-ul").append(
+                  "&lt;li&gt;" + scores[i].name + " : &lt;span class='light-grey'&gt;" +
+                    scores[i].points + "&lt;/span&gt;&lt;/li&gt;");
+              }
+            }
+          });
+          $("#about-button").click(function() {
+            $("#menu-page").hide();
+            $("#about-page").show();
+          });
+          $(".back-button").click(function() {
+            $("#scores-ul").html('');
+            $("#high-scores-page").hide();
+            $("#about-page").hide();
+            $("#menu-page").show();
+          });
+          $("#exit-button").click(function() {
+            var playerName = $("#name-field").val() === "" ? "unnamed" : $("#name-field").val();
+            console.log(playerName + " scored " + $("#score-field").html());
+            var score = {
+              points: $("#score-field").html(),
+              name: playerName
+            };
+            var scores = JSON.parse(localStorage.getItem("scores"));
+            if (scores === null) { scores = []; }
+            scores.push(score);
+            localStorage.setItem("scores", JSON.stringify(scores));
+            $("#canvas").hide();
+            $("#game-over-box").hide();
+            $("#menu-page").show();
+          });
+        });
+      &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+      &lt;div id="wrapper"&gt;
+          &lt;div id="menu-page"&gt;
+            &lt;h1&gt;Space Shooter&lt;/h1&gt;
+            &lt;ul&gt;
+              &lt;li&gt;&lt;a id="start-game-button" href="#"&gt;Start Game&lt;/a&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;a id="high-scores-button" href="#"&gt;High Scores&lt;/a&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;a id="about-button" href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;div id="high-scores-page"&gt;
+            &lt;h1&gt;High Scores&lt;/h1&gt;
+            &lt;a class="back-button" href="#"&gt;Menu&lt;/a&gt;
+            &lt;ul id="scores-ul"&gt; &lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;div id="about-page"&gt;
+              &lt;h1&gt;About&lt;/h1&gt;
+              &lt;a class="back-button" href="#"&gt;Menu&lt;/a&gt;
+              &lt;h2&gt;HOW TO PLAY&lt;/h2&gt;
+              &lt;p&gt; Use keyboard arrows ... &lt;/p&gt;
+              &lt;h2 id="credits-h2"&gt;CREDITS&lt;/h2&gt;
+              &lt;ul&gt;
+                ....
+              &lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;canvas id="canvas" width="600" height="700"&gt;
+            Your web browser does not support a canvas
+          &lt;/canvas&gt;
+          &lt;div id="game-over-box"&gt;
+            &lt;h1&gt;Game Over&lt;/h1&gt;
+            &lt;p id="game-over-p"&gt;Score: &lt;span id="score-field"&gt;&lt;/span&gt;&lt;/p&gt;
+            &lt;input type="text"
+              id="name-field" name="name-field" placeholder="Your name" pattern="^[a-zA-Z]+$" /&gt;
+            &lt;input type="button" id="exit-button" name="exit-button" value="Exit" /&gt;
+          &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+  </code></pre></details>
+
+  <details><summary>style.css</summary>
+  <pre><code class="css">
+    @font-face {
+      font-family: "kenvector_future_thin";
+      src: url("../assets/Bonus/kenvector_future_thin.ttf");
+    }
+    body {
+      background: url("../assets/Backgrounds/black.png") repeat;
+    }
+    #wrapper {
+      width: 600px;
+      height: 700px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      margin: auto;
+      border: 5px solid #00f2e5;
+    }
+    #menu-page, #high-scores-page, #about-page, #canvas, #game-over-box {
+      position: absolute;
+      background: url("../assets/Backgrounds/blue.png") repeat;
+      color: #00f2e5;
+      width: 600px;
+      height: 700px;
+      text-align: center;
+      font-family: "kenvector_future_thin", serif;
+    }
+    h1 {
+      font-size: 3.8em;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      font-size: 2em;
+    }
+    #about-page li, #about-page p {
+      margin: 5px;
+    }
+    #about-page ul {
+      margin: 0;
+    }
+    #credits-h2 {
+      margin-bottom: 17px;
+    }
+    .about-li {
+      padding-top: 2px;
+      font-size: 0.5em;
+    }
+    a {
+      text-decoration: none;
+      color: #00f2e5;
+    }
+    a:visited {
+      color: #00f2e5;
+    }
+    a:hover {
+      color: #f2f2f2;
+    }
+    .light-grey {
+      color: #f2f2f2;
+    }
+    .about-li a {
+      color: #f2f2f2;
+    }
+    .back-button {
+      font-size: 1.3em;
+    }
+    #exit-button {
+      background-color: #00f2e5;
+      color: #f2f2f2;
+      border: none;
+      padding: 12px 22px;
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+    #name-field {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      font-size: 1.3em;
+    }
+    #game-over-p {
+      font-size: 1.3em;
+    }
+  </code></pre></details>
+
+  <details><summary>assetsManager.js</summary>
+  <pre><code class="javascript">
+    var AssetsManager = function() {
+      this.images = [];
+      this.audios = [];
+    };
+
+    // assets by Kenney Vleugels (www.kenney.nl)
+    AssetsManager.prototype.loadAll = function() {
+      this.images["spacecraft"] = new Image();
+      this.images["spacecraft"].src = "assets/PNG/playerShip2_blue.png";
+
+      this.images["spacecraftSmallDamage"] = new Image();
+      this.images["spacecraftSmallDamage"].src = "assets/PNG/Damage/playerShip2_damage1.png";
+      this.images["spacecraftMediumDamage"] = new Image();
+      this.images["spacecraftMediumDamage"].src = "assets/PNG/Damage/playerShip2_damage2.png";
+      this.images["spacecraftBigDamage"] = new Image();
+      this.images["spacecraftBigDamage"].src = "assets/PNG/Damage/playerShip2_damage3.png";
+
+      this.images["shield1"] = new Image();
+      this.images["shield1"].src = "assets/PNG/Effects/shield1.png";
+      this.images["shield2"] = new Image();
+      this.images["shield2"].src = "assets/PNG/Effects/shield2.png";
+      this.images["shield3"] = new Image();
+      this.images["shield3"].src = "assets/PNG/Effects/shield3.png";
+
+      this.images["background"] = new Image();
+      this.images["background"].src = "assets/Backgrounds/blueBig.png";
+
+      this.images["laserBlue1"] = new Image();
+      this.images["laserBlue1"].src = "assets/PNG/Lasers/laserBlue02.png";
+      this.images["laserBlue2"] = new Image();
+      this.images["laserBlue2"].src = "assets/PNG/Lasers/laserBlue06.png";
+      this.images["laserGreen1"] = new Image();
+      this.images["laserGreen1"].src = "assets/PNG/Lasers/laserGreen04.png";
+      this.images["laserGreen2"] = new Image();
+      this.images["laserGreen2"].src = "assets/PNG/Lasers/laserGreen12.png";
+      this.images["laserRed1"] = new Image();
+      this.images["laserRed1"].src = "assets/PNG/Lasers/laserRed02.png";
+      this.images["laserRed2"] = new Image();
+      this.images["laserRed2"].src = "assets/PNG/Lasers/laserRed06.png";
+
+      this.images["meteorBig"] = new Image();
+      this.images["meteorBig"].src = "assets/PNG/Meteors/meteorBrown_big4.png";
+      this.images["meteorMedium"] = new Image();
+      this.images["meteorMedium"].src = "assets/PNG/Meteors/meteorGrey_med1.png";
+      this.images["meteorTiny"] = new Image();
+      this.images["meteorTiny"].src = "assets/PNG/Meteors/meteorBrown_tiny1.png";
+
+      // power ups
+      this.images["shieldPower"] = new Image();
+      this.images["shieldPower"].src = "assets/PNG/Power-ups/powerupYellow_shield.png";
+      this.images["boltPower"] = new Image();
+      this.images["boltPower"].src = "assets/PNG/Power-ups/powerupGreen_bolt.png";
+
+      // explosions by Ville Seppanen, http://villeseppanen.com
+      for (var i = 0; i &lt; 21; i++) {
+        this.images["explosion" + i] = new Image();
+        this.images["explosion" + i].src = "assets/PNG/Effects/explosion" + i + ".png";
+      }
+
+      this.images["laserBlueExplosion1"] = new Image();
+      this.images["laserBlueExplosion1"].src = "assets/PNG/Lasers/laserBlue09.png";
+      this.images["laserBlueExplosion2"] = new Image();
+      this.images["laserBlueExplosion2"].src = "assets/PNG/Lasers/laserBlue08.png";
+
+      this.images["laserGreenExplosion1"] = new Image();
+      this.images["laserGreenExplosion1"].src = "assets/PNG/Lasers/laserGreen15.png";
+      this.images["laserGreenExplosion2"] = new Image();
+      this.images["laserGreenExplosion2"].src = "assets/PNG/Lasers/laserGreen14.png";
+
+      this.images["laserRedExplosion1"] = new Image();
+      this.images["laserRedExplosion1"].src = "assets/PNG/Lasers/laserRed09.png";
+      this.images["laserRedExplosion2"] = new Image();
+      this.images["laserRedExplosion2"].src = "assets/PNG/Lasers/laserRed08.png";
+
+      // enemies
+      this.images["enemyBlue"] = new Image();
+      this.images["enemyBlue"].src = "assets/PNG/Enemies/enemyBlue4.png";
+      this.images["enemyRed"] = new Image();
+      this.images["enemyRed"].src = "assets/PNG/Enemies/enemyRed4.png";
+      this.images["enemyGreen"] = new Image();
+      this.images["enemyGreen"].src = "assets/PNG/Enemies/enemyGreen3.png";
+      this.images["enemyBlack"] = new Image();
+      this.images["enemyBlack"].src = "assets/PNG/Enemies/enemyBlack3.png";
+
+      // score panel
+      this.images["livesRemaining"] = new Image();
+      this.images["livesRemaining"].src = "assets/PNG/UI/playerLife2_blue.png";
+
+      // icons by Gregor Črešnar
+      this.images["pauseIcon"] = new Image();
+      this.images["pauseIcon"].src = "assets/PNG/UI/pauseButton.png";
+      this.images["resumeIcon"] = new Image();
+      this.images["resumeIcon"].src = "assets/PNG/UI/resumeButton.png";
+
+      this.loadSounds();
+    };
+
+    AssetsManager.prototype.loadSounds = function() {
+      this.audios["shieldUp"] = new Audio("assets/Bonus/sfx_shieldUp.ogg");
+      this.audios["shieldDown"] = new Audio("assets/Bonus/sfx_shieldDown.ogg");
+      this.audios["laserPlayer"] = new Audio("assets/Bonus/sfx_laser1.ogg");
+      this.audios["laserEnemy"] = new Audio("assets/Bonus/sfx_laser2.ogg");
+      this.audios["gameOver"] = new Audio("assets/Bonus/sfx_lose.ogg");
+
+      //Sound (c) by Michel Baradari apollo-music.de
+      this.audios["explosion"] = new Audio("assets/Bonus/explodemini.wav");
+    };
+  </code></pre></details>
+
+  <details><summary>background.js</summary>
+  <pre><code class="javascript">
+    var Background = function(canvas, assetsManager) {
+      this.canvas = canvas;
+      this.assetsManager = assetsManager;
+      this.scrollSpeed = 2;
+      this.xPosition = 0;
+      this.yPosition = 0;
+    };
+    Background.prototype.update = function() {
+      this.yPosition += this.scrollSpeed;
+      if (this.yPosition >= this.canvas.height) {
+        this.yPosition = 0;
+      }
+    };
+    Background.prototype.draw = function(ctx) {
+      ctx.drawImage(this.assetsManager.images["background"],
+        this.xPosition, this.yPosition);
+      ctx.drawImage(this.assetsManager.images["background"],
+        this.xPosition, this.yPosition - this.canvas.height);
+    };
+  </code></pre></details>
+
+  <details><summary>bullet.js</summary>
+  <pre><code class="javascript">
+    var Bullet = function(xPosition, yPosition, color, assetsManager) {
+      this.xPosition = xPosition;
+      this.yPosition = yPosition;
+      this.color = color;
+      this.assetsManager = assetsManager;
+      this.speed = this.getSpeed(this.color);
+      this.width = 13;
+      this.height = 37;
+      this.isExploding = false;
+      this.explosionTimer = 0;
+      this.isExploded = false;
+      this.explosionIndex = 1;
+    };
+    Bullet.prototype.update = function(delta) {
+      if (this.isExploded) { return; }
+      if (!this.isExploded && !this.isExploding) {
+        if (this.color === "blue" || this.color === "green") {
+          this.yPosition -= (this.speed / 10);
+        } else {
+          this.yPosition += (this.speed / 10);
+        }
+      }
+      if (this.isExploding) {
+        this.explosionTimer += delta;
+        if (this.explosionTimer > 100) {
+          this.explosionIndex++;
+          this.explosionTimer = 0;
+        }
+        if (this.explosionIndex > 2) {
+          // end bullets's life :(
+          this.isExploded = true;
+          this.isExploding = false;
+        }
+      }
+    };
+    Bullet.prototype.draw = function(ctx) {
+      if (!this.isExploded && !this.isExploding) {
+        if (this.color === "blue") {
+          ctx.drawImage(this.assetsManager.images["laserBlue1"],
+            this.xPosition, this.yPosition);
+          ctx.drawImage(this.assetsManager.images["laserBlue2"],
+            this.xPosition, this.yPosition);
+        } else if (this.color === "green") {
+          ctx.drawImage(this.assetsManager.images["laserGreen1"],
+            this.xPosition, this.yPosition);
+          ctx.drawImage(this.assetsManager.images["laserGreen2"],
+            this.xPosition, this.yPosition);
+        } else if (this.color === "red") {
+          ctx.drawImage(this.assetsManager.images["laserRed1"],
+            this.xPosition, this.yPosition);
+          ctx.drawImage(this.assetsManager.images["laserRed2"],
+            this.xPosition, this.yPosition);
+        } else {
+          console.error(this.color + " is not a valid color!");
+        }
+      } else if (this.isExploding) {
+        // draw explosion
+        if (this.color === "blue") {
+          ctx.drawImage(this.assetsManager.images["laserBlueExplosion" + this.explosionIndex],
+            this.xPosition - this.width, this.yPosition);
+        } else if (this.color === "green") {
+          ctx.drawImage(this.assetsManager.images["laserGreenExplosion" + this.explosionIndex],
+            this.xPosition - this.width, this.yPosition);
+        } else if (this.color === "red") {
+          ctx.drawImage(this.assetsManager.images["laserRedExplosion" + this.explosionIndex],
+            this.xPosition - this.width, this.yPosition + this.height);
+        } else {
+          console.error(this.color + " is not a valid color!");
+        }
+      }
+    };
+    Bullet.prototype.getSpeed = function(color) {
+      if (color === "blue" || color === "red") {
+        return 50;
+      } else if (color === "green") {
+        return 100;
+      } else {
+        console.error(color + " is not a valid color to determine bullet speed");
+        return NaN;
+      }
+    };
+    Bullet.prototype.explode = function() {
+      this.isExploding = true;
+    };
+    Bullet.prototype.isOnFire = function() {
+      return this.isExploded || this.isExploding;
+    };
+  </code></pre></details>
+
+  <details><summary>collisionManager.js</summary>
+  <pre><code class="javascript">
+    var CollisionManager = function(game) {
+      this.game = game;
+      this.spacecraft = game.spacecraft;
+      this.meteors = game.meteors;
+      this.powerUps = game.powerUps;
+      this.enemies = game.enemies;
+      this.collisionDelayTimer = 0;
+    };
+    CollisionManager.prototype.checkAndResolve = function(delta) {
+      this.collisionDelayTimer += delta;
+      if (this.collisionDelayTimer &gt; 10) {
+        this.checkMeteorsWithMeteors();
+        this.checkSpacecraftWithMeteors();
+        this.checkSpacecraftWithEnemies();
+        this.checkSpacecraftBulletsWithMeteorsEnemies();
+        this.checkEnemyBulletsWithSpacecraft();
+        this.collisionDelayTimer = 0;
+      }
+      this.checkSpacecraftWithWalls();
+      this.checkSpacecraftWithPowerUps();
+    };
+    CollisionManager.prototype.checkMeteorsWithMeteors = function() {
+      if (this.meteors.length &lt; 2) { return; }
+      for (var i = 0; i &lt; this.meteors.length - 1; i++) {
+        for (var j = i + 1; j &lt; this.meteors.length; j++) {
+          if (!this.meteors[i].isOnFire() && !this.meteors[j].isOnFire()) {
+            if (this.circleCircleCollision(this.meteors[i], this.meteors[j])) {
+              //console.log("meteor collison");
+              this.resolveElasticCollision(this.meteors[i], this.meteors[j]);
+              this.meteors[i].updateRotation(this.meteors[j].xCentre);
+              this.meteors[j].updateRotation(this.meteors[i].xCentre);
+            }
+          }
+        }
+      }
+    };
+    CollisionManager.prototype.checkSpacecraftWithWalls = function() {
+      if (this.spacecraft.xPosition &lt; 5) {
+        //console.log("LEFT");
+        this.spacecraft.xVelocity = 0;
+        this.spacecraft.isLeftWall = true;
+        this.spacecraft.xPosition = 5;
+      }
+      if (this.spacecraft.xPosition + this.spacecraft.width + 5 &gt; this.game.canvas.width) {
+        //console.log("RIGHT");
+        this.spacecraft.xVelocity = 0;
+        this.spacecraft.isRightWall = true;
+        this.spacecraft.xPosition = this.game.canvas.width - this.spacecraft.width - 5;
+      }
+      if (this.spacecraft.yPosition &lt; 5) {
+        //console.log("TOP");
+        this.spacecraft.yVelocity = 0;
+        this.spacecraft.isUpWall = true;
+        this.spacecraft.yPosition = 5;
+      }
+      if (this.spacecraft.yPosition + this.spacecraft.height + 5 &gt; this.game.canvas.height) {
+        //console.log("BOTTOM");
+        this.spacecraft.yVelocity = 0;
+        this.spacecraft.isDownWall = true;
+        this.spacecraft.yPosition = this.game.canvas.height - this.spacecraft.height - 5;
+      }
+    };
+    CollisionManager.prototype.checkSpacecraftWithEnemies = function() {
+      for (var i = 0; i &lt; this.enemies.length; i++) {
+        if (!this.enemies[i].isOnFire() && this.rectRectCollision(this.spacecraft, this.enemies[i])) {
+          if (this.circleRectCollision(this.spacecraft, this.enemies[i])) {
+            //console.log("Spacecraft - enemy collision");
+            this.resolveElasticCollision(this.spacecraft, this.enemies[i]);
+            // blow up the enemy
+            this.enemies[i].explode();
+            if (!this.spacecraft.isShieldUp) {
+              this.spacecraft.livesRemaining--;
+            } else {
+              this.spacecraft.score += 20;
+            }
+          }
+        }
+      }
+    };
+    CollisionManager.prototype.checkSpacecraftWithPowerUps = function() {
+      // combine rectangular and circular collision detections
+      for (var i = 0; i &lt; this.powerUps.length; i++) {
+        // rectangle-rectangle collision
+        if (this.rectRectCollision(this.spacecraft, this.powerUps[i])) {
+          if (this.circleRectCollision(this.spacecraft, this.powerUps[i])) {
+            //console.log("SPACECRAFT-POWERUP COLLISION");
+            if (this.powerUps[i].type === "boltPower") {
+              this.spacecraft.boltPowerUp();
+            } else if (this.powerUps[i].type === "shieldPower") {
+              this.spacecraft.shieldUp();
+            } else {
+              console.error(this.powerUps[i].type + " is not a proper powerUp");
+            }
+            this.powerUps[i].isPickedUp = true;
+          }
+        }
+      }
+      // clean up picked up power ups
+      for (var i = 0; i &lt; this.powerUps.length; i++) {
+        if (this.powerUps[i].isPickedUp) {
+          this.powerUps.splice(i, 1);
+          i--;
+        }
+      }
+    };
+    CollisionManager.prototype.rectRectCollision = function(rect1, rect2) {
+      return rect1.xPosition &lt; rect2.xPosition + rect2.width
+        && rect1.xPosition + rect1.width &gt; rect2.xPosition
+        && rect1.yPosition &lt; rect2.yPosition + rect2.height
+        && rect1.height + rect1.yPosition &gt; rect2.yPosition;
+    };
+    CollisionManager.prototype.circleCircleCollision = function(circle1, circle2) {
+      var distanceX = circle1.xCentre - circle2.xCentre;
+      var distanceY = circle1.yCentre - circle2.yCentre;
+      var distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+      return circle1.radius + circle2.radius &gt; distance;
+    };
+    // http://stackoverflow.com/questions/21089959/detecting-collision-of-rectangle-with-circle
+    CollisionManager.prototype.circleRectCollision = function(circle, rect) {
+      var distanceX = Math.abs(circle.xCentre - rect.xPosition - rect.width / 2);
+      var distanceY = Math.abs(circle.yCentre - rect.yPosition - rect.height / 2);
+      if (distanceX &gt; (rect.width / 2 + circle.radius)) {
+        return false;
+      }
+      if (distanceY &gt; (rect.height / 2 + circle.radius)) {
+        return false;
+      }
+      if (distanceX &lt;= (rect.width / 2)) {
+        return true;
+      }
+      if (distanceY &lt;= (rect.height / 2)) {
+        return true;
+      }
+      var dx = distanceX - rect.width / 2;
+      var dy = distanceY - rect.height / 2;
+      return dx * dx + dy * dy &lt;= (circle.radius * circle.radius);
+    };
+    CollisionManager.prototype.checkSpacecraftWithMeteors = function() {
+      for (var i = 0; i &lt; this.meteors.length; i++) {
+        if (!this.meteors[i].isOnFire() && this.circleCircleCollision(this.spacecraft, this.meteors[i])) {
+          if (this.circleRectCollision(this.meteors[i], this.spacecraft)) {
+            this.resolveElasticCollision(this.spacecraft, this.meteors[i]);
+            // blow the meteor up
+            this.meteors[i].explode();
+            if (!this.spacecraft.isShieldUp) {
+              this.spacecraft.livesRemaining--;
+            } else {
+              this.spacecraft.score += 10;
+            }
+          }
+        }
+      }
+    };
+    CollisionManager.prototype.checkSpacecraftBulletsWithMeteorsEnemies = function() {
+      for (var i = 0; i &lt; this.spacecraft.bullets.length; i++) {
+        // ignore bullets that have already hit a target
+        if (this.spacecraft.bullets[i].isOnFire()) {
+          continue;
+        }
+        // check bullets/meteors
+        for (var j = 0; j &lt; this.meteors.length; j++) {
+          if (this.meteors[j].isOnFire()) {
+            continue;
+          }
+          if (this.circleRectCollision(this.meteors[j], this.spacecraft.bullets[i])) {
+            //console.log("Bullet - Meteor Collision");
+            this.meteors[j].explode();
+            this.spacecraft.bullets[i].explode();
+            this.spacecraft.score += 10;
+          }
+        }
+        // check bullets/enemies
+        for (var k = 0; k &lt; this.enemies.length; k++) {
+          if (this.enemies[k].isOnFire()) {
+            continue;
+          }
+          if (this.rectRectCollision(this.enemies[k], this.spacecraft.bullets[i])) {
+            //console.log("Bullet - Enemy collision");
+            this.enemies[k].explode();
+            this.spacecraft.bullets[i].explode();
+            this.spacecraft.score += 20;
+          }
+        }
+      }
+    };
+    CollisionManager.prototype.checkEnemyBulletsWithSpacecraft = function() {
+      for (var i = 0; i &lt; this.enemies.length; i++) {
+        if (this.enemies[i].type === "enemyBlue" || this.enemies[i].type === "enemyRed") {
+          // blue and red enemies have no bullets
+          continue;
+        }
+        for (var j = 0; j &lt; this.enemies[i].bullets.length; j++) {
+          if (this.enemies[i].bullets[j].isOnFire()) {
+            continue;
+          }
+          if (this.rectRectCollision(this.spacecraft, this.enemies[i].bullets[j])) {
+            if (this.circleRectCollision(this.spacecraft, this.enemies[i].bullets[j])) {
+              this.enemies[i].bullets[j].explode();
+              if (!this.spacecraft.isShieldUp) {
+                this.spacecraft.livesRemaining--;
+              }
+            }
+          }
+        }
+      }
+    };
+    CollisionManager.prototype.resolveElasticCollision = function(body1, body2) {
+      var tempVelX = body1.xVelocity;
+      var tempVelY = body1.yVelocity;
+      var totalMass = body1.mass + body2.mass;
+      // velocity after elastic collision, floor used to simplify the implementation
+      body1.xVelocity = Math.floor((body1.xVelocity * (body1.mass - body2.mass)
+        + 2 * body2.mass * body2.xVelocity) / totalMass);
+      body1.yVelocity = Math.floor((body1.yVelocity * (body1.mass - body2.mass)
+        + 2 * body2.mass * body2.yVelocity) / totalMass);
+      body2.xVelocity = Math.floor((body2.xVelocity * (body2.mass - body1.mass)
+        + 2 * body1.mass * tempVelX) / totalMass);
+      body2.yVelocity = Math.floor((body2.yVelocity * (body2.mass - body1.mass)
+        + 2 * body1.mass * tempVelY) / totalMass);
+    };
+  </code></pre></details>
+
+  <details><summary>enemy.js</summary>
+  <pre><code class="javascript">
+    var Enemy = function(xPosition, yPosition, type, assetsManager, spacecraft) {
+      this.xPosition = xPosition;
+      this.yPosition = yPosition;
+      this.type = type;
+      this.assetsManager = assetsManager;
+      this.spacecraft = spacecraft;
+      this.width = 55;
+      this.height = 56;
+      this.xVelocity = 0;
+      this.yVelocity = 0;
+      this.mass = 200;
+      this.radius = this.width / 2;
+      this.xCentre = this.xPosition + this.radius;
+      this.yCentre = this.yPosition + this.radius;
+      if (this.type === "enemyBlue" || this.type === "enemyGreen") {
+        this.accelerateFactor = 1;
+        this.maxVelocity = 7;
+      } else {
+        this.accelerateFactor = 1;
+        this.maxVelocity = 20;
+      }
+      this.behaviourStarted = false;
+      // for blue and red behaviour (also last bit of black behaviour)
+      if (this.type === "enemyBlue" || this.type === "enemyRed" || this.type === "enemyBlack") {
+        // random value &lt;100, 600&gt;
+        this.initialDescentDistance = Math.floor(Math.random() * (600 - 100 + 1)) + 100;
+      }
+      // green and black
+      if (this.type === "enemyGreen" || this.type === "enemyBlack") {
+        this.bulletDelayTimer = 0;
+        this.bullets = [];
+        this.startFire = false;
+        this.bulletCleanUpDelayTimer = 0;
+      }
+      // black behaviour
+      this.flewToPlayer = false;
+      this.flewFromPlayer = false;
+      this.flyingToLeftWall = false;
+      this.flyingToRightWall = false;
+      this.goDown = false;
+      this.goUp = false;
+      this.goRight = false;
+      this.goLeft = false;
+      this.isExploding = false;
+      this.explosionTimer = 0;
+      this.isExploded = false;
+      this.explosionIndex = 0;
+    };
+    Enemy.prototype.update = function(delta) {
+      if (this.isExploded && (this.type === "enemyBlue" || this.type === "enemyRed")) {
+        return;
+      } else if (this.isExploded && this.bullets.length !== 0) {
+        // make sure bullets move even after enemy blew up
+        for (var i = 0; i &lt; this.bullets.length; i++) {
+          this.bullets[i].update(delta);
+        }
+        // run bullet clean up code
+        this.bulletsCleanUp(delta);
+        return;
+      } else if (this.isExploded) {
+        return;
+      }
+      this.doBehaviour();
+      this.slowDown();
+      this.updateDirection();
+      this.yPosition += (this.yVelocity / 10);
+      this.xPosition += (this.xVelocity / 10);
+      this.radius = this.width / 2;
+      this.xCentre = this.xPosition + this.radius;
+      this.yCentre = this.yPosition + this.radius;
+      if ((this.type === "enemyGreen" || this.type === "enemyBlack") && this.startFire) {
+        this.bulletDelayTimer += delta;
+        if (this.bulletDelayTimer &gt; 1000) {
+          this.fire();
+          this.bulletDelayTimer = 0;
+        }
+        for (var i = 0; i &lt; this.bullets.length; i++) {
+          this.bullets[i].update(delta);
+        }
+        this.bulletsCleanUp(delta);
+      }
+      if (this.isExploding) {
+        this.explosionTimer += delta;
+        if (this.explosionTimer &gt; 50) {
+          this.explosionIndex++;
+          this.explosionTimer = 0;
+        }
+        if (this.explosionIndex &gt; 20) {
+          // end enemy's life :)
+          this.isExploded = true;
+          this.isExploding = false;
+        }
+      }
+    };
+    Enemy.prototype.draw = function(ctx) {
+      if (!this.isExploded && !this.isExploding) {
+        ctx.drawImage(this.assetsManager.images[this.type], this.xPosition, this.yPosition,
+          this.width, this.height);
+      } else if (this.isExploding) {
+        ctx.drawImage(this.assetsManager.images["explosion" + this.explosionIndex],
+          this.xCentre - this.radius, this.yCentre - this.radius, this.radius * 2,
+          this.radius * 2);
+      }
+      if (this.type === "enemyGreen" || this.type === "enemyBlack") {
+        for (var i = 0; i &lt; this.bullets.length; i++) {
+          this.bullets[i].draw(ctx);
+        }
+      }
+    };
+    Enemy.prototype.updateDirection = function() {
+      // start moving up
+      if (this.goUp && this.yVelocity === 0) {
+        this.yVelocity -= this.accelerateFactor;
+      }
+      // accelerate further up
+      if (this.goUp && (Math.abs(this.yVelocity) &lt; this.maxVelocity)) {
+        this.yVelocity -= this.accelerateFactor;
+      }
+      // start moving down
+      if (this.goDown && this.yVelocity === 0) {
+        this.yVelocity += this.accelerateFactor;
+      }
+      // accelerate further down
+      if (this.goDown && (Math.abs(this.yVelocity) &lt; this.maxVelocity)) {
+        this.yVelocity += this.accelerateFactor;
+      }
+      // start moving right
+      if (this.goRight && this.xVelocity === 0) {
+        this.xVelocity += this.accelerateFactor;
+      }
+      // accelerate further right
+      if (this.goRight && (Math.abs(this.xVelocity) &lt; this.maxVelocity)) {
+        this.xVelocity += this.accelerateFactor;
+      }
+      // start moving left
+      if (this.goLeft && this.xVelocity === 0) {
+        this.xVelocity -= this.accelerateFactor;
+      }
+      // accelerate further left
+      if (this.goLeft && (Math.abs(this.xVelocity) &lt; this.maxVelocity)) {
+        this.xVelocity -= this.accelerateFactor;
+      }
+    };
+    Enemy.prototype.slowDown = function() {
+      // slow down when going up
+      if (this.yVelocity &lt; 0 && this.goDown) {
+        this.yVelocity += this.accelerateFactor;
+      }
+      // slow down when going down
+      if (this.yVelocity &gt; 0 && this.goUp) {
+        this.yVelocity -= this.accelerateFactor;
+      }
+      // slow down when going right
+      if (this.xVelocity &gt; 0 && this.goLeft) {
+        this.xVelocity -= this.accelerateFactor;
+      }
+      // slow down when going left
+      if (this.xVelocity &lt; 0 && this.goRight) {
+        this.xVelocity += this.accelerateFactor;
+      }
+    };
+    Enemy.prototype.doBehaviour = function() {
+      if (this.type === "enemyBlue") {
+        this.doBlueBehaviour();
+      } else if (this.type === "enemyRed") {
+        this.doRedBehaviour();
+      } else if (this.type === "enemyGreen") {
+        this.doGreenBehaviour();
+      } else if (this.type === "enemyBlack") {
+        this.doBlackBehaviour();
+      }
+    };
+    // slowly fly into the spacecraft, don't shoot
+    Enemy.prototype.doBlueBehaviour = function() {
+      if (!this.behaviourStarted) {
+        this.goDown = true;
+        this.behaviourStarted = true;
+      } else {
+        if (this.yPosition &lt; this.initialDescentDistance) {
+          return;
+        }
+        if (this.xCentre &lt; this.spacecraft.xCentre) {
+          this.goLeft = false;
+          this.goRight = true;
+        } else if (this.xCentre &gt; this.spacecraft.xCentre) {
+          this.goLeft = true;
+          this.goRight = false;
+        } else {
+          this.goLeft = false;
+          this.goRight = false;
+        }
+      }
+    };
+    // like blue but quicker
+    Enemy.prototype.doRedBehaviour = function() {
+      if (!this.behaviourStarted) {
+        this.goDown = true;
+        this.behaviourStarted = true;
+      } else {
+        if (this.yPosition &lt; this.initialDescentDistance) {
+          return;
+        }
+        if (this.xCentre &lt; this.spacecraft.xCentre) {
+          this.goLeft = false;
+          this.goRight = true;
+        } else if (this.xCentre &gt; this.spacecraft.xCentre) {
+          this.goLeft = true;
+          this.goRight = false;
+        } else {
+          this.goLeft = false;
+          this.goRight = false;
+        }
+      }
+    };
+    // fly slowly straight down the screen while shooting
+    Enemy.prototype.doGreenBehaviour = function() {
+      if (!this.behaviourStarted) {
+        this.goDown = true;
+        this.behaviourStarted = true;
+      } else if (this.yPosition &gt; 0) {
+        // stop shooting after leaving the screen
+        if (this.yPosition &gt;= 700) {
+          this.startFire = false;
+        } else {
+          this.startFire = true;
+        }
+      }
+    };
+    // fly down, move in the direction of the player, fly into the direction of the
+    // wall further away, finally switch to the red behaviour while shooting constantly
+    Enemy.prototype.doBlackBehaviour = function() {
+      if (!this.behaviourStarted){
+        this.goDown = true;
+        this.behaviourStarted = true;
+      } else {
+        if (this.yPosition &gt; 0) {
+          this.startFire = true;
+        }
+        if (this.yPosition &gt; 10 && !this.flewToPlayer && !this.flewFromPlayer) {
+          this.goDown = false;
+          this.yVelocity = 0;
+          if (this.xCentre &gt; this.spacecraft.xPosition && this.xCentre
+            &lt; this.spacecraft.xPosition + this.spacecraft.width) {
+            this.flewToPlayer = true;
+          } else if (this.xCentre &lt; this.spacecraft.xCentre) {
+            this.goLeft = false;
+            this.goRight = true;
+          } else  {
+            this.goLeft = true;
+            this.goRight = false;
+          }
+        } else if (this.flewToPlayer && !this.flewFromPlayer) {
+          if (this.xCentre &gt; 300 && !this.flyingToRightWall) {
+            this.goLeft = true;
+            this.goRight = false;
+            this.flyingToLeftWall = true;
+          } else if (!this.flyingToLeftWall){
+            this.goLeft = false;
+            this.goRight = true;
+            this.flyingToRightWall = true;
+          }
+          // check if next to wall
+          if (this.xPosition &lt; 50 || this.xPosition &gt; 500) {
+            this.goDown = true;
+            this.goLeft = false;
+            this.goRight = false;
+            this.xVelocity = 0;
+            this.flewFromPlayer = true;
+          }
+        } else if (this.flewFromPlayer && this.flewToPlayer) {
+          // final bit, do red behaviour
+          if (this.yPosition &lt; this.initialDescentDistance) {
+            return;
+          }
+          if (this.xCentre &lt; this.spacecraft.xCentre) {
+            this.goLeft = false;
+            this.goRight = true;
+          } else if (this.xCentre &gt; this.spacecraft.xCentre) {
+            this.goLeft = true;
+            this.goRight = false;
+          } else {
+            this.goLeft = false;
+            this.goRight = false;
+          }
+          // stop shooting after leaving the screen
+          if (this.yPosition &gt;= 700) {
+            this.startFire = false;
+          }
+        }
+      }
+    };
+    Enemy.prototype.bulletsCleanUp = function(delta) {
+      // every 10 seconds remove bullets that are off the screen
+      this.bulletCleanUpDelayTimer += delta;
+      if (this.bulletCleanUpDelayTimer &gt; 10000) {
+        //console.log("Before: " + this.bullets.length);
+        for (var i = 0; i &lt; this.bullets.length; i++) {
+          if (this.bullets[i].yPosition &gt; 1000 || this.bullets[i].isExploded) {
+            this.bullets.splice(i, 1);
+            i--;
+          }
+        }
+        //console.log("After: " + this.bullets.length);
+        this.bulletCleanUpDelayTimer = 0;
+      }
+    };
+    Enemy.prototype.fire = function() {
+      this.bullets.push(new Bullet(this.xPosition + (this.width / 2) - (14 / 2),
+        this.yPosition + this.height / 2, "red", this.assetsManager));
+      this.assetsManager.audios["laserEnemy"].play();
+      this.assetsManager.audios["laserEnemy"].currentTime = 0;
+    };
+    Enemy.prototype.explode = function() {
+      this.isExploding = true;
+      this.startFire = false;
+      this.assetsManager.audios["explosion"].play();
+      this.assetsManager.audios["explosion"].currentTime = 0;
+    };
+    Enemy.prototype.isOnFire = function() {
+      return this.isExploded || this.isExploding;
+    };
+  </code></pre></details>
+
+  <details><summary>game.js</summary>
+  <pre><code class="javascript">
+    var Game = function(canvas, context) {
+      this.canvas = canvas;
+      this.context = context;
+      this.assetsManager = new AssetsManager();
+      this.assetsManager.loadAll();
+      this.inputManager = new InputManager();
+      // game loop variables
+      this.fps = 60;
+      this.interval = 1000 / this.fps;
+      this.lastTime = new Date().getTime();
+      this.currentTime = 0;
+      this.delta = 0;
+      this.frameId = 0;
+      this.isPaused = false;
+    };
+    Game.prototype.newGame = function() {
+      this.background = new Background(this.canvas, this.assetsManager);
+      this.spacecraft = new Spacecraft(this.canvas, this.inputManager, this.assetsManager);
+      this.meteors = [];
+      this.powerUps = [];
+      this.enemies = [];
+      this.collisionManager = new CollisionManager(this);
+      this.scorePanel = new ScorePanel(this);
+      this.gameplayManager = new GameplayManager(this);
+      this.inputManager.registerKeyListener();
+      this.inputManager.registerMouseListener(this);
+    };
+    // https://coderwall.com/p/iygcpa/gameloop-the-correct-way
+    Game.prototype.run = function() {
+      this.frameId = window.requestAnimationFrame(this.run.bind(this));
+      this.currentTime = new Date().getTime();
+      this.delta = this.currentTime - this.lastTime;
+      if (this.delta &gt; this.interval) {
+        if (!this.isPaused) {
+          this.update(this.delta);
+          this.collisionManager.checkAndResolve(this.delta);
+        }
+        if (this.spacecraft.livesRemaining &lt; 0) {
+          this.gameOver();
+        }
+        this.render();
+        this.lastTime = this.currentTime - (this.delta % this.interval);
+      }
+    };
+    Game.prototype.update = function(delta) {
+      this.background.update();
+      this.spacecraft.update(delta);
+      this.gameplayManager.update(delta);
+      for (var i = 0; i &lt; this.meteors.length; i++) {
+        this.meteors[i].update(delta);
+      }
+      for (var i = 0; i &lt; this.enemies.length; i++) {
+        this.enemies[i].update(delta);
+      }
+    };
+    Game.prototype.render = function() {
+      this.background.draw(this.context);
+      this.spacecraft.draw(this.context);
+      for (var i = 0; i &lt; this.meteors.length; i++) {
+        this.meteors[i].draw(this.context);
+      }
+      for (var i = 0; i &lt; this.powerUps.length; i++) {
+        this.powerUps[i].draw(this.context);
+      }
+      for (var i = 0; i &lt; this.enemies.length; i++) {
+        this.enemies[i].draw(this.context);
+      }
+      this.scorePanel.draw(this.context);
+    };
+    Game.prototype.gameOver = function() {
+      window.cancelAnimationFrame(this.frameId);
+      this.assetsManager.audios["gameOver"].play();
+      this.assetsManager.audios["gameOver"].currentTime = 0;
+      jQuery("#score-field").html(this.spacecraft.score);
+      jQuery("#game-over-box").show();
+      // clear the screen to avoid a lag at the start of the next game
+      this.newGame();
+    };
+  </code></pre></details>
+
+  <details><summary>gameplayManager.js</summary>
+  <pre><code class="javascript">
+    var GameplayManager = function(game) {
+      this.canvas = game.canvas;
+      this.assetsManager = game.assetsManager;
+      this.meteors = game.meteors;
+      this.enemies = game.enemies;
+      this.powerUps = game.powerUps;
+      this.spacecraft = game.spacecraft;
+      this.enemiesSpawnDelay = 5000;
+      this.enemiesSpawnDelayMin = 1000; // max difficulty
+      this.enemiesSpawnDelayTimer = 0;
+      this.meteorsSpawnDelay = 3000;
+      this.meteorsSpawnDelayMin = 1000; // max difficulty
+      this.meteorsSpawnDelayTimer = 0;
+      this.powerUpsSpawnDelay = 20000;
+      this.powerUpsSpawnDelayTimer = 0;
+      this.cleanUpDelay = 15000;
+      this.cleanUpDelayTimer = 0;
+      this.difficultyDelay = 30000;
+      this.difficultyDelayTimer = 0;
+    };
+    GameplayManager.prototype.update = function(delta) {
+      this.spawnMeteors(delta);
+      this.spawnEnemies(delta);
+      this.spawnPowerUps(delta);
+      // clean up every 15 seconds
+      this.cleanUpDelayTimer += delta;
+      if (this.cleanUpDelayTimer &gt; this.cleanUpDelay) {
+        for (var i = 0; i &lt; this.enemies.length; i++) {
+          if (this.isOffCanvas(this.enemies[i])) {
+            this.enemies.splice(i, 1);
+            i--;
+          }
+        }
+        for (var i = 0; i &lt; this.meteors.length; i++) {
+          if (this.meteors[i].isExploded || this.isOffCanvas(this.meteors[i])) {
+            this.meteors.splice(i, 1);
+            i--;
+          }
+        }
+        this.cleanUpDelayTimer = 0;
+      }
+      this.increaseDifficulty(delta);
+    };
+    GameplayManager.prototype.spawnMeteors = function(delta) {
+      this.meteorsSpawnDelayTimer += delta;
+      if (this.meteorsSpawnDelayTimer &gt; this.meteorsSpawnDelay) {
+        // with this implementation meteors can end up spawned on top of each other
+        // which makes their behaviour unpredictable (game's more fun this way)
+        this.meteors.push(new Meteor(this.getMeteorXCentre(), this.getMeteorYCentre(),
+          this.getMeteorType(), this.assetsManager));
+        this.meteorsSpawnDelayTimer = 0;
+      }
+    };
+    GameplayManager.prototype.spawnEnemies = function(delta) {
+      this.enemiesSpawnDelayTimer += delta;
+      if (this.enemiesSpawnDelayTimer &gt; this.enemiesSpawnDelay) {
+        this.enemies.push(new Enemy(this.getEnemyXPosition(), this.getEnemyYPosition(),
+          this.getEnemyType(), this.assetsManager, this.spacecraft));
+        this.enemiesSpawnDelayTimer = 0;
+      }
+    };
+    GameplayManager.prototype.spawnPowerUps = function(delta) {
+      this.powerUpsSpawnDelayTimer += delta;
+      if (this.powerUpsSpawnDelayTimer &gt; this.powerUpsSpawnDelay) {
+        this.powerUps.push(new PowerUp(this.getPowerUpXPosition(),
+          this.getPowerUpYPosition(), this.getPowerUpType(), this.assetsManager));
+        this.powerUpsSpawnDelayTimer = 0;
+      }
+    };
+    GameplayManager.prototype.increaseDifficulty = function(delta) {
+      this.difficultyDelayTimer += delta;
+      if (this.difficultyDelayTimer &gt; this.difficultyDelay) {
+        if (this.meteorsSpawnDelay &gt; this.meteorsSpawnDelayMin) {
+          this.meteorsSpawnDelay -= 200;
+        }
+        if (this.enemiesSpawnDelay &gt; this.enemiesSpawnDelayMin) {
+          this.enemiesSpawnDelay -= 200;
+        }
+        this.difficultyDelayTimer = 0;
+      }
+    };
+    // get random integer between 100 and canvas - 100
+    GameplayManager.prototype.getMeteorXCentre = function() {
+      return this.getIntegerBetween(100, this.canvas.width - 100);
+    };
+    // get random integer between -150 and -50
+    GameplayManager.prototype.getMeteorYCentre = function() {
+      return this.getIntegerBetween(-60, -50);
+    };
+    GameplayManager.prototype.getMeteorType = function() {
+      var choice = this.getIntegerBetween(0, 2);
+      if (choice === 0) {
+        return "big"
+      } else if (choice === 1) {
+        return "medium";
+      } else {
+        return "tiny";
+      }
+    };
+    // get random integer between 100 and canvas - 100
+    GameplayManager.prototype.getEnemyXPosition = function() {
+      return this.getIntegerBetween(100, this.canvas.width - 100);
+    };
+    // get random integer between -150 and -50
+    GameplayManager.prototype.getEnemyYPosition = function() {
+      return this.getIntegerBetween(-60, -50);
+    };
+    GameplayManager.prototype.getEnemyType = function() {
+      var choice = this.getIntegerBetween(0, 3);
+      if (choice === 0) {
+        return "enemyBlue"
+      } else if (choice === 1) {
+        return "enemyRed";
+      } else if (choice === 2) {
+        return "enemyGreen";
+      } else {
+        return "enemyBlack";
+      }
+    };
+    GameplayManager.prototype.getPowerUpXPosition = function() {
+      return this.getIntegerBetween(100, this.canvas.width - 100);
+    };
+    GameplayManager.prototype.getPowerUpYPosition = function() {
+      return this.getIntegerBetween(100, this.canvas.height - 100);
+    };
+    GameplayManager.prototype.getPowerUpType = function() {
+      var choice = this.getIntegerBetween(0, 1);
+      return choice === 0 ? "shieldPower" : "boltPower";
+    };
+    GameplayManager.prototype.isOffCanvas = function(entity) {
+      return entity.xPosition &lt; -300 || entity.xPosition &gt; this.canvas.width + 300
+        || entity.yPosition &lt; -300 || entity.yPosition &gt; this.canvas.height + 300;
+    };
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+    GameplayManager.prototype.getIntegerBetween = function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+  </code></pre></details>
+
+  <details><summary>inputManager.js</summary>
+  <pre><code class="javascript">
+    var InputManager = function() {
+      this.keys = [];
+    };
+    InputManager.prototype.registerKeyListener = function() {
+      document.addEventListener("keydown", function(event) {
+        this.keys[event.which] = true;
+      }.bind(this), false);
+      document.addEventListener("keyup", function(event) {
+        this.keys[event.which] = false;
+      }.bind(this), false);
+    };
+    // pause, resume game
+    InputManager.prototype.registerMouseListener = function(game) {
+      game.canvas.addEventListener("click", function(event) {
+        var x = event.clientX - game.canvas.getBoundingClientRect().left;
+        var y = event.clientY - game.canvas.getBoundingClientRect().top;
+        if (x &gt; 5 && x &lt; 30 && y &gt; 669 && y &lt; 694) {
+          game.isPaused = game.isPaused ? false : true;
+        }
+      }.bind(this), false);
+    };
+  </code></pre></details>
+
+  <details><summary>meteor.js</summary>
+  <pre><code class="javascript">
+    var Meteor = function(xCentre, yCentre, type, assetsManager) {
+      this.xCentre = xCentre;
+      this.yCentre = yCentre;
+      this.type = type;
+      this.assetsManager = assetsManager;
+      if (this.type === "big") {
+        this.radius = 48;
+        this.mass = 1000;
+      } else if (this.type === "medium") {
+        this.radius = 21;
+        this.mass = 500;
+      } else if (this.type === "tiny") {
+        this.radius = 9;
+        this.mass = 100;
+      } else {
+        console.error(this.type + " is not a valid type of a meteor!");
+      }
+      this.xPosition = this.xCentre - this.radius;
+      this.yPosition = this.yCentre - this.radius;
+      // xVelocity is later picked at random
+      this.xVelocity = 0;
+      this.yVelocity = 10;
+      this.rotationAngle = 0;
+      this.rotationDelayCounter = 0;
+      this.initialiseRoute();
+      this.isExploding = false;
+      this.explosionTimer = 0;
+      this.isExploded = false;
+      this.explosionIndex = 0;
+    };
+    Meteor.prototype.initialiseRoute = function() {
+      // get random number between 0 to 4 inclusive
+      var type = Math.floor(Math.random() * 5);
+      //var type = 2;
+      //console.log("Meteor route: " + type);
+      switch (type) {
+        case 0:
+          this.isRotatingClockwise = false;
+          this.xVelocity = -2;
+          break;
+        case 1:
+          this.isRotatingClockwise = false;
+          this.xVelocity = -5;
+          break;
+        case 2:
+          this.isRotatingClockwise = true;
+          break;
+        case 3:
+          this.isRotatingClockwise = true;
+          this.xVelocity = 2;
+          break;
+        case 4:
+          this.isRotatingClockwise = true;
+          this.xVelocity = 5;
+          break;
+        default:
+          console.error(type + " is not a valid type of route of a meteor!");
+          break;
+      }
+      // random yVelocity between 8 and 12
+      this.yVelocity = Math.floor(Math.random() * (12 - 8 + 1)) + 8;
+    };
+    Meteor.prototype.update = function(delta) {
+      if (this.isExploded) {
+        return;
+      }
+      this.yPosition += (this.yVelocity / 10);
+      this.xPosition += (this.xVelocity / 10);
+      this.xCentre = this.xPosition + this.radius;
+      this.yCentre = this.yPosition + this.radius;
+      // rotation of the meteor
+      this.rotationDelayCounter += delta;
+      if (this.rotationDelayCounter &gt; 25) {
+        if (this.isRotatingClockwise) {
+          this.rotationAngle += 1;
+        } else {
+          this.rotationAngle -= 1;
+        }
+        this.rotationDelayCounter = 0;
+      }
+      if (this.isExploding) {
+        this.explosionTimer += delta;
+        if (this.explosionTimer &gt; 50) {
+          this.explosionIndex++;
+          this.explosionTimer = 0;
+        }
+        if (this.explosionIndex &gt; 20) {
+          // end meteor's life :(
+          this.isExploded = true;
+          this.isExploding = false;
+        }
+      }
+    };
+    Meteor.prototype.isGoingDown = function() {
+      return this.yVelocity &gt; 0;
+    };
+    Meteor.prototype.isGoingUp = function() {
+      return this.yVelocity &lt; 0;
+    };
+    Meteor.prototype.isGoingRight = function() {
+      return this.xVelocity &gt; 0;
+    };
+    Meteor.prototype.isGoingLeft = function() {
+      return this.xVelocity &lt; 0;
+    };
+    Meteor.prototype.draw = function(ctx) {
+      if (!this.isExploded && !this.isExploding) {
+        if (this.type === "big") {
+          this.drawRotatedImage(ctx, this.assetsManager.images["meteorBig"],
+            this.xCentre, this.yCentre, this.rotationAngle);
+        } else if (this.type === "medium") {
+          this.drawRotatedImage(ctx, this.assetsManager.images["meteorMedium"],
+            this.xCentre, this.yCentre, this.rotationAngle);
+        } else {
+          this.drawRotatedImage(ctx, this.assetsManager.images["meteorTiny"],
+            this.xCentre, this.yCentre, this.rotationAngle);
+        }
+        // DEBUG
+        //ctx.fillStyle = "#fff";
+        //ctx.beginPath();
+        //ctx.arc(this.xCentre, this.yCentre, this.radius, 0, 2 * Math.PI);
+        //ctx.stroke();
+      } else if (this.isExploding) {
+        ctx.drawImage(this.assetsManager.images["explosion" + this.explosionIndex],
+          this.xCentre - this.radius, this.yCentre - this.radius, this.radius * 2,
+          this.radius * 2);
+      }
+    };
+    // Inspired by the example here by Seb Lee-Delisle
+    // http://creativejs.com/2012/01/day-10-drawing-rotated-images-into-canvas/
+    Meteor.prototype.drawRotatedImage = function(ctx, image, xPosition, yPosition, angle) {
+      ctx.save();
+      ctx.translate(xPosition, yPosition);
+      ctx.rotate(angle * Math.PI / 180);
+      ctx.drawImage(image, -(image.width / 2), -(image.height / 2));
+      ctx.restore();
+    };
+    // xCentre of the object to collide with
+    Meteor.prototype.updateRotation = function(xCentre) {
+      this.isRotatingClockwise = this.xCentre - xCentre &gt; 0;
+    };
+    Meteor.prototype.explode = function() {
+      this.isExploding = true;
+      this.assetsManager.audios["explosion"].play();
+      this.assetsManager.audios["explosion"].currentTime = 0;
+    };
+    Meteor.prototype.isOnFire = function() {
+      return this.isExploded || this.isExploding;
+    };
+  </code></pre></details>
+
+  <details><summary>powerUp.js</summary>
+  <pre><code class="javascript">
+    var PowerUp = function(xPosition, yPosition, type, assetsManager) {
+      this.xPosition = xPosition;
+      this.yPosition = yPosition;
+      this.type = type;
+      this.assetsManager = assetsManager;
+      this.width = 34;
+      this.height = 33;
+      this.isPickedUp = false;
+    };
+    PowerUp.prototype.update = function() {
+      // could be used in the future
+    };
+    PowerUp.prototype.draw = function(ctx) {
+      ctx.drawImage(this.assetsManager.images[this.type], this.xPosition, this.yPosition,
+        this.width, this.height);
+    };
+  </code></pre></details>
+
+  <details><summary>scorePanel.js</summary>
+  <pre><code class="javascript">
+    var ScorePanel = function(game) {
+      this.game = game;
+      this.assetsManager = game.assetsManager;
+      this.spacecraft = game.spacecraft;
+    };
+    ScorePanel.prototype.draw = function(ctx) {
+      ctx.fillStyle = "#f2f2f2";
+      ctx.font = "20px kenvector_future_thin";
+      ctx.fillText(this.spacecraft.livesRemaining, 540, 30);
+      ctx.drawImage(this.assetsManager.images["livesRemaining"], 555, 10);
+      ctx.fillText("Score: " + this.spacecraft.score, 10, 28);
+      if (this.game.isPaused) {
+        ctx.drawImage(this.assetsManager.images["resumeIcon"], 5, 670);
+        ctx.font = "50px kenvector_future_thin";
+        ctx.fillText("Paused", 200, 300);
+      } else {
+        ctx.drawImage(this.assetsManager.images["pauseIcon"], 5, 670);
+      }
+    };
+  </code></pre></details>
+
+  <details><summary>spacecraft.js</summary>
+  <pre><code class="javascript">
+    var Spacecraft = function(canvas, inputManager, assetsManager) {
+      this.canvas = canvas;
+      this.inputManager = inputManager;
+      this.assetsManager = assetsManager;
+
+      this.width = 90;
+      this.height = 60;
+      this.xPosition = 300 - (this.width / 2);
+      this.yPosition = 600;
+      this.mass = 100;
+      this.xVelocity = 0;
+      this.yVelocity = 0;
+      this.maxVelocity = 100;
+      this.accelerateFactor = 2;
+
+      // circular collision detection variables
+      this.radius = this.width / 2;
+      this.xCentre = this.xPosition + this.radius;
+      this.yCentre = this.yPosition + this.radius;
+
+      // collisions with walls detection
+      this.isLeftWall = false;
+      this.isRightWall = false;
+      this.isUpWall = false;
+      this.isDownWall = false;
+
+      this.bulletDelayTimer = 0;
+      this.bullets = [];
+      this.isBoltPower = false;
+      this.boltDuration = 15000;
+      this.boltTimer = 0;
+      this.bulletCleanUpDelayTimer = 0;
+
+      this.isShieldAnimating = false;
+      this.isShieldUp = false;
+      this.shieldDuriation = 15000;
+      this.shieldDelayTimer = 0;
+      this.shieldIndex = 0;
+      this.isShieldUpAudio = false;
+      this.isShieldDownAudio = false;
+
+      this.livesRemaining = 3;
+      this.score = 0;
+    };
+
+    Spacecraft.prototype.update = function(delta) {
+      this.slowDown();
+      this.updateDirection();
+
+      this.yPosition += (this.yVelocity / 10);
+      this.xPosition += (this.xVelocity / 10);
+
+      this.radius = this.width / 2;
+      this.xCentre = this.xPosition + this.radius;
+      this.yCentre = this.yPosition + this.radius;
+
+      // fire normal bullet every second, powered up bullet every 0.3 second
+      this.bulletDelayTimer += delta;
+
+      if (!this.isBoltPower && this.bulletDelayTimer &gt; 1000) {
+        this.fire("blue");
+        this.bulletDelayTimer = 0;
+      } else if (this.isBoltPower && this.bulletDelayTimer &gt; 300) {
+        this.fire("green");
+        this.bulletDelayTimer = 0;
+      }
+
+      for (var i = 0; i &lt; this.bullets.length; i++) {
+        this.bullets[i].update(delta);
+      }
+
+      // every 10 seconds remove bullets that are off the screen
+      this.bulletCleanUpDelayTimer += delta;
+
+      if (this.bulletCleanUpDelayTimer &gt; 10000) {
+        //console.log("Before: " + this.bullets.length);
+        for (var i = 0; i &lt; this.bullets.length; i++) {
+          if (this.bullets[i].yPosition &lt; -50 || this.bullets[i].isExploded) {
+            this.bullets.splice(i, 1);
+            i--;
+          }
+        }
+
+        //console.log("After: " + this.bullets.length);
+        this.bulletCleanUpDelayTimer = 0;
+      }
+
+      this.updateShield(delta);
+      this.updateBolt(delta);
+    };
+
+    Spacecraft.prototype.draw = function(ctx) {
+      for (var i = 0; i &lt; this.bullets.length; i++) {
+        this.bullets[i].draw(ctx);
+      }
+
+      ctx.drawImage(this.assetsManager.images["spacecraft"], this.xPosition,
+        this.yPosition, this.width, this.height);
+
+      // draw the spacecraft's damage
+      if (this.livesRemaining == 2) {
+        ctx.drawImage(this.assetsManager.images["spacecraftSmallDamage"], this.xPosition,
+          this.yPosition, this.width, this.height);
+      } else if (this.livesRemaining == 1) {
+        ctx.drawImage(this.assetsManager.images["spacecraftMediumDamage"], this.xPosition,
+          this.yPosition, this.width, this.height);
+      } else if (this.livesRemaining == 0){
+        ctx.drawImage(this.assetsManager.images["spacecraftBigDamage"], this.xPosition,
+          this.yPosition, this.width, this.height);
+      }
+
+      // draw the shield
+      if (this.shieldIndex &gt; 0) {
+        ctx.drawImage(this.assetsManager.images["shield" + this.shieldIndex], this.xPosition,
+          this.yPosition, this.width, this.height);
+      }
+
+      // collision outline for debugging
+      //ctx.fillStyle = "#fff";
+      //ctx.beginPath();
+      //ctx.arc(this.xCentre, this.yCentre, this.radius, 0, 2 * Math.PI);
+      //ctx.stroke();
+      //
+      //ctx.rect(this.xPosition, this.yPosition, this.width, this.height);
+      //ctx.stroke();
+
+    };
+
+    Spacecraft.prototype.slowDown = function() {
+      // prevents the bug where spacecraft would not stop after a collision
+      if (this.xVelocity &gt; -2 && this.xVelocity &lt; 2) {
+        this.xVelocity = 0;
+      }
+
+      if (this.yVelocity &gt; -2 && this.yVelocity &lt; 2) {
+        this.yVelocity = 0;
+      }
+
+      // slow down when going up
+      if (this.yVelocity &lt; 0 && !this.inputManager.keys[38]) {
+        this.yVelocity += this.accelerateFactor;
+      }
+
+      // slow down when going down
+      if (this.yVelocity &gt; 0 && !this.inputManager.keys[40]) {
+        this.yVelocity -= this.accelerateFactor;
+      }
+
+      // slow down when going right
+      if (this.xVelocity &gt; 0 && !this.inputManager.keys[39]) {
+        this.xVelocity -= this.accelerateFactor;
+      }
+
+      // slow down when going left
+      if (this.xVelocity &lt; 0 && !this.inputManager.keys[37]) {
+        this.xVelocity += this.accelerateFactor;
+      }
+    };
+
+    Spacecraft.prototype.updateDirection = function() {
+      //console.log(this.isMovingHorizontally() + ", " + this.xVelocity + ", "
+      //    + this.isMovingVertically() + ", " + this.yVelocity);
+
+      // start moving up
+      if (this.inputManager.keys[38] && this.yVelocity === 0 && !this.isUpWall) {
+        this.yVelocity -= this.accelerateFactor;
+        this.isDownWall = false;
+      }
+
+      // accelerate further up
+      if (this.inputManager.keys[38] && (Math.abs(this.yVelocity) &lt;= this.maxVelocity)) {
+        this.yVelocity -= this.accelerateFactor;
+      }
+
+      // start moving down
+      if (this.inputManager.keys[40] && this.yVelocity === 0 && !this.isDownWall) {
+        this.yVelocity += this.accelerateFactor;
+        this.isUpWall = false;
+      }
+
+      // accelerate further down
+      if (this.inputManager.keys[40] && (Math.abs(this.yVelocity) &lt;= this.maxVelocity)) {
+        this.yVelocity += this.accelerateFactor;
+      }
+
+      // start moving right
+      if (this.inputManager.keys[39] && this.xVelocity === 0 && !this.isRightWall) {
+        this.xVelocity += this.accelerateFactor;
+        this.isLeftWall = false;
+      }
+
+      // accelerate further right
+      if (this.inputManager.keys[39] && (Math.abs(this.xVelocity) &lt;= this.maxVelocity)) {
+        this.xVelocity += this.accelerateFactor;
+      }
+
+      // start moving left
+      if (this.inputManager.keys[37] && this.xVelocity === 0 && !this.isLeftWall) {
+        this.xVelocity -= this.accelerateFactor;
+        this.isRightWall = false;
+      }
+
+      // accelerate further left
+      if (this.inputManager.keys[37] && (Math.abs(this.xVelocity) &lt;= this.maxVelocity)) {
+        this.xVelocity -= this.accelerateFactor;
+      }
+    };
+
+    Spacecraft.prototype.updateShield = function(delta) {
+      // shield stuff
+      if (this.isShieldAnimating && !this.isShieldUp) {
+        this.shieldDelayTimer += delta;
+
+        if (!this.isShieldUpAudio) {
+          this.assetsManager.audios["shieldUp"].play();
+          this.assetsManager.audios["shieldUp"].currentTime = 0;
+          this.isShieldUpAudio = true;
+        }
+
+        if (this.shieldDelayTimer &gt; 500) {
+          if (this.shieldIndex &lt; 3) {
+            this.shieldIndex++;
+            //console.log("Shield Up: " + this.shieldIndex);
+          } else {
+            this.isShieldUp = true;
+            this.isShieldAnimating = false;
+          }
+
+          this.shieldDelayTimer = 0;
+        }
+      } else if (this.isShieldAnimating && this.isShieldUp) {
+        // shield down
+        this.shieldDelayTimer += delta;
+
+        if (!this.isShieldDownAudio) {
+          this.assetsManager.audios["shieldDown"].play();
+          this.assetsManager.audios["shieldDown"].currentTime = 0;
+          this.isShieldDownAudio = true;
+        }
+
+        if (this.shieldDelayTimer &gt; 500) {
+          if (this.shieldIndex &gt; 0) {
+            this.shieldIndex--;
+            //console.log("Shield down: " + this.shieldIndex);
+          } else {
+            this.isShieldUp = false;
+            this.isShieldAnimating = false;
+          }
+
+          this.shieldDelayTimer = 0;
+        }
+      } else if (this.isShieldUp) {
+        // count time
+        this.shieldDelayTimer += delta;
+
+        if (this.isShieldDownAudio || this.isShieldUpAudio) {
+          this.isShieldDownAudio = false;
+          this.isShieldUpAudio = false;
+        }
+
+        if (this.shieldDelayTimer &gt; this.shieldDuriation) {
+          // put the shield down
+          this.isShieldAnimating = true;
+          this.shieldDelayTimer = 0;
+        }
+      }
+    };
+
+    Spacecraft.prototype.updateBolt = function(delta) {
+      if (this.isBoltPower) {
+        this.boltTimer += delta;
+        //console.log("boltTimer: " + this.boltTimer);
+        if (this.boltTimer &gt; this.boltDuration) {
+          // switch back to blue bullets
+          this.isBoltPower = false;
+          this.boltTimer = 0;
+        }
+      }
+    };
+
+    Spacecraft.prototype.fire = function(color) {
+      if (color === "blue" || color === "green") {
+        this.bullets.push(new Bullet(this.xPosition + (this.width / 2) - (14 / 2) ,
+          this.yPosition, color, this.assetsManager));
+
+        this.assetsManager.audios["laserPlayer"].play();
+        this.assetsManager.audios["laserPlayer"].currentTime = 0;
+      } else {
+        console.error(color + " is not an appropriate color to fire a bullet!");
+      }
+    };
+
+    Spacecraft.prototype.shieldUp = function() {
+      if (this.isShieldUp) {
+        this.shieldDelayTimer = 0;
+        this.isShieldAnimating = false;
+      } else {
+        this.isShieldAnimating = true;
+      }
+    };
+
+    Spacecraft.prototype.boltPowerUp = function() {
+      if (this.isBoltPower) {
+        this.boltTimer = 0;
+      } else {
+        this.isBoltPower = true;
+      }
+    };
+  </code></pre></details>
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

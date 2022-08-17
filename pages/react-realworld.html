@@ -1,0 +1,2899 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="React app example, Web Engineer Book">
+  <meta name="keywords" content="react, js, app, package, module, node modules, nodejs, component, routing, authentication, pattern, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>React app example - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+
+  <details><summary>&nbsp;&nbsp;&nbsp;.eslintrc.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;extends&quot;: [&quot;react-app&quot;, &quot;plugin:prettier/recommended&quot;],
+      &quot;plugins&quot;: [&quot;cypress&quot;],
+      &quot;env&quot;: {
+        &quot;cypress/globals&quot;: true
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;.gitignore</summary>
+    <pre><code class='gitignore'>
+    # dependencies
+    /node_modules
+    /.pnp
+    .pnp.js
+
+    # testing
+    /coverage
+
+    # production
+    /build
+
+    # misc
+    .DS_Store
+    .env.local
+    .env.development.local
+    .env.test.local
+    .env.production.local
+
+    npm-debug.log*
+    yarn-debug.log*
+    yarn-error.log*
+
+    .vscode
+
+    /cypress/videos/
+    /cypress/screenshots/</code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;.prettierrc.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;printWidth&quot;: 80,
+      &quot;trailingComma&quot;: &quot;all&quot;,
+      &quot;singleQuote&quot;: true,
+      &quot;arrowParens&quot;: &quot;always&quot;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;README.md</summary>
+    <pre><code class='md'>
+    # ![RealWorld Example App](logo.png)
+
+    &gt; ### React Hooks + Typescript codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+
+    ### [Demo](https://github.com/gothinkster/realworld)&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;[RealWorld](https://github.com/gothinkster/realworld)
+
+    This codebase was created to demonstrate a fully fledged fullstack application built with **React Hooks** and **Typescript** including CRUD operations, authentication, routing, pagination, and more.
+
+    We've gone to great lengths to adhere to the **React Hooks** and **Typescript** community styleguides &amp; best practices.
+
+    For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+
+    # How it works
+
+    &gt; Describe the general architecture of your app here
+
+    # Todos
+
+    - [ ] Testing
+    - [ ] Improve Accessibility
+
+    # Getting started
+
+    ```bash
+    # Clone the reposiory
+    git clone https://github.com/haythemchagwey/react-hooks-typescript-realworld.git
+    # Cd into the folder
+    cd react-hooks-typescript-realworld
+    # Install the dependencies
+    npm install
+    # Run the development server
+    npm start
+    ```
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;cypress</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;fixtures</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;example.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;name&quot;: &quot;Using fixtures to represent data&quot;,
+      &quot;email&quot;: &quot;hello@cypress.io&quot;,
+      &quot;body&quot;: &quot;Fixtures are a great way to mock data for responses to routes&quot;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;integration</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;login-spec.js</summary>
+    <pre><code class='js'>
+    // Copyright (c) 2019 Applitools
+    // https://github.com/cypress-io/cypress-example-realworld
+
+    describe('Conduit Login', () =&gt; {
+      before(() =&gt; cy.registerUserIfNeeded());
+      beforeEach(() =&gt; {
+        cy.visit('/');
+        // we are not logged in
+      });
+
+      it('does not work with wrong credentials', () =&gt; {
+        cy.contains('a.nav-link', 'Sign in').click();
+
+        cy.get('input[type=&quot;email&quot;]').type('wrong@email.com');
+        cy.get('input[type=&quot;password&quot;]').type('no-such-user');
+        cy.get('button[type=&quot;submit&quot;]').click();
+
+        // error message is shown and we remain on the login page
+        cy.contains('.error-messages li', 'email or password is invalid');
+        cy.url().should('contain', '/login');
+      });
+
+      it('logs in', () =&gt; {
+        cy.contains('a.nav-link', 'Sign in').click();
+
+        const user = Cypress.env('user');
+        cy.get('input[type=&quot;email&quot;]').type(user.email);
+        cy.get('input[type=&quot;password&quot;]').type(user.password);
+        cy.get('button[type=&quot;submit&quot;]').click();
+
+        // when we are logged in, there should be two feeds
+        cy.contains('button.nav-link', 'Your Feed').should(
+          'not.have.class',
+          'active',
+        );
+        cy.contains('button.nav-link', 'Global Feed').should(
+          'have.class',
+          'active',
+        );
+        // url is /
+        cy.url().should('not.contain', '/login');
+      });
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;plugins</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+    <pre><code class='js'>
+    // ***********************************************************
+    // This example plugins/index.js can be used to load plugins
+    //
+    // You can change the location of this file or turn off loading
+    // the plugins file with the 'pluginsFile' configuration option.
+    //
+    // You can read more here:
+    // https://on.cypress.io/plugins-guide
+    // ***********************************************************
+
+    // This function is called when a project is opened or re-opened (e.g. due to
+    // the project's config changing)
+
+    module.exports = (on, config) =&gt; {
+      // `on` is used to hook into various events Cypress emits
+      // `config` is the resolved Cypress config
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;support</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+    <pre><code class='js'>
+    // import '@cypress/code-coverage/support';
+
+    const apiUrl = Cypress.env('apiUrl');
+
+    // a custom Cypress command to login using XHR call
+    // and then set the received token in the local storage
+    // can log in with default user or with a given one
+    Cypress.Commands.add('login', (user = Cypress.env('user')) =&gt; {
+      cy.request('POST', `${apiUrl}/users/login`, {
+        user: Cypress._.pick(user, ['email', 'password']),
+      })
+        .its('body.user.token')
+        .should('exist')
+        .then((token) =&gt; {
+          localStorage.setItem('token', token);
+          // with this token set, when we visit the page
+          // the web application will have the user logged in
+        });
+
+      cy.visit('/');
+    });
+
+    // creates a user with email and password
+    // defined in cypress.json environment variables
+    // if the user already exists, ignores the error
+    // or given user info parameters
+    Cypress.Commands.add('registerUserIfNeeded', (options = {}) =&gt; {
+      const defaults = {
+        username: 'reactuser',
+        // email, password
+        ...Cypress.env('user'),
+      };
+      const user = Cypress._.defaults({}, options, defaults);
+      cy.request({
+        method: 'POST',
+        url: `${apiUrl}/users`,
+        body: {
+          user,
+        },
+        failOnStatusCode: false,
+      });
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;cypress.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;baseUrl&quot;: &quot;http://localhost:3000&quot;,
+      &quot;env&quot;: {
+        &quot;apiUrl&quot;: &quot;https://conduit.productionready.io/api&quot;,
+        &quot;user&quot;: {
+          &quot;email&quot;: &quot;reactuser@test.com&quot;,
+          &quot;password&quot;: &quot;react123456&quot;
+        }
+      },
+      &quot;viewportHeight&quot;: 1000,
+      &quot;viewportWidth&quot;: 1000
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;package.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;name&quot;: &quot;react-hooks-typescript-realworld&quot;,
+      &quot;version&quot;: &quot;0.1.0&quot;,
+      &quot;description&quot;: &quot;React and Typescript codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.&quot;,
+      &quot;private&quot;: true,
+      &quot;repository&quot;: &quot;https://github.com/haythemchagwey/react-hooks-typescript-realworld&quot;,
+      &quot;author&quot;: &quot;Haythem Chagwey&quot;,
+      &quot;license&quot;: &quot;MIT&quot;,
+      &quot;dependencies&quot;: {
+        &quot;@reach/router&quot;: &quot;^1.3.4&quot;,
+        &quot;@types/jest&quot;: &quot;^26.0.15&quot;,
+        &quot;@types/marked&quot;: &quot;^1.2.0&quot;,
+        &quot;@types/node&quot;: &quot;^14.14.9&quot;,
+        &quot;@types/reach__router&quot;: &quot;^1.3.6&quot;,
+        &quot;@types/react&quot;: &quot;^17.0.0&quot;,
+        &quot;@types/react-dom&quot;: &quot;^17.0.0&quot;,
+        &quot;axios&quot;: &quot;^0.21.0&quot;,
+        &quot;jwt-decode&quot;: &quot;^3.1.2&quot;,
+        &quot;marked&quot;: &quot;^1.2.5&quot;,
+        &quot;react&quot;: &quot;^17.0.1&quot;,
+        &quot;react-dom&quot;: &quot;^17.0.1&quot;,
+        &quot;react-scripts&quot;: &quot;^4.0.0&quot;,
+        &quot;typescript&quot;: &quot;^4.1.2&quot;
+      },
+      &quot;scripts&quot;: {
+        &quot;start&quot;: &quot;react-scripts start&quot;,
+        &quot;build&quot;: &quot;react-scripts build&quot;,
+        &quot;test&quot;: &quot;react-scripts test&quot;,
+        &quot;eject&quot;: &quot;react-scripts eject&quot;
+      },
+      &quot;husky&quot;: {
+        &quot;hooks&quot;: {
+          &quot;pre-commit&quot;: &quot;pretty-quick --staged&quot;
+        }
+      },
+      &quot;eslintConfig&quot;: {
+        &quot;extends&quot;: [
+          &quot;react-app&quot;,
+          &quot;plugin:prettier/recommended&quot;
+        ]
+      },
+      &quot;browserslist&quot;: {
+        &quot;production&quot;: [
+          &quot;&gt;0.2%&quot;,
+          &quot;not dead&quot;,
+          &quot;not op_mini all&quot;
+        ],
+        &quot;development&quot;: [
+          &quot;last 1 chrome version&quot;,
+          &quot;last 1 firefox version&quot;,
+          &quot;last 1 safari version&quot;
+        ]
+      },
+      &quot;devDependencies&quot;: {
+        &quot;cypress&quot;: &quot;^5.6.0&quot;,
+        &quot;eslint-config-prettier&quot;: &quot;^6.15.0&quot;,
+        &quot;eslint-plugin-cypress&quot;: &quot;^2.11.2&quot;,
+        &quot;eslint-plugin-prettier&quot;: &quot;^3.1.4&quot;,
+        &quot;husky&quot;: &quot;^4.3.0&quot;,
+        &quot;prettier&quot;: &quot;^2.2.0&quot;,
+        &quot;pretty-quick&quot;: &quot;^3.1.0&quot;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;public</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.html</summary>
+    <pre><code class='html'>
+    &lt;!DOCTYPE html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+      &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot; /&gt;
+        &lt;link rel=&quot;shortcut icon&quot; href=&quot;%PUBLIC_URL%/favicon.ico&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
+        &lt;meta name=&quot;theme-color&quot; content=&quot;#000000&quot; /&gt;
+        &lt;!--
+          manifest.json provides metadata used when your web app is installed on a
+          user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+        --&gt;
+        &lt;link rel=&quot;manifest&quot; href=&quot;%PUBLIC_URL%/manifest.json&quot; /&gt;
+        &lt;!-- Import Ionicon icons &amp; Google Fonts our Bootstrap theme relies on --&gt;
+        &lt;link
+          href=&quot;//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css&quot;
+          rel=&quot;stylesheet&quot;
+          type=&quot;text/css&quot;
+        /&gt;
+        &lt;link
+          href=&quot;//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic&quot;
+          rel=&quot;stylesheet&quot;
+          type=&quot;text/css&quot;
+        /&gt;
+        &lt;!-- Import the custom Bootstrap 4 theme from our hosted CDN --&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;//demo.productionready.io/main.css&quot; /&gt;
+        &lt;!--
+          Notice the use of %PUBLIC_URL% in the tags above.
+          It will be replaced with the URL of the `public` folder during the build.
+          Only files inside the `public` folder can be referenced from the HTML.
+
+          Unlike &quot;/favicon.ico&quot; or &quot;favicon.ico&quot;, &quot;%PUBLIC_URL%/favicon.ico&quot; will
+          work correctly both with client-side routing and a non-root public URL.
+          Learn how to configure a non-root public URL by running `npm run build`.
+        --&gt;
+        &lt;title&gt;Conduit&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;noscript&gt;You need to enable JavaScript to run this app.&lt;/noscript&gt;
+        &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+        &lt;!--
+          This HTML file is a template.
+          If you open it directly in the browser, you will see an empty page.
+
+          You can add webfonts, meta tags, or analytics to this file.
+          The build step will place the bundled scripts into the &lt;body&gt; tag.
+
+          To begin the development, run `npm start` or `yarn start`.
+          To create a production bundle, use `npm run build` or `yarn build`.
+        --&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;manifest.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;short_name&quot;: &quot;React App&quot;,
+      &quot;name&quot;: &quot;Create React App Sample&quot;,
+      &quot;icons&quot;: [
+        {
+          &quot;src&quot;: &quot;favicon.ico&quot;,
+          &quot;sizes&quot;: &quot;64x64 32x32 24x24 16x16&quot;,
+          &quot;type&quot;: &quot;image/x-icon&quot;
+        }
+      ],
+      &quot;start_url&quot;: &quot;.&quot;,
+      &quot;display&quot;: &quot;standalone&quot;,
+      &quot;theme_color&quot;: &quot;#000000&quot;,
+      &quot;background_color&quot;: &quot;#ffffff&quot;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;src</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;api</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;APIUtils.ts</summary>
+    <pre><code class='ts'>
+    import { navigate } from '@reach/router';
+    import axios from 'axios';
+    import jwtDecode from 'jwt-decode';
+
+    export const TOKEN_KEY = 'token';
+
+    axios.defaults.baseURL = 'https://conduit.productionready.io/api';
+    axios.interceptors.response.use(
+      (response) =&gt; {
+        return response;
+      },
+      (error) =&gt; {
+        switch (error.response.status) {
+          case 401:
+            navigate('/register');
+            break;
+          case 404:
+          case 403:
+            navigate('/');
+            break;
+        }
+        return Promise.reject(error.response);
+      },
+    );
+
+    export function setToken(token: string | null) {
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+      } else {
+        delete axios.defaults.headers.common['Authorization'];
+      }
+    }
+
+    type JWTPayload = {
+      id: string;
+      username: string;
+      exp: number;
+    };
+
+    export function isTokenValid(token: string) {
+      try {
+        const decoded_jwt: JWTPayload = jwtDecode(token);
+        const current_time = Date.now().valueOf() / 1000;
+        return decoded_jwt.exp &gt; current_time;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    export default axios;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticlesAPI.ts</summary>
+    <pre><code class='ts'>
+    import API from './APIUtils';
+    import { IArticle } from '../types';
+
+    const encode = encodeURIComponent;
+
+    type Articles = {
+      articles: Array&lt;IArticle&gt;;
+    } &amp; {
+      articlesCount: number;
+    };
+
+    type Article = {
+      article: IArticle;
+    };
+
+    function limit(count: number, p: number) {
+      return `limit=${count}&amp;offset=${p ? p * count : 0}`;
+    }
+
+    function omitSlug(article: {
+      slug: string;
+      title?: string;
+      description?: string;
+      body?: string;
+    }) {
+      return Object.assign({}, article, { slug: undefined });
+    }
+
+    export function getArticles(page: number) {
+      return API.get&lt;Articles&gt;(`/articles?${limit(10, page)}`);
+    }
+
+    export function getArticlesByAuthor(username: string, page: number) {
+      return API.get&lt;Articles&gt;(
+        `/articles?author=${encode(username)}&amp;${limit(5, page)}`,
+      );
+    }
+
+    export function getArticlesByTag(tag: string, page: number) {
+      return API.get&lt;Articles&gt;(`/articles?tag=${encode(tag)}&amp;${limit(10, page)}`);
+    }
+
+    export function deleteArticle(slug: string) {
+      return API.delete&lt;null&gt;(`/articles/${slug}`);
+    }
+
+    export function favoriteArticle(slug: string) {
+      return API.post&lt;Article&gt;(`/articles/${slug}/favorite`);
+    }
+
+    export function getArticlesFavoritedBy(username: string, page: number) {
+      return API.get&lt;Articles&gt;(
+        `/articles?favorited=${encode(username)}&amp;${limit(5, page)}`,
+      );
+    }
+
+    export function getFeedArticles() {
+      return API.get&lt;Articles&gt;('/articles/feed?limit=10&amp;offset=0');
+    }
+
+    export function getArticle(slug: string) {
+      return API.get&lt;Article&gt;(`/articles/${slug}`);
+    }
+
+    export function unfavoriteArticle(slug: string) {
+      return API.delete&lt;Article&gt;(`/articles/${slug}/favorite`);
+    }
+    export function updateArticle(article: {
+      slug: string;
+      title?: string;
+      description?: string;
+      body?: string;
+      tagList?: string[];
+    }) {
+      return API.put&lt;Article&gt;(`/articles/${article.slug}`, {
+        article: omitSlug(article),
+      });
+    }
+
+    export function createArticle(article: {
+      title: string;
+      description: string;
+      body: string;
+      tagList?: string[];
+    }) {
+      return API.post&lt;Article&gt;('/articles', { article });
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AuthAPI.ts</summary>
+    <pre><code class='ts'>
+    import API, { TOKEN_KEY } from './APIUtils';
+    import { IUser } from '../types';
+    import { setLocalStorage } from '../utils';
+    import { setToken } from './APIUtils';
+
+    type User = {
+      user: IUser &amp; { token: string };
+    };
+
+    function handleUserResponse({ user: { token, ...user } }: User) {
+      setLocalStorage(TOKEN_KEY, token);
+      setToken(token);
+      return user;
+    }
+
+    export function getCurrentUser() {
+      return API.get&lt;User&gt;('/user');
+    }
+
+    export function login(email: string, password: string) {
+      return API.post&lt;User&gt;('/users/login', {
+        user: { email, password },
+      }).then((user) =&gt; handleUserResponse(user.data));
+    }
+
+    export function register(user: {
+      username: string;
+      email: string;
+      password: string;
+    }) {
+      return API.post&lt;User&gt;('/users', { user }).then((user) =&gt;
+        handleUserResponse(user.data),
+      );
+    }
+
+    export function updateUser(user: IUser &amp; Partial&lt;{ password: string }&gt;) {
+      return API.put&lt;User&gt;('/user', { user });
+    }
+
+    export function logout() {
+      localStorage.removeItem(TOKEN_KEY);
+      setToken(null);
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CommentsAPI.ts</summary>
+    <pre><code class='ts'>
+    import API from './APIUtils';
+    import { IComment } from '../types';
+
+    type Comment = {
+      comment: IComment;
+    };
+
+    type Comments = {
+      comments: Array&lt;IComment&gt;;
+    };
+
+    export function createComment(slug: string, comment: { body: string }) {
+      return API.post&lt;Comment&gt;(`/articles/${slug}/comments`, { comment });
+    }
+
+    export function deleteComment(slug: string, commentId: number) {
+      return API.delete&lt;null&gt;(`/articles/${slug}/comments/${commentId}`);
+    }
+
+    export function getArticleComments(slug: string) {
+      return API.get&lt;Comments&gt;(`/articles/${slug}/comments`);
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProfileAPI.ts</summary>
+    <pre><code class='ts'>
+    import API from './APIUtils';
+    import { IProfile } from '../types';
+
+    type Profile = {
+      profile: IProfile;
+    };
+
+    export function followProfile(username: string) {
+      return API.post&lt;Profile&gt;(`/profiles/${username}/follow`);
+    }
+
+    export function getProfile(username: string) {
+      return API.get&lt;Profile&gt;(`/profiles/${username}`);
+    }
+
+    export function unfollowProfile(username: string) {
+      return API.delete&lt;Profile&gt;(`/profiles/${username}/follow`);
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TagsAPI.ts</summary>
+    <pre><code class='ts'>
+    import API from './APIUtils';
+
+    type Tags = {
+      tags: string[];
+    };
+
+    export function getTags() {
+      return API.get&lt;Tags&gt;('/tags');
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Router } from '@reach/router';
+    import Header from './Header';
+    import Home from './Home';
+    import Register from './Register';
+    import Login from './Login';
+    import Article from './Article';
+    import Profile from './Profile';
+    import Editor from './Editor';
+    import Settings from './Settings';
+    import PrivateRoute from './PrivateRoute';
+    import { getCurrentUser } from '../api/AuthAPI';
+    import useAuth, { AuthProvider } from '../context/auth';
+
+    function App() {
+      const {
+        state: { user, isAuthenticated },
+        dispatch,
+      } = useAuth();
+
+      React.useEffect(() =&gt; {
+        let ignore = false;
+
+        async function fetchUser() {
+          try {
+            const payload = await getCurrentUser();
+            const { token, ...user } = payload.data.user;
+            if (!ignore) {
+              dispatch({ type: 'LOAD_USER', user });
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+
+        if (!user &amp;&amp; isAuthenticated) {
+          fetchUser();
+        }
+
+        return () =&gt; {
+          ignore = true;
+        };
+      }, [dispatch, isAuthenticated, user]);
+
+      if (!user &amp;&amp; isAuthenticated) {
+        return null;
+      }
+
+      return (
+        &lt;React.Fragment&gt;
+          &lt;Header /&gt;
+          &lt;Router&gt;
+            &lt;Home default path=&quot;/&quot; /&gt;
+            &lt;Register path=&quot;register&quot; /&gt;
+            &lt;Login path=&quot;login&quot; /&gt;
+            &lt;Article path=&quot;article/:slug&quot; /&gt;
+            &lt;Profile path=&quot;:username&quot; /&gt;
+            &lt;PrivateRoute as={Settings} path=&quot;/settings&quot; /&gt;
+            &lt;PrivateRoute as={Editor} path=&quot;/editor&quot; /&gt;
+            &lt;PrivateRoute as={Editor} path=&quot;/editor/:slug&quot; /&gt;
+          &lt;/Router&gt;
+        &lt;/React.Fragment&gt;
+      );
+    }
+
+    export default () =&gt; (
+      &lt;AuthProvider&gt;
+        &lt;App /&gt;
+      &lt;/AuthProvider&gt;
+    );
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Article</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleActions.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link } from '@reach/router';
+    import { followProfile, unfollowProfile } from '../../api/ProfileAPI';
+    import { IArticle } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import DeleteButton from './DeleteButton';
+    import FollowUserButton from '../common/FollowUserButton';
+    import FavoriteButton from '../common/FavoriteButton';
+    import useAuth from '../../context/auth';
+
+    type ArticleActionsProps = {
+      article: IArticle;
+      dispatch: React.Dispatch&lt;ArticleAction&gt;;
+    };
+
+    export default function ArticleActions({
+      article,
+      dispatch,
+    }: ArticleActionsProps) {
+      const [loading, setLoading] = React.useState(false);
+      const {
+        state: { user },
+      } = useAuth();
+
+      const canModifyArticle = user &amp;&amp; user.username === article.author.username;
+
+      const handleFollowButtonClick = async () =&gt; {
+        setLoading(true);
+        if (article.author.following) {
+          await followProfile(article.author.username);
+          dispatch({ type: 'UNFOLLOW_AUTHOR' });
+        } else {
+          await unfollowProfile(article.author.username);
+          dispatch({ type: 'FOLLOW_AUTHOR' });
+        }
+        setLoading(false);
+      };
+
+      return canModifyArticle ? (
+        &lt;React.Fragment&gt;
+          &lt;Link
+            to={`/editor/${article.slug}`}
+            className=&quot;btn btn-outline-secondary btn-sm&quot;
+          &gt;
+            &lt;i className=&quot;ion-edit&quot; /&gt; Edit Article
+          &lt;/Link&gt;
+          &lt;DeleteButton article={article} /&gt;
+        &lt;/React.Fragment&gt;
+      ) : (
+        &lt;React.Fragment&gt;
+          &lt;FollowUserButton
+            onClick={handleFollowButtonClick}
+            profile={article.author}
+            loading={loading}
+          /&gt;
+          &lt;FavoriteButton article={article} dispatch={dispatch}&gt;
+            {article.favorited ? 'Unfavorite Article' : 'Favorite Article'}
+            &lt;span className=&quot;counter&quot;&gt;({article.favoritesCount})&lt;/span&gt;
+          &lt;/FavoriteButton&gt;
+        &lt;/React.Fragment&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleMeta.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import ArticleActions from './ArticleActions';
+    import { IArticle } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import ArticleAvatar from '../common/ArticleAvatar';
+
+    type ArticleMetaProps = {
+      article: IArticle;
+      dispatch: React.Dispatch&lt;ArticleAction&gt;;
+    };
+
+    function ArticleMeta({ article, dispatch }: ArticleMetaProps) {
+      return (
+        &lt;div className=&quot;article-meta&quot;&gt;
+          &lt;ArticleAvatar article={article} /&gt;
+          &lt;ArticleActions article={article} dispatch={dispatch} /&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    export default React.memo(ArticleMeta);
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Comment.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link } from '@reach/router';
+    import { IComment, IUser } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import { deleteComment } from '../../api/CommentsAPI';
+
+    type CommentProps = {
+      comment: IComment;
+      slug: string;
+      user: IUser | null;
+      dispatch: React.Dispatch&lt;ArticleAction&gt;;
+    };
+
+    function Comment({ comment, slug, user, dispatch }: CommentProps) {
+      const showDeleteButton = user &amp;&amp; user.username === comment.author.username;
+
+      const handleDelete = async () =&gt; {
+        try {
+          await deleteComment(slug, comment.id);
+          dispatch({ type: 'DELETE_COMMENT', commentId: comment.id });
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      return (
+        &lt;div className=&quot;card&quot;&gt;
+          &lt;div className=&quot;card-block&quot;&gt;
+            &lt;p className=&quot;card-text&quot;&gt;{comment.body}&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div className=&quot;card-footer&quot;&gt;
+            &lt;Link to={`/@${comment.author.username}`} className=&quot;comment-author&quot;&gt;
+              &lt;img
+                src={comment.author.image}
+                className=&quot;comment-author-img&quot;
+                alt={comment.author.username}
+              /&gt;
+              &amp;nbsp;
+              {comment.author.username}
+            &lt;/Link&gt;
+            &lt;span className=&quot;date-posted&quot;&gt;
+              {new Date(comment.createdAt).toDateString()}
+            &lt;/span&gt;
+            {showDeleteButton &amp;&amp; (
+              &lt;span className=&quot;mod-options&quot;&gt;
+                &lt;i className=&quot;ion-trash-a&quot; onClick={handleDelete} /&gt;
+              &lt;/span&gt;
+            )}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    export default Comment;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CommentContainer.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link } from '@reach/router';
+    import Comment from './Comment';
+    import CommentInput from './CommentInput';
+    import { IComment } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import useAuth from '../../context/auth';
+
+    type CommentContainerProps = {
+      comments: Array&lt;IComment&gt;;
+      slug: string;
+      dispatch: React.Dispatch&lt;ArticleAction&gt;;
+    };
+
+    function CommentContainer({ comments, slug, dispatch }: CommentContainerProps) {
+      const {
+        state: { user },
+      } = useAuth();
+
+      return (
+        &lt;div className=&quot;row&quot;&gt;
+          &lt;div className=&quot;col-xs-12 col-md-8 offset-md-2&quot;&gt;
+            {user ? (
+              &lt;CommentInput user={user} slug={slug} dispatch={dispatch} /&gt;
+            ) : (
+              &lt;p&gt;
+                &lt;Link to=&quot;/login&quot;&gt;Sign in&lt;/Link&gt;
+                &amp;nbsp;or&amp;nbsp;
+                &lt;Link to=&quot;/register&quot;&gt;Sign up&lt;/Link&gt;
+                &amp;nbsp;to add comments on this article.
+              &lt;/p&gt;
+            )}
+
+            {comments.map((comment) =&gt; (
+              &lt;Comment
+                key={comment.id}
+                comment={comment}
+                slug={slug}
+                user={user}
+                dispatch={dispatch}
+              /&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    export default React.memo(CommentContainer);
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CommentInput.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { IUser } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import { createComment } from '../../api/CommentsAPI';
+
+    type CommentInputProps = {
+      user: IUser;
+      slug: string;
+      dispatch: React.Dispatch&lt;ArticleAction&gt;;
+    };
+
+    export default function CommentInput({
+      user,
+      slug,
+      dispatch,
+    }: CommentInputProps) {
+      const [body, setBody] = React.useState('');
+      const [loading, setLoading] = React.useState(false);
+
+      const handleSubmit = async (event: React.SyntheticEvent) =&gt; {
+        event.preventDefault();
+        setLoading(true);
+        try {
+          const payload = await createComment(slug, { body });
+          dispatch({ type: 'ADD_COMMENT', payload: payload.data });
+        } catch (error) {
+          console.log(error);
+        }
+        setLoading(false);
+        setBody('');
+      };
+
+      return (
+        &lt;form className=&quot;card comment-form&quot; onSubmit={handleSubmit}&gt;
+          &lt;div className=&quot;card-block&quot;&gt;
+            &lt;textarea
+              className=&quot;form-control&quot;
+              placeholder=&quot;Write a comment...&quot;
+              value={body}
+              onChange={(event) =&gt; setBody(event.target.value)}
+              rows={3}
+            /&gt;
+          &lt;/div&gt;
+          &lt;div className=&quot;card-footer&quot;&gt;
+            &lt;img
+              src={user.image}
+              className=&quot;comment-author-img&quot;
+              alt={user.username}
+            /&gt;
+            &lt;button
+              className=&quot;btn btn-sm btn-primary&quot;
+              type=&quot;submit&quot;
+              disabled={loading}
+            &gt;
+              Post Comment
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;DeleteButton.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { navigate } from '@reach/router';
+    import { IArticle } from '../../types';
+    import { deleteArticle } from '../../api/ArticlesAPI';
+
+    export default function DeleteButton({ article }: { article: IArticle }) {
+      const handleDelete = async () =&gt; {
+        try {
+          await deleteArticle(article.slug);
+          navigate('/');
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      return (
+        &lt;button className=&quot;btn btn-outline-danger btn-sm&quot; onClick={handleDelete}&gt;
+          &lt;i className=&quot;ion-trash-a&quot; /&gt; Delete Article
+        &lt;/button&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import marked from 'marked';
+    import ArticleMeta from './ArticleMeta';
+    import ArticleTags from '../common/ArticleTags';
+    import CommentContainer from './CommentContainer';
+    import { RouteComponentProps } from '@reach/router';
+    import { articleReducer, initialState } from '../../reducers/article';
+    import { getArticleComments } from '../../api/CommentsAPI';
+    import { getArticle } from '../../api/ArticlesAPI';
+
+    export default function Article({
+      slug = '',
+    }: RouteComponentProps&lt;{ slug: string }&gt;) {
+      const [{ article, comments, loading, error }, dispatch] = React.useReducer(
+        articleReducer,
+        initialState,
+      );
+
+      React.useEffect(() =&gt; {
+        dispatch({ type: 'FETCH_ARTICLE_BEGIN' });
+        let ignore = false;
+
+        const fetchArticle = async () =&gt; {
+          try {
+            const [articlePayload, commentsPayload] = await Promise.all([
+              getArticle(slug),
+              getArticleComments(slug),
+            ]);
+            if (!ignore) {
+              dispatch({
+                type: 'FETCH_ARTICLE_SUCCESS',
+                payload: {
+                  article: articlePayload.data.article,
+                  comments: commentsPayload.data.comments,
+                },
+              });
+            }
+          } catch (error) {
+            console.log(error);
+            dispatch({
+              type: 'FETCH_ARTICLE_ERROR',
+              error,
+            });
+          }
+        };
+
+        fetchArticle();
+        return () =&gt; {
+          ignore = true;
+        };
+      }, [dispatch, slug]);
+
+      const convertToMarkdown = (text: string) =&gt; ({
+        __html: marked(text, { sanitize: true }),
+      });
+
+      return (
+        article &amp;&amp; (
+          &lt;div className=&quot;article-page&quot;&gt;
+            &lt;div className=&quot;banner&quot;&gt;
+              &lt;div className=&quot;container&quot;&gt;
+                &lt;h1&gt;{article.title}&lt;/h1&gt;
+                &lt;ArticleMeta article={article} dispatch={dispatch} /&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div className=&quot;container page&quot;&gt;
+              &lt;div className=&quot;row article-content&quot;&gt;
+                &lt;div className=&quot;col-md-12&quot;&gt;
+                  &lt;p dangerouslySetInnerHTML={convertToMarkdown(article.body)} /&gt;
+                  &lt;ArticleTags tagList={article.tagList} /&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+
+              &lt;hr /&gt;
+
+              &lt;div className=&quot;article-actions&quot;&gt;
+                &lt;ArticleMeta article={article} dispatch={dispatch} /&gt;
+              &lt;/div&gt;
+
+              &lt;CommentContainer
+                comments={comments}
+                slug={slug}
+                dispatch={dispatch}
+              /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        )
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleList.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import ArticlePreview from './ArticlePreview';
+    import ListPagination from './ListPagination';
+    import {
+      getArticles,
+      getFeedArticles,
+      getArticlesByTag,
+      getArticlesByAuthor,
+      getArticlesFavoritedBy,
+    } from '../api/ArticlesAPI';
+    import useArticles from '../context/articles';
+    import { ITab } from '../reducers/articleList';
+
+    const loadArticles = (tab: ITab, page = 0) =&gt; {
+      switch (tab.type) {
+        case 'FEED':
+          return getFeedArticles();
+        case 'ALL':
+          return getArticles(page);
+        case 'TAG':
+          return getArticlesByTag(tab.label, page);
+        case 'AUTHORED':
+          return getArticlesByAuthor(tab.username, page);
+        case 'FAVORITES':
+          return getArticlesFavoritedBy(tab.username, page);
+        default:
+          // return getArticles(page);
+          throw new Error('type does not exist');
+      }
+    };
+
+    export default function ArticleList() {
+      const {
+        state: { articles, loading, error, articlesCount, selectedTab, page },
+        dispatch,
+      } = useArticles();
+
+      React.useEffect(() =&gt; {
+        let ignore = false;
+        async function fetchArticles() {
+          dispatch({ type: 'FETCH_ARTICLES_BEGIN' });
+          try {
+            const payload = await loadArticles(selectedTab, page);
+            if (!ignore) {
+              dispatch({ type: 'FETCH_ARTICLES_SUCCESS', payload: payload.data });
+            }
+          } catch (error) {
+            if (!ignore) {
+              dispatch({ type: 'FETCH_ARTICLES_ERROR', error });
+            }
+          }
+        }
+        fetchArticles();
+        return () =&gt; {
+          ignore = true;
+        };
+      }, [dispatch, page, selectedTab]);
+
+      if (loading) {
+        return &lt;div className=&quot;article-preview&quot;&gt;Loading...&lt;/div&gt;;
+      }
+
+      if (articles.length === 0) {
+        return &lt;div className=&quot;article-preview&quot;&gt;No articles are here... yet.&lt;/div&gt;;
+      }
+
+      return (
+        &lt;React.Fragment&gt;
+          {articles.map((article) =&gt; (
+            &lt;ArticlePreview
+              key={article.slug}
+              article={article}
+              dispatch={dispatch}
+            /&gt;
+          ))}
+          &lt;ListPagination
+            page={page}
+            articlesCount={articlesCount}
+            dispatch={dispatch}
+          /&gt;
+        &lt;/React.Fragment&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticlePreview.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link } from '@reach/router';
+    import ArticleAvatar from './common/ArticleAvatar';
+    import ArticleTags from './common/ArticleTags';
+    import FavoriteButton from './common/FavoriteButton';
+    import { IArticle } from '../types';
+    import { ArticleListAction } from '../reducers/articleList';
+
+    type ArticlePreviewProps = {
+      article: IArticle;
+      dispatch: React.Dispatch&lt;ArticleListAction&gt;;
+    };
+
+    export default function ArticlePreview({
+      article,
+      dispatch,
+    }: ArticlePreviewProps) {
+      return (
+        &lt;div className=&quot;article-preview&quot;&gt;
+          &lt;div className=&quot;article-meta&quot;&gt;
+            &lt;ArticleAvatar article={article} /&gt;
+            &lt;div className=&quot;pull-xs-right&quot;&gt;
+              &lt;FavoriteButton article={article} dispatch={dispatch}&gt;
+                {article.favoritesCount}
+              &lt;/FavoriteButton&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;Link to={`/article/${article.slug}`} className=&quot;preview-link&quot;&gt;
+            &lt;h1&gt;{article.title}&lt;/h1&gt;
+            &lt;p&gt;{article.description}&lt;/p&gt;
+            &lt;span&gt;Read more...&lt;/span&gt;
+            &lt;ArticleTags tagList={article.tagList} /&gt;
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Editor.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { editorReducer, initalState } from '../reducers/editor';
+    import { RouteComponentProps, navigate } from '@reach/router';
+    import { getArticle, updateArticle, createArticle } from '../api/ArticlesAPI';
+    import ListErrors from './common/ListErrors';
+
+    export default function Editor({
+      slug = '',
+    }: RouteComponentProps&lt;{ slug: string }&gt;) {
+      const [state, dispatch] = React.useReducer(editorReducer, initalState);
+
+      React.useEffect(() =&gt; {
+        let ignore = false;
+
+        const fetchArticle = async () =&gt; {
+          try {
+            const payload = await getArticle(slug);
+            const { title, description, body, tagList } = payload.data.article;
+            if (!ignore) {
+              dispatch({
+                type: 'SET_FORM',
+                form: { title, description, body, tag: '' },
+              });
+              dispatch({ type: 'SET_TAGS', tagList });
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        if (slug) {
+          fetchArticle();
+        }
+        return () =&gt; {
+          ignore = true;
+        };
+      }, [slug]);
+
+      const handleChange = (
+        event: React.FormEvent&lt;HTMLInputElement | HTMLTextAreaElement&gt;,
+      ) =&gt; {
+        dispatch({
+          type: 'UPDATE_FORM',
+          field: {
+            key: event.currentTarget.name,
+            value: event.currentTarget.value,
+          },
+        });
+      };
+
+      const handelKeyUp = (event: React.KeyboardEvent&lt;HTMLInputElement&gt;) =&gt; {
+        if (event.keyCode === 13) {
+          dispatch({ type: 'ADD_TAG', tag: event.currentTarget.value });
+          dispatch({ type: 'UPDATE_FORM', field: { key: 'tag', value: '' } });
+        }
+      };
+
+      const handleSubmit = async (event: React.SyntheticEvent) =&gt; {
+        event.preventDefault();
+        try {
+          const { title, description, body } = state.form;
+          const article = { title, description, body, tagList: state.tagList };
+          let payload;
+          if (slug) {
+            payload = await updateArticle({ slug, ...article });
+          } else {
+            payload = await createArticle(article);
+          }
+          navigate(`/article/${payload.data.article.slug}`);
+        } catch (error) {
+          console.log(error);
+          if (error.status === 422) {
+            dispatch({ type: 'SET_ERRORS', errors: error.data.errors });
+          }
+        }
+      };
+      return (
+        &lt;div className=&quot;editor-page&quot;&gt;
+          &lt;div className=&quot;container page&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;div className=&quot;col-md-10 offset-md-1 col-xs-12&quot;&gt;
+                &lt;ListErrors errors={state.errors} /&gt;
+
+                &lt;form onSubmit={handleSubmit}&gt;
+                  &lt;div className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;title&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;text&quot;
+                      placeholder=&quot;Article Title&quot;
+                      value={state.form.title}
+                      onChange={handleChange}
+                    /&gt;
+                  &lt;/div&gt;
+
+                  &lt;div className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;description&quot;
+                      className=&quot;form-control&quot;
+                      type=&quot;text&quot;
+                      placeholder=&quot;What's this article about?&quot;
+                      value={state.form.description}
+                      onChange={handleChange}
+                    /&gt;
+                  &lt;/div&gt;
+
+                  &lt;div className=&quot;form-group&quot;&gt;
+                    &lt;textarea
+                      name=&quot;body&quot;
+                      className=&quot;form-control&quot;
+                      rows={8}
+                      placeholder=&quot;Write your article (in markdown)&quot;
+                      value={state.form.body}
+                      onChange={handleChange}
+                    &gt;&lt;/textarea&gt;
+                  &lt;/div&gt;
+
+                  &lt;div className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;tag&quot;
+                      className=&quot;form-control&quot;
+                      type=&quot;text&quot;
+                      placeholder=&quot;Enter tags&quot;
+                      value={state.form.tag}
+                      onChange={handleChange}
+                      onKeyUp={handelKeyUp}
+                    /&gt;
+
+                    &lt;div className=&quot;tag-list&quot;&gt;
+                      {state.tagList.map((tag) =&gt; {
+                        return (
+                          &lt;span className=&quot;tag-default tag-pill&quot; key={tag}&gt;
+                            &lt;i
+                              className=&quot;ion-close-round&quot;
+                              onClick={() =&gt; dispatch({ type: 'REMOVE_TAG', tag })}
+                            &gt;&lt;/i&gt;
+                            {tag}
+                          &lt;/span&gt;
+                        );
+                      })}
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+
+                  &lt;button
+                    className=&quot;btn btn-lg pull-xs-right btn-primary&quot;
+                    type=&quot;submit&quot;
+                  &gt;
+                    Publish Article
+                  &lt;/button&gt;
+                &lt;/form&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Header.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link, LinkGetProps, LinkProps } from '@reach/router';
+    import useAuth from '../context/auth';
+    import { IUser } from '../types';
+    import { APP_NAME } from '../utils';
+
+    export default function Header() {
+      const {
+        state: { user },
+      } = useAuth();
+
+      return (
+        &lt;nav className=&quot;navbar navbar-light&quot;&gt;
+          &lt;div className=&quot;container&quot;&gt;
+            &lt;Link to=&quot;/&quot; className=&quot;navbar-brand&quot;&gt;
+              {APP_NAME}
+            &lt;/Link&gt;
+            {user ? &lt;LoggedInView user={user} /&gt; : &lt;LoggedOutView /&gt;}
+          &lt;/div&gt;
+        &lt;/nav&gt;
+      );
+    }
+
+    const LoggedInView = ({ user: { username, image } }: { user: IUser }) =&gt; (
+      &lt;ul className=&quot;nav navbar-nav pull-xs-right&quot;&gt;
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/&quot;&gt;Home&lt;/NavLink&gt;
+        &lt;/li&gt;
+
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/editor&quot;&gt;
+            &lt;i className=&quot;ion-compose&quot; /&gt;
+            &amp;nbsp;New Post
+          &lt;/NavLink&gt;
+        &lt;/li&gt;
+
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/settings&quot;&gt;
+            &lt;i className=&quot;ion-gear-a&quot; /&gt;
+            &amp;nbsp;Settings
+          &lt;/NavLink&gt;
+        &lt;/li&gt;
+
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to={`/${username}`}&gt;
+            {image &amp;&amp; &lt;img src={image} className=&quot;user-pic&quot; alt={username} /&gt;}
+            {username}
+          &lt;/NavLink&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    );
+
+    const LoggedOutView = () =&gt; (
+      &lt;ul className=&quot;nav navbar-nav pull-xs-right&quot;&gt;
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/&quot;&gt;Home&lt;/NavLink&gt;
+        &lt;/li&gt;
+
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/login&quot;&gt;Sign in&lt;/NavLink&gt;
+        &lt;/li&gt;
+
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;NavLink to=&quot;/register&quot;&gt;Sign up&lt;/NavLink&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    );
+
+    const NavLink = (props: LinkProps&lt;{}&gt;) =&gt; (
+      // @ts-ignore
+      &lt;Link getProps={isActive} {...props} /&gt;
+    );
+
+    const isActive = ({ isCurrent }: LinkGetProps) =&gt; {
+      return isCurrent
+        ? { className: 'nav-link active' }
+        : { className: 'nav-link' };
+    };
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Home</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Banner.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { APP_NAME } from '../../utils';
+
+    export default function Banner() {
+      return (
+        &lt;div className=&quot;banner&quot;&gt;
+          &lt;div className=&quot;container&quot;&gt;
+            &lt;h1 className=&quot;logo-font&quot;&gt;{APP_NAME}&lt;/h1&gt;
+            &lt;p&gt;A place to share your knowledge.&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;MainView.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import ArticleList from '../ArticleList';
+    import TabList from '../common/TabList';
+    import { ITab } from '../../reducers/articleList';
+
+    export default function MainView() {
+      const tabsData: Array&lt;ITab&gt; = [
+        { type: 'FEED', label: 'Your Feed' },
+        { type: 'ALL', label: 'Global Feed' },
+      ];
+
+      return (
+        &lt;div className=&quot;col-md-9&quot;&gt;
+          &lt;div className=&quot;feed-toggle&quot;&gt;
+            &lt;TabList data={tabsData} /&gt;
+          &lt;/div&gt;
+          &lt;ArticleList /&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Tags.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { getTags } from '../../api/TagsAPI';
+    import useArticles from '../../context/articles';
+
+    function Tags() {
+      const [tags, setTags] = React.useState&lt;string[]&gt;([]);
+      const [loading, setLoading] = React.useState(false);
+      const { dispatch } = useArticles();
+
+      React.useEffect(() =&gt; {
+        let ignore = false;
+
+        async function fetchTags() {
+          setLoading(true);
+          try {
+            const payload = await getTags();
+            if (!ignore) {
+              setTags(payload.data.tags);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+          if (!ignore) {
+            setLoading(false);
+          }
+        }
+
+        fetchTags();
+        return () =&gt; {
+          ignore = true;
+        };
+      }, []);
+
+      return (
+        &lt;div className=&quot;col-md-3&quot;&gt;
+          &lt;div className=&quot;sidebar&quot;&gt;
+            &lt;p&gt;Popular Tags&lt;/p&gt;
+            {loading ? (
+              &lt;div&gt;Loading Tags...&lt;/div&gt;
+            ) : (
+              &lt;div className=&quot;tag-list&quot;&gt;
+                {tags.map((tag) =&gt; (
+                  &lt;button
+                    key={tag}
+                    className=&quot;tag-pill tag-default&quot;
+                    onClick={() =&gt;
+                      dispatch({
+                        type: 'SET_TAB',
+                        tab: { type: 'TAG', label: tag },
+                      })
+                    }
+                  &gt;
+                    {tag}
+                  &lt;/button&gt;
+                ))}
+              &lt;/div&gt;
+            )}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    export default Tags;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import Banner from './Banner';
+    import MainView from './MainView';
+    import Tags from './Tags';
+    import { ArticlesProvider } from '../../context/articles';
+    import { RouteComponentProps } from '@reach/router';
+
+    export default function Home(_: RouteComponentProps) {
+      return (
+        &lt;div className=&quot;home-page&quot;&gt;
+          &lt;Banner /&gt;
+          &lt;div className=&quot;container page&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;ArticlesProvider&gt;
+                &lt;MainView /&gt;
+                &lt;Tags /&gt;
+              &lt;/ArticlesProvider&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ListPagination.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { ArticleListAction } from '../reducers/articleList';
+
+    type ListPaginationProps = {
+      page: number;
+      articlesCount: number;
+      dispatch: React.Dispatch&lt;ArticleListAction&gt;;
+    };
+
+    export default function ListPagination({
+      page,
+      articlesCount,
+      dispatch,
+    }: ListPaginationProps) {
+      const pageNumbers = [];
+
+      for (let i = 0; i &lt; Math.ceil(articlesCount / 10); ++i) {
+        pageNumbers.push(i);
+      }
+
+      if (articlesCount &lt;= 10) {
+        return null;
+      }
+
+      return (
+        &lt;nav&gt;
+          &lt;div className=&quot;pagination&quot;&gt;
+            {pageNumbers.map((number) =&gt; {
+              const isCurrent = number === page;
+              return (
+                &lt;li
+                  className={isCurrent ? 'page-item active' : 'page-item'}
+                  onClick={() =&gt; dispatch({ type: 'SET_PAGE', page: number })}
+                  key={number}
+                &gt;
+                  &lt;button className=&quot;page-link&quot;&gt;{number + 1}&lt;/button&gt;
+                &lt;/li&gt;
+              );
+            })}
+          &lt;/div&gt;
+        &lt;/nav&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Login.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { login } from '../api/AuthAPI';
+    import ListErrors from './common/ListErrors';
+    import useAuth from '../context/auth';
+    import { navigate, Link, RouteComponentProps, Redirect } from '@reach/router';
+    import { IErrors } from '../types';
+
+    export default function Login(_: RouteComponentProps) {
+      const [email, setEmail] = React.useState('');
+      const [password, setPassword] = React.useState('');
+      const [loading, setLoading] = React.useState(false);
+      const [errors, setErrors] = React.useState&lt;IErrors | null&gt;();
+      const {
+        state: { user },
+        dispatch,
+      } = useAuth();
+
+      const handleSubmit = async (event: React.SyntheticEvent) =&gt; {
+        event.preventDefault();
+        setLoading(true);
+        try {
+          const user = await login(email, password);
+          dispatch({ type: 'LOAD_USER', user });
+          navigate('/');
+        } catch (error) {
+          console.log(error);
+          setLoading(false);
+          if (error.status === 422) {
+            setErrors(error.data.errors);
+          }
+        }
+      };
+
+      if (user) {
+        return &lt;Redirect to=&quot;/&quot; noThrow /&gt;;
+      }
+
+      return (
+        &lt;div className=&quot;auth-page&quot;&gt;
+          &lt;div className=&quot;container page&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;div className=&quot;col-md-6 offset-md-3 col-xs-12&quot;&gt;
+                &lt;h1 className=&quot;text-xs-center&quot;&gt;Sign in&lt;/h1&gt;
+                &lt;p className=&quot;text-xs-center&quot;&gt;
+                  &lt;Link to=&quot;/register&quot;&gt;Need an account?&lt;/Link&gt;
+                &lt;/p&gt;
+                {errors &amp;&amp; &lt;ListErrors errors={errors} /&gt;}
+                &lt;form onSubmit={handleSubmit}&gt;
+                  &lt;fieldset className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;email&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;email&quot;
+                      value={email}
+                      placeholder=&quot;Email&quot;
+                      onChange={(event) =&gt; setEmail(event.target.value)}
+                    /&gt;
+                  &lt;/fieldset&gt;
+                  &lt;fieldset className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;password&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;password&quot;
+                      value={password}
+                      placeholder=&quot;Password&quot;
+                      onChange={(event) =&gt; setPassword(event.target.value)}
+                    /&gt;
+                  &lt;/fieldset&gt;
+                  &lt;button
+                    className=&quot;btn btn-lg btn-primary pull-xs-right&quot;
+                    type=&quot;submit&quot;
+                    disabled={loading}
+                  &gt;
+                    Sign In
+                  &lt;/button&gt;
+                &lt;/form&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;PrivateRoute.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import useAuth from '../context/auth';
+    import Home from './Home';
+    import { RouteComponentProps } from '@reach/router';
+
+    interface PrivateRouteProps extends RouteComponentProps {
+      as: React.ElementType&lt;any&gt;;
+    }
+
+    export default function PrivateRoute({
+      as: Comp,
+      ...props
+    }: PrivateRouteProps) {
+      const {
+        state: { user },
+      } = useAuth();
+      return user ? &lt;Comp {...props} /&gt; : &lt;Home /&gt;;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Profile.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link, RouteComponentProps } from '@reach/router';
+    import ProfileArticles from './ProfileArticles';
+    import FollowUserButton from './common/FollowUserButton';
+    import { IProfile } from '../types';
+    import useAuth from '../context/auth';
+    import { unfollowProfile, followProfile, getProfile } from '../api/ProfileAPI';
+    import { ALT_IMAGE_URL } from '../utils';
+
+    export default function Profile({
+      username = '',
+    }: RouteComponentProps&lt;{ username: string }&gt;) {
+      const [profile, setProfile] = React.useState&lt;IProfile | null&gt;(null);
+      const [loading, setLoading] = React.useState(false);
+      const {
+        state: { user },
+      } = useAuth();
+
+      React.useEffect(() =&gt; {
+        let ignore = false;
+
+        async function fetchProfile() {
+          try {
+            const payload = await getProfile(username);
+            if (!ignore) {
+              setProfile(payload.data.profile);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+
+        fetchProfile();
+        return () =&gt; {
+          ignore = true;
+        };
+      }, [username]);
+
+      const handleClick = async () =&gt; {
+        if (!profile) return;
+        let payload;
+        setLoading(true);
+        try {
+          if (profile.following) {
+            payload = await unfollowProfile(profile.username);
+          } else {
+            payload = await followProfile(profile.username);
+          }
+          setProfile(payload.data.profile);
+        } catch (error) {
+          console.log(error);
+        }
+        setLoading(false);
+      };
+
+      const isUser = profile &amp;&amp; user &amp;&amp; profile.username === user.username;
+
+      return (
+        profile &amp;&amp; (
+          &lt;div className=&quot;profile-page&quot;&gt;
+            &lt;div className=&quot;user-info&quot;&gt;
+              &lt;div className=&quot;container&quot;&gt;
+                &lt;div className=&quot;row&quot;&gt;
+                  &lt;div className=&quot;col-xs-12 col-md-10 offset-md-1&quot;&gt;
+                    &lt;img
+                      src={profile.image || ALT_IMAGE_URL}
+                      className=&quot;user-img&quot;
+                      alt={profile.username}
+                    /&gt;
+                    &lt;h4&gt;{profile.username}&lt;/h4&gt;
+                    &lt;p&gt;{profile.bio}&lt;/p&gt;
+                    {isUser ? (
+                      &lt;EditProfileSettings /&gt;
+                    ) : (
+                      &lt;FollowUserButton
+                        profile={profile}
+                        onClick={handleClick}
+                        loading={loading}
+                      /&gt;
+                    )}
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;ProfileArticles username={username} /&gt;
+          &lt;/div&gt;
+        )
+      );
+    }
+
+    function EditProfileSettings() {
+      return (
+        &lt;Link
+          to=&quot;/settings&quot;
+          className=&quot;btn btn-sm btn-outline-secondary action-btn&quot;
+        &gt;
+          &lt;i className=&quot;ion-gear-a&quot;&gt;&lt;/i&gt; Edit Profile Settings
+        &lt;/Link&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProfileArticles.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { ITab } from '../reducers/articleList';
+    import { ArticlesProvider } from '../context/articles';
+    import TabList from './common/TabList';
+    import ArticleList from './ArticleList';
+
+    function ProfileArticles({ username }: { username: string }) {
+      const tabsData: Array&lt;ITab&gt; = [
+        { type: 'AUTHORED', label: 'My Articles', username },
+        {
+          type: 'FAVORITES',
+          label: 'Favorited Articles',
+          username,
+        },
+        { type: 'ALL', label: 'Global Feed' },
+      ];
+
+      return (
+        &lt;ArticlesProvider&gt;
+          &lt;div className=&quot;container&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;div className=&quot;col-xs-12 col-md-10 offset-md-1&quot;&gt;
+                &lt;div className=&quot;articles-toggle&quot;&gt;
+                  &lt;TabList data={tabsData} /&gt;
+                &lt;/div&gt;
+                &lt;ArticleList /&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/ArticlesProvider&gt;
+      );
+    }
+
+    export default React.memo(ProfileArticles);
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Register.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link, navigate, RouteComponentProps, Redirect } from '@reach/router';
+    import { register } from '../api/AuthAPI';
+    import useAuth from '../context/auth';
+    import ListErrors from './common/ListErrors';
+    import { IErrors } from '../types';
+
+    export default function Register(_: RouteComponentProps) {
+      const [form, setForm] = React.useState({
+        username: '',
+        email: '',
+        password: '',
+      });
+
+      const [loading, setLoading] = React.useState(false);
+      const [errors, setErrors] = React.useState&lt;IErrors | null&gt;(null);
+      const {
+        state: { user },
+        dispatch,
+      } = useAuth();
+
+      const handleChange = (event: React.FormEvent&lt;HTMLInputElement&gt;) =&gt; {
+        setForm({
+          ...form,
+          [event.currentTarget.name]: event.currentTarget.value,
+        });
+      };
+
+      const handleSubmit = async (event: React.SyntheticEvent) =&gt; {
+        event.preventDefault();
+        setLoading(true);
+        const { username, email, password } = form;
+        try {
+          const user = await register({ username, email, password });
+          dispatch({ type: 'LOAD_USER', user });
+          navigate('/');
+        } catch (error) {
+          console.log(error);
+          setLoading(false);
+          if (error.status === 422) {
+            setErrors(error.data.errors);
+          }
+        }
+      };
+
+      if (user) {
+        return &lt;Redirect to=&quot;/&quot; noThrow /&gt;;
+      }
+
+      return (
+        &lt;div className=&quot;auth-page&quot;&gt;
+          &lt;div className=&quot;container page&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;div className=&quot;col-md-6 offset-md-3 col-xs-12&quot;&gt;
+                &lt;h1 className=&quot;text-xs-center&quot;&gt;Sign up&lt;/h1&gt;
+                &lt;p className=&quot;text-xs-center&quot;&gt;
+                  &lt;Link to=&quot;/login&quot;&gt;Have an account?&lt;/Link&gt;
+                &lt;/p&gt;
+                {errors &amp;&amp; &lt;ListErrors errors={errors} /&gt;}
+                &lt;form onSubmit={handleSubmit}&gt;
+                  &lt;fieldset className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;username&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;text&quot;
+                      value={form.username}
+                      placeholder=&quot;Your Name&quot;
+                      onChange={handleChange}
+                    /&gt;
+                  &lt;/fieldset&gt;
+                  &lt;fieldset className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;email&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;email&quot;
+                      value={form.email}
+                      placeholder=&quot;Email&quot;
+                      onChange={handleChange}
+                    /&gt;
+                  &lt;/fieldset&gt;
+                  &lt;fieldset className=&quot;form-group&quot;&gt;
+                    &lt;input
+                      name=&quot;password&quot;
+                      className=&quot;form-control form-control-lg&quot;
+                      type=&quot;password&quot;
+                      value={form.password}
+                      placeholder=&quot;Password&quot;
+                      onChange={handleChange}
+                    /&gt;
+                  &lt;/fieldset&gt;
+                  &lt;button
+                    className=&quot;btn btn-lg btn-primary pull-xs-right&quot;
+                    disabled={loading}
+                  &gt;
+                    Sign Up
+                  &lt;/button&gt;
+                &lt;/form&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Settings.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { navigate, RouteComponentProps } from '@reach/router';
+    import ListErrors from './common/ListErrors';
+    import useAuth from '../context/auth';
+    import { updateUser, logout } from '../api/AuthAPI';
+    import { IErrors } from '../types';
+
+    type Form = {
+      username: string;
+      email: string;
+      image: string;
+      bio: string;
+      password?: string;
+    };
+
+    export default function Settings(_: RouteComponentProps) {
+      const {
+        state: { user },
+        dispatch,
+      } = useAuth();
+      const [loading, setLoading] = React.useState(false);
+      const [errors, setErrors] = React.useState&lt;IErrors | null&gt;(null);
+      const [form, setForm] = React.useState&lt;Form&gt;({
+        username: '',
+        email: '',
+        image: '',
+        bio: '',
+        password: '',
+      });
+
+      React.useEffect(() =&gt; {
+        if (user) {
+          const { username, email, image, bio } = user;
+          console.log(username, email, image, bio);
+          setForm({
+            username,
+            email,
+            image: image || '',
+            bio: bio || '',
+            password: '',
+          });
+        }
+      }, [user]);
+
+      const handleChange = (
+        event: React.FormEvent&lt;HTMLInputElement | HTMLTextAreaElement&gt;,
+      ) =&gt; {
+        setForm({
+          ...form,
+          [event.currentTarget.name]: event.currentTarget.value,
+        });
+      };
+
+      const handleSubmit = async (event: React.SyntheticEvent) =&gt; {
+        event.preventDefault();
+        setLoading(true);
+        if (!form.password) {
+          delete form.password;
+        }
+        try {
+          const payload = await updateUser(form);
+          dispatch({ type: 'LOAD_USER', user: payload.data.user });
+        } catch (error) {
+          console.log(error);
+          if (error.status === 422) {
+            setErrors(error.data.errors);
+          }
+        }
+        setLoading(false);
+      };
+
+      const handleLogout = () =&gt; {
+        dispatch({ type: 'LOGOUT' });
+        logout();
+        navigate('/');
+      };
+
+      return (
+        &lt;div className=&quot;settings-page&quot;&gt;
+          &lt;div className=&quot;container page&quot;&gt;
+            &lt;div className=&quot;row&quot;&gt;
+              &lt;div className=&quot;col-md-6 offset-md-3 col-xs-12&quot;&gt;
+                &lt;h1 className=&quot;text-xs-center&quot;&gt;Your Settings&lt;/h1&gt;
+                {errors &amp;&amp; &lt;ListErrors errors={errors} /&gt;}
+                &lt;form onSubmit={handleSubmit}&gt;
+                  &lt;fieldset&gt;
+                    &lt;div className=&quot;form-group&quot;&gt;
+                      &lt;input
+                        name=&quot;image&quot;
+                        className=&quot;form-control&quot;
+                        type=&quot;text&quot;
+                        placeholder=&quot;URL of profile picture&quot;
+                        value={form.image}
+                        onChange={handleChange}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;div className=&quot;form-group&quot;&gt;
+                      &lt;input
+                        name=&quot;username&quot;
+                        className=&quot;form-control form-control-lg&quot;
+                        type=&quot;text&quot;
+                        placeholder=&quot;Username&quot;
+                        value={form.username}
+                        onChange={handleChange}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;div className=&quot;form-group&quot;&gt;
+                      &lt;textarea
+                        name=&quot;bio&quot;
+                        className=&quot;form-control form-control-lg&quot;
+                        rows={8}
+                        placeholder=&quot;Short bio about you&quot;
+                        value={form.bio}
+                        onChange={handleChange}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;div className=&quot;form-group&quot;&gt;
+                      &lt;input
+                        name=&quot;email&quot;
+                        className=&quot;form-control form-control-lg&quot;
+                        type=&quot;email&quot;
+                        placeholder=&quot;Email&quot;
+                        value={form.email}
+                        onChange={handleChange}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;div className=&quot;form-group&quot;&gt;
+                      &lt;input
+                        name=&quot;password&quot;
+                        className=&quot;form-control form-control-lg&quot;
+                        type=&quot;password&quot;
+                        placeholder=&quot;New Password&quot;
+                        value={form.password}
+                        onChange={handleChange}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;button
+                      className=&quot;btn btn-lg btn-primary pull-xs-right&quot;
+                      type=&quot;submit&quot;
+                      disabled={loading}
+                    &gt;
+                      Update Settings
+                    &lt;/button&gt;
+                  &lt;/fieldset&gt;
+                &lt;/form&gt;
+                &lt;hr /&gt;
+                &lt;button className=&quot;btn btn-outline-danger&quot; onClick={handleLogout}&gt;
+                  Or click here to logout.
+                &lt;/button&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;common</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleAvatar.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { Link } from '@reach/router';
+    import { IArticle } from '../../types';
+    import { ALT_IMAGE_URL } from '../../utils';
+
+    type ArticleAvatarProps = {
+      article: IArticle;
+    };
+
+    export default function ArticleAvatar({
+      article: { author, createdAt },
+    }: ArticleAvatarProps) {
+      return (
+        &lt;React.Fragment&gt;
+          &lt;Link to={`/${author.username}`}&gt;
+            &lt;img src={author.image || ALT_IMAGE_URL} alt={author.username} /&gt;
+          &lt;/Link&gt;
+
+          &lt;div className=&quot;info&quot;&gt;
+            &lt;Link className=&quot;author&quot; to={`/${author.username}`}&gt;
+              {author.username}
+            &lt;/Link&gt;
+            &lt;span className=&quot;date&quot;&gt;{new Date(createdAt).toDateString()}&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/React.Fragment&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleTags.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+
+    export default function ArticleTags({ tagList }: { tagList: string[] }) {
+      return (
+        &lt;ul className=&quot;tag-list&quot;&gt;
+          {tagList.map((tag) =&gt; (
+            &lt;li className=&quot;tag-default tag-pill tag-outline&quot; key={tag}&gt;
+              {tag}
+            &lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FavoriteButton.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { IArticle } from '../../types';
+    import { ArticleAction } from '../../reducers/article';
+    import { ArticleListAction } from '../../reducers/articleList';
+    import { favoriteArticle, unfavoriteArticle } from '../../api/ArticlesAPI';
+
+    type FavoriteButtonProps = {
+      article: IArticle;
+      dispatch: React.Dispatch&lt;ArticleAction &amp; ArticleListAction&gt;;
+      children: React.ReactNode;
+    };
+
+    export default function FavoriteButton({
+      article,
+      dispatch,
+      children,
+    }: FavoriteButtonProps) {
+      const [loading, setLoading] = React.useState(false);
+
+      const handleClick = async () =&gt; {
+        setLoading(true);
+        if (article.favorited) {
+          const payload = await unfavoriteArticle(article.slug);
+          dispatch({
+            type: 'ARTICLE_UNFAVORITED',
+            payload: payload.data,
+          });
+        } else {
+          const payload = await favoriteArticle(article.slug);
+          dispatch({
+            type: 'ARTICLE_FAVORITED',
+            payload: payload.data,
+          });
+        }
+        setLoading(false);
+      };
+
+      const classNames = ['btn', 'btn-sm'];
+
+      if (article.favorited) {
+        classNames.push('btn-primary');
+      } else {
+        classNames.push('btn-outline-primary');
+      }
+
+      return (
+        &lt;button
+          className={classNames.join(' ')}
+          onClick={handleClick}
+          disabled={loading}
+        &gt;
+          &lt;i className=&quot;ion-heart&quot; /&gt;
+          &amp;nbsp;
+          {children}
+        &lt;/button&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FollowUserButton.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { IProfile } from '../../types';
+
+    type FollowUserButtonProps = {
+      profile: IProfile;
+      onClick: () =&gt; void;
+      loading: boolean;
+    };
+
+    export default function FollowUserButton({
+      profile,
+      onClick,
+      loading,
+    }: FollowUserButtonProps) {
+      const classNames = ['btn', 'btn-sm', 'action-btn'];
+      let text = '';
+
+      if (profile.following) {
+        classNames.push('btn-secondary');
+        text += `Unfollow ${profile.username}`;
+      } else {
+        classNames.push('btn-outline-secondary');
+        text += `Follow ${profile.username}`;
+      }
+
+      return (
+        &lt;button
+          className={classNames.join(' ')}
+          onClick={onClick}
+          disabled={loading}
+        &gt;
+          &lt;i className=&quot;ion-plus-round&quot; /&gt;
+          &amp;nbsp;
+          {text}
+        &lt;/button&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ListErrors.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import { IErrors } from '../../types';
+
+    export default function ListErrors({ errors }: { errors: IErrors }) {
+      return (
+        &lt;ul className=&quot;error-messages&quot;&gt;
+          {Object.entries(errors).map(([key, keyErrors], index) =&gt;
+            keyErrors.map((error) =&gt; (
+              &lt;li key={index}&gt;
+                {key} {error}
+              &lt;/li&gt;
+            )),
+          )}
+        &lt;/ul&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TabList.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import useArticles from '../../context/articles';
+    import { ITab } from '../../reducers/articleList';
+
+    type TabsListProps = {
+      data: ITab[];
+    };
+
+    export default function TabList({ data }: TabsListProps) {
+      const {
+        state: { selectedTab },
+        dispatch,
+      } = useArticles();
+
+      const tabs = data.map((tab) =&gt; (
+        &lt;Tab
+          key={tab.type}
+          isSelected={selectedTab.type === tab.type}
+          onClick={() =&gt; dispatch({ type: 'SET_TAB', tab })}
+        &gt;
+          {tab.label}
+        &lt;/Tab&gt;
+      ));
+
+      if (selectedTab.type === 'TAG') {
+        tabs.push(
+          &lt;Tab key={selectedTab.type} isSelected={true} onClick={() =&gt; {}}&gt;
+            #{selectedTab.label}
+          &lt;/Tab&gt;,
+        );
+      }
+
+      return &lt;ul className=&quot;nav nav-pills outline-active&quot;&gt;{tabs}&lt;/ul&gt;;
+    }
+
+    type TabProps = {
+      isSelected: boolean;
+      onClick: () =&gt; void;
+      children: React.ReactNode;
+    };
+
+    function Tab({ isSelected, onClick, children }: TabProps) {
+      const classNames = ['nav-link'];
+      if (isSelected) {
+        classNames.push('active');
+      }
+      return (
+        &lt;li className=&quot;nav-item&quot;&gt;
+          &lt;button className={classNames.join(' ')} onClick={onClick}&gt;
+            {children}
+          &lt;/button&gt;
+        &lt;/li&gt;
+      );
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;context</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;articles.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import {
+      articlesReducer,
+      initialState,
+      ArticleListAction,
+      ArticleListState,
+    } from '../reducers/articleList';
+
+    type ArticleListContextProps = {
+      state: ArticleListState;
+      dispatch: React.Dispatch&lt;ArticleListAction&gt;;
+    };
+
+    const ArticlesContext = React.createContext&lt;ArticleListContextProps&gt;({
+      state: initialState,
+      dispatch: () =&gt; initialState,
+    });
+
+    export function ArticlesProvider(props: React.PropsWithChildren&lt;{}&gt;) {
+      const [state, dispatch] = React.useReducer(articlesReducer, initialState);
+      return &lt;ArticlesContext.Provider value={{ state, dispatch }} {...props} /&gt;;
+    }
+
+    export default function useArticles() {
+      const context = React.useContext(ArticlesContext);
+      if (!context) {
+        throw new Error(`useArticles must be used within an ArticlesProvider`);
+      }
+      return context;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import {
+      authReducer,
+      initialState,
+      AuthAction,
+      AuthState,
+    } from '../reducers/auth';
+    import { getLocalStorageValue } from '../utils';
+    import { TOKEN_KEY, setToken, isTokenValid } from '../api/APIUtils';
+    import { logout } from '../api/AuthAPI';
+
+    type AuthContextProps = {
+      state: AuthState;
+      dispatch: React.Dispatch&lt;AuthAction&gt;;
+    };
+
+    const AuthContext = React.createContext&lt;AuthContextProps&gt;({
+      state: initialState,
+      dispatch: () =&gt; initialState,
+    });
+
+    export function AuthProvider(props: React.PropsWithChildren&lt;{}&gt;) {
+      const [state, dispatch] = React.useReducer(authReducer, initialState);
+      React.useEffect(() =&gt; {
+        const token = getLocalStorageValue(TOKEN_KEY);
+
+        if (!token) return;
+
+        if (isTokenValid(token)) {
+          setToken(token);
+          dispatch({ type: 'LOGIN' });
+        } else {
+          dispatch({ type: 'LOGOUT' });
+          logout();
+        }
+      }, []);
+
+      return &lt;AuthContext.Provider value={{ state, dispatch }} {...props} /&gt;;
+    }
+
+    export default function useAuth() {
+      return React.useContext(AuthContext);
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.css</summary>
+    <pre><code class='css'>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    code {
+      font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
+    }
+
+    button.tag-pill.tag-default {
+      border: none;
+    }
+
+    button.tag-pill.tag-default:hover {
+      background-color: #687077;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.tsx</summary>
+    <pre><code class='tsx'>
+    import React from 'react';
+    import ReactDOM from 'react-dom';
+    import './index.css';
+    import App from './components/App';
+
+    ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;react-app-env.d.ts</summary>
+    <pre><code class='ts'>
+    /// &lt;reference types=&quot;react-scripts&quot; /&gt;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;article.tsx</summary>
+    <pre><code class='tsx'>
+    import { IArticle, IComment } from '../types';
+
+    export type ArticleAction =
+      | { type: 'FETCH_ARTICLE_BEGIN' }
+      | {
+          type: 'FETCH_ARTICLE_SUCCESS';
+          payload: { article: IArticle; comments: IComment[] };
+        }
+      | { type: 'FETCH_ARTICLE_ERROR'; error: string }
+      | { type: 'ARTICLE_FAVORITED'; payload: { article: IArticle } }
+      | { type: 'ARTICLE_UNFAVORITED'; payload: { article: IArticle } }
+      | { type: 'ADD_COMMENT'; payload: { comment: IComment } }
+      | { type: 'DELETE_COMMENT'; commentId: number }
+      | { type: 'FOLLOW_AUTHOR' }
+      | { type: 'UNFOLLOW_AUTHOR' };
+
+    export interface ArticleState {
+      article: IArticle | null;
+      comments: Array&lt;IComment&gt;;
+      loading: boolean;
+      error: string | null;
+    }
+
+    export const initialState: ArticleState = {
+      article: null,
+      comments: [],
+      loading: false,
+      error: null,
+    };
+
+    export function articleReducer(
+      state: ArticleState,
+      action: ArticleAction,
+    ): ArticleState {
+      switch (action.type) {
+        case 'FETCH_ARTICLE_BEGIN':
+          return {
+            ...state,
+            loading: true,
+            error: null,
+          };
+        case 'FETCH_ARTICLE_SUCCESS':
+          return {
+            ...state,
+            loading: false,
+            article: action.payload.article,
+            comments: action.payload.comments,
+          };
+        case 'FETCH_ARTICLE_ERROR':
+          return {
+            ...state,
+            loading: false,
+            error: action.error,
+            article: null,
+          };
+        case 'ARTICLE_FAVORITED':
+        case 'ARTICLE_UNFAVORITED':
+          return {
+            ...state,
+            article: state.article &amp;&amp; {
+              ...state.article,
+              favorited: action.payload.article.favorited,
+              favoritesCount: action.payload.article.favoritesCount,
+            },
+          };
+        case 'ADD_COMMENT':
+          return {
+            ...state,
+            comments: [action.payload.comment, ...state.comments],
+          };
+        case 'DELETE_COMMENT':
+          return {
+            ...state,
+            comments: state.comments.filter(
+              (comment) =&gt; comment.id !== action.commentId,
+            ),
+          };
+        case 'FOLLOW_AUTHOR':
+        case 'UNFOLLOW_AUTHOR':
+          return {
+            ...state,
+            article: state.article &amp;&amp; {
+              ...state.article,
+              author: {
+                ...state.article.author,
+                following: !state.article.author.following,
+              },
+            },
+          };
+        default:
+          return state;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;articleList.tsx</summary>
+    <pre><code class='tsx'>
+    import { IArticle } from '../types';
+
+    export type ArticleListAction =
+      | { type: 'FETCH_ARTICLES_BEGIN' }
+      | {
+          type: 'FETCH_ARTICLES_SUCCESS';
+          payload: { articles: Array&lt;IArticle&gt;; articlesCount: number };
+        }
+      | { type: 'FETCH_ARTICLES_ERROR'; error: string }
+      | { type: 'ARTICLE_FAVORITED'; payload: { article: IArticle } }
+      | { type: 'ARTICLE_UNFAVORITED'; payload: { article: IArticle } }
+      | { type: 'SET_TAB'; tab: ITab }
+      | { type: 'SET_PAGE'; page: number };
+
+    export type ITab =
+      | { type: 'ALL'; label: string }
+      | { type: 'FEED'; label: string }
+      | { type: 'TAG'; label: string }
+      | { type: 'AUTHORED'; label: string; username: string }
+      | { type: 'FAVORITES'; label: string; username: string };
+
+    export interface ArticleListState {
+      articles: Array&lt;IArticle&gt;;
+      loading: boolean;
+      error: string | null;
+      articlesCount: number;
+      selectedTab: ITab;
+      page: number;
+    }
+
+    export const initialState: ArticleListState = {
+      articles: [],
+      loading: false,
+      error: null,
+      articlesCount: 0,
+      selectedTab: { type: 'ALL', label: 'Global Feed' },
+      page: 0,
+    };
+
+    export function articlesReducer(
+      state: ArticleListState,
+      action: ArticleListAction,
+    ): ArticleListState {
+      switch (action.type) {
+        case 'FETCH_ARTICLES_BEGIN':
+          return {
+            ...state,
+            loading: true,
+            error: null,
+          };
+        case 'FETCH_ARTICLES_SUCCESS':
+          return {
+            ...state,
+            loading: false,
+            articles: action.payload.articles,
+            articlesCount: action.payload.articlesCount,
+          };
+        case 'FETCH_ARTICLES_ERROR':
+          return {
+            ...state,
+            loading: false,
+            error: action.error,
+            articles: [],
+          };
+        case 'ARTICLE_FAVORITED':
+        case 'ARTICLE_UNFAVORITED':
+          return {
+            ...state,
+            articles: state.articles.map((article) =&gt;
+              article.slug === action.payload.article.slug
+                ? {
+                    ...article,
+                    favorited: action.payload.article.favorited,
+                    favoritesCount: action.payload.article.favoritesCount,
+                  }
+                : article,
+            ),
+          };
+        case 'SET_TAB':
+          return {
+            ...state,
+            selectedTab: action.tab,
+          };
+        case 'SET_PAGE':
+          return {
+            ...state,
+            page: action.page,
+          };
+        default:
+          return state;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;auth.tsx</summary>
+    <pre><code class='tsx'>
+    import { IUser } from '../types';
+
+    export type AuthAction =
+      | {
+          type: 'LOGIN';
+        }
+      | {
+          type: 'LOAD_USER';
+          user: IUser;
+        }
+      | { type: 'LOGOUT' };
+
+    export interface AuthState {
+      isAuthenticated: boolean;
+      user: IUser | null;
+    }
+
+    export const initialState: AuthState = {
+      isAuthenticated: false,
+      user: null,
+    };
+
+    export function authReducer(state: AuthState, action: AuthAction): AuthState {
+      switch (action.type) {
+        case 'LOGIN': {
+          return { ...state, isAuthenticated: true };
+        }
+        case 'LOAD_USER': {
+          return { ...state, user: action.user };
+        }
+        case 'LOGOUT': {
+          return { isAuthenticated: false, user: null };
+        }
+        default:
+          return state;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;editor.tsx</summary>
+    <pre><code class='tsx'>
+    import { IErrors } from '../types';
+
+    type EditorAction =
+      | { type: 'ADD_TAG'; tag: string }
+      | { type: 'REMOVE_TAG'; tag: string }
+      | { type: 'SET_TAGS'; tagList: string[] }
+      | {
+          type: 'SET_FORM';
+          form: IForm;
+        }
+      | {
+          type: 'UPDATE_FORM';
+          field: { key: string; value: string };
+        }
+      | { type: 'SET_ERRORS'; errors: IErrors };
+
+    interface IForm {
+      title: string;
+      description: string;
+      body: string;
+      tag: string;
+    }
+
+    interface EditorState {
+      tagList: string[];
+      form: IForm;
+      errors: IErrors;
+      loading: boolean;
+    }
+
+    export const initalState: EditorState = {
+      tagList: [],
+      form: {
+        title: '',
+        description: '',
+        body: '',
+        tag: '',
+      },
+      errors: {},
+      loading: false,
+    };
+
+    export function editorReducer(
+      state: EditorState,
+      action: EditorAction,
+    ): EditorState {
+      switch (action.type) {
+        case 'ADD_TAG':
+          return {
+            ...state,
+            tagList: [...state.tagList, action.tag],
+          };
+        case 'REMOVE_TAG':
+          return {
+            ...state,
+            tagList: state.tagList.filter((tag) =&gt; tag !== action.tag),
+          };
+        case 'SET_TAGS':
+          return {
+            ...state,
+            tagList: action.tagList,
+          };
+        case 'SET_FORM':
+          return {
+            ...state,
+            form: action.form,
+          };
+        case 'UPDATE_FORM':
+          return {
+            ...state,
+            form: {
+              ...state.form,
+              [action.field.key]: action.field.value,
+            },
+          };
+        case 'SET_ERRORS':
+          return {
+            ...state,
+            errors: action.errors,
+          };
+        default:
+          return state;
+      }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;types</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.ts</summary>
+    <pre><code class='ts'>
+    export interface IProfile {
+      username: string;
+      bio: string;
+      image: string;
+      following: boolean;
+    }
+
+    export interface IArticle {
+      slug: string;
+      title: string;
+      description: string;
+      body: string;
+      tagList: string[];
+      createdAt: Date;
+      updatedAt: Date;
+      favorited: boolean;
+      favoritesCount: number;
+      author: IProfile;
+    }
+
+    export interface IComment {
+      id: number;
+      createdAt: Date;
+      updatedAt: Date;
+      body: string;
+      author: IProfile;
+    }
+
+    export interface IUser {
+      email: string;
+      username: string;
+      bio: string;
+      image: string;
+    }
+
+    export interface IErrors {
+      [key: string]: string[];
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;utils.ts</summary>
+    <pre><code class='ts'>
+    export const APP_NAME = 'conduit';
+    export const ALT_IMAGE_URL =
+      'https://static.productionready.io/images/smiley-cyrus.jpg';
+
+    export function getLocalStorageValue(key: string) {
+      const value = localStorage.getItem(key);
+      if (!value) return null;
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    export function setLocalStorage(key: string, value: string) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tsconfig.json</summary>
+    <pre><code class='json'>
+    {
+      &quot;compilerOptions&quot;: {
+        &quot;target&quot;: &quot;es5&quot;,
+        &quot;lib&quot;: [&quot;dom&quot;, &quot;dom.iterable&quot;, &quot;esnext&quot;],
+        &quot;allowJs&quot;: true,
+        &quot;skipLibCheck&quot;: true,
+        &quot;esModuleInterop&quot;: true,
+        &quot;allowSyntheticDefaultImports&quot;: true,
+        &quot;strict&quot;: true,
+        &quot;forceConsistentCasingInFileNames&quot;: true,
+        &quot;noFallthroughCasesInSwitch&quot;: true,
+        &quot;module&quot;: &quot;esnext&quot;,
+        &quot;moduleResolution&quot;: &quot;node&quot;,
+        &quot;resolveJsonModule&quot;: true,
+        &quot;isolatedModules&quot;: true,
+        &quot;noEmit&quot;: true,
+        &quot;jsx&quot;: &quot;react-jsx&quot;
+      },
+      &quot;include&quot;: [&quot;src&quot;]
+    }
+    </code></pre></details>
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas animation, tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, animation, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas animation tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+
+<body>
+
+  <h2>Animation</h2>
+  <ul>
+    <li><strong>window.requestAnimationFrame</strong> is prefered way to perfom game loop animations and keep 60fps</li>
+    <li>game loop actions:
+      <ul>
+        <li><strong>present</strong> the user(s) with a situation</li>
+        <li><strong>accept</strong> their input</li>
+        <li><strong>interpret</strong> those signals into actions</li>
+        <li>and <strong>calculate</strong> a new situation resulting from those acts</li>
+      </ul>
+    </li>
+    <li>game main-loop types:
+      <ul>
+        <li><strong>turn-based</strong> - doesn't demand a constant update every frame, only when the player reacts</li>
+        <li><strong>once-per-frame</strong> - each frame of animation progresses the cycle and any change in user input is caught at the first available turn</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="example">
+    <div id="game"></div>
+  </div>
+
+  <!-- <canvas id="canvas" width="360" height="480" style="border:1px solid #000000;"></canvas>  -->
+
+  <script>
+    // check requestAnimationFrame is available, or use timeout:
+    // window.requestAnimFrame = (function (callback) {
+    //     return window.requestAnimationFrame ||
+    //            window.webkitRequestAnimationFrame ||
+    //            window.mozRequestAnimationFrame ||
+    //            window.oRequestAnimationFrame ||
+    //            window.msRequestAnimationFrame ||
+    //      function (callback) {
+    //         window.setTimeout(callback, 1000 / 60);
+    //     };
+    // })();
+
+    // var canvas = document.getElementById("canvas");
+
+    // leading semicolon marks the beginning of our new line if the previous one was not empty or terminated
+    ;(function () {
+
+      var MyGame = {
+        frames_div : "frames",
+        frames : 0,
+        frames_limit : 600,
+        rAF : null,
+        lastTick : 0, // track of the last update time, always increments by tickLength
+        lastRender : 0, // track of the last provided requestAnimationFrame timestamp
+        tickLength : 1000/60, //OR set your simulation to run at 50 = 20Hz(50ms) = 20fps // align fps to tick updates ?
+
+
+        create : function(){
+          document.getElementById('game').innerHTML = 'Game Frames: <span id="'+this.frames_div+'"></span><br/>Module Counter: <span id="'+this.module.counter_div+'"></span>';
+        },
+        update : function(){ // should update actions for one tick in this case
+          this.frames++;
+          this.module.update();
+          // console.log(this.lastTick)
+        },
+        render : function(){
+          document.getElementById(MyGame.frames_div).innerHTML = MyGame.frames;
+          this.module.render();
+        },
+        cancel : function(){
+          window.cancelAnimationFrame(this.rAF);
+          document.getElementById('game').innerHTML = 'Game with '+this.frames_limit+' frames has ended...';
+        },
+
+        module : {
+          counter_div : "mc",
+          counter : 0,
+          update : function(){
+            if((this.game.frames % 60) == 1){
+              this.counter++;
+            }
+          },
+          render : function(){
+            document.getElementById(this.counter_div).innerHTML = this.counter;
+          }
+        },
+
+
+        init : function() { // give access to module to game values
+            this.module.game = this;
+            delete this.init;
+            return this;
+        }
+      }.init();
+
+      function MyGameTicksUpdates(numTicks) {
+        for(var i=0; i < numTicks; i++) {
+          MyGame.lastTick = MyGame.lastTick + MyGame.tickLength; //Now lastTick is this tick.
+          MyGame.update( MyGame.lastTick );
+        }
+      }
+
+      var tFrame_store = 0;
+      var wpn_store = 0;
+
+      function main(tFrame) {
+        MyGame.rAF = window.requestAnimationFrame(main);
+        if(MyGame.frames == MyGame.frames_limit) { MyGame.cancel() }
+        // MyGame.update();
+        // MyGame.render();
+
+        var nextTick = MyGame.lastTick + MyGame.tickLength;
+        var numTicks = 0;
+        //If tFrame < nextTick then 0 ticks need to be updated (0 is default for numTicks).
+        //If tFrame = nextTick then 1 tick needs to be updated (and so forth).
+        //Note: As we mention in summary, you should keep track of how large numTicks is.
+        //If it is large, then either your game was asleep, or the machine cannot keep up.
+        // todo : Add pause processing here ?
+        if (tFrame > nextTick) { // if more then a tickLength passed, detect and perform update actions of passed time
+          var timeSinceTick = tFrame - MyGame.lastTick;
+          numTicks = Math.floor( timeSinceTick / MyGame.tickLength );
+        }
+
+
+        MyGameTicksUpdates(numTicks);
+        MyGame.render(tFrame);
+        MyGame.lastRender = tFrame;
+
+
+        // time between animation ticks
+        // console.log([
+        //   tFrame,
+        //   ' - ',
+        //   (tFrame - tFrame_store),
+        //   ' --- ',
+        //   window.performance.now(),
+        //   ' - ',
+        //   (window.performance.now() - wpn_store)
+        // ]);
+        tFrame_store = tFrame;
+        wpn_store = window.performance.now();
+        ///////////////////////////////
+
+      };
+
+
+      MyGame.lastTick = window.performance.now();
+      MyGame.lastRender = MyGame.lastTick;//Pretend the first draw was on first update
+
+      MyGame.create(); // setInitialState(); // tasks that are leftover before the mainloop must run
+
+
+      main(window.performance.now()); // Start the cycle
+    })();
+
+    // el.addEventListener("touchstart", handleStart, false);
+    // el.addEventListener("touchend", handleEnd, false);
+    // el.addEventListener("touchcancel", handleCancel, false);
+    // el.addEventListener("touchmove", handleMove, false);
+  </script>
+
+
+
+  <pre><code class="javascript">
+    /*
+      &ltdiv id="game"&gt&lt/div&gt
+      &ltcanvas id="canvas" width="360" height="480" style="border:1px solid #000000;"&gt&lt/canvas&gt
+    */
+
+    // check requestAnimationFrame is available, or use timeout:
+    // window.requestAnimFrame = (function (callback) {
+    //     return window.requestAnimationFrame ||
+    //            window.webkitRequestAnimationFrame ||
+    //            window.mozRequestAnimationFrame ||
+    //            window.oRequestAnimationFrame ||
+    //            window.msRequestAnimationFrame ||
+    //      function (callback) {
+    //         window.setTimeout(callback, 1000 / 60);
+    //     };
+    // })();
+
+    // leading semicolon marks the beginning of our new line if the previous one was not empty or terminated
+    ;(function () {
+
+      var MyGame = {
+        frames_div : "frames",
+        frames : 0,
+        frames_limit : 600,
+        rAF : null,
+        lastTick : 0, // track of the last update time, always increments by tickLength
+        lastRender : 0, // track of the last provided requestAnimationFrame timestamp
+        tickLength : 1000/60, // OR set your simulation to run at 50 = 20Hz(50ms) = 20fps // align fps to tick updates ?
+        create : function(){
+          document.getElementById('game').innerHTML =
+            'Game Frames: &ltspan id="'+this.frames_div+
+            '"&gt&lt/span&gt&ltbr/&gtModule Counter: &ltspan id="'+this.module.counter_div+
+            '"&gt&lt/span&gt';
+        },
+        update : function(){ // should update actions for one tick in this case
+          this.frames++;
+          this.module.update();
+          console.log(this.lastTick)
+        },
+        render : function(){
+          document.getElementById(MyGame.frames_div).innerHTML = MyGame.frames;
+          this.module.render();
+        },
+        cancel : function(){
+          window.cancelAnimationFrame(this.rAF);
+          document.getElementById('game').innerHTML = 'Game with '+this.frames_limit+' frames has ended...';
+        },
+        module : {
+          counter_div : "mc",
+          counter : 0,
+          update : function(){
+            if((this.game.frames % 60) == 1){
+              this.counter++;
+            }
+          },
+          render : function(){
+            document.getElementById(this.counter_div).innerHTML = this.counter;
+          }
+        },
+        init : function() { // give access to module to game values
+            this.module.game = this;
+            delete this.init;
+            return this;
+        }
+      }.init();
+
+      function MyGameTicksUpdates(numTicks) {
+        for(var i=0; i &lt numTicks; i++) {
+          MyGame.lastTick = MyGame.lastTick + MyGame.tickLength; //Now lastTick is this tick.
+          MyGame.update( MyGame.lastTick );
+        }
+      }
+
+      var tFrame_store = 0;
+      var wpn_store = 0;
+
+      function main(tFrame) {
+        MyGame.rAF = window.requestAnimationFrame(main);
+        if(MyGame.frames == MyGame.frames_limit) { MyGame.cancel() }
+        // MyGame.update();
+        // MyGame.render();
+
+        var nextTick = MyGame.lastTick + MyGame.tickLength;
+        var numTicks = 0;
+        //If tFrame &lt nextTick then 0 ticks need to be updated (0 is default for numTicks).
+        //If tFrame = nextTick then 1 tick needs to be updated (and so forth).
+        //Note: As we mention in summary, you should keep track of how large numTicks is.
+        //If it is large, then either your game was asleep, or the machine cannot keep up.
+        // todo : Add pause processing here ?
+        if (tFrame > nextTick) {
+          // if more then a tickLength passed, detect and perform update actions of passed time
+          var timeSinceTick = tFrame - MyGame.lastTick;
+          numTicks = Math.floor( timeSinceTick / MyGame.tickLength );
+        }
+
+        MyGameTicksUpdates(numTicks);
+        MyGame.render(tFrame);
+        MyGame.lastRender = tFrame;
+
+        // time between animation ticks
+        console.log([
+          tFrame,
+          ' - ',
+          (tFrame - tFrame_store),
+          ' --- ',
+          window.performance.now(),
+          ' - ',
+          (window.performance.now() - wpn_store)
+        ]);
+        tFrame_store = tFrame;
+        wpn_store = window.performance.now();
+        ///////////////////////////////
+
+      };
+
+      MyGame.lastTick = window.performance.now();
+      MyGame.lastRender = MyGame.lastTick;//Pretend the first draw was on first update
+
+      MyGame.create(); // setInitialState(); // tasks that are leftover before the mainloop must run
+
+      main(window.performance.now()); // Start the cycle
+    })();
+
+    // el.addEventListener("touchstart", handleStart, false);
+    // el.addEventListener("touchend", handleEnd, false);
+    // el.addEventListener("touchcancel", handleCancel, false);
+    // el.addEventListener("touchmove", handleMove, false);
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

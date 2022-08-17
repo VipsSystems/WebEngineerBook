@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2>Canvas</h2>
+
+<ul>
+  <li>allows drawing, animation and game creation in a document area using JavaScript (JS) which is described in later chapters</li>
+  <li>following code examples contains extra guides and information as comments</li>
+</ul>
+
+<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+    <code>&lt;canvas&gt;</code> element that is used to draw graphics on a web page is not supported here
+</canvas>
+<img id="canvas_jpeg" width="100" height="100" src="../images/colorpicker.gif" alt="Canvas" style="display:none"/>
+
+<br/>
+<br/>
+<br/>
+
+<img id="colorpicker" width="30" height="30" src="../images/colorpicker.gif" alt="The Coffee" style="display:none">
+
+<img id="cnv" width="30" height="30" src="../images/colorpicker.gif" alt="The Coffee" style="display:none">
+
+<video id="video" autoplay poster="video/battle.png" style="display:none">
+  <source src="video/battle.mp4" type="video/mp4">
+  <source src="video/battle.webm" type="video/webm">
+  <source src="video/battle.ogg" type="video/ogg">
+</video>
+
+<script type="text/javascript">
+
+
+  window.onload = function() {
+
+    ///////////////////////////////////////////
+    // CHAIN POSSIBILITY FOR CANVAS METHODS
+    function Canvas2DContext(canvas) {
+      if (typeof canvas === 'string') {
+        canvas = document.getElementById(canvas);
+      }
+      if (!(this instanceof Canvas2DContext)) {
+        return new Canvas2DContext(canvas);
+      }
+      this.context = this.ctx = canvas.getContext('2d');
+      if (!Canvas2DContext.prototype.arc) {
+        Canvas2DContext.setup.call(this, this.ctx);
+      }
+    }
+    Canvas2DContext.setup = function() {
+      var methods = ['arc', 'arcTo', 'beginPath', 'bezierCurveTo', 'clearRect', 'clip',
+        'closePath', 'drawImage', 'fill', 'fillRect', 'fillText', 'lineTo', 'moveTo',
+        'quadraticCurveTo', 'rect', 'restore', 'rotate', 'save', 'scale', 'setTransform',
+        'stroke', 'strokeRect', 'strokeText', 'transform', 'translate'];
+      var getterMethods = ['createPattern', 'drawFocusRing', 'isPointInPath', 'measureText', // drawFocusRing not currently supported
+        // The following might instead be wrapped to be able to chain their child objects
+        'createImageData', 'createLinearGradient',
+        'createRadialGradient', 'getImageData', 'putImageData'
+      ];
+      var props = ['canvas', 'fillStyle', 'font', 'globalAlpha', 'globalCompositeOperation',
+        'lineCap', 'lineJoin', 'lineWidth', 'miterLimit', 'shadowOffsetX', 'shadowOffsetY',
+        'shadowBlur', 'shadowColor', 'strokeStyle', 'textAlign', 'textBaseline'];
+      for (let m of methods) {
+        let method = m;
+        Canvas2DContext.prototype[method] = function() {
+          this.ctx[method].apply(this.ctx, arguments);
+          return this;
+        };
+      }
+      for (let m of getterMethods) {
+        let method = m;
+        Canvas2DContext.prototype[method] = function() {
+          return this.ctx[method].apply(this.ctx, arguments);
+        };
+      }
+      for (let p of props) {
+        let prop = p;
+        Canvas2DContext.prototype[prop] = function(value) {
+          if (value === undefined)
+            return this.ctx[prop];
+          this.ctx[prop] = value;
+          return this;
+        };
+      }
+    };
+    // var canvas = document.getElementById('canvas');
+    // // Use context to get access to underlying context
+    // var ctx = Canvas2DContext(canvas)
+    //   .strokeStyle('rgb(30, 110, 210)')
+    //   .transform(10, 3, 4, 5, 1, 0)
+    //   .strokeRect(2, 10, 15, 20)
+    //   .context;
+    // // Use property name as a function (but without arguments) to get the value
+    // var strokeStyle = Canvas2DContext(canvas)
+    //   .strokeStyle('rgb(50, 110, 210)')
+    //   .strokeStyle();
+    ///////////////////////////////////////////
+
+    // draw lines from mouse-down till mouse-up
+    // document.getElementById("myCanvas").mousedown(function(e) {
+    //     ctx.beginPath();
+    //     ctx.moveTo(e.offsetX, e.offsetY);
+    // });
+    // document.getElementById("myCanvas").mouseup(function(e) {
+    //     ctx.lineTo(e.offsetX, e.offsetY);
+    //     ctx.stroke();
+    // });
+
+
+    // draw with mouse
+    // var el = document.getElementById('c');
+    // var ctx = el.getContext('2d');
+    // var isDrawing;
+    // el.onmousedown = function(e) {
+    //   isDrawing = true;
+    //   ctx.moveTo(e.clientX, e.clientY);
+    // };
+    // el.onmousemove = function(e) {
+    //   if (isDrawing) {
+    //     ctx.lineTo(e.clientX, e.clientY);
+    //     ctx.stroke();
+    //   }
+    // };
+    // el.onmouseup = function() {
+    //   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    //   isDrawing = false;
+    // };
+    // *****************************************
+    // canvas.addEventListener('mousemove',function(e){
+    //     ctx.lineTo(e.pageX,e.pageY);
+    //     ctx.stroke();
+    // });
+
+    // track mouse position
+    // canvas.addEventListener('mousemove', function(event) {
+    //   var bb=canvas.getBoundingClientRect();
+    //   var mouseX=event.clientX-bb.left;
+    //   var mouseY=event.clientY-bb.top;
+    //   document.getElementById("posX").innerHTML="X: "+mouseX;
+    //   document.getElementById("posY").innerHTML="Y: "+mouseY;
+    // }, false);
+
+    // cut ring with mouse
+    // var canvas = document.getElementById('canvas');
+    // var ctx = canvas.getContext('2d');
+    // var circ = Math.PI * 2;
+    // var quart = Math.PI / 2;
+    // var w = 200;
+    // var h = 200;
+    // var strokeSize = 40;
+    // var radius = 100;
+    // function drawShape(percent){
+    //     ctx.beginPath();
+    //     ctx.arc(w/2, h/2,radius-strokeSize/2,-(quart),((circ) * percent) - quart,false);
+    //     ctx.strokeStyle = "#3B5DBA";
+    //     ctx.lineCap = 'butt';
+    //     ctx.lineWidth = strokeSize;
+    //     ctx.stroke();
+    // }
+    // drawShape(1);
+    // canvas.addEventListener('click', function(e){
+    //     var x = e.pageX - canvas.offsetLeft - w/2,
+    //         y = e.pageY - canvas.offsetTop - h/2,
+    //         mAngle = Math.atan2(y, x);
+    //     if (mAngle > -1 * Math.PI && mAngle < -0.5 * Math.PI) {
+    //         mAngle = 2 * Math.PI + mAngle;
+    //     }
+    //     var percentage = (mAngle + Math.PI / 2) / 2 * Math.PI * 10;
+    //     ctx.clearRect(0, 0, w, h);
+    //     drawShape(percentage/100);
+    // });
+
+    // change by slider
+    // slider = document.getElementById('width'),
+    // slider.onchange = function() {
+    //     canvas.width = parseInt(slider.value);
+    // };
+    // *****************************************
+    // var testcanvas = document.getElementById("canvas");
+    // testcanvas.width *=1.25;
+    // testcanvas.height *= 1.25;
+
+    // rainbow circle
+    // var x = canvas.width / 2;
+    // var y = canvas.height / 2;
+    // var radius = 100;
+    // var counterClockwise = false;
+    // for(var angle=0; angle<=360; angle+=1){
+    //     var startAngle = (angle-1)*Math.PI/180;
+    //     var endAngle = angle * Math.PI/180;
+    //     context.beginPath();
+    //     context.moveTo(x, y);
+    //     context.arc(x, y, radius, startAngle, endAngle, counterClockwise);
+    //     context.closePath();
+    //     context.fillStyle = 'hsl('+angle+', 100%, 50%)';
+    //     context.fill();
+    // }
+
+    // circle rays
+    // var grd = context.createRadialGradient(cx, cy, 0, cx, cy, cy);
+    // grd.addColorStop(0, '#ffe');
+    // grd.addColorStop(0.3, '#ff8');
+    // grd.addColorStop(0.4, '#ff5');
+    // //grd.addColorStop(0.4, '#ff0');
+    // grd.addColorStop(1, '#fd0');
+    // context.fillStyle = grd;
+    // context.fillRect(0, 0, width, height);
+    // for (i = 1; i <= n; i += 2) {
+    //     context.beginPath();
+    //     context.moveTo(cx, cy)
+    //     context.arc(cx, cy, Math.sqrt(Math.pow(cx, 2) + Math.pow(cy, 2)), 2 / n * Math.PI * (i - 1), 2 / n * Math.PI * i, false);
+    //     context.lineTo(cx, cy)
+    //     context.fillStyle = 'rgba(255,121,0,0.3)';
+    //     context.fill();
+    //     context.closePath();
+    // }
+
+    // function noise(ctx) {
+    //     var w = ctx.canvas.width,
+    //         h = ctx.canvas.height,
+    //         idata = ctx.createImageData(w, h),
+    //         buffer32 = new Uint32Array(idata.data.buffer),
+    //         len = buffer32.length,
+    //         i = 0;
+    //     for(; i < len;i++)
+    //         if (Math.random() < 0.5) buffer32[i] = 0xff000000;
+    //     ctx.putImageData(idata, 0, 0);
+    // }
+
+    // gradient color in gray scale
+    // var image = ctx.getImageData(0, 0, 128, 128);
+    // var idx = 0;
+    // for (var y=0; y < 128; ++y) {
+    //     for (var x=0; x < 128; ++x) {
+    //         image.data[idx+0] = 128;
+    //         image.data[idx+1] = 128;
+    //         image.data[idx+2] = 128;
+    //         image.data[idx+3] = (x+y);
+    //         idx += 4;
+    //     }
+    // }
+    // ctx.putImageData(image, 0, 0);
+
+    // translate context to center of canvas
+    // context.translate(canvas.width / 2, canvas.height / 2);
+    // flip context horizontally
+    // context.scale(-1, 1);
+
+    // rotate
+    // var theta = 0;
+    // drawStep = function() {
+    //   context.save();
+    //   context.translate(150, 75);
+    //   context.rotate(theta);
+    //   context.drawImage(smile, -7, -7);
+    //   context.restore();
+    //   theta += Math.PI / 180;
+    //   setTimeout(drawStep, 16);
+    // };
+    // setTimeout(drawStep, 16);
+
+    // position till circle center
+    // document.getElementById("myCanvas").mousemove(function (e) {
+    //     var x = e.pageX;
+    //     var y = e.pageY;
+    //     var dist = Math.round(Math.sqrt(Math.pow(x - 250.0, 2) + Math.pow(y - 250.0, 2)));
+    //     console.log(dist);
+    // });
+
+    // draw text on key-up
+    // function draw(event) {
+    //     var canvas = document.getElementById("canvas");
+    //     var ctx = canvas.getContext("2d");
+    //     var text = document.getElementById('item').value
+    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //     ctx.fillStyle = "#3e3e3e";
+    //     ctx.font = "16px Arial";
+    //     ctx.fillText(text, 50, 50);
+    // }
+    // window.addEventListener("keyup", draw, true);
+
+    // rotate by angle
+    // ctx.rotate(degrees*Math.PI/180);
+
+    // move along with a circle
+    // var ctx = document.getElementById("canvas").getContext("2d"),
+    //     x = 150,
+    //     y = 180,
+    //     angle = 0,
+    //     velX = 0,
+    //     velY = 0,
+    //     thrust = 3;
+    // function draw(){
+    //     velX = Math.cos(angle * Math.PI / 180) * thrust;
+    //     velY = Math.sin(angle * Math.PI / 180) * thrust;
+    //     x += velX;
+    //     y += velY;
+    //     angle+=2;
+    //     ctx.fillStyle = "#fff";
+    //     ctx.clearRect(0,0,400,400);
+    //     ctx.beginPath();
+    //     ctx.rect(x, y, 10, 10);
+    //     ctx.closePath();
+    //     ctx.fill();
+    //     setTimeout(function(){draw()}, 30);
+    // }
+    // draw();
+
+    // circle grow animation
+    // var angle = 0.0;
+    // var increment = 0.1;
+    // function incrementAngle() {<!--  w  ww  .j  a va 2  s.c o m-->
+    //     angle += increment;
+    //     if (angle > Math.PI * 2)
+    //        angle -= (Math.PI * 2);
+    // }
+    // function update() {
+    //     incrementAngle();
+    //     var ctx = document.getElementById("myCanvas").getContext("2d");
+    //     ctx.strokeStyle = "#000000";
+    //     ctx.beginPath();
+    //     ctx.arc(20, 20, 15, angle, angle + Math.PI, true);
+    //     ctx.lineWidth = 5;
+    //     ctx.stroke();
+    //     ctx.closePath();
+    // }
+    // function init() { // **
+    //     update();
+    //     setInterval(update, 1000);
+    // }
+
+    // grow line
+    // var startX = 50;
+    // var startY = 50;
+    // var endX = 100;
+    // var endY = 100;
+    // var amount = 0;
+    // setInterval(function() {
+    //     amount += 0.05;
+    //     c.clearRect(0, 0, canvas.width, canvas.height);
+    //     c.strokeStyle = "black";
+    //     c.moveTo(startX, startY);
+    //     c.lineTo(startX + (endX - startX) * amount, startY + (endY - startY) * amount);
+    //     c.stroke();
+    // }, 30);
+
+    // enlarge in animation
+    // function animate() {
+    //     var c=document.getElementById("myCanvas");
+    //     var ctx=c.getContext("2d");
+    //     ctx.save();
+    //     ctx.clearRect(0, 0, c.width, c.height);
+    //     if(i > 80) {
+    //         i = 1;
+    //     }
+    //     if( i > 40) {
+    //         ctx.beginPath();
+    //         ctx.arc(50, 50, i-40, 0, 2 * Math.PI, true);
+    //         ctx.fillStyle = "#FF0033";
+    //         ctx.fill();
+    //     }
+    //     i++;
+    //     ctx.restore();
+    //     setTimeout(animate, 10);
+    // }
+    // var i = 0;
+    // animate();
+
+    // function DrawSpiral(mod) {
+    //     var c = document.getElementById("myCanvas");
+    //     var cxt = c.getContext("2d");
+    //     var centerX = 150;
+    //     var centerY = 150;
+    //     cxt.save();
+    //     cxt.clearRect(0, 0, c.width, c.height);
+    //     cxt.beginPath();
+    //     cxt.moveTo(centerX, centerY);
+    //     var STEPS_PER_ROTATION = 60;
+    //     var increment = 2 * Math.PI / STEPS_PER_ROTATION;
+    //     var theta = increment;
+    //     while (theta < 40 * Math.PI) {
+    //         var newX = centerX + theta * Math.cos(theta - mod);
+    //         var newY = centerY + theta * Math.sin(theta - mod);
+    //         cxt.lineTo(newX, newY);
+    //         theta = theta + increment;
+    //     }
+    //     cxt.stroke();
+    //     cxt.restore();
+    // }
+    // var counter = 0;
+    // setInterval(function () {
+    //     DrawSpiral(counter);
+    //     counter += 0.075;
+    // }, 10);
+
+    // draw circle
+    // var duration = 700;
+    // var delay = 10;
+    // var stepT = duration/delay; // steps needed
+    // var cT = 0; // step counter
+    // c.fillStyle = 'white'
+    // var end = 58; // endpoint in percent
+    // var int = setInterval(function(){
+    //     c.fillRect(0,0,100,100);
+    //     c.strokeStyle = 'orange';
+    //     c.beginPath();
+    //     c.arc(50, 50, 40, -.5*Math.PI, (-.5*Math.PI + 2*Math.PI / 100 * end * cT / stepT));
+    //     c.lineWidth = 10;
+    //     c.stroke();
+    //     if(++cT>stepT){
+    //         clearInterval(int);
+    //     }
+    // },delay);
+
+    // gravitation and walls
+    // var speed = 10;
+    // var xv = 2;
+    // var yv = 1;
+    // var gravity = 2;
+    // var circlex = 30;
+    // var circley = 30;
+    // var frames = 1000 / 60;
+    // var friction = 0.95;
+    // var circle = {
+    //     draw: function(x, y, r) {
+    //         ctx.beginPath();
+    //         ctx.arc(x, y, r, 0, Math.PI * 2);
+    //         ctx.closePath();
+    //         ctx.fill();
+    //     }
+    // };
+    // setInterval(function() {
+    //     ctx.clearRect(0, 0, 200, 200);
+    //     speed = speed * friction;
+    //     if (speed < 0.01) {
+    //         speed = 0;
+    //     }
+    //     yv += gravity;
+    //     circlex += xv * speed;
+    //     circley += yv * speed;
+    //     if (circley >= 195) {
+    //         circley = 195;
+    //         yv *= -1;
+    //     }
+    //     if (circlex >= 195) {
+    //         xv *= -1;
+    //         circlex = 195;
+    //     }
+    //     if (circlex <= 5) {
+    //         xv *= -1;
+    //         circlex = 5;
+    //     }
+    //     circle.draw(circlex, circley, 10);
+    // }, frames);
+    // *********************************************
+    // var context;
+    // var width = 500, height = 500;
+    // var balls = [
+    //     { x:   0, y:   0, dx: 3, dy: 7, r: 10 },
+    //     { x: 150, y: 250, dx: 7, dy: 3, r: 10 },
+    //     { x: 200, y: 200, dx: 6, dy: 4, r: 10 },
+    //     { x: 250, y: 250, dx: 4, dy: 6, r: 10 }
+    // ];
+    // function init()
+    // {
+    //     var myCanvas = document.getElementById('c');
+    //     context = myCanvas.getContext('2d');
+    //     setInterval(onTick, 10);
+    // }
+    // function onTick()
+    // {
+    //     context.clearRect(0, 0, width, height);
+    //     context.fillStyle = "#0000ff";
+    //     context.beginPath();
+    //     var i;
+    //     for (i = 0; i < balls.length; i++)
+    //     {
+    //         moveBall(balls[i]);
+    //         drawBallPath(balls[i], context);
+    //     }
+    //     context.fill();
+    // }
+    // function drawBallPath(ball, context)
+    // {
+    //     context.moveTo(ball.x + ball.r, ball.y);
+    //     context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2, true);
+    // }
+    // function moveBall(ball)
+    // {
+    //     if (ball.x < 0 || ball.x > width) ball.dx = -ball.dx;
+    //     if (ball.y < 0 || ball.y > height) ball.dy = -ball.dy;
+    //     ball.x += ball.dx;
+    //     ball.y += ball.dy;
+    // }
+    // init();
+    // ****************************************
+    // var x = 300, y = 150;
+    // var dx = 1,  dy = 1;
+    // function init() {
+    // ctx = canvas.getContext('2d');
+    // return setInterval(draw, 10);
+    // }
+    // function draw() {
+    // ctx.clearRect(0,0,300,300);
+    // ctx.beginPath();
+    // ctx.arc(x, y, 20, 0, Math.PI*2, true);
+    // ctx.closePath();
+    // ctx.fill();
+    // x += dx;
+    // y += dy;
+    // if (x > 300 || x < 0) {
+    //      dx *= -1;
+    // }
+    // if (y > 300 || y < 0) {
+    //      dy *= -1;
+    // }
+    // }
+    // init();
+
+
+    // change position to reset/update animation
+
+
+
+
+
+    var canvas = document.getElementById("myCanvas");
+
+
+    var ctx = canvas.getContext("2d"); // getContext() is a built-in HTML object, with properties and methods for drawing
+
+    // can be nested to for saving/restoring earlier states of
+    // translate, rotate, scale, style. opacity, shadow
+    ctx.save(); // save the default state
+    ctx.restore(); // restore to the default state
+
+    ctx.lineWidth = 2; // line width
+    ctx.lineCap = "round"; // end caps for a line - butt|round|square
+    ctx.lineJoin = "butt"; // type of corner created, when two lines meet - butt|round|square
+    ctx.miterLimit=1; // distance between the inner corner and the outer corner where two lines meet
+
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = "black"; // affects clip() !
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+    // if (ctx.isPointInPath(175,360)) { // returns true if the specified point is in the current path
+    // };
+
+    // ctx.mozImageSmoothingEnabled = false;
+    // ctx.webkitImageSmoothingEnabled = false;
+    // ctx.msImageSmoothingEnabled = false;
+    // ctx.imageSmoothingEnabled = false;
+
+
+    // GRADIENT
+    // (x,y,x1,y1) [location of start and end points]
+    var grd_linear = ctx.createLinearGradient(0, 0, 500, 0); // linear gradient
+    grd_linear.addColorStop(0, "#ff0000");
+    grd_linear.addColorStop(0.17, "#ff8000");
+    grd_linear.addColorStop(0.34, "#ffff00");
+    grd_linear.addColorStop(0.51, "#40ff00");
+    grd_linear.addColorStop(0.68, "#00ffff");
+    grd_linear.addColorStop(0.85, "#0000ff");
+    grd_linear.addColorStop(1, "#8000ff");
+    ctx.fillStyle = grd_linear;
+    ctx.fillRect(0, 0, 500, 500);  // fillRect(x,y,width,height)
+
+    // (x,y,r [location and radius of center of start circle] ,x1,y1,r1 [location and radius of center of end circle]
+    var grd_radial = ctx.createRadialGradient(250,250,1,250,250,50); // radial/circular gradient
+    grd_radial.addColorStop(0, "#ff0000");
+    grd_radial.addColorStop(0.17, "#ff8000");
+    grd_radial.addColorStop(0.34, "#ffff00");
+    grd_radial.addColorStop(0.51, "#40ff00");
+    grd_radial.addColorStop(0.68, "#00ffff");
+    grd_radial.addColorStop(0.85, "#0000ff");
+    grd_radial.addColorStop(0.99, "#8000ff");
+    grd_radial.addColorStop(1, "black");
+    ctx.fillStyle = grd_radial;
+    ctx.fillRect(175,175,150,150);
+
+    // useful for movement on canvas
+    // ctx.translate(150, 150); // remaps the (0,0) position on the canvas - new zero of coordinates for drawing functions
+
+
+    // TEXT
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    var txt = "Filled Text, 0.4 Opacity";
+    ctx.fillText(txt, 150, 450);
+    // measure text width
+    // console.log([ "Text Measuring:", ctx.measureText(txt.width)]);
+
+    ctx.font = "30px Arial";
+    ctx.strokeStyle = "black"; // grd_radial, grd_linear
+    ctx.textAlign = "center";
+    ctx.strokeText("Stroke Text", canvas.width/2, 480);
+
+
+    // IMAGE
+    ctx.drawImage(document.getElementById("colorpicker"), 390, 430); // draws an image, canvas, or video onto the canvas
+    var video = document.getElementById("video");
+    video.muted= true;
+    function loop() {
+        ctx.drawImage(
+            video,
+            100,
+            100,
+            100,
+            100,
+            300,
+            100,
+            100,
+            100
+        );
+        setTimeout(loop, 1000 / 30); // drawing at 30fps
+    };
+    loop();
+
+    // var video = document.getElementById("video");
+    // video.addEventListener('play', function () {
+    //     var $this = this; //cache
+    //     (function loop() {
+    //         if (!$this.paused && !$this.ended) {
+    //             ctx.drawImage(
+    //                 $this,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100
+    //             );
+    //             setTimeout(loop, 1000 / 10); // drawing at 10fps
+    //         }
+    //     })();
+    // }, 0);
+
+
+
+    // var img = new Image();   // Create new img element
+    // img.addEventListener('load', function() {
+    //     // execute drawImage statements here
+    //     ctx.drawImage(img, 0, 0)
+    // }, false);
+    // img.src = document.getElementById("video"); // Set source path
+
+    // position the image on the canvas:
+    // drawImage(img,x,y)
+    // position the image on the canvas, and specify width and height of the image:
+    // drawImage(img,x,y,width,height)
+    // clip the image and position the clipped part on the canvas:
+    // drawImage(
+    //   img,     // image, canvas, or video element to use
+    //   sx,      // Optional. The x coordinate where to start clipping
+    //   sy,      // Optional. The y coordinate where to start clipping
+    //   swidth,  // Optional. The width of the clipped image
+    //   sheight, // Optional. The height of the clipped image
+    //   x,       // x coordinate where to place the image on the canvas
+    //   y,       // y coordinate where to place the image on the canvas
+    //   width,   // Optional. The width of the image to use (stretch or reduce the image)
+    //   height   // Optional. The height of the image to use (stretch or reduce the image)
+    // )
+    // -------------------------------------
+    // var img = new Image();   // Create new img element
+    // img.addEventListener('load', function() {
+    //      // execute drawImage statements here
+    // }, false);
+    // img.src = 'myImage.png'; // Set source path
+
+    // 100*100 pixels ImageData object
+    var imgData=ctx.createImageData(30,30); // new, blank ImageData object
+    for (var i=0;i<imgData.data.length;i+=4) {
+      imgData.data[i+0]=255;
+      imgData.data[i+1]=55;
+      imgData.data[i+2]=255;
+      imgData.data[i+3]=255;
+    }
+    ctx.putImageData(imgData,150,10);
+
+    // get specified zone data from canvas, and paste in other place
+    var imgData = ctx.getImageData(350, 10, 70, 30);
+    ctx.putImageData(imgData, 70, 10);
+
+    // console.log([
+    //   "Image Data Object info :",
+    //   imgData.width,
+    //   imgData.height,
+    //   imgData.data // object that contains image data of a specified ImageData object
+    // ]);
+
+
+    // PATTERN
+    var pat = ctx.createPattern(document.getElementById("colorpicker"), "repeat"); // [repeat|repeat-x|repeat-y|no-repeat]
+    ctx.rect(175,350,150,50);
+    ctx.fillStyle = pat;
+    ctx.fill(); // fills the current drawing (path)
+    ctx.fillStyle = "black";
+
+
+    // SCALING, ALPHA
+
+    ctx.globalAlpha = 0.3; // set opacity for future drawings
+
+    ctx.strokeRect(250,5,25,15);
+    ctx.scale(2,2); // scale drawing
+    ctx.strokeRect(130,5,25,15);
+    ctx.scale(0.5,0.5); // scale back
+
+    ctx.globalAlpha = 1; // unset opacity
+
+
+    // LINE
+        // ----- regular method -----
+        // ctx.strokeStyle="black";
+        // ctx.moveTo(10, 30); // starting point of the line
+        // ctx.lineTo(40, 150); // ending point of the line
+        // ctx.lineTo(70, 50); // ending point of the line
+        // ctx.lineTo(100, 120); // ending point of the
+        // ctx.lineTo(130, 90); // ending point of the line
+        // ctx.lineTo(160, 90); // ending point of the line
+        // ctx.stroke(); // draws the path you have defined
+    // ----- chained method -----
+
+
+    Canvas2DContext(canvas)
+        .strokeStyle("black")
+        .moveTo(10, 30) // starting point of the line
+        .lineTo(40, 150) // ending point of the line
+        .lineTo(70, 50) // ending point of the line
+        .lineTo(100, 120) // ending point of the
+        .lineTo(130, 90) // ending point of the line
+        .lineTo(160, 90) // ending point of the line
+        .stroke();
+
+
+
+    // CURVE
+    ctx.setLineDash([3,9]); // set dashes for stroke
+    ctx.beginPath();
+    ctx.moveTo(20,170); // start point of a curve
+    ctx.quadraticCurveTo(
+      25,250, // control point
+      150,170 // end point
+    );
+    ctx.stroke();
+    ctx.setLineDash([]); // unset dashes for stroke
+
+    ctx.beginPath();
+    ctx.moveTo(20, 250); // start point of a curve
+    ctx.bezierCurveTo(
+      20, 300,  // 1 control point
+      170, 300, // 2 control point
+      170, 250  // end point
+    );
+    ctx.stroke();
+
+
+    // CIRCLE/ARC
+        // arc(
+        //   x,
+        //   y,
+        //   r,
+        //   start-angle, [ 0.5*Math.PI = 90, Math.PI = 180, 1.5*Math.PI = 270 ]
+        //   end-angle, [ 2 * Math.PI - for a circle ]
+        //   counterclockwise [false-default, or true for counter-clockwise]
+        // );
+    ctx.strokeStyle="black";
+    ctx.beginPath(); // begins a path, or resets the current path
+    ctx.arc(430, 300, 30, 0, 2 * Math.PI); // creates a circle
+    ctx.stroke();
+    //ctx.fill(); // fill circle with image, pattern, color
+
+    ctx.beginPath();
+    ctx.arc(430, 370, 30, 0, Math.PI); // creates an arc
+    ctx.closePath(); // creates a path from the current point back to the starting point, close arc
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(250, 50, 150, 0.7)";
+    ctx.arc(430, 210, 30, 0, Math.PI * 2, true);
+    ctx.arc(430, 210, 15, 0, Math.PI * 2, true);
+    ctx.fill('evenodd'); // fill rule
+
+    ctx.beginPath();
+    ctx.moveTo(400,20);          // Create a starting point
+    ctx.lineTo(450,20);          // Create a horizontal line
+    ctx.arcTo(
+      470,20, // x,y of 1 tangent
+      470,50, // x,y of 2 tangent
+      20      // radius
+    );
+    ctx.lineTo(470,100);         // Continue with vertical line
+    ctx.stroke();                // Draw it
+
+    // ctx.arc(
+    //   description.x,
+    //   description.y,
+    //   description.r,
+    //   0,
+    //   2 * Math.PI,
+    //   false
+    // );
+    // ctx.fillStyle = description.fill || '#AAAAAA';
+    // ctx.fill();
+    // ctx.lineWidth = 5;
+    // ctx.strokeStyle = '#003300';
+    // ctx.stroke();
+
+
+    // RECTANGLE
+    ctx.fillStyle="black";
+    ctx.fillRect(20,380,100,100); // "filled" rectangle
+
+    ctx.strokeStyle="gray";
+    ctx.strokeRect(50,300,100,100); // rectangle (no fill)
+
+    ctx.clearRect(60,360,50,70); // clears the specified pixels within a given rectangle
+
+    // Clip a rectangular area
+    ctx.save();
+    ctx.rect(200,50,100,100); // rectangle (no fill)
+    ctx.stroke();
+    ctx.clip();
+    // Draw red rectangle after clip()
+    ctx.fillStyle = "red";
+    ctx.fillRect(120,0,150,100);
+    ctx.restore();
+
+    // rectangles grid
+    ctx.translate(400,100);
+    for (var i = 0; i < 6; i++) {
+        for (var j = 0; j < 6; j++) {
+            ctx.fillStyle = 'rgb(' + Math.floor(255 - 42.5 * i) + ', ' +
+            Math.floor(255 - 42.5 * j) + ', 0)';
+            ctx.fillRect(j * 10, i * 10, 10, 10);
+        }
+    }
+    ctx.translate(-400,-100);
+
+
+    // TRANSFORM
+    ctx.save();
+    ctx.translate(400,60);
+    var sin = Math.sin(Math.PI / 6);
+    var cos = Math.cos(Math.PI / 6);
+    var c = 0;
+    for (var i = 0; i <= 12; i++) {
+        c = Math.floor(255 / 12 * i);
+        ctx.fillStyle = 'rgb(' + c + ', ' + c + ', ' + c + ')';
+        ctx.fillRect(0, 0, 30, 3);
+        ctx.transform(cos, sin, -sin, cos, 0, 0);
+    }
+    // ctx.setTransform(-1, 0, 0, 1, 100, 100);
+    // ctx.fillStyle = 'rgba(255, 128, 255, 0.5)';
+    // ctx.fillRect(0, 50, 100, 100);
+    // ctx.translate(-400,-60);
+    ctx.restore();
+
+
+    // Path2D
+        // for series of pathes: cache or record drawing commands
+        // You are able to play back your paths quickly
+
+        // var path1 = new Path2D();
+        // path1.rect(10, 10, 100,100);
+        // var path2 = new Path2D(path1);
+        // path2.moveTo(220, 60);
+        // path2.arc(170, 60, 50, 0, 2 * Math.PI);
+        // ctx.stroke(path2);
+
+        // var p = new Path2D('M10 10 h 80 v 80 h -80 Z');
+        // ctx.fill(p);
+
+
+    var dataURL = canvas.toDataURL('image/jpeg',0.05); // data URI containing a representation of the image
+    document.getElementById("canvas_jpeg").src = dataURL;// insert into page
+
+  }
+</script>
+
+<pre><code class="html">
+  &lt;canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;"&gt;
+    &lt;code&gt;&lt;canvas&gt;&lt;/code&gt; element that is used to draw graphics on a web page is not supported here
+  &lt;/canvas&gt;
+  &lt;img id="canvas_jpeg" width="100" height="100" src="../images/colorpicker.gif" alt="Canvas" style="display:none"/&gt;
+
+  &lt;img id="colorpicker" width="30" height="30" src="../images/colorpicker.gif" alt="The Coffee" style="display:none"&gt;
+
+  &lt;img id="cnv" width="30" height="30" src="../images/colorpicker.gif" alt="The Coffee" style="display:none"&gt;
+
+  &lt;video id="video" autoplay poster="video/battle.png" style="display:none"&gt;
+  &lt;source src="video/battle.mp4" type="video/mp4"&gt;
+  &lt;source src="video/battle.webm" type="video/webm"&gt;
+  &lt;source src="video/battle.ogg" type="video/ogg"&gt;
+  &lt;/video&gt;
+
+  &lt;script type="text/javascript"&gt;
+
+
+  window.onload = function() {
+
+    ///////////////////////////////////////////
+    // CHAIN POSSIBILITY FOR CANVAS METHODS
+    function Canvas2DContext(canvas) {
+      if (typeof canvas === 'string') {
+        canvas = document.getElementById(canvas);
+      }
+      if (!(this instanceof Canvas2DContext)) {
+        return new Canvas2DContext(canvas);
+      }
+      this.context = this.ctx = canvas.getContext('2d');
+      if (!Canvas2DContext.prototype.arc) {
+        Canvas2DContext.setup.call(this, this.ctx);
+      }
+    }
+    Canvas2DContext.setup = function() {
+      var methods = ['arc', 'arcTo', 'beginPath', 'bezierCurveTo', 'clearRect', 'clip',
+        'closePath', 'drawImage', 'fill', 'fillRect', 'fillText', 'lineTo', 'moveTo',
+        'quadraticCurveTo', 'rect', 'restore', 'rotate', 'save', 'scale', 'setTransform',
+        'stroke', 'strokeRect', 'strokeText', 'transform', 'translate'];
+      var getterMethods = ['createPattern', 'drawFocusRing', 'isPointInPath', 'measureText', // drawFocusRing not currently supported
+        // The following might instead be wrapped to be able to chain their child objects
+        'createImageData', 'createLinearGradient',
+        'createRadialGradient', 'getImageData', 'putImageData'
+      ];
+      var props = ['canvas', 'fillStyle', 'font', 'globalAlpha', 'globalCompositeOperation',
+        'lineCap', 'lineJoin', 'lineWidth', 'miterLimit', 'shadowOffsetX', 'shadowOffsetY',
+        'shadowBlur', 'shadowColor', 'strokeStyle', 'textAlign', 'textBaseline'];
+      for (let m of methods) {
+        let method = m;
+        Canvas2DContext.prototype[method] = function() {
+          this.ctx[method].apply(this.ctx, arguments);
+          return this;
+        };
+      }
+      for (let m of getterMethods) {
+        let method = m;
+        Canvas2DContext.prototype[method] = function() {
+          return this.ctx[method].apply(this.ctx, arguments);
+        };
+      }
+      for (let p of props) {
+        let prop = p;
+        Canvas2DContext.prototype[prop] = function(value) {
+          if (value === undefined)
+            return this.ctx[prop];
+          this.ctx[prop] = value;
+          return this;
+        };
+      }
+    };
+    // var canvas = document.getElementById('canvas');
+    // // Use context to get access to underlying context
+    // var ctx = Canvas2DContext(canvas)
+    //   .strokeStyle('rgb(30, 110, 210)')
+    //   .transform(10, 3, 4, 5, 1, 0)
+    //   .strokeRect(2, 10, 15, 20)
+    //   .context;
+    // // Use property name as a function (but without arguments) to get the value
+    // var strokeStyle = Canvas2DContext(canvas)
+    //   .strokeStyle('rgb(50, 110, 210)')
+    //   .strokeStyle();
+    ///////////////////////////////////////////
+
+    // draw lines from mouse-down till mouse-up
+    // document.getElementById("myCanvas").mousedown(function(e) {
+    //     ctx.beginPath();
+    //     ctx.moveTo(e.offsetX, e.offsetY);
+    // });
+    // document.getElementById("myCanvas").mouseup(function(e) {
+    //     ctx.lineTo(e.offsetX, e.offsetY);
+    //     ctx.stroke();
+    // });
+
+
+    // draw with mouse
+    // var el = document.getElementById('c');
+    // var ctx = el.getContext('2d');
+    // var isDrawing;
+    // el.onmousedown = function(e) {
+    //   isDrawing = true;
+    //   ctx.moveTo(e.clientX, e.clientY);
+    // };
+    // el.onmousemove = function(e) {
+    //   if (isDrawing) {
+    //     ctx.lineTo(e.clientX, e.clientY);
+    //     ctx.stroke();
+    //   }
+    // };
+    // el.onmouseup = function() {
+    //   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    //   isDrawing = false;
+    // };
+    // *****************************************
+    // canvas.addEventListener('mousemove',function(e){
+    //     ctx.lineTo(e.pageX,e.pageY);
+    //     ctx.stroke();
+    // });
+
+    // track mouse position
+    // canvas.addEventListener('mousemove', function(event) {
+    //   var bb=canvas.getBoundingClientRect();
+    //   var mouseX=event.clientX-bb.left;
+    //   var mouseY=event.clientY-bb.top;
+    //   document.getElementById("posX").innerHTML="X: "+mouseX;
+    //   document.getElementById("posY").innerHTML="Y: "+mouseY;
+    // }, false);
+
+    // cut ring with mouse
+    // var canvas = document.getElementById('canvas');
+    // var ctx = canvas.getContext('2d');
+    // var circ = Math.PI * 2;
+    // var quart = Math.PI / 2;
+    // var w = 200;
+    // var h = 200;
+    // var strokeSize = 40;
+    // var radius = 100;
+    // function drawShape(percent){
+    //     ctx.beginPath();
+    //     ctx.arc(w/2, h/2,radius-strokeSize/2,-(quart),((circ) * percent) - quart,false);
+    //     ctx.strokeStyle = "#3B5DBA";
+    //     ctx.lineCap = 'butt';
+    //     ctx.lineWidth = strokeSize;
+    //     ctx.stroke();
+    // }
+    // drawShape(1);
+    // canvas.addEventListener('click', function(e){
+    //     var x = e.pageX - canvas.offsetLeft - w/2,
+    //         y = e.pageY - canvas.offsetTop - h/2,
+    //         mAngle = Math.atan2(y, x);
+    //     if (mAngle &gt; -1 * Math.PI && mAngle &lt; -0.5 * Math.PI) {
+    //         mAngle = 2 * Math.PI + mAngle;
+    //     }
+    //     var percentage = (mAngle + Math.PI / 2) / 2 * Math.PI * 10;
+    //     ctx.clearRect(0, 0, w, h);
+    //     drawShape(percentage/100);
+    // });
+
+    // change by slider
+    // slider = document.getElementById('width'),
+    // slider.onchange = function() {
+    //     canvas.width = parseInt(slider.value);
+    // };
+    // *****************************************
+    // var testcanvas = document.getElementById("canvas");
+    // testcanvas.width *=1.25;
+    // testcanvas.height *= 1.25;
+
+    // rainbow circle
+    // var x = canvas.width / 2;
+    // var y = canvas.height / 2;
+    // var radius = 100;
+    // var counterClockwise = false;
+    // for(var angle=0; angle&lt;=360; angle+=1){
+    //     var startAngle = (angle-1)*Math.PI/180;
+    //     var endAngle = angle * Math.PI/180;
+    //     context.beginPath();
+    //     context.moveTo(x, y);
+    //     context.arc(x, y, radius, startAngle, endAngle, counterClockwise);
+    //     context.closePath();
+    //     context.fillStyle = 'hsl('+angle+', 100%, 50%)';
+    //     context.fill();
+    // }
+
+    // circle rays
+    // var grd = context.createRadialGradient(cx, cy, 0, cx, cy, cy);
+    // grd.addColorStop(0, '#ffe');
+    // grd.addColorStop(0.3, '#ff8');
+    // grd.addColorStop(0.4, '#ff5');
+    // //grd.addColorStop(0.4, '#ff0');
+    // grd.addColorStop(1, '#fd0');
+    // context.fillStyle = grd;
+    // context.fillRect(0, 0, width, height);
+    // for (i = 1; i &lt;= n; i += 2) {
+    //     context.beginPath();
+    //     context.moveTo(cx, cy)
+    //     context.arc(cx, cy, Math.sqrt(Math.pow(cx, 2) + Math.pow(cy, 2)), 2 / n * Math.PI * (i - 1), 2 / n * Math.PI * i, false);
+    //     context.lineTo(cx, cy)
+    //     context.fillStyle = 'rgba(255,121,0,0.3)';
+    //     context.fill();
+    //     context.closePath();
+    // }
+
+    // function noise(ctx) {
+    //     var w = ctx.canvas.width,
+    //         h = ctx.canvas.height,
+    //         idata = ctx.createImageData(w, h),
+    //         buffer32 = new Uint32Array(idata.data.buffer),
+    //         len = buffer32.length,
+    //         i = 0;
+    //     for(; i &lt; len;i++)
+    //         if (Math.random() &lt; 0.5) buffer32[i] = 0xff000000;
+    //     ctx.putImageData(idata, 0, 0);
+    // }
+
+    // gradient color in gray scale
+    // var image = ctx.getImageData(0, 0, 128, 128);
+    // var idx = 0;
+    // for (var y=0; y &lt; 128; ++y) {
+    //     for (var x=0; x &lt; 128; ++x) {
+    //         image.data[idx+0] = 128;
+    //         image.data[idx+1] = 128;
+    //         image.data[idx+2] = 128;
+    //         image.data[idx+3] = (x+y);
+    //         idx += 4;
+    //     }
+    // }
+    // ctx.putImageData(image, 0, 0);
+
+    // translate context to center of canvas
+    // context.translate(canvas.width / 2, canvas.height / 2);
+    // flip context horizontally
+    // context.scale(-1, 1);
+
+    // rotate
+    // var theta = 0;
+    // drawStep = function() {
+    //   context.save();
+    //   context.translate(150, 75);
+    //   context.rotate(theta);
+    //   context.drawImage(smile, -7, -7);
+    //   context.restore();
+    //   theta += Math.PI / 180;
+    //   setTimeout(drawStep, 16);
+    // };
+    // setTimeout(drawStep, 16);
+
+    // position till circle center
+    // document.getElementById("myCanvas").mousemove(function (e) {
+    //     var x = e.pageX;
+    //     var y = e.pageY;
+    //     var dist = Math.round(Math.sqrt(Math.pow(x - 250.0, 2) + Math.pow(y - 250.0, 2)));
+    //     console.log(dist);
+    // });
+
+    // draw text on key-up
+    // function draw(event) {
+    //     var canvas = document.getElementById("canvas");
+    //     var ctx = canvas.getContext("2d");
+    //     var text = document.getElementById('item').value
+    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //     ctx.fillStyle = "#3e3e3e";
+    //     ctx.font = "16px Arial";
+    //     ctx.fillText(text, 50, 50);
+    // }
+    // window.addEventListener("keyup", draw, true);
+
+    // rotate by angle
+    // ctx.rotate(degrees*Math.PI/180);
+
+    // move along with a circle
+    // var ctx = document.getElementById("canvas").getContext("2d"),
+    //     x = 150,
+    //     y = 180,
+    //     angle = 0,
+    //     velX = 0,
+    //     velY = 0,
+    //     thrust = 3;
+    // function draw(){
+    //     velX = Math.cos(angle * Math.PI / 180) * thrust;
+    //     velY = Math.sin(angle * Math.PI / 180) * thrust;
+    //     x += velX;
+    //     y += velY;
+    //     angle+=2;
+    //     ctx.fillStyle = "#fff";
+    //     ctx.clearRect(0,0,400,400);
+    //     ctx.beginPath();
+    //     ctx.rect(x, y, 10, 10);
+    //     ctx.closePath();
+    //     ctx.fill();
+    //     setTimeout(function(){draw()}, 30);
+    // }
+    // draw();
+
+    // circle grow animation
+    // var angle = 0.0;
+    // var increment = 0.1;
+    // function incrementAngle() {&lt;!--  w  ww  .j  a va 2  s.c o m--&gt;
+    //     angle += increment;
+    //     if (angle &gt; Math.PI * 2)
+    //        angle -= (Math.PI * 2);
+    // }
+    // function update() {
+    //     incrementAngle();
+    //     var ctx = document.getElementById("myCanvas").getContext("2d");
+    //     ctx.strokeStyle = "#000000";
+    //     ctx.beginPath();
+    //     ctx.arc(20, 20, 15, angle, angle + Math.PI, true);
+    //     ctx.lineWidth = 5;
+    //     ctx.stroke();
+    //     ctx.closePath();
+    // }
+    // function init() { // **
+    //     update();
+    //     setInterval(update, 1000);
+    // }
+
+    // grow line
+    // var startX = 50;
+    // var startY = 50;
+    // var endX = 100;
+    // var endY = 100;
+    // var amount = 0;
+    // setInterval(function() {
+    //     amount += 0.05;
+    //     c.clearRect(0, 0, canvas.width, canvas.height);
+    //     c.strokeStyle = "black";
+    //     c.moveTo(startX, startY);
+    //     c.lineTo(startX + (endX - startX) * amount, startY + (endY - startY) * amount);
+    //     c.stroke();
+    // }, 30);
+
+    // enlarge in animation
+    // function animate() {
+    //     var c=document.getElementById("myCanvas");
+    //     var ctx=c.getContext("2d");
+    //     ctx.save();
+    //     ctx.clearRect(0, 0, c.width, c.height);
+    //     if(i &gt; 80) {
+    //         i = 1;
+    //     }
+    //     if( i &gt; 40) {
+    //         ctx.beginPath();
+    //         ctx.arc(50, 50, i-40, 0, 2 * Math.PI, true);
+    //         ctx.fillStyle = "#FF0033";
+    //         ctx.fill();
+    //     }
+    //     i++;
+    //     ctx.restore();
+    //     setTimeout(animate, 10);
+    // }
+    // var i = 0;
+    // animate();
+
+    // function DrawSpiral(mod) {
+    //     var c = document.getElementById("myCanvas");
+    //     var cxt = c.getContext("2d");
+    //     var centerX = 150;
+    //     var centerY = 150;
+    //     cxt.save();
+    //     cxt.clearRect(0, 0, c.width, c.height);
+    //     cxt.beginPath();
+    //     cxt.moveTo(centerX, centerY);
+    //     var STEPS_PER_ROTATION = 60;
+    //     var increment = 2 * Math.PI / STEPS_PER_ROTATION;
+    //     var theta = increment;
+    //     while (theta &lt; 40 * Math.PI) {
+    //         var newX = centerX + theta * Math.cos(theta - mod);
+    //         var newY = centerY + theta * Math.sin(theta - mod);
+    //         cxt.lineTo(newX, newY);
+    //         theta = theta + increment;
+    //     }
+    //     cxt.stroke();
+    //     cxt.restore();
+    // }
+    // var counter = 0;
+    // setInterval(function () {
+    //     DrawSpiral(counter);
+    //     counter += 0.075;
+    // }, 10);
+
+    // draw circle
+    // var duration = 700;
+    // var delay = 10;
+    // var stepT = duration/delay; // steps needed
+    // var cT = 0; // step counter
+    // c.fillStyle = 'white'
+    // var end = 58; // endpoint in percent
+    // var int = setInterval(function(){
+    //     c.fillRect(0,0,100,100);
+    //     c.strokeStyle = 'orange';
+    //     c.beginPath();
+    //     c.arc(50, 50, 40, -.5*Math.PI, (-.5*Math.PI + 2*Math.PI / 100 * end * cT / stepT));
+    //     c.lineWidth = 10;
+    //     c.stroke();
+    //     if(++cT&gt;stepT){
+    //         clearInterval(int);
+    //     }
+    // },delay);
+
+    // gravitation and walls
+    // var speed = 10;
+    // var xv = 2;
+    // var yv = 1;
+    // var gravity = 2;
+    // var circlex = 30;
+    // var circley = 30;
+    // var frames = 1000 / 60;
+    // var friction = 0.95;
+    // var circle = {
+    //     draw: function(x, y, r) {
+    //         ctx.beginPath();
+    //         ctx.arc(x, y, r, 0, Math.PI * 2);
+    //         ctx.closePath();
+    //         ctx.fill();
+    //     }
+    // };
+    // setInterval(function() {
+    //     ctx.clearRect(0, 0, 200, 200);
+    //     speed = speed * friction;
+    //     if (speed &lt; 0.01) {
+    //         speed = 0;
+    //     }
+    //     yv += gravity;
+    //     circlex += xv * speed;
+    //     circley += yv * speed;
+    //     if (circley &gt;= 195) {
+    //         circley = 195;
+    //         yv *= -1;
+    //     }
+    //     if (circlex &gt;= 195) {
+    //         xv *= -1;
+    //         circlex = 195;
+    //     }
+    //     if (circlex &lt;= 5) {
+    //         xv *= -1;
+    //         circlex = 5;
+    //     }
+    //     circle.draw(circlex, circley, 10);
+    // }, frames);
+    // *********************************************
+    // var context;
+    // var width = 500, height = 500;
+    // var balls = [
+    //     { x:   0, y:   0, dx: 3, dy: 7, r: 10 },
+    //     { x: 150, y: 250, dx: 7, dy: 3, r: 10 },
+    //     { x: 200, y: 200, dx: 6, dy: 4, r: 10 },
+    //     { x: 250, y: 250, dx: 4, dy: 6, r: 10 }
+    // ];
+    // function init()
+    // {
+    //     var myCanvas = document.getElementById('c');
+    //     context = myCanvas.getContext('2d');
+    //     setInterval(onTick, 10);
+    // }
+    // function onTick()
+    // {
+    //     context.clearRect(0, 0, width, height);
+    //     context.fillStyle = "#0000ff";
+    //     context.beginPath();
+    //     var i;
+    //     for (i = 0; i &lt; balls.length; i++)
+    //     {
+    //         moveBall(balls[i]);
+    //         drawBallPath(balls[i], context);
+    //     }
+    //     context.fill();
+    // }
+    // function drawBallPath(ball, context)
+    // {
+    //     context.moveTo(ball.x + ball.r, ball.y);
+    //     context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2, true);
+    // }
+    // function moveBall(ball)
+    // {
+    //     if (ball.x &lt; 0 || ball.x &gt; width) ball.dx = -ball.dx;
+    //     if (ball.y &lt; 0 || ball.y &gt; height) ball.dy = -ball.dy;
+    //     ball.x += ball.dx;
+    //     ball.y += ball.dy;
+    // }
+    // init();
+    // ****************************************
+    // var x = 300, y = 150;
+    // var dx = 1,  dy = 1;
+    // function init() {
+    // ctx = canvas.getContext('2d');
+    // return setInterval(draw, 10);
+    // }
+    // function draw() {
+    // ctx.clearRect(0,0,300,300);
+    // ctx.beginPath();
+    // ctx.arc(x, y, 20, 0, Math.PI*2, true);
+    // ctx.closePath();
+    // ctx.fill();
+    // x += dx;
+    // y += dy;
+    // if (x &gt; 300 || x &lt; 0) {
+    //      dx *= -1;
+    // }
+    // if (y &gt; 300 || y &lt; 0) {
+    //      dy *= -1;
+    // }
+    // }
+    // init();
+
+
+    // change position to reset/update animation
+
+
+
+
+
+    var canvas = document.getElementById("myCanvas");
+
+
+    var ctx = canvas.getContext("2d"); // getContext() is a built-in HTML object, with properties and methods for drawing
+
+    // can be nested to for saving/restoring earlier states of
+    // translate, rotate, scale, style. opacity, shadow
+    ctx.save(); // save the default state
+    ctx.restore(); // restore to the default state
+
+    ctx.lineWidth = 2; // line width
+    ctx.lineCap = "round"; // end caps for a line - butt|round|square
+    ctx.lineJoin = "butt"; // type of corner created, when two lines meet - butt|round|square
+    ctx.miterLimit=1; // distance between the inner corner and the outer corner where two lines meet
+
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = "black"; // affects clip() !
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+    // if (ctx.isPointInPath(175,360)) { // returns true if the specified point is in the current path
+    // };
+
+    // ctx.mozImageSmoothingEnabled = false;
+    // ctx.webkitImageSmoothingEnabled = false;
+    // ctx.msImageSmoothingEnabled = false;
+    // ctx.imageSmoothingEnabled = false;
+
+
+    // GRADIENT
+    // (x,y,x1,y1) [location of start and end points]
+    var grd_linear = ctx.createLinearGradient(0, 0, 500, 0); // linear gradient
+    grd_linear.addColorStop(0, "#ff0000");
+    grd_linear.addColorStop(0.17, "#ff8000");
+    grd_linear.addColorStop(0.34, "#ffff00");
+    grd_linear.addColorStop(0.51, "#40ff00");
+    grd_linear.addColorStop(0.68, "#00ffff");
+    grd_linear.addColorStop(0.85, "#0000ff");
+    grd_linear.addColorStop(1, "#8000ff");
+    ctx.fillStyle = grd_linear;
+    ctx.fillRect(0, 0, 500, 500);  // fillRect(x,y,width,height)
+
+    // (x,y,r [location and radius of center of start circle] ,x1,y1,r1 [location and radius of center of end circle]
+    var grd_radial = ctx.createRadialGradient(250,250,1,250,250,50); // radial/circular gradient
+    grd_radial.addColorStop(0, "#ff0000");
+    grd_radial.addColorStop(0.17, "#ff8000");
+    grd_radial.addColorStop(0.34, "#ffff00");
+    grd_radial.addColorStop(0.51, "#40ff00");
+    grd_radial.addColorStop(0.68, "#00ffff");
+    grd_radial.addColorStop(0.85, "#0000ff");
+    grd_radial.addColorStop(0.99, "#8000ff");
+    grd_radial.addColorStop(1, "black");
+    ctx.fillStyle = grd_radial;
+    ctx.fillRect(175,175,150,150);
+
+    // useful for movement on canvas
+    // ctx.translate(150, 150); // remaps the (0,0) position on the canvas - new zero of coordinates for drawing functions
+
+
+    // TEXT
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    var txt = "Filled Text, 0.4 Opacity";
+    ctx.fillText(txt, 150, 450);
+    // measure text width
+    console.log([ "Text Measuring:", ctx.measureText(txt.width)]);
+
+    ctx.font = "30px Arial";
+    ctx.strokeStyle = "black"; // grd_radial, grd_linear
+    ctx.textAlign = "center";
+    ctx.strokeText("Stroke Text", canvas.width/2, 480);
+
+
+    // IMAGE
+    ctx.drawImage(document.getElementById("colorpicker"), 390, 430); // draws an image, canvas, or video onto the canvas
+    var video = document.getElementById("video");
+    video.muted= true;
+    function loop() {
+        ctx.drawImage(
+            video,
+            100,
+            100,
+            100,
+            100,
+            300,
+            100,
+            100,
+            100
+        );
+        setTimeout(loop, 1000 / 30); // drawing at 30fps
+    };
+    loop();
+
+    // var video = document.getElementById("video");
+    // video.addEventListener('play', function () {
+    //     var $this = this; //cache
+    //     (function loop() {
+    //         if (!$this.paused && !$this.ended) {
+    //             ctx.drawImage(
+    //                 $this,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100,
+    //                 100
+    //             );
+    //             setTimeout(loop, 1000 / 10); // drawing at 10fps
+    //         }
+    //     })();
+    // }, 0);
+
+
+
+    // var img = new Image();   // Create new img element
+    // img.addEventListener('load', function() {
+    //     // execute drawImage statements here
+    //     ctx.drawImage(img, 0, 0)
+    // }, false);
+    // img.src = document.getElementById("video"); // Set source path
+
+    // position the image on the canvas:
+    // drawImage(img,x,y)
+    // position the image on the canvas, and specify width and height of the image:
+    // drawImage(img,x,y,width,height)
+    // clip the image and position the clipped part on the canvas:
+    // drawImage(
+    //   img,     // image, canvas, or video element to use
+    //   sx,      // Optional. The x coordinate where to start clipping
+    //   sy,      // Optional. The y coordinate where to start clipping
+    //   swidth,  // Optional. The width of the clipped image
+    //   sheight, // Optional. The height of the clipped image
+    //   x,       // x coordinate where to place the image on the canvas
+    //   y,       // y coordinate where to place the image on the canvas
+    //   width,   // Optional. The width of the image to use (stretch or reduce the image)
+    //   height   // Optional. The height of the image to use (stretch or reduce the image)
+    // )
+    // -------------------------------------
+    // var img = new Image();   // Create new img element
+    // img.addEventListener('load', function() {
+    //      // execute drawImage statements here
+    // }, false);
+    // img.src = 'myImage.png'; // Set source path
+
+    // 100*100 pixels ImageData object
+    var imgData=ctx.createImageData(30,30); // new, blank ImageData object
+    for (var i=0;i&lt;imgData.data.length;i+=4) {
+      imgData.data[i+0]=255;
+      imgData.data[i+1]=55;
+      imgData.data[i+2]=255;
+      imgData.data[i+3]=255;
+    }
+    ctx.putImageData(imgData,150,10);
+
+    // get specified zone data from canvas, and paste in other place
+    var imgData = ctx.getImageData(350, 10, 70, 30);
+    ctx.putImageData(imgData, 70, 10);
+
+    console.log([
+      "Image Data Object info :",
+      imgData.width,
+      imgData.height,
+      imgData.data // object that contains image data of a specified ImageData object
+    ]);
+
+
+    // PATTERN
+    var pat = ctx.createPattern(document.getElementById("colorpicker"), "repeat"); // [repeat|repeat-x|repeat-y|no-repeat]
+    ctx.rect(175,350,150,50);
+    ctx.fillStyle = pat;
+    ctx.fill(); // fills the current drawing (path)
+    ctx.fillStyle = "black";
+
+
+    // SCALING, ALPHA
+
+    ctx.globalAlpha = 0.3; // set opacity for future drawings
+
+    ctx.strokeRect(250,5,25,15);
+    ctx.scale(2,2); // scale drawing
+    ctx.strokeRect(130,5,25,15);
+    ctx.scale(0.5,0.5); // scale back
+
+    ctx.globalAlpha = 1; // unset opacity
+
+
+    // LINE
+        // ----- regular method -----
+        // ctx.strokeStyle="black";
+        // ctx.moveTo(10, 30); // starting point of the line
+        // ctx.lineTo(40, 150); // ending point of the line
+        // ctx.lineTo(70, 50); // ending point of the line
+        // ctx.lineTo(100, 120); // ending point of the
+        // ctx.lineTo(130, 90); // ending point of the line
+        // ctx.lineTo(160, 90); // ending point of the line
+        // ctx.stroke(); // draws the path you have defined
+    // ----- chained method -----
+
+
+    Canvas2DContext(canvas)
+        .strokeStyle("black")
+        .moveTo(10, 30) // starting point of the line
+        .lineTo(40, 150) // ending point of the line
+        .lineTo(70, 50) // ending point of the line
+        .lineTo(100, 120) // ending point of the
+        .lineTo(130, 90) // ending point of the line
+        .lineTo(160, 90) // ending point of the line
+        .stroke();
+
+
+
+    // CURVE
+    ctx.setLineDash([3,9]); // set dashes for stroke
+    ctx.beginPath();
+    ctx.moveTo(20,170); // start point of a curve
+    ctx.quadraticCurveTo(
+      25,250, // control point
+      150,170 // end point
+    );
+    ctx.stroke();
+    ctx.setLineDash([]); // unset dashes for stroke
+
+    ctx.beginPath();
+    ctx.moveTo(20, 250); // start point of a curve
+    ctx.bezierCurveTo(
+      20, 300,  // 1 control point
+      170, 300, // 2 control point
+      170, 250  // end point
+    );
+    ctx.stroke();
+
+
+    // CIRCLE/ARC
+        // arc(
+        //   x,
+        //   y,
+        //   r,
+        //   start-angle, [ 0.5*Math.PI = 90, Math.PI = 180, 1.5*Math.PI = 270 ]
+        //   end-angle, [ 2 * Math.PI - for a circle ]
+        //   counterclockwise [false-default, or true for counter-clockwise]
+        // );
+    ctx.strokeStyle="black";
+    ctx.beginPath(); // begins a path, or resets the current path
+    ctx.arc(430, 300, 30, 0, 2 * Math.PI); // creates a circle
+    ctx.stroke();
+    //ctx.fill(); // fill circle with image, pattern, color
+
+    ctx.beginPath();
+    ctx.arc(430, 370, 30, 0, Math.PI); // creates an arc
+    ctx.closePath(); // creates a path from the current point back to the starting point, close arc
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(250, 50, 150, 0.7)";
+    ctx.arc(430, 210, 30, 0, Math.PI * 2, true);
+    ctx.arc(430, 210, 15, 0, Math.PI * 2, true);
+    ctx.fill('evenodd'); // fill rule
+
+    ctx.beginPath();
+    ctx.moveTo(400,20);          // Create a starting point
+    ctx.lineTo(450,20);          // Create a horizontal line
+    ctx.arcTo(
+      470,20, // x,y of 1 tangent
+      470,50, // x,y of 2 tangent
+      20      // radius
+    );
+    ctx.lineTo(470,100);         // Continue with vertical line
+    ctx.stroke();                // Draw it
+
+    // ctx.arc(
+    //   description.x,
+    //   description.y,
+    //   description.r,
+    //   0,
+    //   2 * Math.PI,
+    //   false
+    // );
+    // ctx.fillStyle = description.fill || '#AAAAAA';
+    // ctx.fill();
+    // ctx.lineWidth = 5;
+    // ctx.strokeStyle = '#003300';
+    // ctx.stroke();
+
+
+    // RECTANGLE
+    ctx.fillStyle="black";
+    ctx.fillRect(20,380,100,100); // "filled" rectangle
+
+    ctx.strokeStyle="gray";
+    ctx.strokeRect(50,300,100,100); // rectangle (no fill)
+
+    ctx.clearRect(60,360,50,70); // clears the specified pixels within a given rectangle
+
+    // Clip a rectangular area
+    ctx.save();
+    ctx.rect(200,50,100,100); // rectangle (no fill)
+    ctx.stroke();
+    ctx.clip();
+    // Draw red rectangle after clip()
+    ctx.fillStyle = "red";
+    ctx.fillRect(120,0,150,100);
+    ctx.restore();
+
+    // rectangles grid
+    ctx.translate(400,100);
+    for (var i = 0; i &lt; 6; i++) {
+        for (var j = 0; j &lt; 6; j++) {
+            ctx.fillStyle = 'rgb(' + Math.floor(255 - 42.5 * i) + ', ' +
+            Math.floor(255 - 42.5 * j) + ', 0)';
+            ctx.fillRect(j * 10, i * 10, 10, 10);
+        }
+    }
+    ctx.translate(-400,-100);
+
+
+    // TRANSFORM
+    ctx.save();
+    ctx.translate(400,60);
+    var sin = Math.sin(Math.PI / 6);
+    var cos = Math.cos(Math.PI / 6);
+    var c = 0;
+    for (var i = 0; i &lt;= 12; i++) {
+        c = Math.floor(255 / 12 * i);
+        ctx.fillStyle = 'rgb(' + c + ', ' + c + ', ' + c + ')';
+        ctx.fillRect(0, 0, 30, 3);
+        ctx.transform(cos, sin, -sin, cos, 0, 0);
+    }
+    // ctx.setTransform(-1, 0, 0, 1, 100, 100);
+    // ctx.fillStyle = 'rgba(255, 128, 255, 0.5)';
+    // ctx.fillRect(0, 50, 100, 100);
+    // ctx.translate(-400,-60);
+    ctx.restore();
+
+
+    // Path2D
+        // for series of pathes: cache or record drawing commands
+        // You are able to play back your paths quickly
+
+        // var path1 = new Path2D();
+        // path1.rect(10, 10, 100,100);
+        // var path2 = new Path2D(path1);
+        // path2.moveTo(220, 60);
+        // path2.arc(170, 60, 50, 0, 2 * Math.PI);
+        // ctx.stroke(path2);
+
+        // var p = new Path2D('M10 10 h 80 v 80 h -80 Z');
+        // ctx.fill(p);
+
+
+    var dataURL = canvas.toDataURL('image/jpeg',0.05); // data URI containing a representation of the image
+    document.getElementById("canvas_jpeg").src = dataURL;// insert into page
+  }
+  &lt;/script&gt;
+</code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

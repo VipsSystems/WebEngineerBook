@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Form, HTML5 form attributes tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="html, html5, form, attributes, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Form, HTML5 form attributes tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="standart">Send data to processing script located in network (server)</h2>
+
+<h3 id="standart">Standart</h3>
+
+  <div class="example">
+
+  <form action="/action_page.xyz" target="_blank" method="post">
+
+    <fieldset>
+    <legend>Standart</legend>
+
+    <fieldset>
+    <legend>Personal information:</legend>
+
+      First name:
+      <input type="text" name="firstname" id="firstname"/><br/>
+
+      Last name:
+      <input type="text" name="lastname" id="lastname"/><br/>
+
+      Gender:
+      <input type="radio" name="gender" value="male" checked/>Male
+      <input type="radio" name="gender" value="female"/>Female
+      <input type="radio" name="gender" value="other"/>Other
+
+      <br/>
+      Password:
+      <input type="password" name="psw" pattern="[A-Za-z0-9-]*"/><br/>
+
+      <br/>
+      Avatar:
+      <input type="file" name="avatar"/><br/>
+
+    </fieldset>
+
+    <fieldset>
+      <legend>Interests:</legend>
+
+      Life goals :
+      <input type="checkbox" name="goals" value="family"/>Familly
+      <input type="checkbox" name="goals" value="hobbies"/>Hobbies
+
+      <br/>
+      Cars:
+      <select name="cars">
+        <option value="0" selected="selected">No</option>
+          <optgroup label="Swedish Cars">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+          </optgroup>
+          <optgroup label="German Cars">
+            <option value="mercedes">Mercedes</option>
+            <option value="audi">Audi</option>
+          </optgroup>
+          <optgroup label="Russian Cars" disabled="disabled">
+            <option value="lada">Lada</option>
+            <option value="uaz">Uaz</option>
+          </optgroup>
+      </select>
+      <br/>
+      Sport:<br/>
+      <select name="cars" size="5" multiple="multiple">
+        <option value="0" selected="selected">No</option>
+        <option value="football">Football</option>
+        <option value="gym">Gym</option>
+        <option value="swim">Swimi</option>
+        <option value="walk">Walk</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>About you:</legend>
+      <textarea name="about" rows="5" cols="30">Share something</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Button with a trick !</legend>
+      <button type="button" onclick="alert('Hi '+document.getElementById('firstname').value+' '+document.getElementById('lastname').value)">
+        Say hello to yourself
+      </button>
+    </fieldset>
+
+    <br/>
+    <input type="reset"/>
+    <input type="submit" value="Submit"/>
+
+    </fieldset>
+  </form>
+
+  </div>
+
+  <pre><code class="html">
+  &lt;form action="/action_page.xyz" target="_blank" method="post"&gt;
+
+  &lt;fieldset&gt;
+  &lt;legend&gt;Standart&lt;/legend&gt;
+
+    &lt;fieldset&gt;
+    &lt;legend&gt;Personal information:&lt;/legend&gt;
+      First name: &lt;input type="text" name="firstname" id="firstname"/&gt;
+      Last name: &lt;input type="text" name="lastname" id="lastname"/&gt;
+      Gender:
+      &lt;input type="radio" name="gender" value="male" checked/&gt;Male
+      &lt;input type="radio" name="gender" value="female"/&gt;Female
+      &lt;input type="radio" name="gender" value="other"/&gt;Other
+      Password: &lt;input type="password" name="psw" pattern="[A-Za-z0-9-]*"/&gt;
+      Avatar: &lt;input type="file" name="avatar"/&gt;
+    &lt;/fieldset&gt;
+
+    &lt;fieldset&gt;
+    &lt;legend&gt;Interests:&lt;/legend&gt;
+      Life goals:
+      &lt;input type="checkbox" name="goals" value="family"/&gt;Familly
+      &lt;input type="checkbox" name="goals" value="hobbies"/&gt;Hobbies
+      Cars:
+      &lt;select name="cars"&gt;
+        &lt;option value="0" selected="selected"&gt;No&lt;/option&gt;
+          &lt;optgroup label="Swedish Cars"&gt;
+            &lt;option value="volvo"&gt;Volvo&lt;/option&gt;
+            &lt;option value="saab"&gt;Saab&lt;/option&gt;
+          &lt;/optgroup&gt;
+          &lt;optgroup label="German Cars"&gt;
+            &lt;option value="mercedes"&gt;Mercedes&lt;/option&gt;
+            &lt;option value="audi"&gt;Audi&lt;/option&gt;
+          &lt;/optgroup&gt;
+          &lt;optgroup label="Russian Cars" disabled="disabled"&gt;
+            &lt;option value="lada"&gt;Lada&lt;/option&gt;
+            &lt;option value="uaz"&gt;Uaz&lt;/option&gt;
+          &lt;/optgroup&gt;
+      &lt;/select&gt;
+      Sport:
+      &lt;select name="cars" size="5" multiple="multiple"&gt;
+        &lt;option value="0" selected="selected"&gt;No&lt;/option&gt;
+        &lt;option value="football"&gt;Football&lt;/option&gt;
+        &lt;option value="gym"&gt;Gym&lt;/option&gt;
+        &lt;option value="swim"&gt;Swimi&lt;/option&gt;
+        &lt;option value="walk"&gt;Walk&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/fieldset&gt;
+
+    &lt;fieldset&gt;
+    &lt;legend&gt;About you:&lt;/legend&gt;
+      &lt;textarea name="about" rows="5" cols="30"&gt;Share something&lt;/textarea&gt;
+    &lt;/fieldset&gt;
+
+    &lt;fieldset&gt;
+    &lt;legend&gt;Button with a trick !&lt;/legend&gt;
+      &lt;button
+        type="button"
+        onclick="alert('Hi ' + document.getElementById('firstname').value + ***"
+      &gt;
+        Say hello to yourself
+      &lt;/button&gt;
+    &lt;/fieldset&gt;
+
+    &lt;input type="reset"/&gt;
+    &lt;input type="submit" value="Submit"/&gt;
+
+  &lt;/fieldset&gt;
+  &lt;/form&gt;
+  </code></pre>
+
+
+
+<h3 id="html5">HTML5</h3>
+
+  <div class="example">
+
+    <form
+      action="/action_page.xyz"
+      target="_blank"
+      method="post"
+      oninput="x.value=parseInt(a.value)+parseInt(b.value)"
+    >
+
+      Input with datalist:
+      <input list="browsers">
+      <datalist id="browsers">
+        <option value="Internet Explorer">
+        <option value="Firefox">
+        <option value="Chrome">
+        <option value="Opera">
+        <option value="Safari">
+      </datalist>
+      <br/><br/>
+
+      Color:
+      <input type="color" name="favcolor"/>
+      <br/><br/>
+
+      Date:
+      <input type="date" name="date" min="1986-09-14" max="2018-06-22"/>
+      <br/><br/>
+
+      Time:
+      <input type="time" name="usr_time"/>
+      <br/><br/>
+
+      Email:
+      <input type="email" name="email"/>
+      <br/><br/>
+
+      Number:
+      <input type="number" name="points" min="0" max="100" step="3" value="30"/>
+      <br/><br/>
+
+      Range:
+      <input type="range" name="range" min="0" max="10"/>
+      <br/><br/>
+
+      URL:
+      <input type="url" name="homepage">
+      <br/><br/>
+
+      Output element: <br/>
+      0
+      <input type="range" id="a" name="a" value="50"/>
+      100 +
+      <input type="number" id="b" name="b" value="50"/>
+      =
+      <output name="x" for="a b"/></output>
+      <br/>
+      <br/>
+    <input type="reset"/>
+    <input type="submit" value="Submit"/>
+
+    </form>
+
+  </div>
+
+  <pre><code class="html">
+    &lt;form
+      action="/action_page.xyz"
+      target="_blank"
+      method="post"
+      oninput="x.value=parseInt(a.value)+parseInt(b.value)"
+    &gt;
+
+      Input with datalist:
+      &lt;input list="browsers"&gt;
+      &lt;datalist id="browsers"&gt;
+        &lt;option value="Internet Explorer"&gt;
+        &lt;option value="Firefox"&gt;
+        &lt;option value="Chrome"&gt;
+        &lt;option value="Opera"&gt;
+        &lt;option value="Safari"&gt;
+      &lt;/datalist&gt;
+
+      Color:
+      &lt;input type="color" name="favcolor"/&gt;
+
+      Date:
+      &lt;input type="date" name="date" min="1986-09-14" max="2018-06-22"/&gt;
+
+      Time:
+      &lt;input type="time" name="usr_time"/&gt;
+
+      Email:
+      &lt;input type="email" name="email"/&gt;
+
+      Number:
+      &lt;input type="number" name="points" min="0" max="100" step="3" value="30"/&gt;
+
+      Range:
+      &lt;input type="range" name="range" min="0" max="10"/&gt;
+
+      URL:
+      &lt;input type="url" name="homepage"&gt;
+
+      Output element: &lt;br/&gt;
+      0
+      &lt;input type="range" id="a" name="a" value="50"/&gt;
+      100 +
+      &lt;input type="number" id="b" name="b" value="50"/&gt;
+      =
+      &lt;output name="x" for="a b"/&gt;&lt;/output&gt;
+
+      &lt;input type="reset"/&gt;
+      &lt;input type="submit" value="Submit"/&gt;
+
+    &lt;/form&gt;
+  </code></pre>
+
+
+
+
+
+<h2 id="attr">Attributes</h2>
+
+  <ul>
+
+    <li><code>&lt;form ... novalidate&gt;</code> - to avoid validation by browser of a specific fields</li>
+    <li><code>&lt;form ... autocomplete="on"&gt; ... </code> - autocomplete with previously inserted values, forms inputs</li>
+    <li><code>&lt;input autocomplete="off"&gt; ... </code> - disable some inputs autocompletion</li>
+    <li><code>&lt;input type="image" src="img.gif" alt="Submit" width="48" height="48"&gt;</code> - define an image as the submit button</li>
+
+    <li><strong>Regular</strong>
+    <ul>
+      <li>disabled - field should be disabled</li>
+      <li>readonly - read only (cannot be changed)</li>
+      <li>maxlength - maximum number of characters</li>
+      <li>size - width (in characters)</li>
+      <li>value - default value</li>
+    </ul>
+    </li>
+
+    <li><strong>HTML5</strong>
+    <ul>
+      <li>required - required (must be filled out) <mark>unsupported in IE9 (and earlier), or in Safari</mark></li>
+      <li>min - minimum value <mark>unsupported in IE9 (and earlier), and IE10 for dates and time</mark></li>
+      <li>max - maximum value <mark>unsupported in IE9 (and earlier), and IE10 for dates and time</mark></li>
+      <li>step - legal number intervals <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>pattern[="[A-Za-z]{3}"] - regular expression to check the input value against <mark>unsupported in IE9 (and earlier), or in Safari 10 and earlier</mark></li>
+      <li>placeholder[="First name"] - a hint that describes the expected value <mark>unsupported in IE</mark></li>
+
+      <li>autofocus - field should automatically get focus <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>multiple - user is allowed to enter more than one value in the input element (used with email and file buttons)<mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>form - specifies one or more forms an element belongs to <mark>unsupported in IE</mark></li>
+      <li>formaction[="/action_page2.php"] - overrides the action attribute of the form (used with submit and image buttons) <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>formenctype[="multipart/form-data"] - how the form data should be encoded when submitted (used with submit and image buttons, only for forms with method="post") <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>formmethod[="post"] - overrides the method attribute of the form-element (used with submit and image buttons) <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>formnovalidate - overrides the method attribute of the form-element (used with submit buttons) <mark>unsupported in IE9 (and earlier), or in Safari 10 and earlier</mark></li>
+      <li>formtarget[="_blank"] - overrides the target attribute of the form-element (used with submit and image buttons) <mark>unsupported in IE9 (and earlier)</mark></li>
+      <li>minlength - minimum number of characters</li>
+      <li>autocapitalizealue - capitalization behavior for user input: none, off, characters, words, sentences</li>
+    </ul>
+    </li>
+  </ul>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

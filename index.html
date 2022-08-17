@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Web Engineer Book">
+  <meta name="keywords" content="html, css, js, dom, react, typescript, angular, pwa, php, laravel, composer, api, nodejs, npm, modules, expressjs, nginx, docker, http, server, linux, os, seo, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <link rel="stylesheet" href="js/highlight/styles/default.css">
+  <link rel="stylesheet" href="css/css.css">
+
+  <style>
+    .container {
+      display: flex;
+	    height: 100vh;
+      width: 100%;
+    }
+
+    #buttons {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      position: absolute;
+      z-index: 10;
+      bottom:0;
+      right:0;
+      /* width: 100%; */
+    }
+    #resize_drag, #resize_left, #resize_right, #zoom_in, #zoom_out, #fs {
+      background: black;
+      height: 2rem;
+      width: 2rem;
+      border-radius: 50%;
+      border: .0625rem solid gray;
+      cursor: pointer;
+      margin: .25rem;
+      /* position: absolute;
+      z-index: 10; */
+      /* margin: 1rem; */
+      font-size: 1.5rem;
+      line-height: 1.75rem;
+      user-select: none;
+      color: gray;
+      text-align: center;
+      /* box-shadow: .2rem 0 .5rem dimGray; */
+
+      /* left: 9rem; */
+    }
+    /* #resize_drag {
+      bottom: 2rem;
+    } */
+    #resize_left {
+      bottom: 3rem;
+    }
+    #resize_right {
+      bottom: .5rem;
+    }
+    #zoom_in {
+      bottom: 5.5rem;
+      line-height: 2rem;
+    }
+    #zoom_out {
+      bottom: 8rem;
+    }
+    #fs {
+      line-height: 2rem;
+      bottom: 10.5rem;
+    }
+
+    #menu_list {
+      width:10rem;
+      display:block;
+      position:relative;
+      /* float:left; */
+      border:none;
+      overflow:hidden;
+      overflow-y:auto;
+      height:100vh;
+      margin:0;
+      padding:.5em 0 0 .5rem;
+      background-color:black;
+      color:gray;
+      cursor: pointer;
+      user-select: none;
+      border-right: .0625rem solid gray;
+      box-shadow: .2rem 0 .5rem black;
+    }
+    #menu_target {
+      flex-grow: 1;
+      /* width:84%;
+      display:block;
+      position:relative;
+      float:left; */
+      border:none;
+      height:100vh;
+      margin:0px;
+    }
+
+    #menu_list * {
+        font-size: 1rem;
+        line-height: 1rem;
+    }
+    #menu_list a {
+      color:gray;
+      border: none;
+    }
+    #menu_list a:hover, #menu_list a:active {
+      color:white;
+    }
+    #menu_list ul {
+      float: left;
+      list-style-type: none;
+      padding:0px;
+      margin:0px;
+      padding-left:2rem;
+    }
+    #menu_list ul li, #menu_list ul li a {
+      height: 1.2rem;
+      line-height: 1.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #menu_list summary {
+        height: 1.2rem;
+        line-height: 1.2rem;
+        padding: 0;
+        color:gray;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #menu_list summary details {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+
+  <!-- specifies the base URL and base target for all relative URLs in a page -->
+  <!-- <base href="" target="_blank"> -->
+
+  <title>Web Engineer Book</title>
+
+</head>
+
+<!--
+  \<a href=".+"\>
+  \</a\>
+
+  <li>([A-za-z\(\)]+) -
+  $1
+-->
+
+<body class="container">
+
+  <nav id="menu_list">
+
+    <details><summary>HTML</summary><ul>
+
+      <li><a href="pages/html-tags.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/html-tags.html#head" target="iframe_a">&lt;head&gt;</a></li>
+      <li><a href="pages/html-tags.html#heading" target="iframe_a">Headings</a></li>
+      <li><a href="pages/html-tags.html#paragraph" target="iframe_a">Paragraphs</a></li>
+      <li><a href="pages/html-tags.html#formatting" target="iframe_a">Formatting</a></li>
+      <li><a href="pages/html-tags.html#quot" target="iframe_a">Quotation/Citation</a></li>
+      <li><a href="pages/html-tags.html#comments" target="iframe_a">Comments</a></li>
+      <li><a href="pages/html-tags.html#colors" target="iframe_a">Colors</a></li>
+      <li><a href="pages/html-tags.html#styles" target="iframe_a">Styles (CSS)</a></li>
+      <li><a href="pages/html-tags.html#id_classes" target="iframe_a">id/class attributes</a></li>
+      <li><a href="pages/html-tags.html#links" target="iframe_a">Links</a></li>
+      <li><a href="pages/html-tags.html#images" target="iframe_a">Images</a></li>
+      <li><a href="pages/html-tags.html#tables" target="iframe_a">Tables</a></li>
+      <li><a href="pages/html-tags.html#lists" target="iframe_a">Lists</a></li>
+      <li><a href="pages/html-tags.html#inline_block" target="iframe_a">Block/Inline</a></li>
+      <li><a href="pages/html-tags.html#iframe" target="iframe_a">iframe</a></li>
+      <li><a href="pages/html-tags.html#plugins" target="iframe_a">Plug-ins</a></li>
+      <li><a href="pages/html-tags.html#javascript" target="iframe_a">JavaScript (JS)</a></li>
+      <li><a href="pages/html-tags.html#filepath" target="iframe_a">File path</a></li>
+      <li><a href="pages/html-tags.html#url" target="iframe_a">URL</a></li>
+      <li><a href="pages/html-tags.html#compcode" target="iframe_a">Computer Code</a></li>
+      <li><a href="pages/html-tags.html#entities" target="iframe_a">Entities</a></li>
+      <li><a href="pages/html-tags.html#strict" target="iframe_a">Strict HTML</a></li>
+      <li><a href="pages/html-tags.html#html5_semantics" target="iframe_a">HTML5 tags</a></li>
+
+    </ul></details>
+
+    <details><summary>HTML Form</summary><ul>
+
+      <li><a href="pages/html-form.html#standart" target="iframe_a">Standart</a></li>
+      <li><a href="pages/html-form.html#html5" target="iframe_a">HTML5</a></li>
+      <li><a href="pages/html-form.html#attr" target="iframe_a">Attributes</a></li>
+
+    </ul></details>
+
+    <details><summary>HTML Media</summary><ul>
+
+      <li><a href="pages/html-media.html#vid" target="iframe_a">Video</a></li>
+      <li><a href="pages/html-media.html#aud" target="iframe_a">Audio</a></li>
+      <li><a href="pages/html-media.html#youtube" target="iframe_a">YouTube</a></li>
+      <li><a href="pages/html-media.html#svg" target="iframe_a">SVG</a></li>
+
+    </ul></details>
+
+    <details><summary>HTML Canvas</summary><ul>
+
+      <li><a href="pages/canvas.html" target="iframe_a">Canvas</a></li>
+      <li><a href="pages/canvas-clock.html" target="iframe_a">Clock</a></li>
+      <li><a href="pages/canvas-solar.html" target="iframe_a">Solar System</a></li>
+      <li><a href="pages/canvas-animation.html" target="iframe_a">Animation</a></li>
+      <li><a href="pages/canvas-game-angles.html" target="iframe_a">Angle movement</a></li>
+      <li><a href="pages/canvas-collisions.html" target="iframe_a">Collisions</a></li>
+      <li><a href="pages/canvas-game.html" target="iframe_a">FlappyBird game</a></li>
+      <li><a href="pages/spaceshooter/index.html" target="iframe_a">SpaceShooter game</a></li>
+      <li><a href="pages/spaceshooter-code.html" target="iframe_a">SpaceShooter CODE</a></li>
+
+    </ul></details>
+
+    <details><summary>CSS</summary><ul>
+
+      <li><a href="pages/css.html#general" target="iframe_a">General</a></li>
+      <li><a href="pages/css.html#selectorsref" target="iframe_a">Selectors Ref</a></li>
+      <li><a href="pages/css.html#boxmodel" target="iframe_a">Box Model</a></li>
+      <li><a href="pages/css.html#insert" target="iframe_a">Inserting/Priority</a></li>
+      <li><a href="pages/css.html#specs" target="iframe_a">Specificity</a></li>
+      <li><a href="pages/css.html#units" target="iframe_a">Units</a></li>
+      <li><a href="pages/css.html#centering" target="iframe_a">Centering</a></li>
+      <li><a href="pages/css.html#clearfix" target="iframe_a">Float/Clear/clearfix</a></li>
+      <li><a href="pages/css.html#gradients" target="iframe_a">Gradients</a></li>
+      <li><a href="pages/css.html#webfonts" target="iframe_a">Web Fonts</a></li>
+      <li><a href="pages/css.html#transforms" target="iframe_a">Transforms</a></li>
+      <li><a href="pages/css.html#animations" target="iframe_a">Animations</a></li>
+      <li><a href="pages/css.html#filter" target="iframe_a">filter</a></li>
+      <li><a href="pages/css.html#backdrop-filter" target="iframe_a">backdrop-filter</a></li>
+      <li><a href="pages/css.html#background-clip" target="iframe_a">background-clip</a></li>
+      <li><a href="pages/css.html#obj_fit" target="iframe_a">object-fit</a></li>
+      <li><a href="pages/css.html#aspect-ratio" target="iframe_a">aspect-ratio</a></li>
+      <li><a href="pages/css.html#cols" target="iframe_a">column-style</a></li>
+      <li><a href="pages/css.html#grid" target="iframe_a">Grid</a></li>
+      <li><a href="pages/css.html#flex" target="iframe_a">Flex</a></li>
+
+      <li><a href="pages/css.html#attr" target="iframe_a">attr()</a></li>
+      <li><a href="pages/css.html#vars" target="iframe_a">var()</a></li>
+      <li><a href="pages/css.html#calc" target="iframe_a">calc()</a></li>
+      <li><a href="pages/css.html#mmc" target="iframe_a">min|max|clamp()</a></li>
+
+      <li><a href="pages/css.html#mq" target="iframe_a">Media Queries</a></li>
+      <li><a href="pages/css.html#rwd" target="iframe_a">Responsive</a></li>
+      <li><a href="pages/css.html#alt" target="iframe_a">Altering/switch style</a></li>
+
+      <li><a href="pages/css-flex-site.html" target="iframe_a">RWD Site + Gallery</a></li>
+
+      <li><a href="pages/css-generator.html" target="iframe_a">Styles Generator</a></li>
+
+    </ul></details>
+
+    <details><summary>JavaScript (JS)</summary><ul>
+
+      <li><a href="pages/js.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/js.html#boolean" target="iframe_a">Boolean</a></li>
+      <li><a href="pages/js.html#strings" target="iframe_a">Strings</a></li>
+      <li><a href="pages/js.html#numbers" target="iframe_a">Numbers</a></li>
+      <li><a href="pages/js.html#arrays" target="iframe_a">Arrays</a></li>
+      <li><a href="pages/js.html#dates" target="iframe_a">Date()</a></li>
+      <li><a href="pages/js.html#objects" target="iframe_a">Objects</a></li>
+      <li><a href="pages/js.html#operators" target="iframe_a">Operators</a></li>
+      <li><a href="pages/js.html#math" target="iframe_a">Math.*</a></li>
+      <li><a href="pages/js.html#conditions" target="iframe_a">Conditions</a></li>
+      <li><a href="pages/js.html#lbc" target="iframe_a">Loop</a></li>
+      <li><a href="pages/js.html#functions" target="iframe_a">Functions</a></li>
+      <li><a href="pages/js.html#destruct" target="iframe_a">Destructuring</a></li>
+      <li><a href="pages/js.html#spread" target="iframe_a">Spread</a></li>
+      <li><a href="pages/js.html#classes" target="iframe_a">Classes</a></li>
+      <li><a href="pages/js.html#symbol" target="iframe_a">Symbol</a></li>
+      <li><a href="pages/js.html#tc" target="iframe_a">Type Conversion</a></li>
+      <li><a href="pages/js.html#bo" target="iframe_a">Bitwise Operations</a></li>
+      <li><a href="pages/js.html#regex" target="iframe_a">regexp/g</a></li>
+      <li><a href="pages/js.html#trycatch" target="iframe_a">try{}catch(){}</a></li>
+      <li><a href="pages/js.html#strict" target="iframe_a">"use strict";</a></li>
+      <li><a href="pages/js.html#this" target="iframe_a">this,super()</a></li>
+      <li><a href="pages/js.html#scope" target="iframe_a">Scope,var,let,const</a></li>
+      <li><a href="pages/js.html#json" target="iframe_a">JSON</a></li>
+      <li><a href="pages/js.html#proxy" target="iframe_a">Proxy</a></li>
+      <li><a href="pages/js.html#reflect" target="iframe_a">Reflect</a></li>
+      <li><a href="pages/js.html#mapset" target="iframe_a">Map, Set</a></li>
+      <li><a href="pages/js.html#promise" target="iframe_a">Promise</a></li>
+      <li><a href="pages/js.html#async" target="iframe_a">async/await</a></li>
+      <li><a href="pages/js.html#iter" target="iframe_a">Iterator/Generator</a></li>
+      <li><a href="pages/js.html#atomics" target="iframe_a">Atomics</a></li>
+      <li><a href="pages/js.html#modules" target="iframe_a">Modules</a></li>
+      <li><a href="pages/js.html#mmt" target="iframe_a">Micro/MacroTask</a></li>
+      <li><a href="pages/js.html#rw" target="iframe_a">Reserved words</a></li>
+      <li><a href="pages/js.html#debug" target="iframe_a">Debugging</a></li>
+      <li><a href="pages/js.html#optim" target="iframe_a">Optimization</a></li>
+      <li><a href="pages/js.html#tricks" target="iframe_a">Tricks</a></li>
+
+    </ul></details>
+
+    <details><summary>JS Request/Files</summary><ul>
+
+      <li><a href="pages/js-files.html#ajax" target="iframe_a">AJAX</a></li>
+      <li><a href="pages/js-files.html#ajax_xml" target="iframe_a">AJAX+XML</a></li>
+      <li><a href="pages/js-files.html#forms" target="iframe_a">Forms</a></li>
+      <li><a href="pages/js-files.html#ajax_forms" target="iframe_a">AJAX+Forms</a></li>
+      <li><a href="pages/js-files.html#formdata" target="iframe_a">FormData</a></li>
+      <li><a href="pages/js-files.html#ajax_formdata" target="iframe_a">AJAX+FormData</a></li>
+      <li><a href="pages/js-files.html#fetch" target="iframe_a">Fetch</a></li>
+      <li><a href="pages/js-files.html#url" target="iframe_a">URL interface</a></li>
+      <li><a href="pages/js-files.html#filereader" target="iframe_a">FileReader</a></li>
+      <li><a href="pages/js-files.html#filestricks" target="iframe_a">Files tricks</a></li>
+
+    </ul></details>
+
+    <details><summary>JS API</summary><ul>
+
+      <li><a href="pages/js-api.html#storage" target="iframe_a">Storage</a></li>
+      <li><a href="pages/js-api.html#indexdb" target="iframe_a">IndexedDB</a></li>
+      <li><a href="pages/js-api.html#workers" target="iframe_a">Workers</a></li>
+      <li><a href="pages/js-api.html#servicew" target="iframe_a">ServiceWorker(APIs)</a></li>
+      <li><a href="pages/js-api.html#streams" target="iframe_a">Streams</a></li>
+      <li><a href="pages/js-api.html#pwa" target="iframe_a">PWA</a></li>
+      <li><a href="pages/js-api.html#po" target="iframe_a">Page Observers</a></li>
+      <li><a href="pages/js-api.html#mutations" target="iframe_a">MutationObserver</a></li>
+      <li><a href="pages/js-api.html#resize" target="iframe_a">ResizeObserver</a></li>
+      <li><a href="pages/js-api.html#om" target="iframe_a">Orientation/Motion</a></li>
+      <li><a href="pages/js-api.html#battery" target="iframe_a">Battery</a></li>
+      <li><a href="pages/js-api.html#bluetooth " target="iframe_a">Bluetooth</a></li>
+      <li><a href="pages/js-api.html#usb " target="iframe_a">USB</a></li>
+      <li><a href="pages/js-api.html#media" target="iframe_a">Media</a></li>
+      <li><a href="pages/js-api.html#animations" target="iframe_a">Animations</a></li>
+      <li><a href="pages/js-api.html#dnd" target="iframe_a">Drag and Drop</a></li>
+      <li><a href="pages/js-api.html#pl" target="iframe_a">Pointer Lock</a></li>
+      <li><a href="pages/js-api.html#sse" target="iframe_a">Server-Sent Events</a></li>
+      <li><a href="pages/js-api.html#webrtc" target="iframe_a">WebRTC</a></li>
+      <li><a href="pages/js-api.html#crypto" target="iframe_a">Crypto</a></li>
+      <li><a href="pages/js-api.html#performance" target="iframe_a">Performance</a></li>
+
+    </ul></details>
+
+    <details><summary>JS & DOM</summary><ul>
+
+      <li><a href="pages/html-dom-js.html#nodes" target="iframe_a">DOM Nodes</a></li>
+      <li><a href="pages/html-dom-js.html#document" target="iframe_a">document.*</a></li>
+      <li><a href="pages/html-dom-js.html#element" target="iframe_a">Element</a></li>
+      <li><a href="pages/html-dom-js.html#e_info" target="iframe_a">- INFO</a></li>
+      <li><a href="pages/html-dom-js.html#e_attr" target="iframe_a">- ATTRIBUTES</a></li>
+      <li><a href="pages/html-dom-js.html#e_find" target="iframe_a">- FIND</a></li>
+      <li><a href="pages/html-dom-js.html#e_style" target="iframe_a">- STYLE</a></li>
+      <li><a href="pages/html-dom-js.html#e_check" target="iframe_a">- Check/Parent/Child</a></li>
+      <li><a href="pages/html-dom-js.html#e_event" target="iframe_a">- EVENT</a></li>
+      <li><a href="pages/html-dom-js.html#e_scroll" target="iframe_a">- SCROLL</a></li>
+      <li><a href="pages/html-dom-js.html#collection" target="iframe_a">HTMLCollection</a></li>
+      <li><a href="pages/html-dom-js.html#event" target="iframe_a">Event Object</a></li>
+      <li><a href="pages/html-dom-js.html#ui" target="iframe_a">- UiEvent</a></li>
+      <li><a href="pages/html-dom-js.html#keyboard" target="iframe_a">- KeyboardEvent</a></li>
+      <li><a href="pages/html-dom-js.html#mouse" target="iframe_a">- MouseEvent</a></li>
+      <li><a href="pages/html-dom-js.html#wheel" target="iframe_a">- WheelEvent</a></li>
+      <li><a href="pages/html-dom-js.html#touch" target="iframe_a">- TouchEvent</a></li>
+      <li><a href="pages/html-dom-js.html#pointer" target="iframe_a">- PointerEvent</a></li>
+      <li><a href="pages/html-dom-js.html#input" target="iframe_a">- InputEvent</a></li>
+      <li><a href="pages/html-dom-js.html#focus" target="iframe_a">- FocusEvent</a></li>
+      <li><a href="pages/html-dom-js.html#clipboard" target="iframe_a">- ClipboardEvent</a></li>
+      <li><a href="pages/html-dom-js.html#drag" target="iframe_a">- DragEvent</a></li>
+      <li><a href="pages/html-dom-js.html#progress" target="iframe_a">- ProgressEvent</a></li>
+      <li><a href="pages/html-dom-js.html#transition" target="iframe_a">- TransitionEvent</a></li>
+      <li><a href="pages/html-dom-js.html#animation" target="iframe_a">- AnimationEvent</a></li>
+      <li><a href="pages/html-dom-js.html#hash" target="iframe_a">- HashChangeEvent</a></li>
+      <li><a href="pages/html-dom-js.html#pagetransition" target="iframe_a">- PageTransitionEvent</a></li>
+      <li><a href="pages/html-dom-js.html#pop" target="iframe_a">- PopStateEvent</a></li>
+      <li><a href="pages/html-dom-js.html#storage" target="iframe_a">- StorageEvent</a></li>
+      <li><a href="pages/html-dom-js.html#custom" target="iframe_a">Custom events</a></li>
+      <li><a href="pages/html-dom-js.html#sel" target="iframe_a">Selection/Range</a></li>
+      <li><a href="pages/html-dom-js.html#debth" target="iframe_a">Debounce/Throttle</a></li>
+      <li><a href="pages/html-dom-js.html#webc" target="iframe_a">Web Components</a></li>
+
+    </ul></details>
+
+    <details><summary>JS Browser</summary><ul>
+
+      <li><a href="pages/js-browser.html#window" target="iframe_a">window.*</a></li>
+      <li><a href="pages/js-browser.html#screen" target="iframe_a">screen.*</a></li>
+      <li><a href="pages/js-browser.html#location" target="iframe_a">location.*</a></li>
+      <li><a href="pages/js-browser.html#history" target="iframe_a">history.*</a></li>
+      <li><a href="pages/js-browser.html#navigator" target="iframe_a">navigator.*</a></li>
+      <li><a href="pages/js-browser.html#geolocation" target="iframe_a">Geolocation</a></li>
+      <li><a href="pages/js-browser.html#alert" target="iframe_a">Alert/Confirm/Prompt</a></li>
+      <li><a href="pages/js-browser.html#timing" target="iframe_a">Timing</a></li>
+      <li><a href="pages/js-browser.html#cookie" target="iframe_a">Cookie</a></li>
+
+    </ul></details>
+
+    <details><summary>TypeScript 4.6</summary><ul>
+
+      <li><a href="pages/typescript.html#initial" target="iframe_a">Initial</a></li>
+      <li><a href="pages/typescript.html#basic" target="iframe_a">Basic Types</a></li>
+      <li><a href="pages/typescript.html#vars" target="iframe_a">Variables</a></li>
+      <li><a href="pages/typescript.html#interface" target="iframe_a">Interface</a></li>
+      <li><a href="pages/typescript.html#classes" target="iframe_a">Classes</a></li>
+      <li><a href="pages/typescript.html#functions" target="iframe_a">Functions</a></li>
+      <li><a href="pages/typescript.html#generics" target="iframe_a">Generics</a></li>
+      <li><a href="pages/typescript.html#enums" target="iframe_a">Enums</a></li>
+      <li><a href="pages/typescript.html#itgen" target="iframe_a">Iterators, Generators</a></li>
+      <li><a href="pages/typescript.html#inference" target="iframe_a">Type Inference</a></li>
+      <li><a href="pages/typescript.html#compat" target="iframe_a">Type Compatibility</a></li>
+      <li><a href="pages/typescript.html#mixunion" target="iframe_a">Mixins, Union</a></li>
+      <li><a href="pages/typescript.html#tguards" target="iframe_a">Type Guards</a></li>
+      <li><a href="pages/typescript.html#nullundefined" target="iframe_a">null, undefined</a></li>
+      <li><a href="pages/typescript.html#aliases" target="iframe_a">Aliases</a></li>
+      <li><a href="pages/typescript.html#literalt" target="iframe_a">Template|Literal Types</a></li>
+      <li><a href="pages/typescript.html#indext" target="iframe_a">Index Types</a></li>
+      <li><a href="pages/typescript.html#mappedt" target="iframe_a">Mapped Types</a></li>
+      <li><a href="pages/typescript.html#condt" target="iframe_a">Conditional Types</a></li>
+      <li><a href="pages/typescript.html#util" target="iframe_a">Utility Types</a></li>
+      <li><a href="pages/typescript.html#polythis" target="iframe_a">Polymorphic "this"</a></li>
+      <li><a href="pages/typescript.html#globalthis" target="iframe_a">globalThis</a></li>
+      <li><a href="pages/typescript.html#mns" target="iframe_a">Modules/Namespaces</a></li>
+      <li><a href="pages/typescript.html#modres" target="iframe_a">Module Resolution</a></li>
+      <li><a href="pages/typescript.html#dm" target="iframe_a">Declaration Merging</a></li>
+      <li><a href="pages/typescript.html#jsx" target="iframe_a">JSX</a></li>
+      <li><a href="pages/typescript.html#decorators" target="iframe_a">@decorators</a></li>
+      <li><a href="pages/typescript.html#mixins" target="iframe_a">Mixins</a></li>
+      <li><a href="pages/typescript.html#tslash" target="iframe_a">/// &lt;directive /&gt;</a></li>
+
+      <li><a href="pages/typescript-extra.html#tcjs" target="iframe_a">Typecheck/Compile JS</a></li>
+      <li><a href="pages/typescript-extra.html#jsdoc" target="iframe_a">Supported JSDoc</a></li>
+      <li><a href="pages/typescript-extra.html#df" target="iframe_a">Declaration File</a></li>
+      <li><a href="pages/typescript-extra.html#tsconfig" target="iframe_a">tsconfig.json</a></li>
+      <li><a href="pages/typescript-extra.html#options" target="iframe_a">Compiller Options</a></li>
+      <li><a href="pages/typescript-extra.html#refs" target="iframe_a">Project References</a></li>
+      <li><a href="pages/typescript-extra.html#browserify" target="iframe_a">+ Browserify</a></li>
+      <li><a href="pages/typescript-extra.html#grunt" target="iframe_a">+ Grunt</a></li>
+      <li><a href="pages/typescript-extra.html#gulp" target="iframe_a">+ Gulp</a></li>
+      <li><a href="pages/typescript-extra.html#webpack" target="iframe_a">+ Webpack</a></li>
+      <li><a href="pages/typescript-extra.html#gulpproj" target="iframe_a">Gulp project</a></li>
+      <li><a href="pages/https://github.com/Microsoft/TypeScriptSamples" target="_blank">TS Samples</a></li>
+
+    </ul></details>
+
+    <details><summary>Angular 14.0</summary><ul>
+
+      <li><a href="pages/angular-cli.html#cli" target="iframe_a">CLI</a></li>
+      <li><a href="pages/angular.html#arch" target="iframe_a">Architecture</a></li>
+      <li><a href="pages/angular.html#ngmodule" target="iframe_a">NgModule</a></li>
+      <li><a href="pages/angular.html#componentdirs" target="iframe_a">Component/Directives</a></li>
+      <li><a href="pages/angular.html#inter" target="iframe_a">Interaction</a></li>
+      <li><a href="pages/angular.html#template" target="iframe_a">Template</a></li>
+      <li><a href="pages/angular.html#pipes" target="iframe_a">Pipes</a></li>
+      <li><a href="pages/angular.html#dis" target="iframe_a">DI and services</a></li>
+      <li><a href="pages/angular.html#forms" target="iframe_a">Forms</a></li>
+      <li><a href="pages/angular.html#observables" target="iframe_a">Observables</a></li>
+      <li><a href="pages/angular.html#http" target="iframe_a">Http/requests</a></li>
+      <li><a href="pages/angular.html#routing" target="iframe_a">Routing</a></li>
+      <li><a href="pages/angular.html#animations" target="iframe_a">Animations</a></li>
+      <li><a href="pages/angular-extra.html" target="iframe_a">Security</a></li>
+      <li><a href="pages/angular-extra.html#i18n" target="iframe_a">i18n</a></li>
+      <li><a href="pages/angular-extra.html#sw" target="iframe_a">ServiceWorker</a></li>
+      <li><a href="pages/angular-extra.html#ssr" target="iframe_a">SSR</a></li>
+      <li><a href="pages/angular-extra.html#libs" target="iframe_a">Libraries</a></li>
+      <li><a href="pages/angular-extra.html#wp" target="iframe_a">Workspace/Project</a></li>
+      <li><a href="pages/angular-extra.html#npm" target="iframe_a">npm/packages</a></li>
+      <li><a href="pages/angular-extra.html#compilation" target="iframe_a">Compilation</a></li>
+      <li><a href="pages/angular-extra.html#bs" target="iframe_a">build/serve</a></li>
+      <li><a href="pages/angular-extra.html#testing" target="iframe_a">Testing</a></li>
+      <li><a href="pages/angular-extra.html#deploy" target="iframe_a">Deployment</a></li>
+      <li><a href="pages/angular-extra.html#rxjs" target="iframe_a">RxJS 7.2</a></li>
+      <li><a href="pages/angular-extra.html#tools" target="iframe_a">TOOLS</a></li>
+
+      <li><a href="pages/angular-app/index.html" target="iframe_a">TOUR app (v.8)</a></li>
+      <li><a href="pages/angular-app-files.html" target="iframe_a">TOUR app files</a></li>
+      <li><a href="pages/angular-realworld.html" target="iframe_a">RealWorld app files</a></li>
+
+    </ul></details>
+
+    <details><summary>React 18.1</summary><ul>
+
+      <li><a href="pages/react.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/react.html#jsx" target="iframe_a">JSX</a></li>
+      <li><a href="pages/react.html#elements" target="iframe_a">Elements</li>
+      <li><a href="pages/react.html#comprops" target="iframe_a">Component</a></li>
+      <li><a href="pages/react.html#lifecycle" target="iframe_a">Lifecycle</a></li>
+      <li><a href="pages/react.html#events" target="iframe_a">Events/this</a></li>
+      <li><a href="pages/react.html#cond" target="iframe_a">Conditional</a></li>
+      <li><a href="pages/react.html#lk" target="iframe_a">Lists/Keys</a></li>
+      <li><a href="pages/react.html#forms" target="iframe_a">Forms</a></li>
+      <li><a href="pages/react.html#ls" target="iframe_a">Lifting State</a></li>
+      <li><a href="pages/react.html#comp" target="iframe_a">Composition</a></li>
+      <li><a href="pages/react.html#context" target="iframe_a">Context</a></li>
+      <li><a href="pages/react.html#err" target="iframe_a">Error Boundaries</a></li>
+      <li><a href="pages/react.html#ref" target="iframe_a">Ref</a></li>
+      <li><a href="pages/react.html#fragments" target="iframe_a">Fragments</a></li>
+      <li><a href="pages/react.html#hoc" target="iframe_a">HOC</a></li>
+      <li><a href="pages/react.html#portals" target="iframe_a">Portals</a></li>
+      <li><a href="pages/react.html#renderprop" target="iframe_a">Render Props</a></li>
+      <li><a href="pages/react.html#hooks" target="iframe_a">Hooks</a></li>
+      <li><a href="pages/react.html#ajax" target="iframe_a">AJAX</a></li>
+
+      <li><a href="pages/react-extra.html#tc" target="iframe_a">Type Checking</a></li>
+      <li><a href="pages/react-extra.html#sm" target="iframe_a">Strict Mode</a></li>
+      <li><a href="pages/react-extra.html#lazy" target="iframe_a">Lazy/Suspense</a></li>
+      <li><a href="pages/react-extra.html#stylecss" target="iframe_a">Styling/CSS</a></li>
+      <li><a href="pages/react-extra.html#no_es6" target="iframe_a">without ES6/JSX</a></li>
+      <li><a href="pages/react-extra.html#reactdomclient" target="iframe_a">ReactDOMClient</a></li>
+      <li><a href="pages/react-extra.html#reactdomserver" target="iframe_a">ReactDOMServer</a></li>
+      <li><a href="pages/react-extra.html#reacttest" target="iframe_a">ReactTest</a></li>
+      <li><a href="pages/react-extra.html#proj" target="iframe_a">Project Structure</a></li>
+      <li><a href="pages/react-extra.html#tools" target="iframe_a">TOOLS</a></li>
+      <li><a href="pages/react-extra.html#cra" target="iframe_a">create-react-app 4.0.3</a></li>
+
+      <li><a href="pages/react-extra.html#webc" target="iframe_a">+ WebComponents</a></li>
+      <li><a href="pages/react-extra.html#integration" target="iframe_a">+ Other Libs</a></li>
+      <li><a href="pages/react-extra.html#adv" target="iframe_a">Advices</a></li>
+      <li><a href="pages/react-extra.html#optimizing" target="iframe_a">Optimizing</a></li>
+      <li><a href="pages/react-realworld.html" target="iframe_a">Realworld React+TS</a></li>
+
+    </ul></details>
+
+    <details><summary>NodeJS</summary><ul>
+
+      <li><a href="pages/nodejs.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/nodejs.html#globals" target="iframe_a">Globals</a></li>
+      <li><a href="pages/nodejs.html#module" target="iframe_a">Modules</a></li>
+      <li><a href="pages/nodejs.html#modules" target="iframe_a">Built-in</a></li>
+      <li><a href="pages/nodejs.html#streams" target="iframe_a">Streams</a></li>
+      <li><a href="pages/nodejs.html#err" target="iframe_a">Errors</a></li>
+      <li><a href="pages/nodejs.html#cl" target="iframe_a">CL options</a></li>
+      <li><a href="pages/nodejs.html#formidable" target="iframe_a">Formidable</a></li>
+      <li><a href="pages/nodejs.html#nodemailer" target="iframe_a">Nodemailer</a></li>
+      <li><a href="pages/nodejs.html#mysql" target="iframe_a">MySQL</a></li>
+      <li><a href="pages/nodejs.html#mongo" target="iframe_a">MongoDB</a></li>
+      <li><a href="pages/nodejs.html#redis" target="iframe_a">Redis/Cache</a></li>
+      <li><a href="pages/nodejs.html#pi" target="iframe_a">Raspberry PI</a></li>
+      <li><a href="pages/nodejs.html#practices" target="iframe_a">Practices</a></li>
+      <li><a href="pages/nodejs.html#tools" target="iframe_a">Tools</a></li>
+
+    </ul></details>
+
+    <details><summary>ExpressJS 4.18</summary><ul>
+
+      <li><a href="pages/expressjs.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/expressjs.html#generator" target="iframe_a">Generator</a></li>
+      <li><a href="pages/expressjs.html#routing" target="iframe_a">Routing</a></li>
+      <li><a href="pages/expressjs.html#middleware" target="iframe_a">Middleware</a></li>
+      <li><a href="pages/expressjs.html#template" target="iframe_a">Template engines</a></li>
+      <li><a href="pages/expressjs.html#db" target="iframe_a">Database integration</a></li>
+      <li><a href="pages/expressjs.html#static" target="iframe_a">Static Files</a></li>
+      <li><a href="pages/expressjs.html#err" target="iframe_a">Error Handling</a></li>
+      <li><a href="pages/expressjs.html#debug" target="iframe_a">Debug</a></li>
+      <li><a href="pages/expressjs.html#pm" target="iframe_a">Process managers</a></li>
+      <li><a href="pages/expressjs.html#api" target="iframe_a">API</a></li>
+      <li><a href="pages/expressjs.html#sec" target="iframe_a">Security</a></li>
+      <li><a href="pages/expressjs.html#performance" target="iframe_a">Performance</a></li>
+      <li><a href="pages/expressjs.html#hs" target="iframe_a">Health/Shutdown</a></li>
+      <li><a href="pages/expressjs.html#tools" target="iframe_a">Tools/Utility</a></li>
+      <li><a href="pages/expressjs.html#async" target="iframe_a">async</a></li>
+      <li><a href="pages/expressjs.html#microservice" target="iframe_a">Microservice</a></li>
+      <li><a href="pages/expressjs-examples.html" target="iframe_a">Examples</a></li>
+
+      <li><a href="pages/expressjs-realworld-1.html" target="iframe_a">ExpressJS APP 1</a></li>
+      <li><a href="pages/expressjs-realworld-2.html" target="iframe_a">ExpressJS APP 2</a></li>
+
+    </ul></details>
+
+    <details><summary>NPM</summary><ul>
+
+      <li><a href="pages/npm.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/npm.html#serve" target="iframe_a">serve</a></li>
+      <li><a href="pages/npm.html#httpserver" target="iframe_a">http-server</a></li>
+
+    </ul></details>
+
+    <details><summary><a href="pages/composer.html" target="iframe_a">Composer</a></summary></details>
+
+    <details><summary>Lumen/Laravel 9</summary><ul>
+
+      <li><a href="pages/lumen.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/lumen.html#conf" target="iframe_a">Configuration</a></li>
+      <li><a href="pages/lumen.html#route" target="iframe_a">Routing</a></li>
+      <li><a href="pages/lumen.html#middleware" target="iframe_a">Middleware</a></li>
+      <li><a href="pages/lumen.html#controllers" target="iframe_a">Controllers</a></li>
+      <li><a href="pages/lumen.html#request" target="iframe_a">Requests</a></li>
+      <li><a href="pages/lumen.html#response" target="iframe_a">Response</a></li>
+      <li><a href="pages/lumen.html#authentication" target="iframe_a">Authentication</a></li>
+      <li><a href="pages/lumen.html#authorization" target="iframe_a">Authorization</a></li>
+      <li><a href="pages/lumen.html#cache" target="iframe_a">Cache</a></li>
+      <li><a href="pages/lumen.html#db" target="iframe_a">Database</a></li>
+      <li><a href="pages/lumen.html#qb" target="iframe_a">Query Builder</a></li>
+      <li><a href="pages/lumen.html#pagination" target="iframe_a">Pagination</a></li>
+      <li><a href="pages/lumen.html#migrations" target="iframe_a">Migrations</a></li>
+      <li><a href="pages/lumen.html#seed" target="iframe_a">Database Seeding</a></li>
+      <li><a href="pages/lumen.html#redis" target="iframe_a">Redis</a></li>
+      <li><a href="pages/lumen.html#eloquent" target="iframe_a">Eloquent</a></li>
+      <li><a href="pages/lumen.html#collections" target="iframe_a">Collections</a></li>
+      <li><a href="pages/lumen.html#encryption" target="iframe_a">Encryption</a></li>
+      <li><a href="pages/lumen.html#err" target="iframe_a">Error Handling</a></li>
+      <li><a href="pages/lumen.html#log" target="iframe_a">Logging</a></li>
+      <li><a href="pages/lumen.html#events" target="iframe_a">Events</a></li>
+      <li><a href="pages/lumen.html#mail" target="iframe_a">Mail</a></li>
+      <li><a href="pages/lumen.html#queues" target="iframe_a">Queues</a></li>
+      <li><a href="pages/lumen.html#sc" target="iframe_a">Container/Provider</a></li>
+      <li><a href="pages/lumen.html#test" target="iframe_a">Testing</a></li>
+      <li><a href="pages/lumen.html#validation" target="iframe_a">Validation</a></li>
+      <li><a href="pages/lumen.html#views" target="iframe_a">Views</a></li>
+      <li><a href="pages/lumen.html#url" target="iframe_a">URL Generation</a></li>
+      <li><a href="pages/lumen.html#perf" target="iframe_a">Performance</a></li>
+      <li><a href="pages/lumen.html#tools" target="iframe_a">TOOLS</a></li>
+      <li><a href="pages/lumen.html#php" target="iframe_a">PHP</a></li>
+      <li><a href="pages/lumen-realworld.html" target="iframe_a">Lumen APP (v.5.8)</a></li>
+      <li><a href="pages/laravel-realworld-1.html" target="iframe_a">Laravel APP 1</a></li>
+      <li><a href="pages/laravel-realworld-2.html" target="iframe_a">Laravel APP 2</a></li>
+
+    </ul></details>
+
+    <details><summary><a href="pages/git.html" target="iframe_a">Git</a></summary></details>
+
+    <details><summary>NGINX</summary><ul>
+
+      <li><a href="pages/nginx.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/nginx.html#example_1" target="iframe_a">Full example 1</a></li>
+      <li><a href="pages/nginx.html#example_2" target="iframe_a">Full example 2</a></li>
+      <li><a href="pages/nginx.html#rp" target="iframe_a">Reverse Proxy</a></li>
+      <li><a href="pages/nginx.html#lb" target="iframe_a">Load Balancing</a></li>
+      <li><a href="pages/nginx.html#php" target="iframe_a">PHP FastCGI</a></li>
+      <li><a href="pages/nginx.html#recomp" target="iframe_a">Recompile</a></li>
+
+    </ul></details>
+
+    <details><summary>HTTP</summary><ul>
+
+      <li><a href="pages/http.html#sm" target="iframe_a">Status Messages</a></li>
+      <li><a href="pages/http.html#rm" target="iframe_a">Request Methods</a></li>
+
+    </ul></details>
+
+    <details><summary>Security</summary><ul>
+
+      <li><a href="pages/security.html#pr" target="iframe_a">Principles</a></li>
+      <li><a href="pages/security.html#csp" target="iframe_a">XSS (csp)</a></li>
+      <li><a href="pages/security.html#csrf" target="iframe_a">CSRF or XSRF</a></li>
+      <li><a href="pages/security.html#xssi" target="iframe_a">XSSI</a></li>
+      <li><a href="pages/security.html#2fa" target="iframe_a">2FA</a></li>
+      <li><a href="pages/security.html#jwt" target="iframe_a">JWT</a></li>
+      <li><a href="pages/security.html#gspr" target="iframe_a">GDPR</a></li>
+
+    </ul></details>
+
+    <details><summary>Programming</summary><ul>
+
+      <li><a href="pages/pro.html#build" target="iframe_a">Build</a></li>
+      <li><a href="pages/pro.html#patterns" target="iframe_a">Patterns</a></li>
+      <li><a href="pages/pro.html#principles" target="iframe_a">Principles</a></li>
+      <li><a href="pages/pro.html#solid" target="iframe_a">S.O.L.I.D.</a></li>
+      <li><a href="pages/pro.html#osi" target="iframe_a">OSI layers</a></li>
+      <li><a href="pages/pro.html#trends" target="iframe_a">Trends</a></li>
+
+    </ul></details>
+
+    <details><summary><a href="pages/seo.html" target="iframe_a">SEO</a></summary></details>
+
+    <details><summary>Linux</summary><ul>
+
+      <li><a href="pages/linux.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/linux.html#system" target="iframe_a">System</a></li>
+      <li><a href="pages/linux.html#hardware" target="iframe_a">Hardware</a></li>
+      <li><a href="pages/linux.html#performance" target="iframe_a">Performance</a></li>
+      <li><a href="pages/linux.html#user" target="iframe_a">User</a></li>
+      <li><a href="pages/linux.html#process" target="iframe_a">Process</a></li>
+      <li><a href="pages/linux.html#networking" target="iframe_a">Networking</a></li>
+      <li><a href="pages/linux.html#fd" target="iframe_a">File/Directory</a></li>
+      <li><a href="pages/linux.html#permissions" target="iframe_a">Permissions</a></li>
+      <li><a href="pages/linux.html#search" target="iframe_a">Search</a></li>
+      <li><a href="pages/linux.html#archives" target="iframe_a">Archives</a></li>
+      <li><a href="pages/linux.html#instpack" target="iframe_a">Install/Remove</a></li>
+      <li><a href="pages/linux.html#apt" target="iframe_a">apt (Debian)</a></li>
+      <li><a href="pages/linux.html#yum" target="iframe_a">yum (CentOS)</a></li>
+      <li><a href="pages/linux.html#sshlogins" target="iframe_a">SSH Logins</a></li>
+      <li><a href="pages/linux.html#filetransfers" target="iframe_a">File Transfers</a></li>
+      <li><a href="pages/linux.html#ftp" target="iframe_a">FTP</a></li>
+      <li><a href="pages/linux.html#diskusage" target="iframe_a">Disk</a></li>
+      <li><a href="pages/linux.html#cron" target="iframe_a">cron/anacron/at</a></li>
+      <li><a href="pages/linux.html#docker" target="iframe_a">Docker</a></li>
+      <li><a href="pages/linux.html#soft" target="iframe_a">Soft</a></li>
+      <li><a href="pages/linux.html#lemp" target="iframe_a">LEMP</a></li>
+
+    </ul></details>
+
+  </nav>
+
+  <!-- <div id="resize_drag">&#x21FF;</div> -->
+  <div id="buttons">
+    <div id="resize_left">&larr;</div>
+    <div id="resize_right">&rarr;</div>
+    <div id="fs">&#9974;</div>
+    <div id="zoom_out">-</div>
+    <div id="zoom_in">+</div>
+  </div>
+
+  <iframe src="readme.html" name="iframe_a" id="menu_target" allowfullscreen="true" onload="runAppSetting()"></iframe>
+
+  <button id="install_button">INSTALL</button>
+  <script>
+    let deferredPrompt;
+    const install_button = document.getElementById('install_button');
+    install_button.style.display = 'none';
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      // e.preventDefault();
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
+      // Update UI to notify the user they can add to home screen
+      install_button.style.display = 'block';
+      install_button.addEventListener('click', (e) => {
+        // hide our user interface that shows our A2HS button
+        install_button.style.display = 'none';
+        // Show the prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              alert('User accepted the A2HS prompt');
+            } else {
+              alert('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+          });
+      });
+    });
+    window.addEventListener("appinstalled", (ev) => {
+      const date = new Date(ev.timeStamp / 1000);
+      alert(`App got installed at ${date.toTimeString()}.`);
+    });
+  </script>
+
+  <script defer src="js/utils.js"></script>
+
+  <script>
+    // const doc = document.documentElement;
+    // var left = document.querySelector("#menu_list");
+    // var container = document.querySelector(".container");
+    // var resize_left = document.querySelector("#resize_left");
+    // var resize_right = document.querySelector("#resize_right");
+    // var zoom_in = document.querySelector("#zoom_in");
+    // var zoom_out = document.querySelector("#zoom_out");
+    var fs = document.querySelector("#fs");
+
+    fs.addEventListener("click", function (e) { fullscreen() });
+
+    resize_left.addEventListener("click", function (e) {
+      left.style.width = left.getBoundingClientRect().width - convertRemToPixels(1) + "px";
+      const x = left.getBoundingClientRect().width - convertRemToPixels(1);
+      setResize(x);
+    });
+    resize_right.addEventListener("click", function (e) {
+      left.style.width = left.getBoundingClientRect().width + convertRemToPixels(1) + "px";
+      const x = left.getBoundingClientRect().width + convertRemToPixels(-1);
+      setResize(x);
+    });
+
+    zoom_in.addEventListener("click", function (e) {
+      const x = parseFloat(getComputedStyle(doc).fontSize)+1;
+      setZoom(x);
+    });
+    zoom_out.addEventListener("click", function (e) {
+      const x = parseFloat(getComputedStyle(doc).fontSize)-1;
+      setZoom(x);
+    });
+
+    // --- DRAGGABLE RESIZE
+    // var resize_drag = document.querySelector("#resize_drag");
+    // var left = document.querySelector("#menu_list");
+    // var container = document.querySelector(".container");
+    // var moveX = left.getBoundingClientRect().width + resize_drag.getBoundingClientRect().width / 2;
+
+    // var drag = false;
+    // resize_drag.addEventListener("mousedown", function (e) { drag = true; moveX = e.x; });
+    // resize_drag.addEventListener("touchstart", function (e) { drag = true; moveX = e.x; });
+
+    // container.addEventListener("mousemove", function (e) { onMove(e.x); });
+    // container.addEventListener("touchmove", function (e) { onMove(e.changedTouches[0].pageX); });
+    // const onMove = (moveX) => {
+    //   if (drag) {
+    //     left.style.width = moveX - resize_drag.getBoundingClientRect().width / 2 + "px";
+    //     resize_drag.style.left = ((moveX - convertRemToPixels(0)) - resize_drag.getBoundingClientRect().width / 2) + "px";
+    //   }
+    // }
+
+    // container.addEventListener("mouseup", function (e) { drag = false; });
+    // container.addEventListener("mouseout", function (e) { drag = false; });
+    // container.addEventListener("touchend", function (e) { drag = false; });
+    // container.addEventListener("touchcancel", function (e) { drag = false; });
+
+    function fullscreen () {
+      var elem = document.documentElement;
+      if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement
+      ) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
+      } else {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

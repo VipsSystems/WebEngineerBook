@@ -1,0 +1,3729 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lumen/Laravel app example, Web Engineer Book">
+  <meta name="keywords" content="lumen app, lumen, app, laravel app, laravel, php, controller, database, model, db, query, eloquent, composer, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Lumenen/Laravel app example - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+    <details><summary>&nbsp;&nbsp;&nbsp;app</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Console</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Commands</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Kernel.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Console;
+
+    use Illuminate\Console\Scheduling\Schedule;
+    use Laravel\Lumen\Console\Kernel as ConsoleKernel;
+
+    class Kernel extends ConsoleKernel
+    {
+        /**
+        * The Artisan commands provided by your application.
+        *
+        * @var array
+        */
+        protected $commands = [
+            //
+        ];
+
+        /**
+        * Define the application's command schedule.
+        *
+        * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+        * @return void
+        */
+        protected function schedule(Schedule $schedule)
+        {
+            //
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Events</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Event.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Events;
+
+    use Illuminate\Queue\SerializesModels;
+
+    abstract class Event
+    {
+        use SerializesModels;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ExampleEvent.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Events;
+
+    class ExampleEvent extends Event
+    {
+        /**
+        * Create a new event instance.
+        *
+        * @return void
+        */
+        public function __construct()
+        {
+            //
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Exceptions</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Handler.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Exceptions;
+
+    use Exception;
+    use Symfony\Component\HttpFoundation\Response;
+    use Illuminate\Validation\ValidationException;
+    use Illuminate\Auth\Access\AuthorizationException;
+    use Illuminate\Http\Exceptions\HttpResponseException;
+    use Illuminate\Database\Eloquent\ModelNotFoundException;
+    use Symfony\Component\HttpKernel\Exception\HttpException;
+    use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
+
+    class Handler extends ExceptionHandler
+    {
+        /**
+        * A list of the exception types that should not be reported.
+        *
+        * @var array
+        */
+        protected $dontReport = [
+            AuthorizationException::class,
+            HttpException::class,
+            ModelNotFoundException::class,
+            ValidationException::class,
+        ];
+
+        /**
+        * Report or log an exception.
+        *
+        * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
+        *
+        * @param  \Exception  $e
+        * @throws \Exception
+        * @return void
+        */
+        public function report(Exception $e)
+        {
+            parent::report($e);
+        }
+
+        /**
+        * Render an exception into an HTTP response.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  \Exception  $e
+        * @return \Illuminate\Http\Response
+        */
+        public function render($request, Exception $e)
+        {
+            if ($e instanceof HttpException) {
+                $message = $e-&gt;getMessage() ?: Response::$statusTexts[$e-&gt;getStatusCode()];
+
+                return response()-&gt;json((
+                    ['errors' =&gt; [
+                        // 'status' =&gt; $e-&gt;getStatusCode(),
+                        'message' =&gt; $message,
+                    ]
+                    ]), $e-&gt;getStatusCode());
+            }
+
+            if ($e instanceof ValidationException) {
+                $formattedErrors = [];
+                foreach ($e-&gt;validator-&gt;errors()-&gt;getMessages() as $key =&gt; $messages) {
+                    $key = preg_replace('/[a-z]+\./', '', $key);
+                    $formattedErrors[$key] = array_map(function ($msg) {
+                        return preg_replace('/The [a-zA-Z ]+\.([a-z]+) /', '', $msg);
+                    }, $messages);
+                }
+                return response()-&gt;json(['errors' =&gt; $formattedErrors], 422);
+            }
+
+            if ($e instanceof Exception &amp;&amp; ! env('APP_DEBUG')) {
+                return response()-&gt;json([
+                    'errors' =&gt; [
+                        class_basename($e) =&gt; $e-&gt;getMessage()
+                    ]
+                ], 500);
+            }
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Http</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Controllers</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleController.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Auth;
+    use App\Models\Tag;
+    use App\Models\Article;
+    use Illuminate\Http\Request;
+    use App\Http\Resources\ArticleResource;
+    use App\RealWorld\Filters\ArticleFilter;
+    use App\Http\Controllers\Concerns\GetsArticles;
+    use App\Http\Validators\ValidatesArticleRequests;
+
+    class ArticleController extends Controller
+    {
+        use GetsArticles, ValidatesArticleRequests;
+
+        /**
+        * ArticleController constructor.
+        *
+        * @param ArticleFilter $filter
+        */
+        public function __construct()
+        {
+            $this-&gt;middleware('auth', ['except' =&gt; [
+                'index',
+                'show',
+                'tags'
+            ]]);
+            $this-&gt;middleware('auth:optional', ['only' =&gt; [
+                'index',
+                'show'
+            ]]);
+        }
+
+        /**
+        * Get all the articles.
+        *
+        * @return \Illuminate\Http\Response
+        */
+        public function index(ArticleFilter $filter)
+        {
+            $articles = $this-&gt;paginate(Article::filter($filter));
+            return ArticleResource::collection($articles);
+        }
+
+        /**
+        * Create a new article and return the article if successful.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return \Illuminate\Http\Response
+        */
+        public function store(Request $request)
+        {
+            $this-&gt;validateNew($request);
+
+            $article = Article::create([
+                'title' =&gt; $request-&gt;input('article.title'),
+                'description' =&gt; $request-&gt;input('article.description'),
+                'body' =&gt; $request-&gt;input('article.body'),
+            ]);
+
+            Auth::user()-&gt;articles()-&gt;save($article);
+
+            $inputTags = $request-&gt;input('article.tagList');
+
+            if ($inputTags &amp;&amp; ! empty($inputTags)) {
+                foreach ($inputTags as $name) {
+                    $article-&gt;tags()-&gt;attach(new Tag(['name' =&gt; $name]));
+                }
+            }
+            return (new ArticleResource($article))
+                    -&gt;response()
+                    -&gt;header('Status', 201);
+        }
+
+        /**
+        * Get the article given by its slug.
+        *
+        * @param  string  $slug
+        * @return \Illuminate\Http\Response
+        */
+        public function show(string $slug)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            return new ArticleResource($article);
+        }
+
+        /**
+        * Update the article given by its slug and return the article if successful.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  string  $slug
+        * @return \Illuminate\Http\Response
+        */
+        public function update(Request $request, string $slug)
+        {
+            $this-&gt;validateUpdate($request);
+
+            if ($request-&gt;has('article')) {
+                $article = $this-&gt;getArticleBySlug($slug);
+                if ($request-&gt;user()-&gt;cannot('update-article', $article)) {
+                    abort(401);
+                }
+                $article-&gt;update($request-&gt;get('article'));
+            }
+            return new ArticleResource($article);
+        }
+
+        /**
+        * Remove the specified resource from storage.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  string  $slug
+        * @return \Illuminate\Http\Response
+        */
+        public function destroy(Request $request, string $slug)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            if ($request-&gt;user()-&gt;cannot('delete-article', $article)) {
+                abort(403);
+            }
+
+            $article-&gt;delete();
+            return $this-&gt;respondSuccess();
+        }
+
+        /**
+        * Get all the articles of users that are followed by the authenticated user.
+        *
+        * @return \Illuminate\Http\Response
+        */
+        public function feed()
+        {
+            $articles = $this-&gt;paginate(Auth::user()-&gt;feed());
+            return ArticleResource::collection($articles);
+        }
+
+        /**
+        * Favorite the article given by its slug and return the article if successful.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  string  $slug
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function addFavorite(Request $request, string $slug)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            if ($request-&gt;user()-&gt;can('favorite-article', $article)) {
+                $request-&gt;user()-&gt;favorite($article);
+            }
+            return new ArticleResource($article);
+        }
+
+        /**
+        * Unfavorite the article given by its slug and return the article if successful.
+        *
+        * @param  string  $slug
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function unFavorite(string $slug)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            Auth::user()-&gt;unFavorite($article);
+            $article-&gt;save();
+
+            return new ArticleResource($article);
+        }
+
+        /**
+        * Get all the tags.
+        *
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function tags()
+        {
+            $names = Article::distinct('tags')-&gt;get()-&gt;pluck('name');
+            $tags = $names-&gt;unique()-&gt;sort()-&gt;values()-&gt;all();
+
+            return $this-&gt;respond(['tags' =&gt; $tags]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AuthController.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Auth;
+    use App\Models\User;
+    use Illuminate\Http\Request;
+    use App\Http\Resources\UserResource;
+    use Illuminate\Support\Facades\Hash;
+    use App\Http\Validators\ValidatesAuthenticationRequests;
+
+    class AuthController extends Controller
+    {
+        use ValidatesAuthenticationRequests;
+
+        /**
+        * Login user and return the user is successful.
+        *
+        * @param Request $request
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function login(Request $request)
+        {
+            $this-&gt;validateLogin($request);
+
+            $credentials = $request-&gt;all()['user'];
+
+            if (! Auth::once($credentials)) {
+                return $this-&gt;respondFailedLogin();
+            }
+
+            return new UserResource(Auth::user());
+        }
+
+        /**
+        * Register a new user and return the user if successful.
+        *
+        * @param Request $request
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function register(Request $request)
+        {
+            $this-&gt;validateRegister($request);
+
+            $user = User::create([
+                'username' =&gt; $request-&gt;input('user.username'),
+                'email' =&gt; $request-&gt;input('user.email'),
+                'password' =&gt; Hash::make($request-&gt;input('user.password')),
+            ]);
+
+            return (new UserResource($user))-&gt;response()-&gt;header('Status', 201);
+        }
+
+        /**
+        * Respond with failed login.
+        *
+        * @return \Illuminate\Http\JsonResponse
+        */
+        protected function respondFailedLogin()
+        {
+            return $this-&gt;respond([
+                'errors' =&gt; [
+                    'email or password' =&gt; ['is invalid'],
+                ]
+            ], 422);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CommentController.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Auth;
+    use Illuminate\Http\Request;
+    use App\Http\Resources\CommentResource;
+    use App\Http\Controllers\Concerns\GetsArticles;
+
+    class CommentController extends Controller
+    {
+        use GetsArticles;
+
+        /**
+        * CommentController constructor.
+        *
+        */
+        public function __construct()
+        {
+            $this-&gt;middleware('auth', ['except' =&gt; 'index']);
+            $this-&gt;middleware('auth:optional', ['only' =&gt; 'index']);
+        }
+
+        /**
+        * Display a listing of the resource.
+        *
+        * @param  string  $slug
+        * @return \Illuminate\Http\Response
+        */
+        public function index(string $slug)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            return CommentResource::collection($article-&gt;comments);
+        }
+
+        /**
+        * Store a newly created resource in storage.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  string  $slug
+        * @return \Illuminate\Http\Response
+        */
+        public function store(Request $request, string $slug)
+        {
+            $this-&gt;validate($request, [
+                'comment.body' =&gt; 'required|string',
+            ]);
+
+            $article = $this-&gt;getArticleBySlug($slug);
+
+            $article-&gt;comments()-&gt;create([
+                'body' =&gt; $request-&gt;input('comment.body'),
+                'author_id' =&gt; Auth::user()-&gt;id,
+            ]);
+            $comment = $article-&gt;comments-&gt;pop();
+
+            return (new CommentResource($comment))-&gt;response()-&gt;header('Status', 201);
+        }
+
+        /**
+        * Remove the specified resource from storage.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  string  $slug
+        * @param  string  $id
+        * @return \Illuminate\Http\Response
+        */
+        public function destroy(Request $request, string $slug, string $id)
+        {
+            $article = $this-&gt;getArticleBySlug($slug);
+            $comment = $article-&gt;comments()-&gt;firstWhere('id', $id);
+
+            if ($request-&gt;user()-&gt;cannot('delete-comment', $comment)) {
+                abort(401);
+            }
+
+            if ($comment-&gt;delete()) {
+                return $this-&gt;respondSuccess();
+            }
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Concerns</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;GetsArticles.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers\Concerns;
+
+    use App\Models\Article;
+
+    trait GetsArticles
+    {
+        /**
+        * Retrieve article by its slug
+        * @param  string $slug
+        * @return \App\Models\Article
+        */
+        protected function getArticleBySlug(string $slug)
+        {
+            return Article::where('slug', $slug)-&gt;firstOrFail();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Controller.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Illuminate\Support\Collection;
+    use Laravel\Lumen\Routing\Controller as BaseController;
+
+    class Controller extends BaseController
+    {
+        /**
+        * Return generic json response with the given data.
+        *
+        * @param $data
+        * @param int $statusCode
+        * @param array $headers
+        * @return \Illuminate\Http\JsonResponse
+        */
+        protected function respond($data, $statusCode = 200, $headers = [])
+        {
+            return response($data, $statusCode, $headers);
+        }
+
+        /**
+        * Respond with success.
+        *
+        * @return \Illuminate\Http\JsonResponse
+        */
+        protected function respondSuccess()
+        {
+            return $this-&gt;respond(null, 204);
+        }
+
+        /**
+        * Paginate and filter a collection of items
+        *
+        * @param Collection $collection
+        * @param int $offset
+        * @return Collection
+        */
+        protected function paginate(Collection $collection, $offset = 0)
+        {
+            if (sizeof($collection)) {
+                $offset = app('request')-&gt;get('offset', $offset);
+                $limit = app('request')-&gt;get('limit', $collection-&gt;first()-&gt;getPerPage());
+
+                if (app('request')-&gt;has('offset')) {
+                    $collection = $collection-&gt;slice($offset, $limit)-&gt;values();
+                }
+            }
+            return $collection;
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProfileController.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Auth;
+    use App\Models\User;
+    use App\Http\Resources\ProfileResource;
+
+    class ProfileController extends Controller
+    {
+
+        /**
+        * ProfileController constructor.
+        *
+        */
+        public function __construct()
+        {
+            $this-&gt;middleware('auth', ['except' =&gt; 'show']);
+            $this-&gt;middleware('auth:optional', ['only' =&gt; 'show']);
+        }
+
+        /**
+        * Get the profile of the user given by their username
+        *
+        * @param string $username
+        * @return \Illuminate\Http\Response
+        */
+        public function show($username)
+        {
+            $user = $this-&gt;getUserByName($username);
+            return new ProfileResource($user);
+        }
+
+        /**
+        * Follow the user given by their username and return the user if successful.
+        *
+        * @param string $username
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function follow(string $username)
+        {
+            $user = $this-&gt;getUserByName($username);
+            Auth::user()-&gt;follow($user);
+            return new ProfileResource($user);
+        }
+
+        /**
+        * Unfollow the user given by their username and return the user if successful.
+        *
+        * @param string $username
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function unFollow(string $username)
+        {
+            $user = $this-&gt;getUserByName($username);
+            Auth::user()-&gt;unFollow($user);
+            return new ProfileResource($user);
+        }
+
+        /**
+        * Retrieve user by their username
+        * @param  string $username
+        * @return \App\Models\User
+        */
+        protected function getUserByName(string $username)
+        {
+            if (! $user = User::whereUsername($username)-&gt;first()) {
+                abort(404, &quot;User ${username} not found&quot;);
+            }
+            return $user;
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;UserController.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Controllers;
+
+    use Auth;
+    use Illuminate\Http\Request;
+    use App\Http\Resources\UserResource;
+    use App\Http\Validators\ValidatesUserRequests;
+
+    class UserController extends Controller
+    {
+        use ValidatesUserRequests;
+
+        /**
+        * UserController constructor.
+        *
+        */
+        public function __construct()
+        {
+            $this-&gt;middleware('auth');
+        }
+
+        /**
+        * Get the authenticated user.
+        *
+        * @return \Illuminate\Http\Response
+        */
+        public function index()
+        {
+            return new UserResource(Auth::user());
+        }
+
+        /**
+        * Update the authenticated user and return the user if successful.
+        *
+        * @param Request $request
+        * @return \Illuminate\Http\JsonResponse
+        */
+        public function update(Request $request)
+        {
+            $this-&gt;validateUpdate($request);
+
+            $user = Auth::user();
+            if ($request-&gt;has('user')) {
+                $user-&gt;update($request-&gt;get('user'));
+            }
+
+            return new UserResource($user);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Middleware</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AuthenticateWithJWT.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    /*
+    * Custom JWT authentication middleware since the original package does
+    * not have a configurable option to change the authorization token name.
+    *
+    * The token name by default is set to 'bearer'.
+    * The default middleware provided does not have any flexibility to
+    * change the token name.
+    *
+    * This project api spec requires us to use the token name 'token'.
+    */
+
+    namespace App\Http\Middleware;
+
+    use Closure;
+    use Tymon\JWTAuth\Exceptions\JWTException;
+    use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+    use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+    use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
+
+    class AuthenticateWithJWT extends BaseMiddleware
+    {
+        /**
+        * Handle an incoming request.
+        *
+        * @param  \Illuminate\Http\Request $request
+        * @param  \Closure $next
+        * @param bool $optional
+        * @return mixed
+        */
+        public function handle($request, Closure $next, $optional = null)
+        {
+            $this-&gt;auth-&gt;setRequest($request);
+
+            try {
+                if (! $user = $this-&gt;auth-&gt;parseToken('token')-&gt;authenticate()) {
+                    abort(401, 'JWT error: User not found');
+                }
+            } catch (TokenExpiredException $e) {
+                abort(401, 'JWT error: Token has expired');
+            } catch (TokenInvalidException $e) {
+                abort(401, 'JWT error: Token is invalid');
+            } catch (JWTException $e) {
+                if ($optional === null) {
+                    abort(401);
+                }
+            }
+
+            return $next($request);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Resources</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleResource.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Resources;
+
+    use Illuminate\Support\Str;
+    use Illuminate\Http\Resources\Json\Resource;
+
+    class ArticleResource extends Resource
+    {
+        /**
+        * The &quot;data&quot; wrapper that should be applied.
+        *
+        * @var string
+        */
+        public static $wrap = 'article';
+
+        /**
+        * Transform the resource into an array.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return array
+        */
+        public function toArray($request)
+        {
+            return [
+                'slug'              =&gt; $this-&gt;slug,
+                'title'             =&gt; $this-&gt;title,
+                'description'       =&gt; $this-&gt;description,
+                'body'              =&gt; $this-&gt;body,
+                'tagList'           =&gt; $this-&gt;tags-&gt;sortBy('name')-&gt;pluck('name'),
+                'createdAt'         =&gt; $this-&gt;created_at-&gt;toAtomString(),
+                'updatedAt'         =&gt; $this-&gt;updated_at-&gt;toAtomString(),
+                'favorited'         =&gt; $this-&gt;favorited,
+                'favoritesCount'    =&gt; $this-&gt;favoritesCount,
+                'author' =&gt; [
+                    'username'  =&gt; $this-&gt;author-&gt;username,
+                    'bio'       =&gt; $this-&gt;author-&gt;bio,
+                    'image'     =&gt; $this-&gt;author-&gt;image,
+                    'following' =&gt; $this-&gt;author-&gt;following,
+                ]
+            ];
+        }
+
+        /**
+        * Create new resource collection.
+        *
+        * @param  mixed  $resource
+        * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+        */
+        public static function collection($resource)
+        {
+            $collection = parent::collection($resource)-&gt;collection;
+            $wrap = Str::plural(self::$wrap);
+            return [
+                $wrap           =&gt; $collection,
+                $wrap . 'Count' =&gt; $collection-&gt;count()
+            ];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CommentResource.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Resources;
+
+    use Illuminate\Support\Str;
+    use Illuminate\Http\Resources\Json\Resource;
+
+    class CommentResource extends Resource
+    {
+        /**
+        * The &quot;data&quot; wrapper that should be applied.
+        *
+        * @var string
+        */
+        public static $wrap = 'comment';
+
+        /**
+        * Transform the resource into an array.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return array
+        */
+        public function toArray($request)
+        {
+            return [
+                'id'        =&gt; $this-&gt;id,
+                'body'      =&gt; $this-&gt;body,
+                'createdAt' =&gt; $this-&gt;created_at-&gt;toAtomString(),
+                'updatedAt' =&gt; $this-&gt;updated_at-&gt;toAtomString(),
+                'author' =&gt; [
+                    'username'  =&gt; $this-&gt;author-&gt;username,
+                    'bio'       =&gt; $this-&gt;author-&gt;bio,
+                    'image'     =&gt; $this-&gt;author-&gt;image,
+                    'following' =&gt; $this-&gt;author-&gt;following,
+                ]
+            ];
+        }
+
+        /**
+        * Create new resource collection.
+        *
+        * @param  mixed  $resource
+        * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+        */
+        public static function collection($resource)
+        {
+            $collection = parent::collection($resource)-&gt;collection;
+            if ($collection-&gt;count() &gt; 1) {
+                return [Str::plural(self::$wrap) =&gt; $collection];
+            }
+            // This is according to API specs, but Postman collection gives an error:
+            return [self::$wrap =&gt; $collection-&gt;first()];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProfileResource.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Resources;
+
+    use Illuminate\Http\Resources\Json\Resource;
+
+    class ProfileResource extends Resource
+    {
+        /**
+        * The &quot;data&quot; wrapper that should be applied.
+        *
+        * @var string
+        */
+        public static $wrap = 'profile';
+
+        /**
+        * Transform the resource into an array.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return array
+        */
+        public function toArray($request)
+        {
+            return [
+                'username'  =&gt; $this-&gt;username,
+                'bio'       =&gt; $this-&gt;bio,
+                'image'     =&gt; $this-&gt;image,
+                'following' =&gt; $this-&gt;following,
+            ];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;UserResource.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Resources;
+
+    use Illuminate\Http\Resources\Json\Resource;
+
+    class UserResource extends Resource
+    {
+        /**
+        * The &quot;data&quot; wrapper that should be applied.
+        *
+        * @var string
+        */
+        public static $wrap = 'user';
+
+        /**
+        * Transform the resource into an array.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return array
+        */
+        public function toArray($request)
+        {
+            return [
+                'email'     =&gt; $this-&gt;email,
+                'token'     =&gt; $this-&gt;token,
+                'username'  =&gt; $this-&gt;username,
+                'bio'       =&gt; $this-&gt;bio,
+                'image'     =&gt; $this-&gt;image,
+            ];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Validators</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ValidatesArticleRequests.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Validators;
+
+    use Illuminate\Http\Request;
+
+    trait ValidatesArticleRequests
+    {
+        /**
+        * Validate new article request input
+        *
+        * @param  Request $request
+        * @throws \Illuminate\Auth\Access\ValidationException
+        */
+        protected function validateNew(Request $request)
+        {
+            $this-&gt;validate($request, [
+                'article.title'         =&gt; 'required|string|max:255',
+                'article.description'   =&gt; 'required|string|max:255',
+                'article.body'          =&gt; 'required|string',
+                'article.tagList'       =&gt; 'sometimes|array',
+            ]);
+        }
+
+        /**
+        * Validate update article request input
+        *
+        * @param  Request $request
+        * @throws \Illuminate\Auth\Access\ValidationException
+        */
+        protected function validateUpdate(Request $request)
+        {
+            $this-&gt;validate($request, [
+                'article.title'         =&gt; 'sometimes|string|max:255',
+                'article.description'   =&gt; 'sometimes|string|max:255',
+                'article.body'          =&gt; 'sometimes|string',
+            ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ValidatesAuthenticationRequests.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Validators;
+
+    use Illuminate\Http\Request;
+
+    trait ValidatesAuthenticationRequests
+    {
+        /**
+        * Validate login request input
+        *
+        * @param  Request $request
+        * @throws \Illuminate\Auth\Access\ValidationException
+        */
+        protected function validateLogin(Request $request)
+        {
+            $this-&gt;validate($request, [
+                'user.email'    =&gt; 'required|email|max:255',
+                'user.password' =&gt; 'required',
+            ]);
+        }
+
+        /**
+        * Validate register request input
+        *
+        * @param  Request $request
+        * @throws \Illuminate\Auth\Access\ValidationException
+        */
+        protected function validateRegister(Request $request)
+        {
+            $this-&gt;validate($request, [
+                'user.username' =&gt; 'required|max:50|alpha_num|unique:users,username',
+                'user.email'    =&gt; 'required|email|max:255|unique:users,email',
+                'user.password' =&gt; 'required|min:8',
+            ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ValidatesUserRequests.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Http\Validators;
+
+    use Illuminate\Http\Request;
+
+    trait ValidatesUserRequests
+    {
+        /**
+        * Validate update user request input
+        *
+        * @param  Request $request
+        * @throws \Illuminate\Auth\Access\ValidationException
+        */
+        protected function validateUpdate(Request $request)
+        {
+            if ($request-&gt;user()-&gt;email === $request-&gt;input('user.email')) {
+                $email_rule = 'email';
+            } else {
+                $email_rule = 'sometimes|email|max:255|unique:users,email';
+            }
+
+            $this-&gt;validate($request, [
+                'user.username' =&gt; 'sometimes|max:50|alpha_num|unique:username',
+                'user.email'    =&gt; $email_rule,
+                'user.password' =&gt; 'sometimes|min:8',
+                'user.bio'      =&gt; 'sometimes|nullable|max:255',
+                'user.image'    =&gt; 'sometimes|nullable|url',
+            ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Jobs</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ExampleJob.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Jobs;
+
+    class ExampleJob extends Job
+    {
+        /**
+        * Create a new job instance.
+        *
+        * @return void
+        */
+        public function __construct()
+        {
+            //
+        }
+
+        /**
+        * Execute the job.
+        *
+        * @return void
+        */
+        public function handle()
+        {
+            //
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Job.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Jobs;
+
+    use Illuminate\Bus\Queueable;
+    use Illuminate\Queue\SerializesModels;
+    use Illuminate\Queue\InteractsWithQueue;
+    use Illuminate\Contracts\Queue\ShouldQueue;
+
+    abstract class Job implements ShouldQueue
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Queueable Jobs
+        |--------------------------------------------------------------------------
+        |
+        | This job base class provides a central location to place any logic that
+        | is shared across all of your jobs. The trait included with the class
+        | provides access to the &quot;queueOn&quot; and &quot;delay&quot; queue helper methods.
+        |
+        */
+
+        use InteractsWithQueue, Queueable, SerializesModels;
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Listeners</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ExampleListener.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Listeners;
+
+    use App\Events\ExampleEvent;
+    use Illuminate\Queue\InteractsWithQueue;
+    use Illuminate\Contracts\Queue\ShouldQueue;
+
+    class ExampleListener
+    {
+        /**
+        * Create the event listener.
+        *
+        * @return void
+        */
+        public function __construct()
+        {
+            //
+        }
+
+        /**
+        * Handle the event.
+        *
+        * @param  ExampleEvent  $event
+        * @return void
+        */
+        public function handle(ExampleEvent $event)
+        {
+            //
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Models</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Article.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Models;
+
+    use App\RealWorld\Slug\HasSlug;
+    use App\RealWorld\Filters\Filterable;
+    use App\RealWorld\Favorite\Favoritable;
+    use Jenssegers\Mongodb\Eloquent\Model;
+
+    class Article extends Model
+    {
+        use Favoritable, Filterable, HasSlug;
+
+        /**
+        * The attributes that are mass assignable.
+        *
+        * @var array
+        */
+        protected $fillable = [
+            'slug',
+            'title',
+            'description',
+            'body',
+        ];
+
+        /**
+        * The relations to eager load on every query.
+        *
+        * @var array
+        */
+        protected $with = [
+            'author'
+        ];
+
+        /**
+        * Get the author of the article.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsTo
+        */
+        public function author()
+        {
+            return $this-&gt;belongsTo(User::class, 'author_id');
+        }
+
+        /**
+        * Get all the comments for the article.
+        *
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        public function comments()
+        {
+            return $this-&gt;embedsMany(Comment::class)-&gt;latest();
+        }
+
+        /**
+        * Get all the tags that belong to the article.
+        *
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        public function tags()
+        {
+            return $this-&gt;embedsMany(Tag::class);
+        }
+
+        /**
+        * Get the key name for route model binding.
+        *
+        * @return string
+        */
+        public function getRouteKeyName()
+        {
+            return 'slug';
+        }
+
+        /**
+        * Get the attribute name to slugify.
+        *
+        * @return string
+        */
+        public function getSlugSourceColumn()
+        {
+            return 'title';
+        }
+
+        /**
+        * Get list of values which are not allowed for this resource
+        *
+        * @return array
+        */
+        public function getBannedSlugValues()
+        {
+            return ['feed'];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Comment.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Models;
+
+    use Jenssegers\Mongodb\Eloquent\Model;
+
+    class Comment extends Model
+    {
+        /**
+        * The attributes that are mass assignable.
+        *
+        * @var array
+        */
+        protected $fillable = [
+            'body',
+            'author_id'
+        ];
+
+        /**
+        * The relations to eager load on every query.
+        *
+        * @var array
+        */
+        protected $with = [
+            'author'
+        ];
+
+        /**
+        * Get the author of the comment.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsTo
+        */
+        public function author()
+        {
+            return $this-&gt;belongsTo(User::class, 'author_id');
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Tag.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Models;
+
+    use Jenssegers\Mongodb\Eloquent\Model;
+
+    class Tag extends Model
+    {
+        /**
+        * Indicates if the model should be timestamped.
+        *
+        * @var bool
+        */
+        public $timestamps = false;
+
+        /**
+        * The attributes that are mass assignable.
+        *
+        * @var array
+        */
+        protected $fillable = [
+            'name'
+        ];
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;User.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Models;
+
+    use Tymon\JWTAuth\Facades\JWTAuth;
+    use Tymon\JWTAuth\Contracts\JWTSubject;
+    use Illuminate\Auth\Authenticatable;
+    use Laravel\Lumen\Auth\Authorizable;
+    use Jenssegers\Mongodb\Eloquent\Model;
+    use App\RealWorld\Follow\Followable;
+    use App\RealWorld\Favorite\HasFavorite;
+    use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+    use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+
+    class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
+    {
+        use Authenticatable, Authorizable, Followable, HasFavorite;
+
+        /**
+        * The attributes that are mass assignable.
+        *
+        * @var array
+        */
+        protected $fillable = [
+            'username',
+            'email',
+            'password',
+            'bio',
+            'image'
+        ];
+
+        /**
+        * The attributes that should be hidden for arrays.
+        *
+        * @var array
+        */
+        protected $hidden = [
+            'password',
+            'remember_token'
+        ];
+
+        /**
+        * Get all the articles by the user.
+        *
+        * @return \Jenssegers\Mongodb\Relations\HasMany
+        */
+        public function articles()
+        {
+            return $this-&gt;hasMany(Article::class, 'author_id')-&gt;latest();
+        }
+
+        /**
+        * Get all the comments by the user.
+        *
+        * @return \Jenssegers\Mongodb\Relations\HasMany
+        */
+        public function comments()
+        {
+            return $this-&gt;hasMany(Comment::class, 'author_id')-&gt;latest();
+        }
+
+        /**
+        * Get all the articles of the following users.
+        *
+        * @return \Illuminate\Database\Eloquent\Relations\HasMany
+        */
+        public function feed()
+        {
+            $followingIds = $this-&gt;following-&gt;pluck('id')-&gt;toArray();
+            return Article::whereIn('author_id', $followingIds)-&gt;get();
+        }
+
+        /**
+        * Generate a JWT token for the user.
+        *
+        * @return string
+        */
+        public function getTokenAttribute()
+        {
+            return JWTAuth::fromUser($this);
+        }
+
+        /**
+        * @return int
+        */
+        public function getJWTIdentifier()
+        {
+            return $this-&gt;getKey();
+        }
+
+        /**
+        * @return array
+        */
+        public function getJWTCustomClaims()
+        {
+            return [];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;Providers</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AppServiceProvider.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Providers;
+
+    use Illuminate\Support\ServiceProvider;
+
+    class AppServiceProvider extends ServiceProvider
+    {
+        /**
+        * Register any application services.
+        *
+        * @return void
+        */
+        public function register()
+        {
+            //
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AuthServiceProvider.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Providers;
+
+    use App\Models\User;
+    use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Gate;
+    use Illuminate\Support\ServiceProvider;
+
+    class AuthServiceProvider extends ServiceProvider
+    {
+        /**
+        * Register any application services.
+        *
+        * @return void
+        */
+        public function register()
+        {
+        }
+
+        /**
+        * Boot the authentication services for the application.
+        *
+        * @return void
+        */
+        public function boot()
+        {
+            Gate::define('update-article', function ($user, $article) {
+                return $user-&gt;id === $article-&gt;author_id;
+            });
+
+            Gate::define('delete-article', function ($user, $article) {
+                return $user-&gt;id === $article-&gt;author_id;
+            });
+
+            Gate::define('delete-comment', function ($user, $comment) {
+                return $user-&gt;id === $comment-&gt;author_id;
+            });
+
+            Gate::define('favorite-article', function ($user, $article) {
+                return $user-&gt;id != $article-&gt;author_id;
+            });
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;EventServiceProvider.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\Providers;
+
+    use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
+
+    class EventServiceProvider extends ServiceProvider
+    {
+        /**
+        * The event listener mappings for the application.
+        *
+        * @var array
+        */
+        protected $listen = [
+            'App\Events\SomeEvent' =&gt; [
+                'App\Listeners\EventListener',
+            ],
+        ];
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;JwtServiceProvider.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    /*
+    * Custom JWT authentication service provider since the original package does
+    * not have a configurable option to change the authorization token name.
+    *
+    * The token name by default is set to 'bearer'.
+    * This project api spec requires us to use the token name 'token'.
+    */
+
+    namespace App\Providers;
+
+    use Tymon\JWTAuth\Http\Parser\AuthHeaders;
+    use Tymon\JWTAuth\Http\Parser\InputSource;
+    use Tymon\JWTAuth\Http\Parser\QueryString;
+    use Tymon\JWTAuth\Http\Parser\LumenRouteParams;
+    use Tymon\JWTAuth\Providers\AbstractServiceProvider;
+
+    class JwtServiceProvider extends AbstractServiceProvider
+    {
+        /**
+        * {@inheritdoc}
+        */
+        public function boot()
+        {
+            $this-&gt;app-&gt;configure('jwt');
+
+            $path = realpath(__DIR__.'/../../vendor/tymon/jwt-auth/config/config.php');
+            $this-&gt;mergeConfigFrom($path, 'jwt');
+
+            $this-&gt;app-&gt;routeMiddleware($this-&gt;middlewareAliases);
+
+            $this-&gt;extendAuthGuard();
+
+            $this-&gt;app['tymon.jwt.parser']-&gt;setChain([
+                with(new AuthHeaders)-&gt;setHeaderPrefix('token'),
+                new QueryString,
+                new InputSource,
+                new LumenRouteParams,
+            ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;RealWorld</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Favorite</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Favoritable.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Favorite;
+
+    use Auth;
+    use App\Models\User;
+
+    trait Favoritable
+    {
+        /**
+        * Check if the authenticated user has favorited the article.
+        *
+        * @return bool
+        */
+        public function getFavoritedAttribute()
+        {
+            if (! Auth::check() || ! $this-&gt;favorited_by_ids) {
+                return false;
+            }
+            return in_array(Auth::user()-&gt;id, $this-&gt;favorited_by_ids, true);
+        }
+
+        /**
+        * Get the favorites count of the article.
+        *
+        * @return integer
+        */
+        public function getFavoritesCountAttribute()
+        {
+            if (array_key_exists('favorited_count', $this-&gt;getAttributes())) {
+                return $this-&gt;favorited_count;
+            }
+            return $this-&gt;favoritedBy()-&gt;count();
+        }
+
+        /**
+        * Get the users that favorited the article.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsToMany
+        */
+        public function favoritedBy()
+        {
+            return $this-&gt;belongsToMany(User::class, null, 'favorite_article_ids', 'favorited_by_ids');
+        }
+
+        /**
+        * Check if the article is favorited by the given user.
+        *
+        * @param User $user
+        * @return bool
+        */
+        public function isFavoritedBy(User $user)
+        {
+            return !! $this-&gt;favoritedBy()-&gt;where('favorited_by_ids', $user-&gt;id)-&gt;count();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;HasFavorite.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Favorite;
+
+    use Auth;
+    use App\Models\Article;
+
+    trait HasFavorite
+    {
+        /**
+        * Favorite the given article.
+        *
+        * @param Article $article
+        * @return mixed
+        */
+        public function favorite(Article $article)
+        {
+            if (! $this-&gt;hasFavorited($article)) {
+                $article-&gt;favoritedBy()-&gt;attach(Auth::user());
+            }
+        }
+
+        /**
+        * Unfavorite the given article.
+        *
+        * @param Article $article
+        * @return mixed
+        */
+        public function unFavorite(Article $article)
+        {
+            $article-&gt;favoritedBy()-&gt;detach(Auth::user());
+        }
+
+        /**
+        * Get the articles favorited by the user.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsToMany
+        */
+        public function favorites()
+        {
+            return $this-&gt;belongsToMany(Article::class, null, 'favorited_by_ids', 'favorite_article_ids');
+        }
+
+        /**
+        * Check if the user has favorited the given article.
+        *
+        * @param Article $article
+        * @return bool
+        */
+        public function hasFavorited(Article $article)
+        {
+            return !! $this-&gt;favorites()-&gt;where('favorite_article_ids', $article-&gt;id)-&gt;count();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Filters</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleFilter.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Filters;
+
+    use App\Models\Tag;
+    use App\Models\User;
+    use App\Models\Article;
+
+    class ArticleFilter extends Filter
+    {
+        /**
+        * Filter by author username.
+        * Get all the articles by the user with given username.
+        *
+        * @param $username
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        protected function author($username)
+        {
+            $user = User::whereUsername($username)-&gt;first();
+            $user_id = $user ? $user-&gt;id : null;
+
+            return $this-&gt;collection-&gt;where('author_id', $user_id);
+        }
+
+        /**
+        * Filter by favorited username.
+        * Get all the articles favorited by the user with given username.
+        *
+        * @param $username
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        protected function favorited($username)
+        {
+            $user = User::whereUsername($username)-&gt;first();
+            return $user-&gt;favorites-&gt;intersect($this-&gt;collection);
+        }
+
+        /**
+        * Filter by tag name.
+        * Get all the articles tagged by the given tag name.
+        *
+        * @param $name
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        protected function tag($name)
+        {
+            $articles = Article::whereRaw(['tags.name' =&gt; $name])-&gt;get();
+            return $articles-&gt;intersect($this-&gt;collection);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Filter.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Filters;
+
+    use ReflectionClass;
+    use Illuminate\Http\Request;
+    use Jenssegers\Mongodb\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Collection;
+
+    abstract class Filter
+    {
+        /**
+        * @var \Illuminate\Http\Request
+        */
+        protected $request;
+
+        /**
+        * @var \Illuminate\Database\Eloquent\Collection
+        */
+        protected $collection;
+
+        /**
+        * Filter constructor.
+        *
+        * @param \Illuminate\Http\Request $request
+        */
+        public function __construct(Request $request)
+        {
+            $this-&gt;request = $request;
+        }
+
+        /**
+        * Get all the available filter methods.
+        *
+        * @return array
+        */
+        protected function getFilterMethods()
+        {
+            $class  = new ReflectionClass(static::class);
+
+            $methods = array_map(function ($method) use ($class) {
+                if ($method-&gt;class === $class-&gt;getName()) {
+                    return $method-&gt;name;
+                }
+                return null;
+            }, $class-&gt;getMethods());
+
+            return array_filter($methods);
+        }
+
+        /**
+        * Get all the filters that can be applied.
+        *
+        * @return array
+        */
+        protected function getFilters()
+        {
+            return array_filter($this-&gt;request-&gt;only($this-&gt;getFilterMethods()));
+        }
+
+        /**
+        * Apply all the requested filters if available.
+        *
+        * @param \Jenssegers\Mongodb\Eloquent\Builder $builder
+        * @return \Illuminate\Database\Eloquent\Collection
+        */
+        public function apply(Builder $builder)
+        {
+            $this-&gt;collection = $builder-&gt;latest()-&gt;get();
+
+            foreach ($this-&gt;getFilters() as $name =&gt; $value) {
+                if (method_exists($this, $name)) {
+                    if ($value) {
+                        $this-&gt;collection = $this-&gt;$name($value);
+                    } else {
+                        $this-&gt;collection = $this-&gt;$name();
+                    }
+                }
+            }
+
+            return $this-&gt;collection-&gt;values();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Filterable.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Filters;
+
+    use Jenssegers\Mongodb\Eloquent\Builder;
+
+    trait Filterable
+    {
+        /**
+        * Scope a query to apply given filter.
+        *
+        * @param \Jenssegers\Mongodb\Eloquent\Builder $builder
+        * @param Filter $filter
+        * @return \Jenssegers\Mongodb\Eloquent\Builder
+        */
+        public function scopeFilter(Builder $builder, Filter $filter)
+        {
+            return $filter-&gt;apply($builder);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Follow</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Followable.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Follow;
+
+    use Auth;
+    use App\Models\User;
+
+    trait Followable
+    {
+        /**
+        * Check if the authenticated user is following this user.
+        *
+        * @return bool
+        */
+        public function getFollowingAttribute()
+        {
+            if (! Auth::check() || ! $this-&gt;follower_ids) {
+                return false;
+            }
+            return in_array(Auth::user()-&gt;id, $this-&gt;follower_ids, true);
+        }
+
+        /**
+        * Follow the given user.
+        *
+        * @param User $user
+        * @return mixed
+        */
+        public function follow(User $user)
+        {
+            if ($this-&gt;id != $user-&gt;id) {
+                $user-&gt;followers()-&gt;attach(Auth::user());
+            }
+        }
+
+        /**
+        * Unfollow the given user.
+        *
+        * @param User $user
+        * @return mixed
+        */
+        public function unFollow(User $user)
+        {
+            $user-&gt;followers()-&gt;detach(Auth::user());
+        }
+
+        /**
+        * Get all the users that this user is following.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsToMany
+        */
+        public function follows()
+        {
+            return $this-&gt;belongsToMany(User::class, null, 'follower_ids', 'following_ids');
+        }
+
+        /**
+        * Get all the users that are following this user.
+        *
+        * @return \Jenssegers\Mongodb\Relations\BelongsToMany
+        */
+        public function followers()
+        {
+            return $this-&gt;belongsToMany(User::class, null, 'following_ids', 'follower_ids');
+        }
+
+        /**
+        * Check if a given user is following this user.
+        *
+        * @param User $user
+        * @return bool
+        */
+        public function isFollowing(User $user)
+        {
+            return !! $this-&gt;follows()-&gt;where('following_ids', $user-&gt;id)-&gt;count();
+        }
+
+        /**
+        * Check if a given user is being followed by this user.
+        *
+        * @param User $user
+        * @return bool
+        */
+        public function isFollowedBy(User $user)
+        {
+            return !! $this-&gt;followers()-&gt;where('follower_ids', $user-&gt;id)-&gt;count();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Slug</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;HasSlug.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Slug;
+
+    trait HasSlug
+    {
+        /**
+        * Adding or updating slug when attribute to &quot;slugify&quot; is set.
+        *
+        * @param string $key
+        * @param mixed $value
+        * @return $this
+        */
+        public function setAttribute($key, $value)
+        {
+            if ($key == $this-&gt;getSlugSourceColumn()) {
+                $slug = (new Slug($value))
+                    -&gt;uniqueFor($this)
+                    -&gt;without($this-&gt;getBannedSlugValues())
+                    -&gt;generate();
+
+                $this-&gt;attributes[$this-&gt;getSlugSourceColumn()] = $value;
+                $this-&gt;attributes[$this-&gt;getSlugColumn()] = $slug;
+            }
+
+            return parent::setAttribute($key, $value);
+        }
+
+        /**
+        * Get the attribute name to slugify.
+        *
+        * @return string
+        */
+        abstract public function getSlugSourceColumn();
+
+        /**
+        * Get the name of the slug column
+        *
+        * @return string
+        */
+        public function getSlugColumn()
+        {
+            return 'slug';
+        }
+
+        /**
+        * Get list of values wich are not allowed
+        *
+        * @return array
+        */
+        public function getBannedSlugValues()
+        {
+            return [];
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Slug.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    namespace App\RealWorld\Slug;
+
+    use Illuminate\Database\Eloquent\Model;
+
+    class Slug
+    {
+        /**
+        * Eloquent model used for example for uniqueness
+        *
+        * @var Model
+        */
+        protected $model;
+
+        /**
+        * Banned values for slug generation
+        *
+        * @var array
+        */
+        protected $banned = [];
+
+        /**
+        * Initial value to slugify
+        *
+        * @var string
+        */
+        private $initialValue;
+
+        /**
+        * Separator use to generate slugs
+        *
+        * @var string
+        */
+        const SEPARATOR = '-';
+
+        /**
+        * Slug constructor.
+        *
+        * @param string $value
+        */
+        public function __construct($value)
+        {
+            $this-&gt;initialValue = $value;
+        }
+
+        /**
+        * Generate a unique slug
+        *
+        * @return string
+        */
+        public function generate()
+        {
+            $slug = str_slug($this-&gt;initialValue, static::SEPARATOR);
+
+            $notAllowed = $this-&gt;getSimilarSlugs($slug)-&gt;merge($this-&gt;banned);
+
+            if ($notAllowed-&gt;isEmpty() || !$notAllowed-&gt;contains($slug)) {
+                return $slug;
+            }
+
+            $suffix = $this-&gt;generateSuffix($slug, $notAllowed);
+
+            return $slug . static::SEPARATOR . $suffix;
+        }
+
+        /**
+        * Generate suffix for unique slug
+        *
+        * @param string $slug
+        * @param \Illuminate\Support\Collection $notAllowed
+        * @return string
+        */
+        public function generateSuffix($slug, $notAllowed)
+        {
+            /** @var \Illuminate\Support\Collection $notAllowed */
+            $notAllowed-&gt;transform(function ($item) use ($slug) {
+
+                if ($slug == $item) {
+                    return 0;
+                }
+
+                return (int)str_replace($slug . static::SEPARATOR, '', $item);
+            });
+
+            return $notAllowed-&gt;max() + 1;
+        }
+
+        /**
+        * Set eloquent model to check uniqueness on.
+        *
+        * @param \Illuminate\Database\Eloquent\Model $model
+        * @return $this
+        */
+        public function uniqueFor(Model $model)
+        {
+            $this-&gt;model = $model;
+
+            return $this;
+        }
+
+        /**
+        * Set array of values which are not allowed.
+        *
+        * @param $values
+        * @return $this
+        */
+        public function without($values)
+        {
+            $this-&gt;banned = $values;
+
+            return $this;
+        }
+
+        /**
+        * Get collection of similar slugs based on database
+        *
+        * @param $slug
+        * @return \Illuminate\Support\Collection
+        */
+        private function getSimilarSlugs($slug)
+        {
+            if (!$this-&gt;model instanceof Model || !method_exists($this-&gt;model, 'getSlugColumn')) {
+                return collect([]);
+            }
+
+            $slugColumn = $this-&gt;model-&gt;getSlugColumn();
+
+            return $this-&gt;model-&gt;newQuery()
+                -&gt;where($slugColumn, $slug)
+                -&gt;orWhere($slugColumn, 'LIKE', $slug . static::SEPARATOR . '%')
+                -&gt;get()
+                -&gt;pluck($slugColumn);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;bootstrap</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    require_once __DIR__ . '/../vendor/autoload.php';
+
+    (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
+        dirname(__DIR__)
+    ))-&gt;bootstrap();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create The Application
+    |--------------------------------------------------------------------------
+    |
+    | Here we will load the environment and create the application instance
+    | that serves as the central piece of this framework. We'll use this
+    | application as an &quot;IoC&quot; container and router for this framework.
+    |
+    */
+
+    $app = new Laravel\Lumen\Application(
+        realpath(__DIR__ . '/../')
+    );
+
+    $app-&gt;withFacades();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Register Container Bindings
+    |--------------------------------------------------------------------------
+    |
+    | Now we will register a few bindings in the service container. We will
+    | register the exception handler and the console kernel. You may add
+    | your own bindings here if you like or you can make another file.
+    |
+    */
+
+    $app-&gt;singleton(
+        Illuminate\Contracts\Debug\ExceptionHandler::class,
+        App\Exceptions\Handler::class
+    );
+
+    $app-&gt;singleton(
+        Illuminate\Contracts\Console\Kernel::class,
+        App\Console\Kernel::class
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Register Middleware
+    |--------------------------------------------------------------------------
+    |
+    | Next, we will register the middleware with the application. These can
+    | be global middleware that run before and after each request into a
+    | route or middleware that'll be assigned to some specific routes.
+    |
+    */
+
+    $app-&gt;middleware([
+        \Barryvdh\Cors\HandleCors::class,
+    ]);
+
+    $app-&gt;routeMiddleware([
+        'auth' =&gt; App\Http\Middleware\AuthenticateWithJWT::class,
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Register Service Providers
+    |--------------------------------------------------------------------------
+    |
+    | Here we will register all of the application's service providers which
+    | are used to bind services into the container. Service providers are
+    | totally optional, so you are not required to uncomment this line.
+    |
+    */
+
+    $app-&gt;register(App\Providers\AppServiceProvider::class);
+    $app-&gt;register(App\Providers\AuthServiceProvider::class);
+    // $app-&gt;register(App\Providers\EventServiceProvider::class);
+    $app-&gt;register(App\Providers\JwtServiceProvider::class);
+    $app-&gt;register(Jenssegers\Mongodb\MongodbServiceProvider::class);
+    $app-&gt;register(Barryvdh\Cors\ServiceProvider::class);
+
+    $app-&gt;withEloquent();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load The Application Routes
+    |--------------------------------------------------------------------------
+    |
+    | Next we will include the routes file so that they can all be added to
+    | the application. This will provide all of the URLs the application
+    | can respond to, as well as the controllers that may handle them.
+    |
+    */
+
+    $app-&gt;router-&gt;group([
+        'namespace' =&gt; 'App\Http\Controllers',
+    ], function ($router) {
+        require __DIR__ . '/../routes/web.php';
+    });
+
+    return $app;
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;composer.json</summary>
+    <pre><code class='json'>
+    {
+        &quot;name&quot;: &quot;elcobvg/lumen-realworld-example-app&quot;,
+        &quot;description&quot;: &quot;Exemplary real world backend API built with Lumen + MongoDB&quot;,
+        &quot;keywords&quot;: [&quot;laravel&quot;, &quot;lumen&quot;, &quot;mongodb&quot;, &quot;jwt&quot;, &quot;examples&quot;],
+        &quot;authors&quot;: [
+            {
+                &quot;name&quot;: &quot;Elco Brouwer von Gonzenbach&quot;,
+                &quot;email&quot;: &quot;elco.brouwer@gmail.com&quot;
+            }
+        ],
+        &quot;license&quot;: &quot;MIT&quot;,
+        &quot;type&quot;: &quot;project&quot;,
+        &quot;require&quot;: {
+            &quot;php&quot;: &quot;&gt;=7.1&quot;,
+            &quot;barryvdh/laravel-cors&quot;: &quot;^0.11&quot;,
+            &quot;jenssegers/mongodb&quot;: &quot;^3.3&quot;,
+            &quot;laravel/lumen-framework&quot;: &quot;5.8.*&quot;,
+            &quot;tymon/jwt-auth&quot;: &quot;dev-develop&quot;,
+            &quot;vlucas/phpdotenv&quot;: &quot;~3.3&quot;
+        },
+        &quot;require-dev&quot;: {
+            &quot;fzaninotto/faker&quot;: &quot;~1.4&quot;,
+            &quot;mockery/mockery&quot;: &quot;~1.0&quot;,
+            &quot;phpunit/phpunit&quot;: &quot;~7.0&quot;,
+            &quot;squizlabs/php_codesniffer&quot;: &quot;^3.1&quot;
+        },
+        &quot;autoload&quot;: {
+            &quot;psr-4&quot;: {
+                &quot;App\\&quot;: &quot;app/&quot;
+            }
+        },
+        &quot;autoload-dev&quot;: {
+            &quot;classmap&quot;: [
+                &quot;tests/&quot;,
+                &quot;database/&quot;
+            ]
+        },
+        &quot;scripts&quot;: {
+            &quot;post-root-package-install&quot;: [
+                &quot;php -r \&quot;copy('.env.example', '.env');\&quot;&quot;
+            ]
+        },
+        &quot;config&quot;: {
+            &quot;sort-packages&quot;: true,
+            &quot;optimize-autoloader&quot;: true
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;config</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    return [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Name
+        |--------------------------------------------------------------------------
+        |
+        | This value is the name of your application. This value is used when the
+        | framework needs to place the application's name in a notification or
+        | any other location as required by the application or its packages.
+        |
+        */
+
+        'name' =&gt; env('APP_NAME', 'Lumen Real World Demo App'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Environment
+        |--------------------------------------------------------------------------
+        |
+        | This value determines the &quot;environment&quot; your application is currently
+        | running in. This may determine how you prefer to configure various
+        | services your application utilizes. Set this in your &quot;.env&quot; file.
+        |
+        */
+
+        'env' =&gt; env('APP_ENV', 'production'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Debug Mode
+        |--------------------------------------------------------------------------
+        |
+        | When your application is in debug mode, detailed error messages with
+        | stack traces will be shown on every error that occurs within your
+        | application. If disabled, a simple generic error page is shown.
+        |
+        */
+
+        'debug' =&gt; env('APP_DEBUG', false),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application URL
+        |--------------------------------------------------------------------------
+        |
+        | This URL is used by the console to properly generate URLs when using
+        | the Artisan command line tool. You should set this to the root of
+        | your application so that it is used when running Artisan tasks.
+        |
+        */
+
+        'url' =&gt; env('APP_URL', 'http://localhost'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Timezone
+        |--------------------------------------------------------------------------
+        |
+        | Here you may specify the default timezone for your application, which
+        | will be used by the PHP date and date-time functions. We have gone
+        | ahead and set this to a sensible default for you out of the box.
+        |
+        */
+
+        'timezone' =&gt; 'UTC',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Locale Configuration
+        |--------------------------------------------------------------------------
+        |
+        | The application locale determines the default locale that will be used
+        | by the translation service provider. You are free to set this value
+        | to any of the locales which will be supported by the application.
+        |
+        */
+
+        'locale' =&gt; 'en',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Application Fallback Locale
+        |--------------------------------------------------------------------------
+        |
+        | The fallback locale determines the locale to use when the current one
+        | is not available. You may change the value to correspond to any of
+        | the language folders that are provided through your application.
+        |
+        */
+
+        'fallback_locale' =&gt; 'en',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Encryption Key
+        |--------------------------------------------------------------------------
+        |
+        | This key is used by the Illuminate encrypter service and should be set
+        | to a random, 32 character string, otherwise these encrypted strings
+        | will not be safe. Please do this before deploying an application!
+        |
+        */
+
+        'key' =&gt; env('APP_KEY'),
+
+        'cipher' =&gt; 'AES-256-CBC',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logging Configuration
+        |--------------------------------------------------------------------------
+        |
+        | Here you may configure the log settings for your application. Out of
+        | the box, Laravel uses the Monolog PHP logging library. This gives
+        | you a variety of powerful log handlers / formatters to utilize.
+        |
+        | Available Settings: &quot;single&quot;, &quot;daily&quot;, &quot;syslog&quot;, &quot;errorlog&quot;
+        |
+        */
+
+        'log' =&gt; env('APP_LOG', 'single'),
+
+        'log_level' =&gt; env('APP_LOG_LEVEL', 'debug'),
+    ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;auth.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    return [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication Defaults
+        |--------------------------------------------------------------------------
+        |
+        | This option controls the default authentication &quot;guard&quot; and password
+        | reset options for your application. You may change these defaults
+        | as required, but they're a perfect start for most applications.
+        |
+        */
+
+        'defaults' =&gt; [
+            'guard' =&gt; env('AUTH_GUARD', 'api'),
+            'passwords' =&gt; 'users',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication Guards
+        |--------------------------------------------------------------------------
+        |
+        | Next, you may define every authentication guard for your application.
+        | Of course, a great default configuration has been defined for you
+        | here which uses session storage and the Eloquent user provider.
+        |
+        | All authentication drivers have a user provider. This defines how the
+        | users are actually retrieved out of your database or other storage
+        | mechanisms used by this application to persist your user's data.
+        |
+        | Supported: &quot;session&quot;, &quot;token&quot;
+        |
+        */
+
+        'guards' =&gt; [
+            'api' =&gt; [
+                'driver' =&gt; 'jwt',
+                'provider' =&gt; 'users',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Providers
+        |--------------------------------------------------------------------------
+        |
+        | All authentication drivers have a user provider. This defines how the
+        | users are actually retrieved out of your database or other storage
+        | mechanisms used by this application to persist your user's data.
+        |
+        | If you have multiple user tables or models you may configure multiple
+        | sources which represent each model / table. These sources may then
+        | be assigned to any extra authentication guards you have defined.
+        |
+        | Supported: &quot;database&quot;, &quot;eloquent&quot;
+        |
+        */
+
+        'providers' =&gt; [
+            'users' =&gt; [
+                'driver' =&gt; 'eloquent',
+                'model' =&gt; \App\Models\User::class,
+            ],
+        ],
+    ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;cors.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    return [
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel CORS
+        |--------------------------------------------------------------------------
+        |
+        | allowedOrigins, allowedHeaders and allowedMethods can be set to array('*')
+        | to accept any value.
+        |
+        */
+        'supportsCredentials' =&gt; true,
+        'allowedOrigins' =&gt; ['*'],
+        'allowedHeaders' =&gt; ['*'],
+        'allowedMethods' =&gt; ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        'exposedHeaders' =&gt; [],
+        'maxAge' =&gt; 0,
+        'hosts' =&gt; [],
+    ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;database.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    return [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Database Connection Name
+        |--------------------------------------------------------------------------
+        |
+        | Here you may specify which of the database connections below you wish
+        | to use as your default connection for all database work. Of course
+        | you may use many connections at once using the Database library.
+        |
+        */
+
+        'default' =&gt; env('DB_CONNECTION', 'mongodb'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Database Connections
+        |--------------------------------------------------------------------------
+        |
+        | Here are each of the database connections setup for your application.
+        | Of course, examples of configuring each database platform that is
+        | supported by Laravel is shown below to make development simple.
+        |
+        |
+        | All database work in Laravel is done through the PHP PDO facilities
+        | so make sure you have the driver for your particular database of
+        | choice installed on your machine before you begin development.
+        |
+        */
+
+        'connections' =&gt; [
+
+            'mongodb' =&gt; [
+                'driver'   =&gt; 'mongodb',
+                'host'     =&gt; env('DB_HOST', 'localhost'),
+                'port'     =&gt; env('DB_PORT', 27017),
+                'database' =&gt; env('DB_DATABASE', 'local'),
+                'username' =&gt; env('DB_USERNAME'),
+                'password' =&gt; env('DB_PASSWORD'),
+                'options'  =&gt; [
+                    'database' =&gt; env('DB_DATABASE', 'admin') // sets the authentication database required by mongo 3
+                ]
+            ],
+
+            'sqlite' =&gt; [
+                'driver' =&gt; 'sqlite',
+                'database' =&gt; env('DB_DATABASE', database_path('database.sqlite')),
+                'prefix' =&gt; '',
+            ],
+
+            'mysql' =&gt; [
+                'driver' =&gt; 'mysql',
+                'host' =&gt; env('DB_HOST', '127.0.0.1'),
+                'port' =&gt; env('DB_PORT', '3306'),
+                'database' =&gt; env('DB_DATABASE', 'forge'),
+                'username' =&gt; env('DB_USERNAME', 'forge'),
+                'password' =&gt; env('DB_PASSWORD', ''),
+                'unix_socket' =&gt; env('DB_SOCKET', ''),
+                'charset' =&gt; 'utf8mb4',
+                'collation' =&gt; 'utf8mb4_unicode_ci',
+                'prefix' =&gt; '',
+                'strict' =&gt; true,
+                'engine' =&gt; null,
+            ],
+
+            'pgsql' =&gt; [
+                'driver' =&gt; 'pgsql',
+                'host' =&gt; env('DB_HOST', '127.0.0.1'),
+                'port' =&gt; env('DB_PORT', '5432'),
+                'database' =&gt; env('DB_DATABASE', 'forge'),
+                'username' =&gt; env('DB_USERNAME', 'forge'),
+                'password' =&gt; env('DB_PASSWORD', ''),
+                'charset' =&gt; 'utf8',
+                'prefix' =&gt; '',
+                'schema' =&gt; 'public',
+                'sslmode' =&gt; 'prefer',
+            ],
+
+            'sqlsrv' =&gt; [
+                'driver' =&gt; 'sqlsrv',
+                'host' =&gt; env('DB_HOST', 'localhost'),
+                'port' =&gt; env('DB_PORT', '1433'),
+                'database' =&gt; env('DB_DATABASE', 'forge'),
+                'username' =&gt; env('DB_USERNAME', 'forge'),
+                'password' =&gt; env('DB_PASSWORD', ''),
+                'charset' =&gt; 'utf8',
+                'prefix' =&gt; '',
+            ],
+
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Migration Repository Table
+        |--------------------------------------------------------------------------
+        |
+        | This table keeps track of all the migrations that have already run for
+        | your application. Using this information, we can determine which of
+        | the migrations on disk haven't actually been run in the database.
+        |
+        */
+
+        'migrations' =&gt; 'migrations',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redis Databases
+        |--------------------------------------------------------------------------
+        |
+        | Redis is an open source, fast, and advanced key-value store that also
+        | provides a richer set of commands than a typical key-value systems
+        | such as APC or Memcached. Laravel makes it easy to dig right in.
+        |
+        */
+
+        'redis' =&gt; [
+
+            'client' =&gt; 'predis',
+
+            'default' =&gt; [
+                'host' =&gt; env('REDIS_HOST', '127.0.0.1'),
+                'password' =&gt; env('REDIS_PASSWORD', null),
+                'port' =&gt; env('REDIS_PORT', 6379),
+                'database' =&gt; 0,
+            ],
+
+        ],
+
+    ];
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;database</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;factories</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ModelFactory.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Factories
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define all of your model factories. Model factories give
+    | you a convenient way to create models for testing and seeding your
+    | database. Just tell the factory how a default model should look.
+    |
+    */
+
+    $factory-&gt;define(App\Models\User::class, function (Faker\Generator $faker) {
+
+        $number = $faker-&gt;numberBetween(1, 99);
+        $gender = $faker-&gt;randomElement(['men', 'women']);
+        gc_collect_cycles();
+
+        return [
+            'username'  =&gt; str_replace('.', '', $faker-&gt;unique()-&gt;userName),
+            'email'     =&gt; $faker-&gt;unique()-&gt;email,
+            'password'  =&gt; \Illuminate\Support\Facades\Hash::make('password'),
+            'bio'       =&gt; $faker-&gt;sentence(10),
+            'image'     =&gt; &quot;https://randomuser.me/api/portraits/{$gender}/{$number}.jpg&quot;
+        ];
+    });
+
+    $factory-&gt;define(App\Models\Article::class, function (Faker\Generator $faker) {
+        gc_collect_cycles();
+
+        return [
+            'title'         =&gt; $faker-&gt;sentence,
+            'description'   =&gt; $faker-&gt;paragraph,
+            'body'          =&gt; implode('&lt;p&gt;', $faker-&gt;paragraphs),
+        ];
+    });
+
+    $factory-&gt;define(App\Models\Comment::class, function (Faker\Generator $faker) {
+        return [
+            'body'  =&gt; $faker-&gt;paragraph,
+        ];
+    });
+
+    $factory-&gt;define(App\Models\Tag::class, function (Faker\Generator $faker) {
+        return [
+            'name'  =&gt; $faker-&gt;randomElement([
+                'apples',
+                'bananas',
+                'cherries',
+                'dates',
+                'figs',
+                'grapes',
+                'kiwis',
+                'limes',
+                'melons',
+                'oranges',
+                'pears',
+                'strawberries',
+            ]),
+        ];
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;migrations</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;2018_01_03_023000_create_users_collection.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    use Illuminate\Support\Facades\Schema;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Database\Migrations\Migration;
+
+    class CreateUsersCollection extends Migration
+    {
+        /**
+        * Run the migrations.
+        *
+        * @return void
+        */
+        public function up()
+        {
+            Schema::create('users', function (Blueprint $collection) {
+                $collection-&gt;unique('email');
+                $collection-&gt;unique('username');
+            });
+        }
+
+        /**
+        * Reverse the migrations.
+        *
+        * @return void
+        */
+        public function down()
+        {
+            Schema::collection('users', function (Blueprint $collection) {
+                $collection-&gt;drop();
+            });
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;2018_01_03_025149_create_articles_collection.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    use Illuminate\Support\Facades\Schema;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Database\Migrations\Migration;
+
+    class CreateArticlesCollection extends Migration
+    {
+        /**
+        * Run the migrations.
+        *
+        * @return void
+        */
+        public function up()
+        {
+            Schema::create('articles', function (Blueprint $collection) {
+                $collection-&gt;unique('slug');
+                $collection-&gt;index('author_id');
+            });
+        }
+
+        /**
+        * Reverse the migrations.
+        *
+        * @return void
+        */
+        public function down()
+        {
+            Schema::collection('articles', function (Blueprint $collection) {
+                $collection-&gt;drop();
+            });
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;seeds</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ArticlesTableSeeder.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    use Illuminate\Database\Seeder;
+
+    class ArticlesTableSeeder extends Seeder
+    {
+        /**
+        * Run the database seeds.
+        *
+        * @return void
+        */
+        public function run()
+        {
+            factory(App\Models\Article::class, 25)-&gt;create()-&gt;each(function ($article) {
+
+                $faker = Faker\Factory::create();
+                gc_collect_cycles();
+
+                $authors = App\Models\User::all();
+                $author = $authors[$faker-&gt;numberBetween(0, sizeof($authors) - 1)];
+                $article-&gt;author()-&gt;associate($author);
+
+                $num_com = $faker-&gt;numberBetween(1, 5);
+                for ($i = 0; $i &lt; $num_com; $i++) {
+                    $comment = factory(App\Models\Comment::class)-&gt;make();
+                    $comment-&gt;author()-&gt;associate($authors[$faker-&gt;numberBetween(0, sizeof($authors) - 1)]);
+                    $article-&gt;comments()-&gt;save($comment);
+                }
+
+                $num_tags = $faker-&gt;numberBetween(0, 4);
+                for ($j = 0; $j &lt; $num_tags; $j++) {
+                    $tag = factory(App\Models\Tag::class)-&gt;make();
+                    $article-&gt;tags()-&gt;save($tag);
+                }
+
+                $users = App\Models\User::where('id', '&lt;&gt;', $author-&gt;id)-&gt;get();
+                $num_favs = $faker-&gt;numberBetween(0, 10);
+                for ($k = 0; $k &lt; $num_favs; $k++) {
+                    $article-&gt;favoritedBy()-&gt;attach($users[$faker-&gt;numberBetween(0, sizeof($users) - 1)]);
+                }
+
+                $article-&gt;save();
+                $this-&gt;command-&gt;info('Article created');
+            });
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;DatabaseSeeder.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    use Illuminate\Database\Seeder;
+
+    class DatabaseSeeder extends Seeder
+    {
+        /**
+        * Run the database seeds.
+        *
+        * @return void
+        */
+        public function run()
+        {
+            $this-&gt;call('UsersTableSeeder');
+            $this-&gt;call('ArticlesTableSeeder');
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;UsersTableSeeder.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    use Illuminate\Database\Seeder;
+
+    class UsersTableSeeder extends Seeder
+    {
+        /**
+        * Run the database seeds.
+        *
+        * @return void
+        */
+        public function run()
+        {
+            factory(App\Models\User::class, 10)-&gt;create();
+            $this-&gt;command-&gt;info('Users created');
+            gc_collect_cycles();
+
+            $users = App\Models\User::all();
+            foreach ($users as $user) {
+                $faker = Faker\Factory::create();
+
+                $others = App\Models\User::where('id', '&lt;&gt;', $user-&gt;id)-&gt;get();
+
+                $num = $faker-&gt;numberBetween(1, 5);
+                for ($i = 0; $i &lt; $num; $i++) {
+                    $user-&gt;follow($others[$faker-&gt;numberBetween(0, sizeof($others) - 1)]);
+                }
+            }
+            $this-&gt;command-&gt;info('Followers added');
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;public</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create The Application
+    |--------------------------------------------------------------------------
+    |
+    | First we need to get an application instance. This creates an instance
+    | of the application / container and bootstraps the application so it
+    | is ready to receive HTTP / Console requests from the environment.
+    |
+    */
+
+    $app = require __DIR__.'/../bootstrap/app.php';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Run The Application
+    |--------------------------------------------------------------------------
+    |
+    | Once we have the application, we can handle the incoming request
+    | through the kernel, and send the associated response back to
+    | the client's browser allowing them to enjoy the creative
+    | and wonderful application we have prepared for them.
+    |
+    */
+
+    $app-&gt;run();
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;readme.md</summary>
+    <pre><code class='md'>
+    # ![RealWorld Example App](logo.png)
+
+    &gt; ### Lumen + MongoDB codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+
+
+    ### [Demo](https://lumen-realworld.herokuapp.com/)&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;[RealWorld](https://github.com/gothinkster/realworld)
+
+
+    This codebase was created to demonstrate a fully functional REST API built with **Lumen + MongoDB**, including CRUD operations, authentication, routing, pagination, and more.
+
+    It borrows heavily from the [excellent Laravel implementation](https://github.com/gothinkster/laravel-realworld-example-app) by [SandeeshS](https://github.com/SandeeshS).
+
+    For more information on how this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+
+    Hope you'll find this example helpful. Pull requests are welcome!
+
+    ----------
+
+    # Getting started
+
+    ## Installation
+
+    Please check the official Lumen installation guide for server requirements before you start. [Official Documentation](https://lumen.laravel.com/docs/5.5/installation)
+
+
+    Clone the repository
+
+        git clone git@github.com:elcobvg/lumen-realworld-example-app.git
+
+    Switch to the repo folder
+
+        cd lumen-realworld-example-app
+
+    Install all the dependencies using composer
+
+        composer install
+
+    Copy the example env file and make the required configuration changes in the .env file
+
+        cp .env.example .env
+
+    Generate a new application key
+
+    Since Lumen doesn't have the `php artisan key:generate` command, there's a custom route `http://localhost:8000/appKey` to help you generate an application key.
+
+    Generate a new JWT authentication secret key
+
+        php artisan jwt:secret
+
+    Run the database migrations (**Set the database connection in .env before migrating**)
+
+        php artisan migrate
+
+    Start the local development server
+
+        php -S localhost:8000 -t public
+
+    You can now access the server at http://localhost:8000
+
+    **TL;DR command list**
+
+        git clone git@elcobvg/lumen-realworld-example-app.git
+        cd lumen-realworld-example-app
+        composer install
+        cp .env.example .env
+        php artisan key:generate
+        php artisan jwt:secret
+
+    **Make sure you set the correct database connection information before running the migrations** [Environment variables](#environment-variables)
+
+        php artisan migrate
+        php -S localhost:8000 -t public
+
+    ## Database seeding
+
+    **Populate the database with seed data with relationships which includes users, articles, comments, tags, favorites and follows. This can help you to quickly start testing the api or couple a frontend and start using it with ready content.**
+
+    Run the database seeder and you're done
+
+        php artisan db:seed
+
+    ***Note*** : It's recommended to have a clean database before seeding. You can refresh your migrations at any point to clean the database by running the following command
+
+        php artisan migrate:refresh
+
+    ## API Specification
+
+    This application adheres to the api specifications set by the [Thinkster](https://github.com/gothinkster) team. This helps mix and match any backend with any other frontend without conflicts.
+
+    &gt; [Full API Spec](https://github.com/gothinkster/realworld/tree/master/api)
+
+    More information regarding the project can be found here https://github.com/gothinkster/realworld
+
+    ----------
+
+    # Code overview
+
+    ## Dependencies
+
+    - [laravel-mongodb](https://github.com/jenssegers/laravel-mongodb) - MongoDB based Eloquent model and Query builder
+    - [jwt-auth](https://github.com/tymondesigns/jwt-auth) - For authentication using JSON Web Tokens
+    - [laravel-cors](https://github.com/barryvdh/laravel-cors) - For handling Cross-Origin Resource Sharing (CORS)
+
+    ## Folders
+
+    - `app/Models` - Contains all the Eloquent models
+    - `app/Http/Controllers` - Contains all the api controllers
+    - `app/Http/Middleware` - Contains the JWT auth middleware
+    - `app/Providers` - Contains the JWT auth service provider
+    - `app/RealWorld/Favorite` - Contains the files implementing the favorite feature
+    - `app/RealWorld/Filters` - Contains the query filters used for filtering api requests
+    - `app/RealWorld/Follow` - Contains the files implementing the follow feature
+    - `app/RealWorld/Paginator` - Contains the pagination class used to paginate the result
+    - `app/RealWorld/Slug` - Contains the files implementing slugs to articles
+    - `config` - Contains all the application configuration files
+    - `database/factories` - Contains the model factory for all the models
+    - `database/migrations` - Contains all the database migrations
+    - `database/seeds` - Contains the database seeder
+    - `routes` - Contains all the api routes defined in web.php file
+    - `tests` - Contains all the application tests
+    - `tests/Feature/Api` - Contains all the api tests
+
+    ## Environment variables
+
+    - `.env` - Environment variables can be set in this file
+
+    ***Note*** : You can quickly set the database information and other variables in this file and have the application fully working.
+
+    ----------
+
+    # Testing API
+
+    Run the Lumen development server
+
+        php -S localhost:8000 -t public
+
+    The api can now be accessed at
+
+        http://localhost:8000/api
+
+    Request headers
+
+    | **Required** 	| **Key**              	| **Value**            	|
+    |----------	|------------------	|------------------	|
+    | Yes      	| Content-Type     	| application/json 	|
+    | Yes      	| X-Requested-With 	| XMLHttpRequest   	|
+    | Optional 	| Authorization    	| Token {JWT}      	|
+
+    Refer the [api specification](#api-specification) for more info.
+
+    ----------
+
+    # Authentication
+
+    This applications uses JSON Web Token (JWT) to handle authentication. The token is passed with each request using the `Authorization` header with `Token` scheme. The JWT authentication middleware handles the validation and authentication of the token. Please check the following sources to learn more about JWT.
+
+    - https://jwt.io/introduction/
+    - https://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
+
+    ----------
+
+    # Cross-Origin Resource Sharing (CORS)
+
+    This applications has CORS enabled by default on all API endpoints. The CORS allowed origins can be changed by setting them in the config file. Please check the following sources to learn more about CORS.
+
+    - https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+    - https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+    - https://www.w3.org/TR/cors
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;resources</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;views</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;routes</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;web.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Routes
+    |--------------------------------------------------------------------------
+    |
+    | Here is where you can register all of the routes for an application.
+    | It is a breeze. Simply tell Lumen the URIs it should respond to
+    | and give it the Closure to call when that URI is requested.
+    |
+    */
+
+    $router-&gt;get('/', function () {
+        return response(file_get_contents(__DIR__ . '/../readme.md'))
+                -&gt;header('Content-Type', 'text/plain');
+    });
+
+    // Generate random string
+    $router-&gt;get('appKey', function () {
+        return str_random('32');
+    });
+
+    $router-&gt;group(['prefix' =&gt; 'api'], function ($router) {
+
+        /**
+        * Authentication
+        */
+        $router-&gt;post('users/login', 'AuthController@login');
+        $router-&gt;post('users', 'AuthController@register');
+
+        /**
+        * Current user
+        */
+        $router-&gt;get('user', 'UserController@index');
+        $router-&gt;put('user', 'UserController@update');
+
+        /**
+        * User profile
+        */
+        $router-&gt;group(['prefix' =&gt; 'profiles/{username}'], function ($router) {
+
+            $router-&gt;get('/', 'ProfileController@show');
+            $router-&gt;post('follow', 'ProfileController@follow');
+            $router-&gt;delete('follow', 'ProfileController@unFollow');
+        });
+
+        /**
+        * Articles
+        */
+        $router-&gt;get('articles', 'ArticleController@index');
+        $router-&gt;post('articles', 'ArticleController@store');
+        $router-&gt;get('articles/feed', 'ArticleController@feed');
+
+        $router-&gt;group(['prefix' =&gt; 'articles/{slug:[a-z-]+}'], function ($router) {
+
+            $router-&gt;get('/', 'ArticleController@show');
+            $router-&gt;put('/', 'ArticleController@update');
+            $router-&gt;delete('/', 'ArticleController@destroy');
+
+            /**
+            * Comments
+            */
+            $router-&gt;post('comments', 'CommentController@store');
+            $router-&gt;get('comments', 'CommentController@index');
+            $router-&gt;delete('comments/{id:[a-z0-9]+}', 'CommentController@destroy');
+
+            /**
+            * Favorites
+            */
+            $router-&gt;post('favorite', 'ArticleController@addFavorite');
+            $router-&gt;delete('favorite', 'ArticleController@unFavorite');
+        });
+
+        /**
+        * Tags
+        */
+        $router-&gt;get('tags', 'ArticleController@tags');
+    });
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;storage</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;app</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;framework</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;cache</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;views</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;logs</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;tests</summary></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleCreateTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class ArticleCreateTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_the_article_on_successfully_creating_a_new_article()
+        {
+            $data = [
+                'article' =&gt; [
+                    'title' =&gt; 'test title',
+                    'description' =&gt; 'test description',
+                    'body' =&gt; 'test body with random text',
+                    'tagList' =&gt; ['test', 'coding'],
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/articles', $data, $this-&gt;headers);
+
+            $response-&gt;assertResponseStatus(201);
+            $response-&gt;seeJsonStructure([
+                    'article' =&gt; [
+                        'slug',
+                        'title',
+                        'description',
+                        'body',
+                        'tagList',
+                        'favorited',
+                        'favoritesCount',
+                        'author' =&gt; [
+                            'username',
+                            'bio',
+                            'image',
+                            'following',
+                        ]
+                    ]
+            ]);
+            $response-&gt;seeJsonContains(['title' =&gt; 'test title']);
+            $response-&gt;seeJsonContains(['username' =&gt; $this-&gt;loggedInUser-&gt;username]);
+        }
+
+        /** @test */
+        public function it_returns_appropriate_field_validation_errors_when_creating_a_new_article_with_invalid_inputs()
+        {
+            $data = [
+                'article' =&gt; [
+                    'title' =&gt; '',
+                    'description' =&gt; '',
+                    'body' =&gt; '',
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/articles', $data, $this-&gt;headers);
+
+            // $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'title' =&gt; ['field is required.'],
+                        'description' =&gt; ['field is required.'],
+                        'body' =&gt; ['field is required.'],
+                    ]
+                ]);
+        }
+
+        /** @test */
+        public function it_returns_an_unauthorized_error_when_trying_to_add_article_without_logging_in()
+        {
+            $data = [
+                'article' =&gt; [
+                    'title' =&gt; 'test title',
+                    'description' =&gt; 'test description',
+                    'body' =&gt; 'test body with random text',
+                    'tags' =&gt; ['test', 'coding'],
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/articles', $data);
+
+            $response-&gt;assertResponseStatus(401);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleDeleteTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class ArticleDeleteTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_a_200_success_response_on_successfully_removing_the_article()
+        {
+            $article = $this-&gt;loggedInUser-&gt;articles()-&gt;save(factory(\App\Models\Article::class)-&gt;make());
+
+            $response = $this-&gt;json('DELETE', &quot;/api/articles/{$article-&gt;slug}&quot;, [], $this-&gt;headers);
+
+            $response-&gt;assertResponseStatus(204);
+
+            $response = $this-&gt;json('GET', &quot;/api/articles/{$article-&gt;slug}&quot;);
+
+            $response-&gt;assertResponseStatus(404);
+        }
+
+        /** @test */
+        public function it_returns_an_unauthorized_error_when_trying_to_remove_article_without_logging_in()
+        {
+            $article = $this-&gt;loggedInUser-&gt;articles()-&gt;save(factory(\App\Models\Article::class)-&gt;make());
+
+            $response = $this-&gt;json('DELETE', &quot;/api/articles/{$article-&gt;slug}&quot;);
+
+            $response-&gt;assertResponseStatus(401);
+        }
+
+        /** @test */
+        public function it_returns_a_forbidden_error_when_trying_to_remove_articles_by_others()
+        {
+            $article = $this-&gt;user-&gt;articles()-&gt;save(factory(\App\Models\Article::class)-&gt;make());
+
+            $response = $this-&gt;json('DELETE', &quot;/api/articles/{$article-&gt;slug}&quot;, [], $this-&gt;headers);
+
+            $response-&gt;assertResponseStatus(403);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;ArticlePaginateTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class ArticlePaginateTest extends TestCase
+    {
+        public function setUp(): void
+        {
+            parent::setUp();
+
+            $this-&gt;artisan('migrate:refresh');
+            $this-&gt;artisan('db:seed');
+
+            $users = factory(\App\Models\User::class)-&gt;times(2)-&gt;create();
+
+            $this-&gt;loggedInUser = $users[0];
+
+            $this-&gt;user = $users[1];
+
+            $this-&gt;headers = [
+                'Authorization' =&gt; &quot;Token {$this-&gt;loggedInUser-&gt;token}&quot;
+            ];
+        }
+
+        /** @test */
+        public function it_returns_the_correct_articles_with_limit_and_offset()
+        {
+            $response = $this-&gt;json('GET', '/api/articles');
+
+            $response-&gt;assertResponseOk();
+            $response-&gt;seeJsonContains(['articlesCount' =&gt; 25]);
+
+            // $this-&gt;assertCount(20, $this-&gt;getResponseData()['articles'], 'Expected articles to set default limit to 20');
+
+            $response = $this-&gt;json('GET', '/api/articles?limit=10&amp;offset=5');
+
+            $response-&gt;assertResponseOk();
+            $response-&gt;seeJsonContains(['articlesCount' =&gt; 10]);
+
+            // $this-&gt;assertCount(10, $this-&gt;getResponseData()['articles'], 'Expected article limit of 10 when set');
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;ArticleReadTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class ArticleReadTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_the_articles_and_correct_total_article_count()
+        {
+            $articles = $this-&gt;user-&gt;articles()-&gt;saveMany(factory(\App\Models\Article::class)-&gt;times(2)-&gt;make());
+
+            $response = $this-&gt;json('GET', '/api/articles');
+
+            $response-&gt;assertResponseOk();
+            $response-&gt;seeJsonStructure([
+                    'articles' =&gt; [
+                        [
+                            'slug',
+                            'title',
+                            'description',
+                            'body',
+                            'tagList',
+                            'createdAt',
+                            'updatedAt',
+                            'favorited',
+                            'favoritesCount',
+                            'author' =&gt; [
+                                'username',
+                                'bio',
+                                'image',
+                                'following',
+                            ]
+                        ],
+                        [
+                            'slug',
+                            'title',
+                        ]
+                    ],
+                    'articlesCount'
+            ]);
+
+            // $response-&gt;seeJsonContains(['articlesCount' =&gt; 2]);
+            $response-&gt;seeJsonContains(['slug' =&gt; $articles[0]-&gt;slug]);
+            $response-&gt;seeJsonContains(['slug' =&gt; $articles[1]-&gt;slug]);
+            $response-&gt;seeJsonContains(['createdAt' =&gt; $articles[1]-&gt;created_at-&gt;toAtomString()]);
+            $response-&gt;seeJsonContains(['username' =&gt; $this-&gt;user-&gt;username]);
+        }
+
+        /** @test */
+        public function it_returns_the_article_by_slug_if_valid_and_not_found_error_if_invalid()
+        {
+            $article = $this-&gt;user-&gt;articles()-&gt;save(factory(\App\Models\Article::class)-&gt;make());
+
+            $response = $this-&gt;json('GET', '/api/articles');
+
+            $response-&gt;assertResponseOk();
+
+            $response-&gt;seeJsonContains(['slug' =&gt; $article-&gt;slug]);
+            $response-&gt;seeJsonContains(['title' =&gt; $article-&gt;title]);
+            $response-&gt;seeJsonContains(['createdAt' =&gt; $article-&gt;created_at-&gt;toAtomString()]);
+            $response-&gt;seeJsonContains(['username' =&gt; $this-&gt;user-&gt;username]);
+
+            $response = $this-&gt;json('GET', '/api/articles/randominvalidslug');
+
+            $response-&gt;assertResponseStatus(404);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;HomePageTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class HomePageTest extends TestCase
+    {
+        /**
+        * A basic test example.
+        *
+        * @return void
+        */
+        public function testHomePage()
+        {
+            $this-&gt;get('/');
+
+            $this-&gt;assertEquals(
+                file_get_contents(__DIR__ . '/../readme.md'),
+                $this-&gt;response-&gt;getContent()
+            );
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;LoginTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class LoginTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_a_user_with_valid_token_on_valid_login()
+        {
+            $data = [
+                'user' =&gt; [
+                    'email' =&gt; $this-&gt;user-&gt;email,
+                    'password' =&gt; 'password',
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/users/login', $data);
+
+            $response-&gt;assertResponseOk();
+            $response-&gt;seeJsonStructure([
+                'user' =&gt; [
+                    'bio',
+                    'email',
+                    'image',
+                    'token',
+                    'username',
+                ]
+            ]);
+
+            $response-&gt;seeJsonContains(['bio' =&gt; $this-&gt;user-&gt;bio]);
+            $response-&gt;seeJsonContains(['email' =&gt; $this-&gt;user-&gt;email]);
+            $response-&gt;seeJsonContains(['image' =&gt; $this-&gt;user-&gt;image]);
+            $response-&gt;seeJsonContains(['username' =&gt; $this-&gt;user-&gt;username]);
+
+            $responseData = $this-&gt;getResponseData();
+
+            $this-&gt;assertArrayHasKey('token', $responseData['user'], 'Token not found');
+
+            $this-&gt;assertTrue(
+                (count(explode('.', $responseData['user']['token'])) === 3),
+                'Failed to validate token'
+            );
+        }
+
+        /** @test */
+        public function it_returns_field_required_validation_errors_on_invalid_login()
+        {
+            $data = [];
+
+            $response = $this-&gt;json('POST', '/api/users/login', $data);
+
+            $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'email' =&gt; ['field is required.'],
+                        'password' =&gt; ['field is required.'],
+                    ]
+                ]);
+        }
+
+        /** @test */
+        public function it_returns_appropriate_field_validation_errors_on_invalid_login()
+        {
+            $data = [
+                'user' =&gt; [
+                    'email' =&gt; 'invalid email',
+                    'password' =&gt; 'password',
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/users/login', $data);
+
+            $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'email' =&gt; ['must be a valid email address.'],
+                    ]
+                ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;RegistrationTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class RegistrationTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_user_with_token_on_valid_registration()
+        {
+            $user = factory('App\Models\User')-&gt;make();
+            $data = [
+                'user' =&gt; [
+                    'username' =&gt; $user-&gt;username,
+                    'email' =&gt; $user-&gt;email,
+                    'password' =&gt; $user-&gt;password,
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/users', $data);
+
+            $response-&gt;assertResponseStatus(201);
+            $response-&gt;seeJsonStructure([
+                'user' =&gt; [
+                    'email',
+                    'username',
+                ]
+            ]);
+
+            $this-&gt;assertArrayHasKey('token', $this-&gt;getResponseData()['user'], 'Token not found');
+        }
+
+        /** @test */
+        public function it_returns_field_required_validation_errors_on_invalid_registration()
+        {
+            $data = [];
+
+            $response = $this-&gt;json('POST', '/api/users', $data);
+
+            $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'username' =&gt; ['field is required.'],
+                        'email' =&gt; ['field is required.'],
+                        'password' =&gt; ['field is required.'],
+                    ]
+                ]);
+        }
+
+        /** @test */
+        public function it_returns_appropriate_field_validation_errors_on_invalid_registration()
+        {
+            $data = [
+                'user' =&gt; [
+                    'username' =&gt; 'invalid username',
+                    'email' =&gt; 'invalid email',
+                    'password' =&gt; '1',
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/users', $data);
+
+            $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'username' =&gt; ['may only contain letters and numbers.'],
+                        'email' =&gt; ['must be a valid email address.'],
+                        'password' =&gt; ['must be at least 8 characters.'],
+                    ]
+                ]);
+        }
+
+        /** @test */
+        public function it_returns_username_and_email_taken_validation_errors_when_using_duplicate_values_on_registration()
+        {
+            $data = [
+                'user' =&gt; [
+                    'username' =&gt; $this-&gt;user-&gt;username,
+                    'email' =&gt; $this-&gt;user-&gt;email,
+                    'password' =&gt; $this-&gt;user-&gt;password,
+                ]
+            ];
+
+            $response = $this-&gt;json('POST', '/api/users', $data);
+
+            $response-&gt;assertResponseStatus(422);
+            $response-&gt;seeJsonEquals([
+                    'errors' =&gt; [
+                        'username' =&gt; ['has already been taken.'],
+                        'email' =&gt; ['has already been taken.'],
+                    ]
+                ]);
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;TagTest.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    class TagTest extends TestCase
+    {
+        /** @test */
+        public function it_returns_an_array_of_tags()
+        {
+            $response = $this-&gt;json('GET', '/api/tags');
+
+            $response-&gt;assertResponseOk();
+            $response-&gt;shouldReturnJson();
+        }
+    }
+    </code></pre></details>
+    <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;TestCase.php</summary>
+    <pre><code class='php'>
+    &lt;?php
+
+    abstract class TestCase extends Laravel\Lumen\Testing\TestCase
+    {
+        // protected $baseUrl = 'http://realworld.test:8080';
+
+        protected $loggedInUser;
+
+        protected $user;
+
+        protected $headers;
+
+        protected static $migrationsRun = false;
+
+        /**
+        * Creates the application.
+        *
+        * @return \Laravel\Lumen\Application
+        */
+        public function createApplication()
+        {
+            return require __DIR__ . '/../bootstrap/app.php';
+        }
+
+
+        public function setUp(): void
+        {
+            parent::setUp();
+
+            if (!static::$migrationsRun) {
+                $this-&gt;artisan('migrate:refresh');
+                $this-&gt;artisan('db:seed');
+                static::$migrationsRun = true;
+            }
+
+            $this-&gt;beforeApplicationDestroyed(function () {
+                // $this-&gt;artisan('migrate:rollback');
+            });
+
+            $users = factory(\App\Models\User::class)-&gt;times(2)-&gt;create();
+
+            $this-&gt;loggedInUser = $users[0];
+
+            $this-&gt;user = $users[1];
+
+            $this-&gt;headers = [
+                'Authorization' =&gt; &quot;Token {$this-&gt;loggedInUser-&gt;token}&quot;
+            ];
+        }
+
+        /**
+        * Get the JSON data from the response and return as assoc. array
+        *
+        * @return array
+        */
+        public function getResponseData()
+        {
+            return json_decode(json_encode($this-&gt;response-&gt;getData()), true);
+        }
+    }
+    </code></pre></details>
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

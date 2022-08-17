@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTTP tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="http, status, request, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTTP tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h3 id="sm">Status Messages</h3>
+
+  <h4>1xx: Information</h4>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:40%">Message:</th>
+        <th style="width:60%">Description:</th>
+      </tr>
+      <tr>
+        <td>100 Continue</td>
+        <td> The server has received the request headers, and the client should proceed to send the request body</td>
+      </tr>
+      <tr>
+        <td>101 Switching Protocols</td>
+        <td>The requester has asked the server to switch protocols</td>
+      </tr>
+      <tr>
+        <td>103 Checkpoint</td>
+        <td>Used in the resumable requests proposal to resume aborted PUT or POST requests</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>2xx: Successful</h4>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:40%">Message:</th>
+        <th>Description:</th>
+      </tr>
+      <tr>
+        <td>200 OK</td>
+        <td>The request is OK (this is the standard response for successful HTTP requests)</td>
+      </tr>
+      <tr>
+        <td>201 Created</td>
+        <td>The request has been fulfilled, and a new resource is
+          created&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>202 Accepted</td>
+        <td>The request has been accepted for processing, but the processing
+          has not been completed
+        </td>
+      </tr>
+      <tr>
+        <td>203 Non-Authoritative Information</td>
+        <td>The request has been successfully processed, but is returning information that may be from another source</td>
+      </tr>
+      <tr>
+        <td>204 No Content</td>
+        <td>The request has been successfully processed, but is not returning any content</td>
+      </tr>
+      <tr>
+        <td>205 Reset Content</td>
+        <td>The request has been successfully processed, but is not returning any content, and requires that the requester reset the document view</td>
+      </tr>
+      <tr>
+        <td>206 Partial Content</td>
+        <td>The server is delivering only part of the resource due to a range header sent by the client</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>3xx: Redirection</h4>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:40%">Message:</th>
+        <th>Description:</th>
+      </tr>
+      <tr>
+        <td>300 Multiple Choices</td>
+        <td>A link list. The user can select a link and go to that
+          location. Maximum five addresses &nbsp;</td>
+      </tr>
+      <tr>
+        <td>301 Moved Permanently</td>
+        <td>The requested page has moved to a new URL&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>302 Found</td>
+        <td>The requested page has moved temporarily to a new URL&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>303 See Other</td>
+        <td>The requested page can be found under a different URL</td>
+      </tr>
+      <tr>
+        <td>304 Not Modified</td>
+        <td>Indicates the requested page has not been modified since last requested</td>
+      </tr>
+      <tr>
+        <td>306 Switch Proxy</td>
+        <td><i>No longer used</i></td>
+      </tr>
+      <tr>
+        <td>307 Temporary Redirect</td>
+        <td>The requested page has moved temporarily to a new URL</td>
+      </tr>
+      <tr>
+        <td>308 Resume Incomplete</td>
+        <td>Used in the resumable requests proposal to resume aborted PUT or POST requests</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>4xx: Client Error</h4>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:40%">Message:</th>
+        <th>Description:</th>
+      </tr>
+      <tr>
+        <td>400&nbsp;Bad Request</td>
+        <td>The request cannot be fulfilled due to bad syntax</td>
+      </tr>
+      <tr>
+        <td>401 Unauthorized</td>
+        <td>The request was a legal request, but the server is refusing to respond to it. For use when authentication is possible but has failed or not yet been provided</td>
+      </tr>
+      <tr>
+        <td>402 Payment Required</td>
+        <td><i>Reserved for future use</i>
+        </td>
+      </tr>
+      <tr>
+        <td>403 Forbidden</td>
+        <td>The request was a legal request, but the server is refusing to respond to it</td>
+      </tr>
+      <tr>
+        <td>404 Not Found</td>
+        <td>The requested page could not be found but may be available again in the future</td>
+      </tr>
+      <tr>
+        <td>405 Method Not Allowed</td>
+        <td>A request was made of a page using a request method not supported by that page</td>
+      </tr>
+      <tr>
+        <td>406 Not Acceptable</td>
+        <td>The server can only generate a response that is not
+          accepted by the client
+        </td>
+      </tr>
+      <tr>
+        <td>407 Proxy Authentication Required</td>
+        <td>The client must first authenticate itself with the proxy
+        </td>
+      </tr>
+      <tr>
+        <td>408 Request Timeout</td>
+        <td>The server timed out waiting for the request
+        </td>
+      </tr>
+      <tr>
+        <td>409 Conflict</td>
+        <td>The request could not be completed because of a conflict
+        in the request</td>
+      </tr>
+      <tr>
+        <td>410 Gone</td>
+        <td>The requested page is no longer available</td>
+      </tr>
+      <tr>
+        <td>411 Length Required</td>
+        <td>The "Content-Length" is not defined. The server
+          will not accept the request without it&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>412 Precondition Failed</td>
+        <td>The precondition given in the request evaluated to false by
+          the server
+        </td>
+      </tr>
+      <tr>
+        <td>413 Request Entity Too Large</td>
+        <td>The server will not accept the request, because the request entity is
+          too large
+        </td>
+      </tr>
+      <tr>
+        <td>414 Request-URI Too Long</td>
+        <td>The server will not accept the request, because the URL is
+          too long. Occurs when you convert a POST request to a GET request with
+          a long query information&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>415 Unsupported Media Type</td>
+        <td>The server will not accept the request, because the media
+          type is not supported&nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>416&nbsp;Requested Range Not Satisfiable</td>
+        <td>The client has asked for a portion of the file, but the server cannot supply that portion</td>
+      </tr>
+      <tr>
+        <td>417 Expectation Failed</td>
+        <td>The server cannot meet the requirements of the Expect request-header field</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>5xx: Server Error</h4>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:40%">Message:</th>
+        <th>Description:</th>
+      </tr>
+      <tr>
+        <td>500&nbsp;Internal Server Error</td>
+        <td>A generic error message, given when no more specific message is suitable</td>
+      </tr>
+      <tr>
+        <td>501 Not Implemented</td>
+        <td>The server either does not recognize the request method, or it lacks the ability to fulfill the request</td>
+      </tr>
+      <tr>
+        <td>502 Bad Gateway</td>
+        <td>The server was acting as a gateway or proxy and received an invalid response from the upstream server</td>
+      </tr>
+      <tr>
+        <td>503 Service Unavailable</td>
+        <td>The server is currently unavailable (overloaded or down)
+        </td>
+      </tr>
+      <tr>
+        <td>504 Gateway Timeout</td>
+        <td>The server was acting as a gateway or proxy and did not receive a timely response from the upstream server</td>
+      </tr>
+      <tr>
+        <td>505 HTTP Version Not Supported</td>
+        <td>The server does not support the HTTP protocol version used in the request
+        </td>
+      </tr>
+      <tr>
+        <td>511 Network Authentication Required</td>
+        <td>The client needs to authenticate to gain network access</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+<h3 id="rm">Request Methods</h3>
+
+  <h4>GET - request data from a specified resource</h4>
+  query string (name/value pairs) is sent in the URL : /test/demo_form.php?name1=value1&name2=value2
+
+  <ul>
+    <li>can be cached</li>
+    <li>remain in the browser history</li>
+    <li>can be bookmarked</li>
+    <li>should never be used when dealing with sensitive data</li>
+    <li>have length restrictions</li>
+    <li>only used to request data (not modify)</li>
+  </ul>
+
+  <h4>POST - send data to a server to create/update a resource</h4>
+  data sent to the server with POST is stored in the request body of the HTTP request
+
+  <pre><code class="python">
+  POST /test/demo_form.php HTTP/1.1
+  Host: w3schools.com
+  name1=value1&amp;name2=value2
+  </code></pre>
+
+  <ul>
+    <li>POST requests are never cached</li>
+    <li>POST requests do not remain in the browser history</li>
+    <li>POST requests cannot be bookmarked</li>
+    <li>POST requests have no restrictions on data length</li>
+  </ul>
+
+  <br/>
+  <h4>PUT - send data to a server to create/update a resource</h4>
+  difference between POST and PUT is that PUT requests are idempotent. That is, calling the same PUT request multiple times will always produce the same result. In contrast, calling a POST request repeatedly have side effects of creating the same resource multiple times
+
+  <h4>DELETE - deletes the specified resource</h4>
+
+  <h4>OPTIONS - describes the communication options for the target resource</h4>
+
+  <h4>GET vs. POST</h4>
+
+  <table>
+  <tbody>
+    <tr>
+      <th style="width:30%">&nbsp;</th>
+      <th style="width:35%">GET</th>
+      <th>POST</th>
+    </tr>
+    <tr>
+      <td>BACK button/Reload</td>
+      <td>Harmless</td>
+      <td>Data will be re-submitted (the browser should alert the user that the data are about to be re-submitted)</td>
+    </tr>
+    <tr>
+      <td>Bookmarked</td>
+      <td>Can be bookmarked</td>
+      <td>Cannot be bookmarked</td>
+    </tr>
+    <tr>
+      <td>Cached</td>
+      <td>Can be cached</td>
+      <td>Not cached</td>
+    </tr>
+    <tr>
+      <td>Encoding type</td>
+      <td>application/x-www-form-urlencoded</td>
+      <td>application/x-www-form-urlencoded or multipart/form-data. Use multipart encoding for binary data</td>
+    </tr>
+    <tr>
+      <td>History</td>
+      <td>Parameters remain in browser history</td>
+      <td>Parameters are not saved in browser history</td>
+    </tr>
+    <tr>
+      <td>Restrictions on data length</td>
+      <td>Yes, when sending data, the GET method adds the data to the URL; and the length of a URL is limited (maximum URL length is 2048 characters)</td>
+      <td>No restrictions</td>
+    </tr>
+    <tr>
+      <td>Restrictions on data type</td>
+      <td>Only ASCII characters allowed</td>
+      <td>No restrictions. Binary data is also allowed</td>
+    </tr>
+    <tr>
+      <td>Security</td>
+      <td>GET is less secure compared to POST because data sent is part of the URL<br>
+    <br>
+    Never use GET when sending passwords or other sensitive information!</td>
+      <td>POST is a little safer than GET because the parameters are not stored in browser history or in web server logs</td>
+    </tr>
+    <tr>
+      <td>Visibility</td>
+      <td>Data is visible to everyone in the URL</td>
+      <td>Data is not displayed in the URL</td>
+    </tr>
+    </tbody>
+  </table>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,3388 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CSS and CSS3 tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="css, css3, selectors, filter, gradients, grid, flex, media queries, rwd, responsive, design, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>CSS and CSS3 tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="general">General</h2>
+
+  <ul>
+    <li><a href="https://www.w3schools.com/howto/default.asp">HTML and CSS "HOW TO" examples</a></li>
+    <li><strong>selectors</strong>
+      <ul>
+        <li>element - <code>div | span | p | button</code></li>
+        <li>id - <code>#some_id | #another_id</code></li>
+        <li>class - <code>.class | .cls | p.class | div.cls</code></li>
+      </ul>
+    </li>
+    <li><strong>combinators</strong>
+      <ul>
+        <li>descendant or nested - <code>div.cls span | div .class</code></li>
+        <li>direct children of element - <code>div.cls > p | div > .class</code></li>
+        <li>adjacent sibling, immediately after element - <code>div.cls + p | div + .class</code></li>
+        <li>general sibling, all after element - <code>div.cls + p | div + .class</code></li>
+      </ul>
+    </li>
+    <li><strong>grouping</strong> - <code>#some_id, div.cls, .xyz {...style...}</code></li>
+    <li><strong>comments</strong> - <code>/* comment */</code></li>
+    <li><strong>multiple properties style (padding, margin, ...)</strong>
+      <ul>
+        <li>four values = top , right , bottom , left</li>
+        <li>three values = top , right &amp; left , bottom</li>
+        <li>two values = top &amp; bottom , right &amp; left</li>
+        <li>one value = all</li>
+      </ul>
+    </li>
+    <li><code>auto</code>, <code>initial</code>, <code>inherit</code>, <code>none</code> as common definition for most styles</li>
+  </ul>
+
+
+
+<h2 id="selectorsref">Selectors Reference</h2>
+
+  <ul>
+    <li>use CSS3(transition,...) to animate states changes</li>
+  </ul>
+
+  <h5>Support</h5>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:20%">Selector</th>
+        <th style="width:20%">Example</th>
+        <th>Example description</th>
+      </tr>
+      <tr>
+        <td>.<i>class</i></td>
+        <td>.intro</td>
+        <td>Selects all elements with class="intro"</td>
+      </tr>
+      <tr>
+        <td>#<i>id</i></td>
+        <td>#firstname</td>
+        <td>Selects the element with id="firstname"</td>
+      </tr>
+      <tr>
+        <td>*</td>
+        <td>*</td>
+        <td>Selects all elements</td>
+      </tr>
+      <tr>
+        <td><i>element</i></td>
+        <td>p</td>
+        <td>Selects all &lt;p&gt; elements</td>
+      </tr>
+      <tr>
+        <td><i>element,element</i></td>
+        <td>div, p</td>
+        <td>Selects all &lt;div&gt; elements and all &lt;p&gt; elements</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><strong>Combinators</strong></td>
+      </tr>
+      <tr>
+        <td><i>element</i> <i>element</i></td>
+        <td>div p</td>
+        <td>Selects all &lt;p&gt; elements inside &lt;div&gt; elements</td>
+      </tr>
+      <tr>
+        <td><i>element</i>&gt;<i>element</i></td>
+        <td>div &gt; p</td>
+        <td>Selects all &lt;p&gt; elements where the parent is a &lt;div&gt; element</td>
+      </tr>
+      <tr>
+        <td><i>element</i>+<i>element</i></td>
+        <td>div + p</td>
+        <td>Selects all &lt;p&gt; elements that are placed immediately after &lt;div&gt; elements</td>
+      </tr>
+      <tr>
+        <td><i>element1</i>~<i>element2</i></td>
+        <td>p ~ ul</td>
+        <td>Selects every &lt;ul&gt; element that are preceded by a &lt;p&gt; element</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><strong>Attribute</strong> (useful for styling forms without class or ID)</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>]</td>
+        <td>[target]</td>
+        <td>Selects all elements with a target attribute</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>=<i>value</i>]</td>
+        <td>[target=_blank]</td>
+        <td>Selects all elements with target="_blank"</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>~=<i>value</i>]</td>
+        <td>[title~=flower]</td>
+        <td>Selects all elements with a title attribute <u>containing the word</u> "flower", ignores "my-flower" or "flowers"</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>|=<i>value</i>]</td>
+        <td>[lang|=en]</td>
+        <td>Selects all elements with a lang attribute value <u>starting</u> with "en"</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>^=<i>value</i>]</td>
+        <td>a[href^="https"]</td>
+        <td>Selects every &lt;a&gt; element whose href attribute value begins with "https"</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>$=<i>value</i>]</td>
+        <td>a[href$=".pdf"]</td>
+        <td>Selects every &lt;a&gt; element whose href attribute value ends with ".pdf"</td>
+      </tr>
+      <tr>
+        <td>[<i>attribute</i>*=<i>value</i>]</td>
+        <td>a[href*="w3schools"]</td>
+        <td>Selects every &lt;a&gt; element whose href attribute value <u>contains the substring</u> "w3schools"</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><strong>Pseudo-classes</strong></td>
+      </tr>
+      <tr>
+        <td>:checked</td>
+        <td>input:checked</td>
+        <td>Selects every checked &lt;input&gt; element. Checked &lt;input&gt; element (only for radio buttons and checkboxes) and &lt;option&gt; element</td>
+      </tr>
+      <tr>
+        <td>:disabled</td>
+        <td>input:disabled</td>
+        <td>Selects every disabled &lt;input&gt; element</td>
+      </tr>
+      <tr>
+        <td>:optional</td>
+        <td>input:optional</td>
+        <td>Selects &lt;input&gt; elements with no "required" attribute</td>
+      </tr>
+      <tr>
+        <td>:required</td>
+        <td>input:required</td>
+        <td>Selects &lt;input&gt; elements with a "required" attribute specified</td>
+      </tr>
+      <tr>
+        <td>:enabled</td>
+        <td>input:enabled</td>
+        <td>Selects every enabled &lt;input&gt; element</td>
+      </tr>
+      <tr>
+        <td>:valid</td>
+        <td>input:valid</td>
+        <td>Selects all &lt;input&gt; elements with a valid value</td>
+      </tr>
+      <tr>
+        <td>:invalid</td>
+        <td>input:invalid</td>
+        <td>Selects all &lt;input&gt; elements with an invalid value</td>
+      </tr>
+      <tr>
+        <td>:in-range</td>
+        <td>input:in-range</td>
+        <td>Selects &lt;input&gt; elements with a value within a specified range</td>
+      </tr>
+      <tr>
+        <td>:out-of-range</td>
+        <td>input:out-of-range</td>
+        <td>Selects &lt;input&gt; elements with a value outside a specified range</td>
+      </tr>
+      <tr>
+        <td>:focus</td>
+        <td>input:focus</td>
+        <td>Selects the &lt;input&gt; element that has focus</td>
+      </tr>
+      <tr>
+        <td>:read-only</td>
+        <td>input:read-only</td>
+        <td>Selects &lt;input&gt; elements with a "readonly" attribute specified</td>
+      </tr>
+      <tr>
+        <td>:read-write</td>
+        <td>input:read-write</td>
+        <td>Selects &lt;input&gt; elements with no "readonly" attribute</td>
+      </tr>
+
+      <tr>
+        <td>:not(selector)</td>
+        <td>:not(p)</td>
+        <td>Selects every element that is not a &lt;p&gt; element</td>
+      </tr>
+
+      <tr>
+        <td>:empty</td>
+        <td>p:empty</td>
+        <td>Selects every &lt;p&gt; element that has no children (including text nodes)</td>
+      </tr>
+      <tr>
+        <td>:first-child</td>
+        <td>p:first-child | li:first-child | :first-child</td>
+        <td>Selects every &lt;p&gt; elements that is the <u>first child of its parent</u></td>
+      </tr>
+      <tr>
+        <td>:first-of-type</td>
+        <td>p:first-of-type</td>
+        <td>Selects every &lt;p&gt; element that is the first &lt;p&gt; element of its parent. the same as :nth-of-type(1)</td>
+      </tr>
+      <tr>
+        <td>:lang(<i>language</i>)</td>
+        <td>p:lang(it)</td>
+        <td>Selects every &lt;p&gt; element with a lang attribute value starting with "it"</td>
+      </tr>
+      <tr>
+        <td>:last-child</td>
+        <td>p:last-child</td>
+        <td>Selects every &lt;p&gt; elements that is the last child of its parent</td>
+      </tr>
+      <tr>
+        <td>:last-of-type</td>
+        <td>p:last-of-type</td>
+        <td>Selects every &lt;p&gt; element that is the last &lt;p&gt; element of its parent</td>
+      </tr>
+      <tr>
+        <td>:nth-child(n)</td>
+        <td>p:nth-child(2)</td>
+        <td>Selects every &lt;p&gt; element that is the second child of its parent</td>
+      </tr>
+      <tr>
+        <td>:nth-last-child(n)</td>
+        <td>p:nth-last-child(2)</td>
+        <td>Selects every &lt;p&gt; element that is the second child of its parent, counting from the last child</td>
+      </tr>
+      <tr>
+        <td>:nth-last-of-type(n)</td>
+        <td>p:nth-last-of-type(2)</td>
+        <td>Selects every &lt;p&gt; element that is the second &lt;p&gt; element of its parent, counting from the last child</td>
+      </tr>
+      <tr>
+        <td>:nth-of-type(n)</td>
+        <td>p:nth-of-type(2)</td>
+        <td>Selects every &lt;p&gt; element that is the second &lt;p&gt; element of its parent</td>
+      </tr>
+      <tr>
+        <td>:only-of-type</td>
+        <td>p:only-of-type</td>
+        <td>Selects every &lt;p&gt; element that is the only &lt;p&gt; element of its parent</td>
+      </tr>
+      <tr>
+        <td>:only-child</td>
+        <td>p:only-child</td>
+        <td>Selects every &lt;p&gt; element that is the only child of its parent</td>
+      </tr>
+      <tr>
+        <td>:target</td>
+        <td>#news:target</td>
+        <td>Selects the current active #news element (clicked on a URL containing that anchor name)</td>
+      </tr>
+      <tr>
+        <td>:root</td>
+        <td>root</td>
+        <td>Selects the document's root (html) element</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><strong>Links state (in correct order)</strong></td>
+      </tr>
+      <tr>
+        <td>:link</td>
+        <td>a:link</td>
+        <td>Selects all unvisited links</td>
+      </tr>
+      <tr>
+        <td>:visited</td>
+        <td>a:visited</td>
+        <td>Selects all visited links</td>
+      </tr>
+      <tr>
+        <td>:hover</td>
+        <td>a:hover</td>
+        <td>Selects links on mouse over</td>
+      </tr>
+      <tr>
+        <td>:active</td>
+        <td>a:active</td>
+        <td>Selects the active link</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><strong>Pseudo-elements</strong></td>
+      </tr>
+      <tr>
+        <td>::after</td>
+        <td class="notranslate">p::after</td>
+        <td>Insert content after every &lt;p&gt; element</td>
+      </tr>
+      <tr>
+        <td>::before</td>
+        <td class="notranslate">p::before</td>
+        <td>Insert content before every &lt;p&gt; element</td>
+      </tr>
+      <tr>
+        <td>::first-letter</td>
+        <td class="notranslate">p::first-letter</td>
+        <td>Selects the first letter of every &lt;p&gt; element</td>
+      </tr>
+      <tr>
+        <td>::first-line</td>
+        <td class="notranslate">p::first-line</td>
+        <td>Selects the first line of a content of every &lt;p&gt; element</td>
+      </tr>
+      <tr>
+        <td>::selection</td>
+        <td class="notranslate">p::selection</td>
+        <td>Selects the portion of an element that is selected by a user , changes user selection colors</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+
+
+<h2 id="boxmodel">Box Model</h2>
+
+  <ul>
+    <li>Content - content of the box, where text and images appear</li>
+    <li>Padding - clears an area around the content. The padding is transparent</li>
+    <li>Border - border that goes around the padding and content</li>
+    <li>Margin - clears an area outside the border. The margin is transparent</li>
+  </ul>
+
+
+
+<h2 id="insert">Inserting/Priority</h2>
+
+  <ul>
+    <li>inline style - <code>&lt;div style="..."&gt;&lt;/div&gt;</code>></li>
+    <li>external/internal (tags in head section), depending of what was defined last as style of element
+      <ul>
+        <li>external - <code>&lt;link rel="stylesheet" href="../css/css.css"/&gt;</code></li>
+        <li>internal - <code>&lt;style type="text/css"&gt;...&lt;/style&gt;</code></li>
+      </ul>
+    </li>
+    <li>browser default</li>
+  </ul>
+
+
+
+<h2 id="specs">Specificity</h2>
+
+  <ul>
+    <li>if there are two or more conflicting CSS rules that point to the same element, the browser follows some rules to determine which one is most specific and therefore wins out</li>
+  </ul>
+
+  <ol class="wcounter">
+    <li>The universal selector (*) has low specificity, while ID selectors are highly specific! </li>
+    <li>four categories which define the specificity level of a selector:
+      <ol class="wcounter">
+        <li>Inline styles</li>
+        <li>IDs</li>
+        <li>Classes, attributes and pseudo-classes</li>
+        <li>Elements and pseudo-elements</li>
+      </ol>
+    </li>
+    <li>Memorize how to calculate specificity! Start at 0, add 1000 for style attribute, add 100 for each ID, add 10 for each attribute, class or pseudo-class, add 1 for each element name or pseudo-element.</li>
+    <li>Specificity Rules
+      <ol class="wcounter">
+        <li>Equal specificity: the latest rule counts</li>
+        <li>ID selectors have a higher specificity than attribute selectors</li>
+        <li>Contextual selectors are more specific than a single element selector - The embedded style sheet is closer to the element to be styled</li>
+        <li>A class selector beats any number of element selectors - a class selector such as .intro beats h1, p, div, etc</li>
+        <li>The universal selector and inherited values have a specificity of 0 - *, body * and similar have a zero specificity. Inherited values also have a specificity of 0.</li>
+      </ol>
+    </li>
+  </ol>
+
+  <style type="text/css">
+    ol.wcounter {
+      counter-reset: section;
+      list-style-type: none;
+    }
+    ol.wcounter li::before {
+      counter-increment: section;
+      content: counters(section,".") " ";
+    }
+  </style>
+
+  <pre><code class="css">
+    /*
+      list uses counter-increment and counter-reset to set ordering count
+    */
+    ol.wcounter {
+      counter-reset: section;
+      list-style-type: none;
+    }
+    ol.wcounter li::before {
+      counter-increment: section;
+      content: counters(section,".") " ";
+    }
+  </code></pre>
+
+
+
+<h2 id="units">Units</h2>
+
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:20%">Unit</th>
+        <th>Description</th>
+      </tr>
+
+      <tr>
+        <th colspan="2">Absolute Lengths</th>
+      </tr>
+      <tr>
+        <td>cm</td>
+        <td>centimeters</td>
+      </tr>
+        <tr>
+        <td>mm</td>
+        <td>millimeters</td>
+        </tr>
+      <tr>
+        <td>in</td>
+        <td>inches (1in = 96px = 2.54cm)</td>
+      </tr>
+        <tr>
+        <td>px *</td>
+        <td>pixels (1px = 1/96th of 1in)</td>
+        </tr>
+      <tr>
+        <td>pt</td>
+        <td>points (1pt = 1/72 of 1in)</td>
+      </tr>
+      <tr>
+        <td>pc</td>
+        <td>picas (1pc = 12 pt)</td>
+      </tr>
+
+      <tr>
+        <th colspan="2">Relative Lengths</th>
+      </tr>
+      <tr>
+        <td>em</td>
+        <td>Relative to the font-size of the element (2em means 2 times the size of the current font). Recommended by the W3C. 1em is equal to the current font size. The default text size in browsers is 16px. So, the default size of 1em is 16px.The size can be calculated from pixels to em using this formula: pixels/16=em. Set <code>body{font-size:100%;}</code> to fit all browsers</td>
+      </tr>
+      <tr>
+        <td>ex</td>
+        <td>Relative to the x-height of the current font (rarely used)</td>
+      </tr>
+      <tr>
+        <td>ch</td>
+        <td>Relative to width of the "0" (zero)</td>
+      </tr>
+      <tr>
+        <td>rem</td>
+        <td>Relative to font-size of the root element</td>
+      </tr>
+      <tr>
+        <td>vw</td>
+        <td>Relative to 1% of the width of the viewport, vw (1vw = 1% of viewport width), if the viewport is 50cm wide, 1vw is 0.5cm</td>
+      </tr>
+      <tr>
+        <td>vh</td>
+        <td>Relative to 1% of the height of the viewport*</td>
+      </tr>
+      <tr>
+        <td>vmin/vm(IE)</td>
+        <td>Relative to 1% of viewport's* smaller dimension</td>
+      </tr>
+      <tr>
+        <td>vmax/not in IE</td>
+        <td>Relative to 1% of viewport's* larger dimension</td>
+      </tr>
+      <tr>
+        <td>%</td>
+        <td>Relative to the parent element</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="centering">Centering</h2>
+
+  <div class="example">
+    <div style="width:500px;margin:auto;border:3px solid #73AD21;">
+      This div element has a width of 500px, and margin set to auto.
+    </div>
+    The problem with the div above occurs when the browser window is smaller than the width of the element. The browser then adds a horizontal scrollbar to the page.<br/>
+    Using max-width instead, in this situation, will improve the browser's handling of small windows. This is important when making a site usable on small devices<br/>
+    <div style="max-width:500px;margin:auto;border:3px solid #73AD21;">
+      This div element has a max-width of 500px, and margin set to auto
+    </div>
+  </div>
+
+  <pre><code class="html">
+    &lt;div style="width:500px;margin:auto;border:3px solid #73AD21;"&gt;
+      This div element has a width of 500px, and margin set to auto.
+    &lt;/div&gt;
+    The problem with the div above occurs when the browser window is smaller than the width of the element.
+     The browser then adds a horizontal scrollbar to the page.
+    Using max-width instead, in this situation, will improve the browser's handling of small windows.
+    This is important when making a site usable on small devices
+    &lt;div style="max-width:500px;margin:auto;border:3px solid #73AD21;"&gt;
+      This div element has a max-width of 500px, and margin set to auto
+    &lt;/div&gt;
+  </code></pre>
+
+  <div class="example">
+    <img src="../images/img_orange_flowers.jpg" style="display:block;margin-left:auto;margin-right:auto;width:150px;"/>
+  </div>
+
+  <pre><code class="html">
+    &lt;img
+      src="../images/img_orange_flowers.jpg"
+      style="display:block;margin-left:auto;margin-right:auto;width:150px;"
+    /&gt;
+  </code></pre>
+
+  <div class="example">
+    padding and text-align
+    <br/>
+    <div style="padding:30px 0;border:3px solid green;text-align:center;">
+      Aligned text
+    </div>
+    <br/>
+    line-height and text-align
+    <br/>
+    <div style="line-height:150px;height:150px;border:3px solid green;text-align:center;">
+      <p style="line-height:1.5;display:inline-block;vertical-align:middle;">I am vertically and horizontally centered text in a paragraph tag with multiple line, still looking good, and ready to add any more text inside this great div element in which am i )</p>
+    </div>
+    <br/>
+    transform and position:absolute
+    <br/>
+    <div style="height:200px;position:relative;border:3px solid green;">
+      <p style="margin:0;position:absolute;top:50%;left:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);">I am vertically and horizontally centered text in a paragraph tag with multiple line, still looking good, and ready to add any more text inside this great div element in which am i )</p>
+    </div>
+  </div>
+
+  <pre><code class="html">
+    padding and text-align
+    &lt;div style="padding:30px 0;border:3px solid green;text-align:center;"&gt;
+      Aligned text
+    &lt;/div&gt;
+
+    line-height and text-align
+    &lt;div style="line-height:150px;height:150px;border:3px solid green;text-align:center;"&gt;
+      &lt;p style="line-height:1.5;display:inline-block;vertical-align:middle;"&gt;
+        I am vertically and horizontally centered text in a paragraph tag with multiple line,
+        still looking good, and ready to add any more text inside this great div element in which am i )
+      &lt;/p&gt;
+    &lt;/div&gt;
+
+    transform and position:absolute
+    &lt;div style="height:200px;position:relative;border:3px solid green;"&gt;
+      &lt;p
+        style="margin:0;position:absolute;top:50%;left:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);"
+      &gt;
+        I am vertically and horizontally centered text in a paragraph tag with multiple line,
+        still looking good, and ready to add any more text inside this great div element in which am i )
+      &lt;/p&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+
+<h2 id="clearfix">Float, Clear and clearfix-hack</h2>
+
+  <style>
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  </style>
+
+  <div class="example">
+
+    <div style="background-color:grey;color:white;padding:15px;">
+      <p>Chania</p>
+    </div>
+
+    <div class="clearfix">
+      <div style="float:left;padding:15px;   width:25%;">
+        <ul style="list-style-type:none;margin:0;padding:0;">
+          <li>The Flight</li>
+          <li>The City</li>
+          <li>The Island</li>
+          <li>The Food</li>
+        </ul>
+      </div>
+
+      <div style="float:left;padding:15px;   width:75%;">
+        <h1>The City</h1>
+        <p><span style="float:left;width:0.7em;font-size:400%;font-family:algerian,courier;line-height:80%;">C</span>hania is the capital of the Chania region on the island of Crete. The city can be divided in two parts, the old tothe capital of the Chania region on the island of Crete. The city can be divided in two parts, the old tothe capital of the Chania region on the island of Crete. The city can be divided in two parts, the old town and the modern city.</p>
+        <p>You will learn more about web layout and responsive web pages in a lateout web layout and responsive web pages in a lateout web layout and responsive web pages in a lateout web layout and responsive web pages in a lateout web layout and responsive web pages in a lateout web layout and responsive web pages in a later chapter.</p>
+        <p>You will learn more about web layout and responsive wout web layout and responsive web pages in a lateeb pages in a later chapter.</p>
+      </div>
+    </div>
+
+    <div style="background-color:grey;color:white;padding:15px;">
+      <p>Footer Text</p>
+    </div>
+
+  </div>
+
+  <pre><code class="html">
+    &lt;div style="background-color:grey;color:white;padding:15px;"&gt;
+      &lt;p&gt;Chania&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="clearfix"&gt;
+      &lt;div style="float:left; padding:15px; width:25%;"&gt;
+        &lt;ul style="list-style-type:none;margin:0;padding:0;"&gt;
+          &lt;li&gt;The Flight&lt;/li&gt;
+          &lt;li&gt;The City&lt;/li&gt;
+          &lt;li&gt;The Island&lt;/li&gt;
+          &lt;li&gt;The Food&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div style="float:left; padding:15px; width:75%;"&gt;
+        &lt;h1&gt;The City&lt;/h1&gt;
+        &lt;p&gt;
+          &lt;span
+            style="float:left;width:0.7em;font-size:400%;font-family:algerian,courier;line-height:80%;"
+          &gt;C&lt;/span&gt;hania
+          is the capital of ...
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div style="background-color:grey;color:white;padding:15px;"&gt;
+      &lt;p&gt;Footer Text&lt;/p&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <h3>adding clearfix hack to the containing element, and image will push borders to fit:</h3>
+
+  <div class="example">
+
+    <div class="clearfix" style="border:3px solid #4CAF50;padding:5px;">
+    <img style="float:right;width:170px;height:170px" src="../images/img_orange_flowers.jpg" alt="Pineapple"/>
+    Lorem ipsum dolor sit amet, consectsectetur adipiscing elit. Phasellus imperdiet, nulla et detur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum ...
+    </div>
+
+  </div>
+
+  <pre><code class="html">
+    &lt;div
+      class="clearfix"
+      style="border:3px solid #4CAF50;padding:5px;"
+    &gt;
+      &lt;img
+        style="float:right;width:170px;height:170px"
+        src="../images/img_orange_flowers.jpg" alt="Pineapple"
+      /&gt;
+        Lorem ipsum...
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    * {
+      box-sizing: border-box;
+    }
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  </code></pre>
+
+
+
+<h2 id="gradients">Gradients</h2>
+
+  <style>
+    .gr {
+      height:100px;width:100%;
+    }
+  </style>
+
+  <h3>linear-gradient</h3>
+  <div class="example">
+    <div class="gr" style="background:linear-gradient(red,orange,yellow,green,blue,indigo,violet);"></div><br/>
+    <div class="gr" style="background:linear-gradient(to right,red,orange,yellow,green,blue,indigo,violet);"></div><br/>
+    <div class="gr" style="background:linear-gradient(to bottom right,red,orange,yellow,green,blue,indigo,violet);"></div><br/>
+    <div class="gr" style="background:linear-gradient(15deg,red,orange,yellow,green,blue,indigo,violet);"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div
+      style="background:linear-gradient(red,orange,yellow,green,blue,indigo,violet);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:linear-gradient(to right,red,orange,yellow,green,blue,indigo,violet);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:linear-gradient(to bottom right,red,orange,yellow,green,blue,indigo,violet);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:linear-gradient(15deg,red,orange,yellow,green,blue,indigo,violet);"
+    &gt;&lt;/div&gt;
+  </code></pre>
+
+
+  <h3>with transparency</h3>
+  <div class="example">
+    <div class="gr" style="background:linear-gradient(to right,rgba(255,0,0,0),rgba(255,0,0,1));"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div style="background:linear-gradient(to right,rgba(255,0,0,0),rgba(255,0,0,1));"&gt;&lt;/div&gt;
+  </code></pre>
+
+  <h3>repeating-linear-gradient</h3>
+  <div class="example">
+    <div class="gr" style="background:repeating-linear-gradient(red 10%,yellow 20%,green 30%);"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div style="background:repeating-linear-gradient(red 10%,yellow 20%,green 30%);"&gt;&lt;/div&gt;
+  </code></pre>
+
+  <h3>radial-gradient</h3>
+  <div class="example">
+    <div class="gr" style="background:radial-gradient(red,orange,yellow,green,blue,indigo,violet);"></div><br/>
+    <div class="gr" style="background:radial-gradient(red 5%,yellow 15%,green 60%);"></div><br/>
+    <div class="gr" style="background:radial-gradient(circle,red 5%,yellow 15%,green 60%);"></div><br/>
+    <div class="gr" style="background:radial-gradient(farthest-side at 60% 55%,red 5%,yellow 15%,green 60%);"></div><br/>
+    <div class="gr" style="background:radial-gradient(farthest-corner at 60% 55%,red 5%,yellow 15%,green 60%);"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div
+      style="background:radial-gradient(red,orange,yellow,green,blue,indigo,violet);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:radial-gradient(red 5%,yellow 15%,green 60%);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:radial-gradient(circle,red 5%,yellow 15%,green 60%);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:radial-gradient(farthest-side at 60% 55%,red 5%,yellow 15%,green 60%);"
+    &gt;&lt;/div&gt;
+    &lt;div
+      style="background:radial-gradient(farthest-corner at 60% 55%,red 5%,yellow 15%,green 60%);"
+    &gt;&lt;/div&gt;
+  </code></pre>
+
+  <h3>repeating-radial-gradient</h3>
+  <div class="example">
+    <div class="gr" style="background:repeating-radial-gradient(red, yellow 10%, green 15%);"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div style="background:repeating-radial-gradient(red, yellow 10%, green 15%);"&gt;&lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="webfonts">Web Fonts</h2>
+
+  <pre><code class="css">
+    @font-face {
+      font-family: myFirstFont;
+      src: url(sansation_light.woff);
+
+      /* next, are optional */
+
+      font-stretch: normal;
+      /*
+        condensed|ultra-condensed|extra-condensed
+        semi-condensed|expanded|semi-expanded|extra-expanded|ultra-expanded
+      */
+
+      font-weight: normal
+      /* bold|100,200,...,900 */
+
+      font-style: normal
+      /* italic,oblique */
+
+      unicode-range: U+0-10FFFF (default)
+      /* Defines the range of UNICODE characters the font supports */
+    }
+
+    @font-face {
+      font-family: 'Graduate';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Graduate'),
+        local('Graduate-Regular'),
+        url(fonts/graduate.eot) format('embedded-opentype'),
+        url(fonts/graduate.ttf) format('truetype'),
+        url(fonts/graduate.woff) format('woff');
+    }
+
+    /*
+    This way you can have many @font-face rules for the same font.
+    Browsers will use this, whenever a piece of text with the font-family "myFirstFont"
+    should render as bold.
+    */
+    @font-face {
+      font-family: myFirstFont;
+      src: url(sansation_bold.woff);
+      font-weight: bold;
+    }
+
+    div {
+      font-family: myFirstFont;
+    }
+  </code></pre>
+
+  <ul>
+    <li>TrueType Fonts (TTF) - a font standard developed in the late 1980s, by Apple and Microsoft. TrueType is the most common font format for both the Mac OS and Microsoft Windows operating systems</li>
+    <li>OpenType Fonts (OTF) - format for scalable computer fonts. It was built on TrueType, and is a registered trademark of Microsoft. OpenType fonts are used commonly today on the major computer platforms</li>
+    <li>Web Open Font Format (WOFF) - for use in web pages. It was developed in 2009, and is now a W3C Recommendation, is essentially OpenType or TrueType with compression and additional metadata, goal is to support font distribution from a server to a client over a network with bandwidth constraints</li>
+    <li>Web Open Font Format (WOFF 2.0) - TrueType/OpenType font that provides better compression than WOFF 1.0</li>
+    <li>SVG Fonts/Shapes - allow SVG to be used as glyphs when displaying text, SVG 1.1 specification define a font module that allows the creation of fonts within an SVG document, you can also apply CSS to SVG documents, and the @font-face rule can be applied to text in SVG documents</li>
+    <li>Embedded OpenType Fonts (EOT) - compact form of OpenType fonts designed by Microsoft for use as embedded fonts on web pages</li>
+    <li>TTF/OTF font formats are widely supported, others like WOFF/SVG/EOT depend on browser</li>
+  </ul>
+
+
+
+<h2 id="transforms">Transforms</h2>
+
+  <h3>perspective:150px</h3>
+
+    <style>
+      .cube {
+        width: 3em;
+        height: 3em;
+        margin: 0.5em auto;
+        transform-style: preserve-3d;
+        transform: rotateX(-45deg) rotateY(30deg);
+        font-size: 2em;
+        color:white;
+      }
+      .side {
+        position: absolute;
+        width: 2em;
+        height: 2em;
+        background: rgba(0,100,0,0.5);
+        border: 1px solid red;
+        text-align: center;
+        line-height: 2em;
+      }
+      .side.bvh {
+        backface-visibility: hidden;
+      }
+      .front {transform: translateZ(1em);}
+      .top {transform: rotateX(90deg) translateZ(1em);}
+      .right {transform: rotateY(90deg) translateZ(1em);}
+      .left {transform: rotateY(-90deg) translateZ(1em);}
+      .bottom {transform: rotateX(-90deg) translateZ(1em);}
+      .back {transform: rotateY(-180deg) translateZ(1em);}
+    </style>
+
+    <div class="example">
+
+      <div style="perspective:150px;">
+        <div class="cube">
+          <div class="side front">1</div>
+          <div class="side back">6</div>
+          <div class="side right">4</div>
+          <div class="side left">3</div>
+          <div class="side top">5</div>
+          <div class="side bottom">2</div>
+        </div>
+      </div>
+
+    </div>
+
+    <pre><code class="css">
+      .cube {
+        width: 3em;
+        height: 3em;
+        margin: 0.5em auto;
+        transform-style: preserve-3d;
+        transform: rotateX(-45deg) rotateY(30deg);
+        font-size: 2em;
+        color:white;
+      }
+      .side {
+        position: absolute;
+        width: 2em;
+        height: 2em;
+        background: rgba(0,100,0,0.5);
+        border: 1px solid red;
+        text-align: center;
+        line-height: 2em;
+      }
+      .side.bvh {
+        backface-visibility: hidden;
+      }
+      .front {transform: translateZ(1em);}
+      .top {transform: rotateX(90deg) translateZ(1em);}
+      .right {transform: rotateY(90deg) translateZ(1em);}
+      .left {transform: rotateY(-90deg) translateZ(1em);}
+      .bottom {transform: rotateX(-90deg) translateZ(1em);}
+      .back {transform: rotateY(-180deg) translateZ(1em);}
+    </code></pre>
+    <pre><code class="html">
+      &lt;div style="perspective:150px;"&gt;
+        &lt;div class="cube"&gt;
+          &lt;div class="side front"&gt;1&lt;/div&gt;
+          &lt;div class="side back"&gt;6&lt;/div&gt;
+          &lt;div class="side right"&gt;4&lt;/div&gt;
+          &lt;div class="side left"&gt;3&lt;/div&gt;
+          &lt;div class="side top"&gt;5&lt;/div&gt;
+          &lt;div class="side bottom"&gt;2&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+
+
+    <h3>perspective:250px</h3>
+
+    <div class="example">
+
+      <div style="perspective:250px;">
+        <div class="cube">
+          <div class="side bvh front">1</div>
+          <div class="side bvh back">6</div>
+          <div class="side bvh right">4</div>
+          <div class="side bvh left">3</div>
+          <div class="side bvh top">5</div>
+          <div class="side bvh bottom">2</div>
+        </div>
+      </div>
+
+    </div>
+
+    <pre><code class="html">
+      &lt;div style="perspective:250px;"&gt;
+        &lt;div class="cube"&gt;
+          &lt;div class="side bvh front"&gt;1&lt;/div&gt;
+          &lt;div class="side bvh back"&gt;6&lt;/div&gt;
+          &lt;div class="side bvh right"&gt;4&lt;/div&gt;
+          &lt;div class="side bvh left"&gt;3&lt;/div&gt;
+          &lt;div class="side bvh top"&gt;5&lt;/div&gt;
+          &lt;div class="side bvh bottom"&gt;2&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+  <h3>transition-timing-function:linear|ease|...</h3>
+
+    <ul>
+      <li>hover over rows to see changes</li>
+    </ul>
+
+    <style>
+      #t_divs div {
+        width: 100px;
+        height: 50px;
+        background: red;
+        color: white;
+        font-weight: bold;
+        -webkit-transition: width 1s; /* Safari */
+        transition: width 1s;
+      }
+      #t_divs div:hover {
+        width: 300px;
+      }
+    </style>
+
+    <div class="example">
+      <div id="t_divs">
+        <div style="transition-timing-function:linear;-webkit-transition-timing-function:linear;">linear</div>
+        <div style="transition-timing-function:ease;-webkit-transition-timing-function:ease;">ease</div>
+        <div style="transition-timing-function:ease-in;-webkit-transition-timing-function:ease-in;">ease-in</div>
+        <div style="transition-timing-function:ease-out;-webkit-transition-timing-function:ease-out;">ease-out</div>
+        <div style="transition-timing-function:ease-in-out;-webkit-transition-timing-function:ease-in-out;">ease-in-out</div>
+      </div>
+    </div>
+
+    <pre><code class="css">
+      #t_divs div {
+        width: 100px;
+        height: 50px;
+        background: red;
+        color: white;
+        font-weight: bold;
+        -webkit-transition: width 1s; /* Safari */
+        transition: width 1s;
+      }
+      #t_divs div:hover {
+        width: 300px;
+      }
+    </code></pre>
+    <pre><code class="html">
+      &lt;div id="t_divs"&gt;
+        &lt;div
+          style="transition-timing-function:linear;-webkit-transition-timing-function:linear;"
+        &gt;linear&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:ease;-webkit-transition-timing-function:ease;"
+        &gt;ease&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:ease-in;-webkit-transition-timing-function:ease-in;"
+        &gt;ease-in&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:ease-out;-webkit-transition-timing-function:ease-out;"
+        &gt;ease-out&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:ease-in-out;-webkit-transition-timing-function:ease-in-out;"
+        &gt;ease-in-out&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+  <h3>transition-timing-function:cubic-bezier(...</h3>
+    <ul>
+      <li>hover over rows to see changes</li>
+    </ul>
+
+    <div class="example">
+      <div id="t_divs">
+        <div style="transition-timing-function:cubic-bezier(0,0,1,1);-webkit-transition-timing-function: cubic-bezier(0,0,1,1);">linear</div>
+        <div style="transition-timing-function:cubic-bezier(0.25,0.1,0.25,1);-webkit-transition-timing-function: cubic-bezier(0.25,0.1,0.25,1);">ease</div>
+        <div style="transition-timing-function:cubic-bezier(0.42,0,1,1);-webkit-transition-timing-function: cubic-bezier(0.42,0,1,1);">ease-in</div>
+        <div style="transition-timing-function:cubic-bezier(0,0,0.58,1);-webkit-transition-timing-function: cubic-bezier(0,0,0.58,1);">ease-out</div>
+        <div style="transition-timing-function:cubic-bezier(0.42,0,0.58,1);-webkit-transition-timing-function: cubic-bezier(0.42,0,0.58,1);">ease-in-out</div>
+      </div>
+    </div>
+
+    <pre><code class="html">
+      &lt;div id="t_divs"&gt;
+        &lt;div
+          style="transition-timing-function:cubic-bezier(0,0,1,1);"
+        &gt;linear&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:cubic-bezier(0.25,0.1,0.25,1);"
+        &gt;ease&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:cubic-bezier(0.42,0,1,1);"
+        &gt;ease-in&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:cubic-bezier(0,0,0.58,1);"
+        &gt;ease-out&lt;/div&gt;
+        &lt;div
+          style="transition-timing-function:cubic-bezier(0.42,0,0.58,1);"
+        &gt;ease-in-out&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+  <h3>transition-property: width, height</h3>
+    <ul>
+      <li>hover over red square to see changes</li>
+    </ul>
+
+    <style>
+      #t_prop_div {
+        width: 100px;
+        height: 100px;
+        background: red;
+        -webkit-transition-property: width, height; /* Safari */
+        -webkit-transition-duration: 1s; /* Safari */
+        transition-property: width, height;
+        transition-duration: 1s;
+      }
+      #t_prop_div:hover {
+        width: 300px;
+        height: 300px;
+      }
+    </style>
+
+    <div class="example">
+      <div id="t_prop_div"></div>
+    </div>
+
+    <pre><code class="css">
+      #t_prop_div {
+        width: 100px;
+        height: 100px;
+        background: red;
+        -webkit-transition-property: width, height; /* Safari */
+        -webkit-transition-duration: 1s; /* Safari */
+        transition-property: width, height;
+        transition-duration: 1s;
+      }
+      #t_prop_div:hover {
+        width: 300px;
+        height: 300px;
+      }
+    </code></pre>
+    <pre><code class="html">
+      &lt;div id="t_prop_div"&gt;&lt;/div&gt;
+    </code></pre>
+
+  <h3>transition + transform</h3>
+    <ul>
+      <li>hover over red square to see changes</li>
+    </ul>
+
+    <style>
+      #tt_prop_div {
+        width: 100px;
+        height: 100px;
+        background: red;
+        -webkit-transition: width 1s, height 1s, -webkit-transform 1s; /* Safari */
+        transition: width 1s, height 1s, transform 1s;
+      }
+      #tt_prop_div:hover {
+        width: 300px;
+        height: 300px;
+        -webkit-transform: rotate(180deg); /* Safari */
+        transform: rotate(180deg);
+      }
+    </style>
+
+    <div class="example">
+      <div id="tt_prop_div"></div>
+    </div>
+
+    <pre><code class="css">
+      #tt_prop_div {
+        width: 100px;
+        height: 100px;
+        background: red;
+        -webkit-transition: width 1s, height 1s, -webkit-transform 1s; /* Safari */
+        transition: width 1s, height 1s, transform 1s;
+      }
+      #tt_prop_div:hover {
+        width: 300px;
+        height: 300px;
+        -webkit-transform: rotate(180deg); /* Safari */
+        transform: rotate(180deg);
+      }
+    </code></pre>
+    <pre><code class="html">
+      &lt;div id="tt_prop_div"&gt;&lt;/div&gt;
+    </code></pre>
+
+  <h3>input with transition on focus</h3>
+
+    <style>
+      #t_input {
+        padding:1em;
+        width: 15em;
+        border:0.2em solid gray;
+        -webkit-transition: width .3s ease-in-out, border .3s;
+        transition: width .3s ease-in-out, border .3s;
+      }
+      #t_input:focus, #t_input:hover  {
+        width: 30em;
+        border:0.2em solid lightcoral;
+        border-left-width:1em;
+      }
+    </style>
+
+    <div class="example">
+      <input id="t_input" type="text" name="t_input" value="click this for changes"/>
+    </div>
+
+    <pre><code class="css">
+      #t_input {
+        padding:1em;
+        width: 15em;
+        border:0.2em solid gray;
+        -webkit-transition: width .3s ease-in-out, border .3s;
+        transition: width .3s ease-in-out, border .3s;
+      }
+      #t_input:focus {
+        width: 30em;
+        border:0.2em solid lightcoral;
+      }
+    </code></pre>
+    <pre><code class="html">
+      &lt;input id="t_input" type="text" name="t_input" value="click this for changes"/&gt;
+    </code></pre>
+
+
+
+<h2 id="animations">Animations</h2>
+
+  <h3>animation-timing-function</h3>
+
+  <style>
+    #a_div1,
+    #a_div2,
+    #a_div3,
+    #a_div4,
+    #a_div5 {
+      width: 100px;
+      height: 50px;
+      background: red;
+      color: white;
+      font-weight: bold;
+      position: relative;
+      -webkit-animation: mymove 2s infinite; /* Safari 4.0 - 8.0 */
+      animation: mymove 2s infinite;
+      margin-bottom: 10px;
+    }
+
+    /* Safari 4.0 - 8.0 */
+    #a_div1 {
+      animation-timing-function: cubic-bezier(0,0,1,1);
+      -webkit-animation-timing-function: cubic-bezier(0,0,1,1);
+    }
+    #a_div2 {
+      animation-timing-function: cubic-bezier(0.25,0.1,0.25,1);
+      -webkit-animation-timing-function: cubic-bezier(0.25,0.1,0.25,1);
+    }
+    #a_div3 {
+      animation-timing-function: cubic-bezier(0.42,0,1,1);
+      -webkit-animation-timing-function: cubic-bezier(0.42,0,1,1);
+    }
+    #a_div4 {
+      animation-timing-function: cubic-bezier(0,0,0.58,1);
+      -webkit-animation-timing-function: cubic-bezier(0,0,0.58,1);
+    }
+    #a_div5 {
+      animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+      -webkit-animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+    }
+
+    /* Safari 4.0 - 8.0 */
+    @-webkit-keyframes mymove {
+        from {left: 0px;}
+        to {left: 300px;}
+    }
+    @keyframes mymove {
+        from {left: 0px;}
+        to {left: 300px;}
+    }
+  </style>
+
+  <div class="example">
+
+    <div id="a_div1">linear</div>
+    <div id="a_div2">ease</div>
+    <div id="a_div3">ease-in</div>
+    <div id="a_div4">ease-out</div>
+    <div id="a_div5">ease-in-out</div>
+
+  </div>
+
+
+  <pre><code class="css">
+    #a_div1,
+    #a_div2,
+    #a_div3,
+    #a_div4,
+    #a_div5 {
+      width: 100px;
+      height: 50px;
+      background: red;
+      color: white;
+      font-weight: bold;
+      position: relative;
+      -webkit-animation: mymove 2s infinite; /* Safari 4.0 - 8.0 */
+      animation: mymove 2s infinite;
+      margin-bottom: 10px;
+    }
+    /* Safari 4.0 - 8.0 */
+    #a_div1 {
+      animation-timing-function: cubic-bezier(0,0,1,1);
+      -webkit-animation-timing-function: cubic-bezier(0,0,1,1);
+    }
+    #a_div2 {
+      animation-timing-function: cubic-bezier(0.25,0.1,0.25,1);
+      -webkit-animation-timing-function: cubic-bezier(0.25,0.1,0.25,1);
+    }
+    #a_div3 {
+      animation-timing-function: cubic-bezier(0.42,0,1,1);
+      -webkit-animation-timing-function: cubic-bezier(0.42,0,1,1);
+    }
+    #a_div4 {
+      animation-timing-function: cubic-bezier(0,0,0.58,1);
+      -webkit-animation-timing-function: cubic-bezier(0,0,0.58,1);
+    }
+    #a_div5 {
+      animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+      -webkit-animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+    }
+    /* Safari 4.0 - 8.0 */
+    @-webkit-keyframes mymove {
+      from {left: 0px;}
+      to {left: 300px;}
+    }
+    @keyframes mymove {
+      from {left: 0px;}
+      to {left: 300px;}
+    }
+  </code></pre>
+  <pre><code class="html">
+    &lt;div id="a_div1"&gt;linear&lt;/div&gt;
+    &lt;div id="a_div2"&gt;ease&lt;/div&gt;
+    &lt;div id="a_div3"&gt;ease-in&lt;/div&gt;
+    &lt;div id="a_div4"&gt;ease-out&lt;/div&gt;
+    &lt;div id="a_div5"&gt;ease-in-out&lt;/div&gt;
+  </code></pre>
+
+  <h3>@keyframes</h3>
+
+  <style>
+    @keyframes example {
+      0% {
+        background-color:red;
+        left:0px;
+        top:0px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      17%  {
+        background-color:orange;
+        left:0px;
+        top:100px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      34%  {
+        background-color:yellow;
+        left:100px;
+        top:100px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      51%  {
+        background-color:green;
+        left:100px;
+        top:0px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      68% {
+        background-color:blue;
+        left:0px;
+        top:100px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      85% {
+        background-color:lightblue;
+        left:100px;
+        top:100px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      100% {
+        background-color:violet;
+        left:0px;
+        top:0px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+    }
+
+    /* The element to apply the animation to */
+    #kf {
+      margin:150px;
+
+      width: 100px;
+      height: 100px;
+      background-color: red;
+      position: relative;
+      border-top:5px dotted black;
+      box-shadow:5px 5px 5px gray;
+      animation-name: example;
+      animation-duration: 5s;
+      animation-timing-function: ease-in-out;
+      /*animation-delay: 200ms;*/
+      animation-iteration-count: infinite;
+      /*animation-direction: alternate;*/
+      animation-fill-mode:both;
+
+      /*animation: example 3s ease-in-out ;*/
+
+    }
+  </style>
+  <div class="example">
+
+    <div id="kf"></div>
+
+  </div>
+
+
+  <pre><code class="css">
+    @keyframes example {
+      0% {
+        background-color:red;
+        left:0px;
+        top:0px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      17%  {
+        background-color:orange;
+        left:0px;
+        top:100px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      34%  {
+        background-color:yellow;
+        left:100px;
+        top:100px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      51%  {
+        background-color:green;
+        left:100px;
+        top:0px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      68% {
+        background-color:blue;
+        left:0px;
+        top:100px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+      85% {
+        background-color:lightblue;
+        left:100px;
+        top:100px;
+        transform: rotate(-45deg);
+        box-shadow:2px 2px 2px gray;
+      }
+      100% {
+        background-color:violet;
+        left:0px;
+        top:0px;
+        transform: rotate(45deg);
+        box-shadow:10px 10px 10px gray;
+      }
+    }
+
+    /* The element to apply the animation to */
+    #kf {
+      margin:150px;
+
+      width: 100px;
+      height: 100px;
+      background-color: red;
+      position: relative;
+      border-top:5px dotted black;
+      box-shadow:5px 5px 5px gray;
+      animation-name: example;
+      animation-duration: 5s;
+      animation-timing-function: ease-in-out;
+      /*animation-delay: 200ms;*/
+      animation-iteration-count: infinite;
+      /*animation-direction: alternate;*/
+      animation-fill-mode:both;
+
+      /*animation: example 3s ease-in-out ;*/
+
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;div id="kf"&gt;&lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="filter">filter</h2>
+
+  <style>
+    .f_image {
+      width:18%;
+      position: relative;
+      float: left;
+      margin:1%;
+      display: block;
+    }
+  </style>
+
+  <div class="example">
+    <img src="../images/workplace.jpg" class="f_image" style="">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: blur(4px);filter: blur(4px);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: brightness(0.30);filter: brightness(0.30)">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: contrast(180%);filter: contrast(180%);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: grayscale(100%);filter: grayscale(100%);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: hue-rotate(180deg);filter: hue-rotate(180deg);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: invert(100%);filter: invert(100%);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: opacity(50%);filter: opacity(50%);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: saturate(7); filter: saturate(7);">
+    <img src="../images/workplace.jpg" class="f_image" style="-webkit-filter: sepia(100%);filter: sepia(100%);">
+    <img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: drop-shadow(8px 8px 10px burlywood);filter: drop-shadow(8px 8px 10px burlywood);"
+    >
+  </div>
+
+  <pre><code class="css">
+    .f_image {
+      width:18%;
+      position: relative;
+      float: left;
+      margin:1%;
+      display: block;
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;img src="../images/workplace.jpg" class="f_image" style=""&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: blur(4px);filter: blur(4px);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: brightness(0.30);filter: brightness(0.30)"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: contrast(180%);filter: contrast(180%);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: grayscale(100%);filter: grayscale(100%);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: hue-rotate(180deg);filter: hue-rotate(180deg);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: invert(100%);filter: invert(100%);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: opacity(50%);filter: opacity(50%);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: saturate(7); filter: saturate(7);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="-webkit-filter: sepia(100%);filter: sepia(100%);"&gt;
+    &lt;img src="../images/workplace.jpg" class="f_image"
+      style="filter: drop-shadow(8px 8px 10px burlywood);"&gt;
+  </code></pre>
+
+<h2 id="backdrop-filter">backdrop-filter</h2>
+
+  <ul>
+    <li>apply effects such as blurring or color shifting to the area behind an element</li>
+  </ul>
+
+  <pre><code class="css">
+    .bf {
+      background-image: url(../images/img_pink_flowers.jpg), linear-gradient(rgb(219, 166, 166), rgb(0, 0, 172));
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    .bf-box {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      text-align: center;
+      line-height: 1;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 3rem 3rem;
+      margin-left: 25%;
+      margin-top: 10%;
+      width: 50%;
+    }
+  </code></pre>
+
+  <style>
+    .bf {
+      background-image: url(../images/img_pink_flowers.jpg), linear-gradient(rgb(219, 166, 166), rgb(0, 0, 172));
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    .bf-box {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      text-align: center;
+      line-height: 1;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 3rem 3rem;
+      margin-left: 25%;
+      margin-top: 10%;
+      width: 50%;
+    }
+  </style>
+
+  <div class="example h-20 bf">
+    <div class="bf-box">
+      backdrop-filter: blur(10px)
+    </div>
+  </div>
+
+  <pre><code class="css">
+    backdrop-filter: none;
+    /* URL to SVG filter */
+    backdrop-filter: url(commonfilters.svg#filter);
+    /* filter-function values */
+    backdrop-filter: blur(2px);
+    backdrop-filter: brightness(60%);
+    backdrop-filter: contrast(40%);
+    backdrop-filter: drop-shadow(4px 4px 10px blue);
+    backdrop-filter: grayscale(30%);
+    backdrop-filter: hue-rotate(120deg);
+    backdrop-filter: invert(70%);
+    backdrop-filter: opacity(20%);
+    backdrop-filter: sepia(90%);
+    backdrop-filter: saturate(80%);
+    /* multiple filters */
+    backdrop-filter: url(filters.svg#filter) blur(4px) saturate(150%);
+    /* global values */
+    backdrop-filter: inherit;
+    backdrop-filter: initial;
+    backdrop-filter: revert;
+    backdrop-filter: unset;
+
+    .brighten-saturate-blur {
+      backdrop-filter: brightness(150%) saturate(150%) blur(1rem);
+    }
+
+    @supports (backdrop-filter: none) {
+      .background {
+        backdrop-filter: blur(10px);
+      }
+    }
+    @supports not (backdrop-filter: none) {
+      .background {
+        background-image: blurred.png;
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="background-clip">background-clip</h2>
+
+  <ul>
+    <li>whether an element background extends underneath its border box, padding box, or content box</li>
+  </ul>
+
+  <pre><code class="css">
+    p.bc {
+      border: .5rem dashed  grey;
+      margin: 1rem 2rem;
+      padding: .5rem 1rem;
+      background: linear-gradient(60deg, red, orange, yellow, lightgreen);
+      font-size: 2rem;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .bc.border-box { background-clip: border-box; }
+    .bc.padding-box { background-clip: padding-box; }
+    .bc.content-box { background-clip: content-box; }
+    .bc.text {
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: rgba(0,0,0,.2);
+    }
+  </code></pre>
+
+  <style>
+    p.bc {
+      border: .5rem dashed  grey;
+      margin: 1rem 2rem;
+      padding: .5rem 1rem;
+      background: linear-gradient(60deg, red, orange, yellow, lightgreen);
+      font-size: 2rem;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .bc.border-box { background-clip: border-box; }
+    .bc.padding-box { background-clip: padding-box; }
+    .bc.content-box { background-clip: content-box; }
+    .bc.text {
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: rgba(0,0,0,.2);
+    }
+  </style>
+
+  <div class="example">
+    <p class="bc border-box">background extends behind the border</p>
+    <p class="bc padding-box">background extends to the inside edge of the border</p>
+    <p class="bc content-box">background extends only to the edge of the content box</p>
+    <p class="bc text">background is clipped to the foreground text</p>
+  </div>
+
+  <pre><code class="css">
+    /* Keyword values */
+    background-clip: border-box;
+    background-clip: padding-box;
+    background-clip: content-box;
+    background-clip: text;
+
+    /* Global values */
+    background-clip: inherit;
+    background-clip: initial;
+    background-clip: revert;
+    background-clip: unset;
+  </code></pre>
+
+
+
+<h2 id="obj_fit">object-fit</h2>
+
+  <ul>
+    <li>Examples: NO object-fit | object-fit: fill (default) | object-fit: contain</li>
+  </ul>
+
+  <style>
+    .of_image_w {
+      width:20em;
+      height:5em;
+      border:.2em dashed black;
+    }
+    .of_image_h {
+      width:5em;
+      height:20em;
+      border:.2em dashed black;
+    }
+  </style>
+
+  <div class="example">
+    <img src="../images/wide.jpg" class="of_image_w">
+    <img style="object-fit: fill" src="../images/wide.jpg" class="of_image_w">
+    <img style="object-fit: contain" src="../images/wide.jpg" class="of_image_w">
+  </div>
+  <div class="example">
+    <img src="../images/wide.jpg" class="of_image_h">
+    <img style="object-fit: fill" src="../images/wide.jpg" class="of_image_h">
+    <img style="object-fit: contain" src="../images/wide.jpg" class="of_image_h">
+  </div>
+
+  <ul>
+    <li>Examples: object-fit: cover | object-fit: scale-down | object-fit: none</li>
+  </ul>
+
+  <div class="example">
+    <img style="object-fit: cover" src="../images/wide.jpg" class="of_image_w">
+    <img style="object-fit: scale-down" src="../images/wide.jpg" class="of_image_w">
+    <img style="object-fit: none" src="../images/wide.jpg" class="of_image_w">
+  </div>
+  <div class="example">
+    <img style="object-fit: cover" src="../images/wide.jpg" class="of_image_h">
+    <img style="object-fit: scale-down" src="../images/wide.jpg" class="of_image_h">
+    <img style="object-fit: none" src="../images/wide.jpg" class="of_image_h">
+  </div>
+
+  <h3>object-fit multiple images</h3>
+  <div class="example">
+    <div class="container" style="height:300px">
+      <img src="../images/rock.jpg" alt="Norway" style="float:left;width:50%;height:100%;object-fit: cover;">
+      <img src="../images/paris.jpg" alt="Paris" style="float:left;width:50%;height:100%;object-fit: cover;">
+    </div>
+  </div>
+
+  <pre><code class="css">
+    .of_image {
+      width:200px;
+      height:300px;
+      border:1px dotted black;
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;!-- No object-fit --&gt;
+    &lt;img src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit: fill (default) --&gt;
+    &lt;img style="object-fit: fill" src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit: contain --&gt;
+    &lt;img style="object-fit: contain" src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit: cover --&gt;
+    &lt;img style="object-fit: cover" src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit: scale-down --&gt;
+    &lt;img style="object-fit: scale-down" src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit: none --&gt;
+    &lt;img style="object-fit: none" src="../images/wide.jpg" class="of_image"&gt;
+    &lt;!-- object-fit multiple images --&gt;
+    &lt;div class="container" style="height:300px"&gt;
+      &lt;img
+        src="../images/rock.jpg" alt="Norway"
+        style="float:left;width:50%;height:100%;object-fit: cover;"&gt;
+      &lt;img
+        src="../images/paris.jpg" alt="Paris"
+        style="float:left;width:50%;height:100%;object-fit: cover;"&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="aspect-ratio">aspect-ratio</h2>
+
+  <pre><code class="css">
+    .container {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
+    img {
+      width: 100%;
+      aspect-ratio: 8 / 6;
+    }
+
+    .sponsor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    .sponsor img {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      object-fit: contain;
+    }
+  </code></pre>
+
+  <ul>
+    <li>padding-top hack: requires parent container and an absolutely placed child container, one would then calculate the aspect ratio as a percentage to set as the padding-top
+      <ul>
+        <li>1:1 aspect ratio = 1 / 1 = 1 = <code>padding-top: 100%</code></li>
+        <li>4:3 aspect ratio = 3 / 4 = 0.75 = <code>padding-top: 75%</code></li>
+        <li>3:2 aspect ratio = 2 / 3 = 0.66666 = <code>padding-top: 66.67%</code></li>
+        <li>16:9 aspect ratio = 9 / 16 = 0.5625 = <code>padding-top: 56.25%</code></li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="css">
+    .container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .media {
+      position: absolute;
+      top: 0;
+    }
+  </code></pre>
+
+
+
+<h2 id="cols">column-style properties - multiple columns of text, like in newspapers</h2>
+
+  <style>
+    .newspaper {
+      -webkit-columns: 3; /* Chrome, Safari, Opera */
+      -moz-columns: 3; /* Firefox */
+      columns: 250px 3;
+
+      -webkit-column-gap: 40px; /* Chrome, Safari, Opera */
+      -moz-column-gap: 40px; /* Firefox */
+      column-gap: 40px;
+
+      -webkit-column-rule: 1px solid gray; /* Chrome, Safari, Opera */
+      -moz-column-rule: 1px solid gray; /* Firefox */
+      column-rule: 1px solid gray;
+
+      border: 1px solid gray;
+      padding:20px;
+    }
+    .newspaper h2 {
+      -webkit-column-span: all; /* Chrome, Safari, Opera */
+      column-span: all;
+    }
+  </style>
+
+  <div class="example">
+
+    <div class="newspaper">
+      <h2>Lorem Ipsum Dolor Sit Amet</h2>
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.
+    </div>
+
+  </div>
+
+  <pre><code class="css">
+    .newspaper {
+      -webkit-columns: 3; /* Chrome, Safari, Opera */
+      -moz-columns: 3; /* Firefox */
+      columns: 250px 3;
+
+      -webkit-column-gap: 40px; /* Chrome, Safari, Opera */
+      -moz-column-gap: 40px; /* Firefox */
+      column-gap: 40px;
+
+      -webkit-column-rule: 1px solid gray; /* Chrome, Safari, Opera */
+      -moz-column-rule: 1px solid gray; /* Firefox */
+      column-rule: 1px solid gray;
+
+      border: 1px dashed gray;
+      padding:20px;
+    }
+    .newspaper h2 {
+      -webkit-column-span: all; /* Chrome, Safari, Opera */
+      column-span: all;
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;div class="newspaper"&gt;
+      &lt;h2&gt;Lorem Ipsum Dolor Sit Amet&lt;/h2&gt;
+      Lorem ipsum dolor sit amet, consec...
+    &lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="grid">Grid</h2>
+
+  <ul>
+    <li>element becomes a grid container by setting the <em>display</em> property set to <em>grid</em> or <em>inline-grid</em></li>
+    <li>all direct children of the grid container automatically become grid items</li>
+  </ul>
+
+  <style>
+    #gc-1 {
+      display: grid;
+
+      grid-gap: 10px;
+      /*grid-column-gap: 50px;*/
+      /*grid-row-gap: 50px;*/
+
+      grid-template-columns: 150px auto auto auto auto auto;
+      grid-template-rows: auto 75px auto auto;
+
+      /*justify-content: space-evenly;*/
+      /*align-content: end;*/
+
+      background-color: #2196F3;
+      padding: 10px;
+    }
+    #gc-1 .grid-item {
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      font-size: 1em;
+      text-align: center;
+    }
+    #gc-1-item-1 {
+      grid-row: 1 / span 4;
+      /*grid-row-start: 1;*/
+      /*grid-row-end: 4;*/
+    }
+    #gc-1-item-4 {
+      grid-column: 4 / 7;
+      /*grid-column-start: 4;*/
+      /*grid-column-end: 7;*/
+    }
+    #gc-1-item-5 {
+      grid-area: 2 / 2 / 5 / 4;
+      /* start: row-line 2 - col-line 2 */
+      /* end: row-line 4 - col-line 4 */
+    }
+    #gc-1-item-9 {
+      grid-area: 3 / 4 / span 2 / span 2;
+      /* start: row-line 3 - col-line 4 */
+      /* end: span 2 rows - span 3 cols */
+    }
+  </style>
+
+  <div class="example">
+    <div id="gc-1">
+      <div class="grid-item" id="gc-1-item-1">1</div>
+      <div class="grid-item">2</div>
+      <div class="grid-item">3</div>
+      <div class="grid-item" id="gc-1-item-4">4</div>
+      <div class="grid-item" id="gc-1-item-5">5</div>
+      <div class="grid-item">6</div>
+      <div class="grid-item">7</div>
+      <div class="grid-item">8</div>
+      <div class="grid-item" id="gc-1-item-9">9</div>
+      <div class="grid-item">10</div>
+      <div class="grid-item">11</div>
+    </div>
+  </div>
+
+  <pre><code class="html">
+    &lt;div id="gc-1"&gt;
+      &lt;div class="grid-item" id="gc-1-item-1"&gt;1&lt;/div&gt;
+      &lt;div class="grid-item"&gt;2&lt;/div&gt;
+      &lt;div class="grid-item"&gt;3&lt;/div&gt;
+      &lt;div class="grid-item" id="gc-1-item-4"&gt;4&lt;/div&gt;
+      &lt;div class="grid-item" id="gc-1-item-5"&gt;5&lt;/div&gt;
+      &lt;div class="grid-item"&gt;6&lt;/div&gt;
+      &lt;div class="grid-item"&gt;7&lt;/div&gt;
+      &lt;div class="grid-item"&gt;8&lt;/div&gt;
+      &lt;div class="grid-item" id="gc-1-item-9"&gt;9&lt;/div&gt;
+      &lt;div class="grid-item"&gt;10&lt;/div&gt;
+      &lt;div class="grid-item"&gt;11&lt;/div&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    #gc-1 {
+      display: grid;
+
+      grid-gap: 10px;
+      /*grid-column-gap: 50px;*/
+      /*grid-row-gap: 50px;*/
+
+      grid-template-columns: 150px auto auto auto auto auto;
+      grid-template-rows: auto 75px auto auto;
+
+      /*justify-content: space-evenly;*/
+      /*align-content: end;*/
+
+      background-color: #2196F3;
+      padding: 10px;
+    }
+    #gc-1 .grid-item {
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      font-size: 1em;
+      text-align: center;
+    }
+    #gc-1-item-1 {
+      grid-row: 1 / span 4;
+      /*grid-row-start: 1;*/
+      /*grid-row-end: 4;*/
+    }
+    #gc-1-item-4 {
+      grid-column: 4 / 7;
+      /*grid-column-start: 4;*/
+      /*grid-column-end: 7;*/
+    }
+    #gc-1-item-5 {
+      grid-area: 2 / 2 / 5 / 4;
+      /* start: row-line 2 - col-line 2 */
+      /* end: row-line 4 - col-line 4 */
+    }
+    #gc-1-item-9 {
+      grid-area: 3 / 4 / span 2 / span 2;
+      /* start: row-line 3 - col-line 4 */
+      /* end: span 2 rows - span 3 cols */
+    }
+  </code></pre>
+
+
+
+  <h3>refer to line numbers when placing a grid item in a grid container</h3>
+
+    <img src="../images/grid_lines.png">
+
+
+
+  <h3>named areas grid</h3>
+
+    <style type="text/css">
+      #gc-2 {
+        grid:
+          'myArea myArea .'
+          'myArea myArea .';
+        display: grid;
+        background-color: #2196F3;
+        padding: 10px;
+        grid-gap: 10px;
+      }
+      #gc-2 .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        font-size: 1em;
+        text-align: center;
+      }
+      #gc-2-item1 {
+        grid-area: myArea;
+      }
+    </style>
+
+    <div class="example">
+      <div id="gc-2" class="grid-container" style="grid:'myArea myArea .' auto 'myArea myArea .' auto;">
+        <div class="grid-item" id="gc-2-item1">1</div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">3</div>
+        <div class="grid-item">4</div>
+        <div class="grid-item">5</div>
+        <div class="grid-item">6</div>
+      </div>
+    </div>
+
+    <pre><code class="html">
+      &lt;div id="gc-2"
+        class="grid-container"
+        style="grid:'myArea myArea .' auto 'myArea myArea .' auto;"
+      &gt;
+        &lt;div class="grid-item" id="gc-2-item1"&gt;1&lt;/div&gt;
+        &lt;div class="grid-item"&gt;2&lt;/div&gt;
+        &lt;div class="grid-item"&gt;3&lt;/div&gt;
+        &lt;div class="grid-item"&gt;4&lt;/div&gt;
+        &lt;div class="grid-item"&gt;5&lt;/div&gt;
+        &lt;div class="grid-item"&gt;6&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+    <pre><code class="css">
+      #gc-2 {
+        grid:
+          'myArea myArea .'
+          'myArea myArea .';
+        display: grid;
+        background-color: #2196F3;
+        padding: 10px;
+        grid-gap: 10px;
+      }
+      #gc-2 .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        font-size: 1em;
+        text-align: center;
+      }
+      #gc-2-item1 {
+        grid-area: myArea;
+      }
+    </code></pre>
+
+    <style type="text/css">
+      #gc-3 {
+        display: grid;
+        grid:
+          'myArea myArea . . .'
+          'myArea myArea . . .';
+        background-color: #2196F3;
+        padding: 10px;
+        grid-gap: 10px;
+
+      }
+      #gc-3 .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        font-size: 1em;
+        text-align: center;
+      }
+      #gc-3-item1 {
+        grid-area: myArea;
+      }
+    </style>
+
+    <div class="example">
+      <div id="gc-3">
+        <div class="grid-item" id="gc-3-item1">1</div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">3</div>
+        <div class="grid-item">4</div>
+        <div class="grid-item">5</div>
+        <div class="grid-item">6</div>
+        <div class="grid-item">7</div>
+        <div class="grid-item">8</div>
+        <div class="grid-item">9</div>
+        <div class="grid-item">10</div>
+        <div class="grid-item">11</div>
+        <div class="grid-item">12</div>
+      </div>
+    </div>
+
+    <pre><code class="html">
+      &lt;div id="gc-3"&gt;
+        &lt;div class="grid-item" id="gc-3-item1"&gt;1&lt;/div&gt;
+        &lt;div class="grid-item"&gt;2&lt;/div&gt;
+        &lt;div class="grid-item"&gt;3&lt;/div&gt;
+        &lt;div class="grid-item"&gt;4&lt;/div&gt;
+        &lt;div class="grid-item"&gt;5&lt;/div&gt;
+        &lt;div class="grid-item"&gt;6&lt;/div&gt;
+        &lt;div class="grid-item"&gt;7&lt;/div&gt;
+        &lt;div class="grid-item"&gt;8&lt;/div&gt;
+        &lt;div class="grid-item"&gt;9&lt;/div&gt;
+        &lt;div class="grid-item"&gt;10&lt;/div&gt;
+        &lt;div class="grid-item"&gt;11&lt;/div&gt;
+        &lt;div class="grid-item"&gt;12&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+
+    <pre><code class="css">
+      #gc-3 {
+        display: grid;
+        grid:
+          'myArea myArea . . .'
+          'myArea myArea . . .';
+        background-color: #2196F3;
+        padding: 10px;
+        grid-gap: 10px;
+
+      }
+      #gc-3 .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        font-size: 1em;
+        text-align: center;
+      }
+      #gc-3-item1 {
+        grid-area: myArea;
+      }
+    </code></pre>
+
+
+
+    <style>
+      #gc-4-item1 { grid-area: header; }
+      #gc-4-item2 { grid-area: menu; }
+      #gc-4-item3 { grid-area: main; }
+      #gc-4-item4 { grid-area: right; }
+      #gc-4-item5 { grid-area: footer; }
+      #gc-4 {
+        display: grid;
+        grid:
+          'header header header header header header'
+          'menu main main main right right'
+          'menu footer footer footer footer footer';
+        grid-gap: 10px;
+        background-color: #2196F3;
+        padding: 10px;
+      }
+      #gc-4>div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding:20px 0;
+        font-size: 30px;
+      }
+    </style>
+
+    <div class="example">
+      <div id="gc-4">
+        <div id="gc-4-item1">Header</div>
+        <div id="gc-4-item2">Menu</div>
+        <div id="gc-4-item3">Main</div>
+        <div id="gc-4-item4">Right</div>
+        <div id="gc-4-item5">Footer</div>
+      </div>
+    </div>
+    <pre><code class="html">
+      &lt;div id="gc-4"&gt;
+        &lt;div id="gc-4-item1"&gt;Header&lt;/div&gt;
+        &lt;div id="gc-4-item2"&gt;Menu&lt;/div&gt;
+        &lt;div id="gc-4-item3"&gt;Main&lt;/div&gt;
+        &lt;div id="gc-4-item4"&gt;Right&lt;/div&gt;
+        &lt;div id="gc-4-item5"&gt;Footer&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+    <pre><code class="css">
+      #gc-4-item1 { grid-area: header; }
+      #gc-4-item2 { grid-area: menu; }
+      #gc-4-item3 { grid-area: main; }
+      #gc-4-item4 { grid-area: right; }
+      #gc-4-item5 { grid-area: footer; }
+      #gc-4 {
+        display: grid;
+        grid:
+          'header header header header header header'
+          'menu main main main right right'
+          'menu footer footer footer footer footer';
+        grid-gap: 10px;
+        background-color: #2196F3;
+        padding: 10px;
+      }
+      #gc-4>div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding:20px 0;
+        font-size: 30px;
+      }
+    </code></pre>
+
+
+
+  <h3>Responsive grid</h3>
+
+    <style type="text/css">
+      #gc-5 {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-gap: 10px;
+        background-color: #2196F3;
+        padding: 10px;
+      }
+      #gc-5 > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+      }
+      @media only screen and (max-width: 700px) {
+        #gc-5-item1 { grid-area: 1 / span 3 / 2 / 4; }
+        #gc-5-item2 { grid-area: 3 / 3 / 3 / 4; }
+        #gc-5-item3 { grid-area: 2 / 1 / 2 / 2; }
+        #gc-5-item4 { grid-area: 2 / 2 / span 2 / 3; }
+        #gc-5-item5 { grid-area: 3 / 1 / 3 / 2; }
+        #gc-5-item6 { grid-area: 2 / 3 / 2 / 4; }
+      }
+    </style>
+
+    <div class="example">
+      <div id="gc-5">
+        <div id="gc-5-item1">1</div>
+        <div id="gc-5-item2">2</div>
+        <div id="gc-5-item3">3</div>
+        <div id="gc-5-item4">4</div>
+        <div id="gc-5-item5">5</div>
+        <div id="gc-5-item6">6</div>
+      </div>
+    </div>
+    <pre><code class="html">
+      &lt;div id="gc-5"&gt;
+        &lt;div id="gc-5-item1"&gt;1&lt;/div&gt;
+        &lt;div id="gc-5-item2"&gt;2&lt;/div&gt;
+        &lt;div id="gc-5-item3"&gt;3&lt;/div&gt;
+        &lt;div id="gc-5-item4"&gt;4&lt;/div&gt;
+        &lt;div id="gc-5-item5"&gt;5&lt;/div&gt;
+        &lt;div id="gc-5-item6"&gt;6&lt;/div&gt;
+      &lt;/div&gt;
+    </code></pre>
+    <pre><code class="css">
+      #gc-5 {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-gap: 10px;
+        background-color: #2196F3;
+        padding: 10px;
+      }
+      #gc-5 > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+      }
+      @media only screen and (max-width: 700px) {
+        #gc-5-item1 { grid-area: 1 / span 3 / 2 / 4; }
+        #gc-5-item2 { grid-area: 3 / 3 / 3 / 4; }
+        #gc-5-item3 { grid-area: 2 / 1 / 2 / 2; }
+        #gc-5-item4 { grid-area: 2 / 2 / span 2 / 3; }
+        #gc-5-item5 { grid-area: 3 / 1 / 3 / 2; }
+        #gc-5-item6 { grid-area: 2 / 3 / 2 / 4; }
+      }
+    </code></pre>
+
+
+
+<h2 id="flex">Flex</h2>
+
+  <ul>
+    <li>Flexible Layout must have a parent element with the <em>display</em> property set to <em>flex</em></li>
+    <li>direct child elements(s) of the flexible container automatically becomes flexible items</li>
+  </ul>
+
+  <h3>Flex container properties</h3>
+  <ul>
+    <li>flex-direction - in which direction the container wants to stack the flex items</li>
+    <li>flex-wrap - whether the flex items should wrap or not</li>
+    <li>flex-flow - shorthand property for setting both the flex-direction and flex-wrap properties</li>
+    <li>justify-content - align the flex items</li>
+    <li>align-items - align the flex items vertically</li>
+    <li>align-content - align the flex lines</li>
+  </ul>
+
+  <h3>Flex items properties</h3>
+  <ul>
+    <li>order - order of the flex items</li>
+    <li>flex-grow - how much a flex item will grow relative to the rest of the flex items</li>
+    <li>flex-shrink - how much a flex item will shrink relative to the rest of the flex items</li>
+    <li>flex-basis - specifies the initial length of a flex item</li>
+    <li>flex - shorthand property for the flex-grow, flex-shrink, and flex-basis</li>
+    <li>align-self - alignment for the selected item (alignment for the selected item)</li>
+  </ul>
+
+  <style>
+    .flexp {
+      height: 300px;
+      display: flex;
+      background-color: DodgerBlue;
+
+      flex-flow: row no-wrap;
+      justify-content: space-around;
+      align-items: stretch;
+      align-content: space-around;
+    }
+
+    #fp2 {
+      flex-flow: column-reverse wrap-reverse;
+      /*flex-direction: column-reverse;*/
+      /*flex-wrap: wrap-reverse;*/
+
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    #fp3 {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .flexp > div {
+      background-color: #f1f1f1;
+      margin: 10px;
+      padding: 20px;
+      font-size: 30px;
+      line-height: 75px;
+    }
+  </style>
+
+  <div class="example">
+    <div class="flexp" id="fp1">
+      <div class="flexc" style="flex:2 0 50px">1</div>
+      <div class="flexc" style="flex:1 0 50px">2</div>
+      <div class="flexc" style="flex:1 0 50px">3</div>
+      <div class="flexc" style="flex:0 5 50px; align-self:center">4</div>
+      <div class="flexc" style="flex:1 0 50px;">5</div>
+      <div class="flexc" style="flex:1 0 50px; order:2">6</div>
+      <div class="flexc" style="flex:1 0 50px; order:1">7</div>
+    </div>
+  </div>
+  <div class="example">
+    <div class="flexp" id="fp2">
+      <div class="flexc">1</div>
+      <div class="flexc">2</div>
+      <div class="flexc">3</div>
+      <div class="flexc">4</div>
+    </div>
+  </div>
+  <div class="example">
+    <div class="flexp" id="fp3">
+      <div class="flexc">1</div>
+    </div>
+  </div>
+
+  <pre><code class="html">
+    &lt;div class="flexp" id="fp1"&gt;
+      &lt;div class="flexc" style="flex:2 0 50px"&gt;1&lt;/div&gt;
+      &lt;div class="flexc" style="flex:1 0 50px"&gt;2&lt;/div&gt;
+      &lt;div class="flexc" style="flex:1 0 50px"&gt;3&lt;/div&gt;
+      &lt;div class="flexc" style="flex:0 5 50px; align-self:center"&gt;4&lt;/div&gt;
+      &lt;div class="flexc" style="flex:1 0 50px;"&gt;5&lt;/div&gt;
+      &lt;div class="flexc" style="flex:1 0 50px; order:2"&gt;6&lt;/div&gt;
+      &lt;div class="flexc" style="flex:1 0 50px; order:1"&gt;7&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="flexp" id="fp2"&gt;
+      &lt;div class="flexc"&gt;1&lt;/div&gt;
+      &lt;div class="flexc"&gt;2&lt;/div&gt;
+      &lt;div class="flexc"&gt;3&lt;/div&gt;
+      &lt;div class="flexc"&gt;4&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="flexp" id="fp3"&gt;
+      &lt;div class="flexc"&gt;1&lt;/div&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    .flexp {
+      height: 300px;
+      display: flex;
+      background-color: DodgerBlue;
+      flex-flow: row no-wrap;
+      justify-content: space-around;
+      align-items: stretch;
+      align-content: space-around;
+    }
+    .flexp > div {
+      background-color: #f1f1f1;
+      margin: 10px;
+      padding: 20px;
+      font-size: 30px;
+      line-height: 75px;
+    }
+
+    #fp2 {
+      flex-flow: column-reverse wrap-reverse;
+      /*flex-direction: column-reverse;*/
+      /*flex-wrap: wrap-reverse;*/
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    #fp3 {
+      justify-content: center;
+      align-items: center;
+    }
+  </code></pre>
+
+
+
+<h2 id="attr">attr() - attribute value</h2>
+
+  <style>
+    a:before {
+      content: attr(title);
+    }
+    a:after {
+      content: " (" attr(href) ")";
+    }
+  </style>
+
+  <div class="example">
+    <p><a href="https://www.w3schools.com" title="W3Schools"></a></p>
+    <p><a href="https://www.w3schools.com/html/">W3Schools HTML tutorial</a></p>
+  </div>
+
+  <pre><code class="css">
+    a:before {
+      content: attr(title);
+    }
+    a:after {
+      content: " (" attr(href) ")";
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;a href="https://www.w3schools.com" title="W3Schools"&gt;&lt;/a&gt;
+    &lt;a href="https://www.w3schools.com/html/"&gt;W3Schools HTML tutorial&lt;/a&gt;
+  </code></pre>
+
+
+
+<h2 id="vars">var() - Variables</h2>
+
+  <style>
+    :root {
+      --main-bg-color: DarkOrange;
+      --main-txt-color: white;
+      --main-padding: 5px;
+    }
+    #d_1 {
+      background-color: var(--main-bg-color, #fff);
+      color: var(--main-txt-color, #fff);
+      padding: var(--main-padding, #fff);
+    }
+    #d_2 {
+      background-color: var(--main-bg-color, #fff);
+      color: var(--main-txt-color, #fff);
+      padding: var(--main-padding, #fff);
+    }
+    #d_3 {
+      background-color: var(--main-bg-color);
+      color: var(--main-txt-color);
+      padding: var(--main-padding);
+    }
+  </style>
+
+  <div class="example">
+    <div id="d_1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit.</div>
+    <br>
+    <div id="d_2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit.</div>
+    <br>
+    <div id="d_3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit.</div>
+  </div>
+
+  <pre><code class="css">
+    :root {
+      --main-bg-color: DarkOrange;
+      --main-txt-color: white;
+      --main-padding: 5px;
+    }
+    #d_1 {
+      background-color: var(--main-bg-color, #fff);
+      color: var(--main-txt-color, #fff);
+      padding: var(--main-padding, #fff);
+    }
+    #d_2 {
+      background-color: var(--main-bg-color, #fff);
+      color: var(--main-txt-color, #fff);
+      padding: var(--main-padding, #fff);
+    }
+    #d_3 {
+      background-color: var(--main-bg-color);
+      color: var(--main-txt-color);
+      padding: var(--main-padding);
+    }
+  </code></pre>
+  <pre><code class="html">
+    &lt;div id="d_1"&gt;Lorem ipsum ...&lt;/div&gt;
+    &lt;div id="d_2"&gt;Lorem ipsum ...&lt;/div&gt;
+    &lt;div id="d_3"&gt;Lorem ipsum ...&lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="calc">calc() - Math</h2>
+
+  <ul>
+    <li>performs a calculation to be used as the property value (mathematical expression), result will be used as the value</li>
+    <li>following operators can be used: <strong>+ - * /</strong></li>
+  </ul>
+
+  <style>
+    #dc_1 {
+      position: absolute;
+      left: 50px;
+      width: calc(100% - 100px);
+      border: 1px solid black;
+      background-color: yellow;
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
+
+  <pre><code class="css">
+    #dc_1 {
+      position: absolute;
+      left: 50px;
+      width: calc(100% - 100px);
+      border: 1px solid black;
+      background-color: yellow;
+      padding: 5px;
+      text-align: center;
+    }
+  </code></pre>
+
+  <pre><code class="html">
+    &lt;div id="dc_1"&gt;Some text...&lt;/div&gt;
+  </code></pre>
+
+
+
+<h2 id="mmc">min|max|clamp()</h2>
+
+  <ul>
+    <li>min() - set the smallest (most negative) value, maximum value a property can have</li>
+    <li>min() - set the smallest (most negative) value</li>
+    <li>min() - set the smallest (most negative) value</li>
+    <li>can be used anywhere a length, frequency, angle, time, percentage, number, or integer is allowed</li>
+    <li>expressions can be math expressions (using arithmetic operators: <strong>+ - * /</strong> operators, using standard operator precedence rules, make sure to put a space on each side of the + and - operands), literal values, or other expressions, such as attr(), that evaluate to a valid argument type (like length), use different units for each value in your expression, parentheses to establish computation order when needed</li>
+    <li>is permitted to nest max() and other min() functions as expression values, expressions are full math expressions, so you can use direct addition, subtraction, multiplication and division without using the calc() function itself</li>
+    <li>combine min() and max() values, or use min() within a clamp() or calc() function
+    <li>provide more than two arguments, if you have multiple constraints to apply: <strong>|</strong></li>
+    <li>Chromium 79+, Firefox 75+, Safari 13.1|7</li>
+  </ul>
+
+  <pre><code class="css">
+    width: min(50vw, 200px);
+    width: min(50vw, 4000px);
+    width: min(150vw, 100px);
+
+    width: max(20vw, 400px);
+    width: max(20vw, 100px);
+    width: max(5vw, 100px);
+
+    /* clamp(MIN, VAL, MAX) is resolved as max()(MIN, min()(VAL, MAX)) */
+    font-size: clamp(1rem, 2.5vw, 2rem);
+    font-size: clamp(1.5rem, 2.5vw, 4rem);
+    font-size: clamp(1rem, 10vw, 2rem);
+
+    /* text size, make sure the text is always large enough to read */
+    small {
+      font-size: max(min(0.5vw, 0.5em), 1rem);
+    }
+
+    body {
+      margin: 0 auto;
+      width: min(1000px, calc(70% + 100px));
+    }
+    h1 {
+      letter-spacing: 2px;
+      font-size: clamp(1.8rem, 2.5vw, 2.8rem);
+    }
+    p {
+      line-height: 1.5;
+      font-size: max(1.2rem, 1.2vw);
+    }
+
+    /*
+      min|max|clamp( &lt;calc-sum&gt;# )
+        where
+          &lt;calc-sum&gt; = &lt;calc-product&gt; [ [ '+' | '-' ] &lt;calc-product&gt; ]*
+        where
+          &lt;calc-product&gt; = &lt;calc-value&gt; [ '*' &lt;calc-value&gt; | '/' &lt;number&gt; ]*
+        where
+          &lt;calc-value&gt; = &lt;number&gt; | &lt;dimension&gt; | &lt;percentage&gt; | ( &lt;calc-sum&gt; )
+    */
+  </code></pre>
+
+  <pre><code class="css">
+    /* text blocks are not narrower than 45 or wider than 75 characters */
+    .card {
+      width: clamp(45ch, 50%, 75ch);
+      width: max(45ch, 50%);
+      width: min(75ch, 50%);
+      display: flex;
+      flex-direction: column;
+      background: lightpink;
+      padding: 1rem;
+    }
+
+    /* dynamic padding */
+    footer {
+      --contentWidth: 400px;
+      background: lightcoral;
+      padding: 2rem max(2rem, 50vw - var(--contentWidth) / 2);
+    }
+
+    /* fluid typography */
+    body {
+      display: grid;
+      place-items: center;
+      height: 90vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: clamp(1.5rem, 5vw, 3rem);
+    }
+  </code></pre>
+
+
+<h2 id="mq">Media Queries - @media</h2>
+
+  <ul>
+    <li>define different style rules for different capability of the device</li>
+    <li>width and height of the viewport</li>
+    <li>width and height of the device</li>
+    <li>orientation (is the tablet/phone in landscape or portrait mode?)</li>
+    <li>resolution</li>
+  </ul>
+
+  <pre><code class="css">
+    @media not|only mediatype and (media feature and|or|not mediafeature) {
+      /* CSS-Code */
+    }
+  </code></pre>
+
+  <h3>different stylesheets for different media</h3>
+  <pre><code class="html">
+    &lt;link rel="stylesheet" media="mediatype and|not|only (expressions)" href="print.css"&gt;
+
+    &lt;link href="style.css" rel="stylesheet"&gt;
+    &lt;link href="print.css" rel="stylesheet" media="print"&gt;
+    &lt;link href="other.css" rel="stylesheet" media="(min-width: 40em)"&gt;
+
+    &lt;link href="style.css" rel="stylesheet"&gt;
+    &lt;link href="style.css" rel="stylesheet" media="all"&gt;
+    &lt;link href="portrait.css" rel="stylesheet" media="orientation:portrait"&gt;
+    &lt;link href="print.css" rel="stylesheet" media="print"&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    /* hide an element when the browser's width is 600px wide or less */
+    @media screen and (max-width: 600px) {
+      div.example {
+        display: none;
+      }
+    }
+
+    /*
+    * set the background-color to lavender if the viewport is 800 pixels wide or wider
+    * to lightgreen if the viewport is between 400 and 799 pixels wide
+    * if the viewport is smaller than 400 pixels, the background-color is lightblue
+    */
+    body {
+        background-color: lightblue;
+    }
+    @media screen and (min-width: 400px) {
+        body {
+            background-color: lightgreen;
+        }
+    }
+    @media screen and (min-width: 800px) {
+        body {
+            background-color: lavender;
+        }
+    }
+
+    /*
+      responsive navigation menu
+      displayed horizontally on large screens and vertically on small screens
+    */
+    @media screen and (max-width: 600px) {
+        .topnav a {
+            float: none;
+            width: 100%;
+        }
+    }
+
+    /* responsive column layout with FLOAT */
+    .column {
+        float: left;
+        width: 25%;
+    }
+    @media screen and (max-width: 992px) {
+        .column {
+            width: 50%;
+        }
+    }
+    @media screen and (max-width: 600px) {
+        .column {
+            width: 100%;
+        }
+    }
+    /* same with FLEX */
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .column {
+      flex: 25%;
+      padding: 20px;
+    }
+    @media screen and (max-width: 992px) {
+      .column {
+        flex: 50%;
+      }
+    }
+    @media screen and (max-width: 600px) {
+      .row {
+        flex-direction: column;
+      }
+    }
+
+    /* when the width is between 600px and 900px */
+    @media screen and (max-width: 900px) and (min-width: 600px) {
+      div.example {
+        font-size: 50px;
+        padding: 50px;
+        border: 8px solid black;
+        background: yellow;
+      }
+    }
+    /* when the width is between 600px and 900px OR above 1100px */
+    @media screen and (max-width: 900px) and (min-width: 600px), (min-width: 1100px) {
+      div.example {
+        font-size: 50px;
+        padding: 50px;
+        border: 8px solid black;
+        background: yellow;
+      }
+    }
+
+    /* change layout of a page depending on the orientation of the browser */
+    @media only screen and (orientation: landscape) {
+        body {
+            background-color: lightblue;
+        }
+    }
+
+    /*
+    * set the text color to green when the document is displayed on the screen
+    * and to black when it is printed
+    */
+    @media screen {
+        body {
+            color: green;
+        }
+    }
+    @media print {
+        body {
+            color: black;
+        }
+    }
+
+    /*
+    * for PWA
+    * fullscreen. standalone, minimal-ui, browser
+    */
+    @media all and (display-mode: fullscreen) {
+      body {
+        margin: 0;
+        border: 5px solid black;
+      }
+    }
+  </code></pre>
+
+  <h3>Media Types</h3>
+  <table>
+    <tbody>
+      <tr>
+        <th style="width:25%">Value</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>all</td>
+        <td>Default. Used for all media type devices</td>
+      </tr>
+      <tr>
+        <td>print</td>
+        <td>Used for printers</td>
+      </tr>
+      <tr>
+        <td>screen</td>
+        <td>Used for computer screens, tablets, smart-phones etc.</td>
+        </tr>
+      <tr>
+        <td>speech</td>
+        <td>Used for screenreaders that "reads" the page out loud</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Media Features</h3>
+  <table>
+    <tbody>
+      <tr>
+      <th style="width:25%">Value</th>
+      <th>Description</th>
+      </tr>
+      <tr>
+      <td>any-hover</td>
+      <td>Does any available input mechanism allow the user to hover over
+      elements? (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>any-pointer</td>
+      <td>Is any available input mechanism a pointing device, and if so, how
+      accurate is it? (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>aspect-ratio</td>
+      <td>The ratio between the width and the height of the viewport</td>
+      </tr>
+      <tr>
+      <td>color</td>
+      <td>The number of bits per color component for the output device</td>
+      </tr>
+      <tr>
+      <td>color-gamut</td>
+      <td>The approximate range of colors that are supported by the user agent and
+      output device (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>color-index</td>
+      <td>The number of colors the device can display</td>
+      </tr>
+      <tr>
+      <td>grid</td>
+      <td>Whether the device is a grid or bitmap</td>
+      </tr>
+      <tr>
+      <td>height</td>
+      <td>The viewport height</td>
+      </tr>
+      <tr>
+      <td>hover</td>
+      <td>Does the primary input mechanism allow the user to hover over elements?
+      (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>inverted-colors</td>
+      <td>Is the browser or underlying OS inverting colors? (added in Media
+      Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>light-level</td>
+      <td>Current ambient light level (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>max-aspect-ratio</td>
+      <td>The maximum ratio between the width and the height of the display area</td>
+      </tr>
+      <tr>
+      <td>max-color</td>
+      <td>The maximum number of bits per color component for the output device</td>
+      </tr>
+      <tr>
+      <td>max-color-index</td>
+      <td>The maximum number of colors the device can display</td>
+      </tr>
+      <tr>
+      <td>max-height</td>
+      <td>The maximum height of the display area, such as a browser window</td>
+      </tr>
+      <tr>
+      <td>max-monochrome</td>
+      <td>The maximum number of bits per "color" on a monochrome (greyscale) device</td>
+      </tr>
+      <tr>
+      <td>max-resolution</td>
+      <td>The maximum resolution of the device, using dpi or dpcm</td>
+      </tr>
+      <tr>
+      <td>max-width</td>
+      <td>The maximum width of the display area, such as a browser window</td>
+      </tr>
+      <tr>
+      <td>min-aspect-ratio</td>
+      <td>The minimum ratio between the width and the height of the display area</td>
+      </tr>
+      <tr>
+      <td>min-color</td>
+      <td>The minimum number of bits per color component for the output device</td>
+      </tr>
+      <tr>
+      <td>min-color-index</td>
+      <td>The minimum number of colors the device can display</td>
+      </tr>
+      <tr>
+      <td>min-height</td>
+      <td>The minimum height of the display area, such as a browser window</td>
+      </tr>
+      <tr>
+      <td>min-monochrome</td>
+      <td>The minimum number of bits per "color" on a monochrome (greyscale) device</td>
+      </tr>
+      <tr>
+      <td>min-resolution</td>
+      <td>The minimum resolution of the device, using dpi or dpcm</td>
+      </tr>
+      <tr>
+      <td>min-width</td>
+      <td>The minimum width of the display area, such as a browser window</td>
+      </tr>
+      <tr>
+      <td>monochrome</td>
+      <td>The number of bits per "color" on a monochrome (greyscale) device</td>
+      </tr>
+      <tr>
+      <td>orientation</td>
+      <td>The orientation of the viewport (landscape or portrait mode)</td>
+      </tr>
+      <tr>
+      <td>overflow-block</td>
+      <td>How does the output device handle content that overflows the viewport along the block axis (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>overflow-inline</td>
+      <td>Can content that overflows the viewport along the inline axis be scrolled (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>pointer</td>
+      <td>Is the primary input mechanism a pointing device, and if so, how
+      accurate is it? (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>resolution</td>
+      <td>The resolution of the output device, using dpi or dpcm</td>
+      </tr>
+      <tr>
+      <td>scan</td>
+      <td>The scanning process of the output device</td>
+      </tr>
+      <tr>
+      <td>scripting</td>
+      <td>Is scripting (e.g. JavaScript) available? (added in Media Queries Level
+      4)</td>
+      </tr>
+      <tr>
+      <td>update</td>
+      <td>How quickly can the output device modify the appearance of the content (added in Media Queries Level 4)</td>
+      </tr>
+      <tr>
+      <td>width</td>
+      <td>The viewport width</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="rwd">RWD</h2>
+
+  <h3>Viewport</h3>
+
+  <ul>
+    <li>&lt;meta&gt; viewport element gives the browser instructions on how to control the page dimensions and scaling</li>
+    <li>width=device-width part sets the width of the page to follow the screen-width of the device (which will vary depending on the device)</li>
+    <li>initial-scale=1.0 part sets the initial zoom level when the page is first loaded by the browser</li>
+    <li>Do NOT use large fixed width elements - remember to adjust this content to fit within the width of the viewport</li>
+    <li>Do NOT let the content rely on a particular viewport width to render well</li>
+    <li>Use CSS media queries to apply different styling for small and large screens</li>
+  </ul>
+
+  <pre><code class="html">
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  </code></pre>
+
+  <h3>Responsive Grid View</h3>
+
+  <style>
+    .r-row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+    [class*="r-col-"] {
+      float: left;
+      padding: 15px;
+    }
+    .r-header {
+      background-color: #9933cc;
+      color: #ffffff;
+      padding: 15px;
+    }
+    .r-menu ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    .r-menu li {
+      padding: 8px;
+      margin-bottom: 7px;
+      background-color: #33b5e5;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+    .r-menu li:hover {
+      background-color: #0099cc;
+    }
+    .r-aside {
+      background-color: #33b5e5;
+      padding: 15px;
+      color: #ffffff;
+      text-align: center;
+      font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+    .r-footer {
+      background-color: #0099cc;
+      color: #ffffff;
+      text-align: center;
+      font-size: 12px;
+      padding: 15px;
+    }
+    /* For mobile phones: */
+    [class*="r-col-"] {
+        width: 100%;
+    }
+    @media only screen and (min-width: 768px) {
+      /* For desktop: */
+      .r-col-1 {width: 8.33%;}
+      .r-col-2 {width: 16.66%;}
+      .r-col-3 {width: 25%;}
+      .r-col-4 {width: 33.33%;}
+      .r-col-5 {width: 41.66%;}
+      .r-col-6 {width: 50%;}
+      .r-col-7 {width: 58.33%;}
+      .r-col-8 {width: 66.66%;}
+      .r-col-9 {width: 75%;}
+      .r-col-10 {width: 83.33%;}
+      .r-col-11 {width: 91.66%;}
+      .r-col-12 {width: 100%;}
+    }
+
+    #rwd-cols {
+      padding: 20px;
+      color: white;
+      resize: both;
+      width:100%;
+      height:100%;
+      overflow: auto;
+    }
+    /* Extra small devices (phones, 600px and down) */
+    @media only screen and (max-width: 600px) {
+      #rwd-cols {background: red;}
+    }
+    /* Small devices (portrait tablets and large phones, 600px and up) */
+    @media only screen and (min-width: 600px) {
+      #rwd-cols {background: green;}
+    }
+    /* Medium devices (landscape tablets, 768px and up) */
+    @media only screen and (min-width: 768px) {
+      #rwd-cols {background: blue;}
+    }
+    /* Large devices (laptops/desktops, 992px and up) */
+    @media only screen and (min-width: 992px) {
+      #rwd-cols {background: orange;}
+    }
+    /* Extra large devices (large laptops and desktops, 1200px and up) */
+    @media only screen and (min-width: 1200px) {
+      #rwd-cols {background: pink;}
+    }
+  </style>
+
+  <div class="example">
+
+    <div class="container" id="rwd-cols">
+      <div class="r-header">
+        <h1>Chania</h1>
+      </div>
+      <div class="r-row">
+        <div class="r-col-3 r-menu">
+          <ul>
+            <li>The Flight</li>
+            <li>The City</li>
+            <li>The Island</li>
+            <li>The Food</li>
+          </ul>
+        </div>
+        <div class="r-col-6">
+          <h1>The City</h1>
+          <p>Chania is the capital of the Chania region on the island of Crete. The city can be divided in two parts, the old town and the modern city.</p>
+        </div>
+        <div class="r-col-3">
+          <div class="r-aside">
+            <h2>What?</h2>
+            <p>Chania is a city on the island of Crete.</p>
+            <h2>Where?</h2>
+            <p>Crete is a Greek island in the Mediterranean Sea.</p>
+            <h2>How?</h2>
+            <p>You can reach Chania airport from all over Europe.</p>
+          </div>
+        </div>
+      </div>
+      <div class="r-footer">
+        <p>Resize the browser window to see how the content respond to the resizing.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <pre><code class="html">
+    &lt;div class="container" id="rwd-cols"&gt;
+      &lt;div class="r-header"&gt;
+        &lt;h1&gt;Chania&lt;/h1&gt;
+      &lt;/div&gt;
+      &lt;div class="r-row"&gt;
+        &lt;div class="r-col-3 r-menu"&gt;
+          &lt;ul&gt;
+            &lt;li&gt;The Flight&lt;/li&gt;
+            &lt;li&gt;The City&lt;/li&gt;
+            &lt;li&gt;The Island&lt;/li&gt;
+            &lt;li&gt;The Food&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+        &lt;div class="r-col-6"&gt;
+          &lt;h1&gt;The City&lt;/h1&gt;
+          &lt;p&gt;Chania is ...&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="r-col-3"&gt;
+          &lt;div class="r-aside"&gt;
+            &lt;h2&gt;What?&lt;/h2&gt;
+            &lt;p&gt;Chania is a city on the island of Crete.&lt;/p&gt;
+            &lt;h2&gt;Where?&lt;/h2&gt;
+            &lt;p&gt;Crete is a Greek island in the Mediterranean Sea.&lt;/p&gt;
+            &lt;h2&gt;How?&lt;/h2&gt;
+            &lt;p&gt;You can reach Chania airport from all over Europe.&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="r-footer"&gt;
+        &lt;p&gt;Resize ...&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    .r-row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+    [class*="r-col-"] {
+      float: left;
+      padding: 15px;
+    }
+    .r-header {
+      background-color: #9933cc;
+      color: #ffffff;
+      padding: 15px;
+    }
+    .r-menu ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    .r-menu li {
+      padding: 8px;
+      margin-bottom: 7px;
+      background-color: #33b5e5;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+    .r-menu li:hover {
+      background-color: #0099cc;
+    }
+    .r-aside {
+      background-color: #33b5e5;
+      padding: 15px;
+      color: #ffffff;
+      text-align: center;
+      font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+    .r-footer {
+      background-color: #0099cc;
+      color: #ffffff;
+      text-align: center;
+      font-size: 12px;
+      padding: 15px;
+    }
+    /* For mobile phones: */
+    [class*="r-col-"] {
+      width: 100%;
+    }
+    @media only screen and (min-width: 768px) {
+      /* For desktop: */
+      .r-col-1 {width: 8.33%;}
+      .r-col-2 {width: 16.66%;}
+      .r-col-3 {width: 25%;}
+      .r-col-4 {width: 33.33%;}
+      .r-col-5 {width: 41.66%;}
+      .r-col-6 {width: 50%;}
+      .r-col-7 {width: 58.33%;}
+      .r-col-8 {width: 66.66%;}
+      .r-col-9 {width: 75%;}
+      .r-col-10 {width: 83.33%;}
+      .r-col-11 {width: 91.66%;}
+      .r-col-12 {width: 100%;}
+    }
+    #rwd-cols {
+      padding: 20px;
+      color: white;
+      resize: both;
+      width:100%;
+      height:100%;
+      overflow: auto;
+    }
+    /* Extra small devices (phones, 600px and down) */
+    @media only screen and (max-width: 600px) {
+      #rwd-cols {background: red;}
+    }
+    /* Small devices (portrait tablets and large phones, 600px and up) */
+    @media only screen and (min-width: 600px) {
+      #rwd-cols {background: green;}
+    }
+    /* Medium devices (landscape tablets, 768px and up) */
+    @media only screen and (min-width: 768px) {
+      #rwd-cols {background: blue;}
+    }
+    /* Large devices (laptops/desktops, 992px and up) */
+    @media only screen and (min-width: 992px) {
+      #rwd-cols {background: orange;}
+    }
+    /* Extra large devices (large laptops and desktops, 1200px and up) */
+    @media only screen and (min-width: 1200px) {
+      #rwd-cols {background: pink;}
+    }
+  </code></pre>
+
+
+
+<h2 id="alt">Alternate/switch style</h2>
+
+  <ul>
+    <li>alternative style sheets are available in View-&gt;Page Style or with JS</li>
+    <li><strong>Persistent</strong> (no rel="alternate", no title="") - always applies to the document</li>
+    <li><strong>Preferred</strong> (no rel="alternate", with title="..." specified) - applied by default, but disabled if an alternate stylesheet is selected, there can only be one preferred stylesheet, so providing stylesheets with different title attributes will cause some of them to be ignored</li>
+    <li><strong>Alternate</strong> (rel="stylesheet alternate", title="..." must be specified) - disabled by default, can be selected</li>
+    <li>document.styleSheets - StyleSheetList of CSSStyleSheet objects, for stylesheets explicitly linked into or embedded in a document, styles properties:
+      <ul>
+        <li>title</li>
+        <li>type</li>
+        <li>href</li>
+        <li>disabled</li>
+        <li>media</li>
+        <li>ownerNode</li>
+        <li>parentStyleSheet</li>
+      </ul>
+    </li>
+    <li>document.enableStyleSheetsForSet() - enables the style sheets matching the specified name in the current style sheet set, and disables all other style sheets (except those without a title, which are always enabled), value is live: directly changing the disabled attribute on style sheets will affect the value of this attribute</li>
+    <li>document.styleSheetSets - live list of all of the currently-available style sheet sets</li>
+    <li>document.selectedStyleSheetSet - indicates the name of the style sheet set that's currently in use, setting the value of this property is equivalent to calling document.enableStyleSheetsForSet() with the value of currentStyleSheetSet, then setting the value of lastStyleSheetSet to that value as well</li>
+    <li>document.preferredStyleSheetSet - preferred style sheet set as set by the page author (or "")</li>
+    <li>document.lastStyleSheetSet - last enabled style sheet set (or null), value changes whenever the document.selectedStyleSheetSet property is changed</li>
+  </ul>
+
+  <pre><code class="html">
+    &lt;link href="../css/css_redbg.css" rel="alternate stylesheet" type="text/css" title="Red Background"/&lt;
+    &lt;link href="../css/css_bluedbg.css" rel="alternate stylesheet" type="text/css" title="Blue Background"/&gt;
+  </code></pre>
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

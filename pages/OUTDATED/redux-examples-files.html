@@ -1,0 +1,6337 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content=""/>
+  <meta name="keywords" content=""/>
+  <meta name="author" content="AndreIT"/>
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <script src="../js/highlight.min.js"></script>
+  <script src="../js/highlight-js.js" type="text/javascript"></script>
+  <script>
+    hljs.registerLanguage('js', H_js);
+    hljs.initHighlightingOnLoad();
+  </script>
+  <script src="../js/utils.js"></script>
+  <base href="" target="_blank"/>
+  <title>Angular</title>
+  <link rel="stylesheet" href="../css/css.css"/>
+</head>
+<body>
+
+  <details><summary>&nbsp;&nbsp;&nbsp;A S Y N C (Reddit API)</summary></details>
+  <details><summary>state</summary>
+  <pre><code class=''>
+    {
+      selectedSubreddit: 'frontend',
+      entities: {
+        users: {
+          2: {
+            id: 2,
+            name: 'Andrew'
+          }
+        },
+        posts: {
+          42: {
+            id: 42,
+            title: 'Confusion about Flux and Relay',
+            author: 2
+          },
+          100: {
+            id: 100,
+            title: 'Creating a Simple Application Using React JS and Flux Architecture',
+            author: 2
+          }
+        }
+      },
+      postsBySubreddit: {
+        frontend: {
+          isFetching: true,
+          didInvalidate: false,
+          items: []
+        },
+        reactjs: {
+          isFetching: false,
+          didInvalidate: false,
+          lastUpdated: 1439478405547,
+          items: [ 42, 100 ]
+        }
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    export const REQUEST_POSTS = 'REQUEST_POSTS'
+    export const RECEIVE_POSTS = 'RECEIVE_POSTS'
+    export const SELECT_SUBREDDIT = 'SELECT_SUBREDDIT'
+    export const INVALIDATE_SUBREDDIT = 'INVALIDATE_SUBREDDIT'
+
+    export const selectSubreddit = subreddit =&gt; ({
+      type: SELECT_SUBREDDIT,
+      subreddit
+    })
+
+    export const invalidateSubreddit = subreddit =&gt; ({
+      type: INVALIDATE_SUBREDDIT,
+      subreddit
+    })
+
+    export const requestPosts = subreddit =&gt; ({
+      type: REQUEST_POSTS,
+      subreddit
+    })
+
+    export const receivePosts = (subreddit, json) =&gt; ({
+      type: RECEIVE_POSTS,
+      subreddit,
+      posts: json.data.children.map(child =&gt; child.data),
+      receivedAt: Date.now()
+    })
+
+    // middleware passes the dispatch method as an argument to the function,
+    // thus making it able to dispatch actions itself
+    const fetchPosts = subreddit =&gt; dispatch =&gt; {
+      // first dispatch: the app state is updated to inform
+      // that the API call is starting
+      dispatch(requestPosts(subreddit))
+      // function called by the thunk middleware can return a value,
+      // that is passed on as the return value of the dispatch method.
+      // in this case, we return a promise to wait for.
+      // not required by thunk middleware, but it is convenient for us
+      return fetch(`https://www.reddit.com/r/${subreddit}.json`)
+        .then(
+          response =&gt; response.json()
+        )
+        .then(
+          // we can dispatch many times!
+          // here, we update the app state with the results of the API call
+          json =&gt; dispatch(receivePosts(subreddit, json))
+        )
+    }
+
+    const shouldFetchPosts = (state, subreddit) =&gt; {
+      const posts = state.postsBySubreddit[subreddit]
+      if (!posts) {
+        return true
+      }
+      if (posts.isFetching) {
+        return false
+      }
+      return posts.didInvalidate
+    }
+
+    export const fetchPostsIfNeeded = subreddit =&gt; (dispatch, getState) =&gt; {
+      if (shouldFetchPosts(getState(), subreddit)) {
+        return dispatch(fetchPosts(subreddit))
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Picker.js</summary>
+  <pre><code class='js'>
+    import React from 'react';
+    import PropTypes from 'prop-types';
+
+    const Picker = ({ value, onChange, options }) =&gt; (
+      &lt;span&gt;
+        &lt;h1&gt;{value}&lt;/h1&gt;
+        &lt;select onChange={e =&gt; onChange(e.target.value)}
+                value={value}&gt;
+          {options.map(option =&gt;
+            &lt;option value={option} key={option}&gt;
+              {option}
+            &lt;/option&gt;)
+          }
+        &lt;/select&gt;
+      &lt;/span&gt;
+    )
+
+    Picker.propTypes = {
+      options: PropTypes.arrayOf(
+        PropTypes.string.isRequired
+      ).isRequired,
+      value: PropTypes.string.isRequired,
+      onChange: PropTypes.func.isRequired
+    }
+
+    export default Picker
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Posts.js</summary>
+  <pre><code class='js'>
+    import React from 'react';
+    import PropTypes from 'prop-types';
+
+    const Posts = ({posts}) =&gt; (
+      &lt;ul&gt;
+        {posts.map((post, i) =&gt;
+          &lt;li key={i}&gt;{post.title}&lt;/li&gt;
+        )}
+      &lt;/ul&gt;
+    )
+
+    Posts.propTypes = {
+      posts: PropTypes.array.isRequired
+    }
+
+    export default Posts
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+    import { connect } from 'react-redux'
+    import { selectSubreddit, fetchPostsIfNeeded, invalidateSubreddit } from '../actions'
+    import Picker from '../components/Picker'
+    import Posts from '../components/Posts'
+
+    class App extends Component {
+      static propTypes = {
+        selectedSubreddit: PropTypes.string.isRequired,
+        posts: PropTypes.array.isRequired,
+        isFetching: PropTypes.bool.isRequired,
+        lastUpdated: PropTypes.number,
+        dispatch: PropTypes.func.isRequired
+      }
+
+      componentDidMount() {
+        const { dispatch, selectedSubreddit } = this.props
+        dispatch(fetchPostsIfNeeded(selectedSubreddit))
+      }
+
+      componentDidUpdate(prevProps) {
+        if (prevProps.selectedSubreddit !== this.props.selectedSubreddit) {
+          const { dispatch, selectedSubreddit } = this.props
+          dispatch(fetchPostsIfNeeded(selectedSubreddit))
+        }
+      }
+
+      handleChange = nextSubreddit =&gt; {
+        this.props.dispatch(selectSubreddit(nextSubreddit))
+      }
+
+      handleRefreshClick = e =&gt; {
+        e.preventDefault()
+
+        const { dispatch, selectedSubreddit } = this.props
+        dispatch(invalidateSubreddit(selectedSubreddit))
+        dispatch(fetchPostsIfNeeded(selectedSubreddit))
+      }
+
+      render() {
+        const { selectedSubreddit, posts, isFetching, lastUpdated } = this.props
+        const isEmpty = posts.length === 0
+        return (
+          &lt;div&gt;
+            &lt;Picker value={selectedSubreddit}
+                    onChange={this.handleChange}
+                    options={[ 'reactjs', 'frontend' ]} /&gt;
+            &lt;p&gt;
+              {lastUpdated &amp;&amp;
+                &lt;span&gt;
+                  Last updated at {new Date(lastUpdated).toLocaleTimeString()}.
+                  {' '}
+                &lt;/span&gt;
+              }
+              {!isFetching &amp;&amp;
+                &lt;button onClick={this.handleRefreshClick}&gt;
+                  Refresh
+                &lt;/button&gt;
+              }
+            &lt;/p&gt;
+            {isEmpty
+              ? (isFetching ? &lt;h2&gt;Loading...&lt;/h2&gt; : &lt;h2&gt;Empty.&lt;/h2&gt;)
+              : &lt;div style={{ opacity: isFetching ? 0.5 : 1 }}&gt;
+                  &lt;Posts posts={posts} /&gt;
+                &lt;/div&gt;
+            }
+          &lt;/div&gt;
+        )
+      }
+    }
+
+    const mapStateToProps = state =&gt; {
+      const { selectedSubreddit, postsBySubreddit } = state
+      const {
+        isFetching,
+        lastUpdated,
+        items: posts
+      } = postsBySubreddit[selectedSubreddit] || {
+        isFetching: true,
+        items: []
+      }
+
+      return {
+        selectedSubreddit,
+        posts,
+        isFetching,
+        lastUpdated
+      }
+    }
+
+    export default connect(mapStateToProps)(App)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { createStore, applyMiddleware } from 'redux'
+    import { Provider } from 'react-redux'
+    import thunk from 'redux-thunk'
+    import { createLogger } from 'redux-logger'
+    import reducer from './reducers'
+    import App from './containers/App'
+
+    const middleware = [ thunk ]
+    if (process.env.NODE_ENV !== 'production') {
+      middleware.push(createLogger())
+    }
+
+    const store = createStore(
+      reducer,
+      applyMiddleware(...middleware)
+    )
+
+    render(
+      &lt;Provider store={store}&gt;
+        &lt;App /&gt;
+      &lt;/Provider&gt;,
+      document.getElementById('root')
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { combineReducers } from 'redux'
+    import {
+      SELECT_SUBREDDIT, INVALIDATE_SUBREDDIT,
+      REQUEST_POSTS, RECEIVE_POSTS
+    } from '../actions'
+
+    const selectedSubreddit = (state = 'reactjs', action) =&gt; {
+      switch (action.type) {
+        case SELECT_SUBREDDIT:
+          return action.subreddit
+        default:
+          return state
+      }
+    }
+
+    const posts = (state = {
+      isFetching: false,
+      didInvalidate: false,
+      items: []
+    }, action) =&gt; {
+      switch (action.type) {
+        case INVALIDATE_SUBREDDIT:
+          return {
+            ...state,
+            didInvalidate: true
+          }
+        case REQUEST_POSTS:
+          return {
+            ...state,
+            isFetching: true,
+            didInvalidate: false
+          }
+        case RECEIVE_POSTS:
+          return {
+            ...state,
+            isFetching: false,
+            didInvalidate: false,
+            items: action.posts,
+            lastUpdated: action.receivedAt
+          }
+        default:
+          return state
+      }
+    }
+
+    const postsBySubreddit = (state = { }, action) =&gt; {
+      switch (action.type) {
+        case INVALIDATE_SUBREDDIT:
+        case RECEIVE_POSTS:
+        case REQUEST_POSTS:
+          return {
+            ...state,
+            [action.subreddit]: posts(state[action.subreddit], action)
+          }
+        default:
+          return state
+      }
+    }
+
+    const rootReducer = combineReducers({
+      postsBySubreddit,
+      selectedSubreddit
+    })
+
+    export default rootReducer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;C O U N T E R</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Counter.js</summary>
+  <pre><code class='js'>
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+
+    class Counter extends Component {
+      constructor(props) {
+        super(props);
+        this.incrementAsync = this.incrementAsync.bind(this);
+        this.incrementIfOdd = this.incrementIfOdd.bind(this);
+      }
+
+      incrementIfOdd() {
+        if (this.props.value % 2 !== 0) {
+          this.props.onIncrement()
+        }
+      }
+
+      incrementAsync() {
+        setTimeout(this.props.onIncrement, 1000)
+      }
+
+      render() {
+        const { value, onIncrement, onDecrement } = this.props
+        return (
+          &lt;p&gt;
+            Clicked: {value} times
+            {' '}
+            &lt;button onClick={onIncrement}&gt;
+              +
+            &lt;/button&gt;
+            {' '}
+            &lt;button onClick={onDecrement}&gt;
+              -
+            &lt;/button&gt;
+            {' '}
+            &lt;button onClick={this.incrementIfOdd}&gt;
+              Increment if odd
+            &lt;/button&gt;
+            {' '}
+            &lt;button onClick={this.incrementAsync}&gt;
+              Increment async
+            &lt;/button&gt;
+          &lt;/p&gt;
+        )
+      }
+    }
+
+    Counter.propTypes = {
+      value: PropTypes.number.isRequired,
+      onIncrement: PropTypes.func.isRequired,
+      onDecrement: PropTypes.func.isRequired
+    }
+
+    export default Counter
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Counter.spec.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { shallow } from 'enzyme'
+    import Counter from './Counter'
+
+    function setup(value = 0) {
+      const actions = {
+        onIncrement: jest.fn(),
+        onDecrement: jest.fn()
+      }
+      const component = shallow(
+        &lt;Counter value={value} {...actions} /&gt;
+      )
+
+      return {
+        component: component,
+        actions: actions,
+        buttons: component.find('button'),
+        p: component.find('p')
+      }
+    }
+
+    describe('Counter component', () =&gt; {
+      it('should display count', () =&gt; {
+        const { p } = setup()
+        expect(p.text()).toMatch(/^Clicked: 0 times/)
+      })
+
+      it('first button should call onIncrement', () =&gt; {
+        const { buttons, actions } = setup()
+        buttons.at(0).simulate('click')
+        expect(actions.onIncrement).toBeCalled()
+      })
+
+      it('second button should call onDecrement', () =&gt; {
+        const { buttons, actions } = setup()
+        buttons.at(1).simulate('click')
+        expect(actions.onDecrement).toBeCalled()
+      })
+
+      it('third button should not call onIncrement if the counter is even', () =&gt; {
+        const { buttons, actions } = setup(42)
+        buttons.at(2).simulate('click')
+        expect(actions.onIncrement).not.toBeCalled()
+      })
+
+      it('third button should call onIncrement if the counter is odd', () =&gt; {
+        const { buttons, actions } = setup(43)
+        buttons.at(2).simulate('click')
+        expect(actions.onIncrement).toBeCalled()
+      })
+
+      it('third button should call onIncrement if the counter is odd and negative', () =&gt; {
+        const { buttons, actions } = setup(-43)
+        buttons.at(2).simulate('click')
+        expect(actions.onIncrement).toBeCalled()
+      })
+
+      it('fourth button should call onIncrement in a second', (done) =&gt; {
+        const { buttons, actions } = setup()
+        buttons.at(3).simulate('click')
+        setTimeout(() =&gt; {
+          expect(actions.onIncrement).toBeCalled()
+          done()
+        }, 1000)
+      })
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import ReactDOM from 'react-dom'
+    import { createStore } from 'redux'
+    import Counter from './components/Counter'
+    import counter from './reducers'
+
+    const store = createStore(counter)
+    const rootEl = document.getElementById('root')
+
+    const render = () =&gt; ReactDOM.render(
+      &lt;Counter
+        value={store.getState()}
+        onIncrement={() =&gt; store.dispatch({ type: 'INCREMENT' })}
+        onDecrement={() =&gt; store.dispatch({ type: 'DECREMENT' })}
+      /&gt;,
+      rootEl
+    )
+
+    render()
+    store.subscribe(render)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    export default (state = 0, action) =&gt; {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        case 'DECREMENT':
+          return state - 1
+        default:
+          return state
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+    import counter from './index'
+
+    describe('reducers', () =&gt; {
+      describe('counter', () =&gt; {
+        it('should provide the initial state', () =&gt; {
+          expect(counter(undefined, {})).toBe(0)
+        })
+
+        it('should handle INCREMENT action', () =&gt; {
+          expect(counter(1, { type: 'INCREMENT' })).toBe(2)
+        })
+
+        it('should handle DECREMENT action', () =&gt; {
+          expect(counter(1, { type: 'DECREMENT' })).toBe(0)
+        })
+
+        it('should ignore unknown actions', () =&gt; {
+          expect(counter(1, { type: 'unknown' })).toBe(1)
+        })
+      })
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;setupTests.js</summary>
+  <pre><code class='js'>
+    import { configure } from 'enzyme'
+    import Adapter from 'enzyme-adapter-react-16'
+
+    configure({ adapter: new Adapter() })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;C O U N T E R - V A N I L L A</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.html</summary>
+  <pre><code class='html'>
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;title&gt;Redux basic example&lt;/title&gt;
+        &lt;script src=&quot;https://unpkg.com/redux@latest/dist/redux.min.js&quot;&gt;&lt;/script&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;div&gt;
+          &lt;p&gt;
+            Clicked: &lt;span id=&quot;value&quot;&gt;0&lt;/span&gt; times
+            &lt;button id=&quot;increment&quot;&gt;+&lt;/button&gt;
+            &lt;button id=&quot;decrement&quot;&gt;-&lt;/button&gt;
+            &lt;button id=&quot;incrementIfOdd&quot;&gt;Increment if odd&lt;/button&gt;
+            &lt;button id=&quot;incrementAsync&quot;&gt;Increment async&lt;/button&gt;
+          &lt;/p&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+          function counter(state, action) {
+            if (typeof state === 'undefined') {
+              return 0
+            }
+
+            switch (action.type) {
+              case 'INCREMENT':
+                return state + 1
+              case 'DECREMENT':
+                return state - 1
+              default:
+                return state
+            }
+          }
+
+          var store = Redux.createStore(counter)
+          var valueEl = document.getElementById('value')
+
+          function render() {
+            valueEl.innerHTML = store.getState().toString()
+          }
+
+          render()
+          store.subscribe(render)
+
+          document.getElementById('increment')
+            .addEventListener('click', function () {
+              store.dispatch({ type: 'INCREMENT' })
+            })
+
+          document.getElementById('decrement')
+            .addEventListener('click', function () {
+              store.dispatch({ type: 'DECREMENT' })
+            })
+
+          document.getElementById('incrementIfOdd')
+            .addEventListener('click', function () {
+              if (store.getState() % 2 !== 0) {
+                store.dispatch({ type: 'INCREMENT' })
+              }
+            })
+
+          document.getElementById('incrementAsync')
+            .addEventListener('click', function () {
+              setTimeout(function () {
+                store.dispatch({ type: 'INCREMENT' })
+              }, 1000)
+            })
+        &lt;/script&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;package.json</summary>
+  <pre><code class='json'>
+    {
+      &quot;name&quot;: &quot;counter-vanilla&quot;,
+      &quot;version&quot;: &quot;1.0.0&quot;,
+      &quot;description&quot;: &quot;A simple counter implemented using Redux&quot;,
+      &quot;main&quot;: &quot;index.html&quot;,
+      &quot;scripts&quot;: {
+        &quot;start&quot;: &quot;parcel index.html --open&quot;,
+        &quot;build&quot;: &quot;parcel build index.html&quot;
+      },
+      &quot;dependencies&quot;: {},
+      &quot;devDependencies&quot;: {
+        &quot;@babel/core&quot;: &quot;^7.2.0&quot;,
+        &quot;parcel-bundler&quot;: &quot;^1.6.1&quot;
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;R E A L - W O R L D</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { CALL_API, Schemas } from '../middleware/api'
+
+    export const USER_REQUEST = 'USER_REQUEST'
+    export const USER_SUCCESS = 'USER_SUCCESS'
+    export const USER_FAILURE = 'USER_FAILURE'
+
+    // Fetches a single user from Github API.
+    // Relies on the custom API middleware defined in ../middleware/api.js.
+    const fetchUser = login =&gt; ({
+      [CALL_API]: {
+        types: [ USER_REQUEST, USER_SUCCESS, USER_FAILURE ],
+        endpoint: `users/${login}`,
+        schema: Schemas.USER
+      }
+    })
+
+    // Fetches a single user from Github API unless it is cached.
+    // Relies on Redux Thunk middleware.
+    export const loadUser = (login, requiredFields = []) =&gt; (dispatch, getState) =&gt; {
+      const user = getState().entities.users[login]
+      if (user &amp;&amp; requiredFields.every(key =&gt; user.hasOwnProperty(key))) {
+        return null
+      }
+
+      return dispatch(fetchUser(login))
+    }
+
+    export const REPO_REQUEST = 'REPO_REQUEST'
+    export const REPO_SUCCESS = 'REPO_SUCCESS'
+    export const REPO_FAILURE = 'REPO_FAILURE'
+
+    // Fetches a single repository from Github API.
+    // Relies on the custom API middleware defined in ../middleware/api.js.
+    const fetchRepo = fullName =&gt; ({
+      [CALL_API]: {
+        types: [ REPO_REQUEST, REPO_SUCCESS, REPO_FAILURE ],
+        endpoint: `repos/${fullName}`,
+        schema: Schemas.REPO
+      }
+    })
+
+    // Fetches a single repository from Github API unless it is cached.
+    // Relies on Redux Thunk middleware.
+    export const loadRepo = (fullName, requiredFields = []) =&gt; (dispatch, getState) =&gt; {
+      const repo = getState().entities.repos[fullName]
+      if (repo &amp;&amp; requiredFields.every(key =&gt; repo.hasOwnProperty(key))) {
+        return null
+      }
+
+      return dispatch(fetchRepo(fullName))
+    }
+
+    export const STARRED_REQUEST = 'STARRED_REQUEST'
+    export const STARRED_SUCCESS = 'STARRED_SUCCESS'
+    export const STARRED_FAILURE = 'STARRED_FAILURE'
+
+    // Fetches a page of starred repos by a particular user.
+    // Relies on the custom API middleware defined in ../middleware/api.js.
+    const fetchStarred = (login, nextPageUrl) =&gt; ({
+      login,
+      [CALL_API]: {
+        types: [ STARRED_REQUEST, STARRED_SUCCESS, STARRED_FAILURE ],
+        endpoint: nextPageUrl,
+        schema: Schemas.REPO_ARRAY
+      }
+    })
+
+    // Fetches a page of starred repos by a particular user.
+    // Bails out if page is cached and user didn't specifically request next page.
+    // Relies on Redux Thunk middleware.
+    export const loadStarred = (login, nextPage) =&gt; (dispatch, getState) =&gt; {
+      const {
+        nextPageUrl = `users/${login}/starred`,
+        pageCount = 0
+      } = getState().pagination.starredByUser[login] || {}
+
+      if (pageCount &gt; 0 &amp;&amp; !nextPage) {
+        return null
+      }
+
+      return dispatch(fetchStarred(login, nextPageUrl))
+    }
+
+    export const STARGAZERS_REQUEST = 'STARGAZERS_REQUEST'
+    export const STARGAZERS_SUCCESS = 'STARGAZERS_SUCCESS'
+    export const STARGAZERS_FAILURE = 'STARGAZERS_FAILURE'
+
+    // Fetches a page of stargazers for a particular repo.
+    // Relies on the custom API middleware defined in ../middleware/api.js.
+    const fetchStargazers = (fullName, nextPageUrl) =&gt; ({
+      fullName,
+      [CALL_API]: {
+        types: [ STARGAZERS_REQUEST, STARGAZERS_SUCCESS, STARGAZERS_FAILURE ],
+        endpoint: nextPageUrl,
+        schema: Schemas.USER_ARRAY
+      }
+    })
+
+    // Fetches a page of stargazers for a particular repo.
+    // Bails out if page is cached and user didn't specifically request next page.
+    // Relies on Redux Thunk middleware.
+    export const loadStargazers = (fullName, nextPage) =&gt; (dispatch, getState) =&gt; {
+      const {
+        nextPageUrl = `repos/${fullName}/stargazers`,
+        pageCount = 0
+      } = getState().pagination.stargazersByRepo[fullName] || {}
+
+      if (pageCount &gt; 0 &amp;&amp; !nextPage) {
+        return null
+      }
+
+      return dispatch(fetchStargazers(fullName, nextPageUrl))
+    }
+
+    export const RESET_ERROR_MESSAGE = 'RESET_ERROR_MESSAGE'
+
+    // Resets the currently visible error message.
+    export const resetErrorMessage = () =&gt; ({
+        type: RESET_ERROR_MESSAGE
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Explore.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-undef */
+
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+
+    const GITHUB_REPO = 'https://github.com/reduxjs/redux'
+
+    export default class Explore extends Component {
+      static propTypes = {
+        value: PropTypes.string.isRequired,
+        onChange: PropTypes.func.isRequired
+      }
+
+      componentDidUpdate(prevProps) {
+        if (prevProps.value !== this.props.value) {
+          this.setInputValue(this.props.value)
+        }
+      }
+
+      getInputValue = () =&gt; {
+        return this.input.value
+      }
+
+      setInputValue = (val) =&gt; {
+        // Generally mutating DOM is a bad idea in React components,
+        // but doing this for a single uncontrolled field is less fuss
+        // than making it controlled and maintaining a state for it.
+        this.input.value = val
+      }
+
+      handleKeyUp = (e) =&gt; {
+        if (e.keyCode === 13) {
+          this.handleGoClick()
+        }
+      }
+
+      handleGoClick = () =&gt; {
+        this.props.onChange(this.getInputValue())
+      }
+
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;p&gt;Type a username or repo full name and hit 'Go':&lt;/p&gt;
+            &lt;input size=&quot;45&quot;
+                  ref={(input) =&gt; this.input = input}
+                  defaultValue={this.props.value}
+                  onKeyUp={this.handleKeyUp} /&gt;
+            &lt;button onClick={this.handleGoClick}&gt;
+              Go!
+            &lt;/button&gt;
+            &lt;p&gt;
+              Code on &lt;a href={GITHUB_REPO} target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;Github&lt;/a&gt;.
+            &lt;/p&gt;
+            &lt;p&gt;
+              Move the DevTools with Ctrl+W or hide them with Ctrl+H.
+            &lt;/p&gt;
+          &lt;/div&gt;
+        )
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;List.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-undef */
+
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+
+    export default class List extends Component {
+      static propTypes = {
+        loadingLabel: PropTypes.string.isRequired,
+        pageCount: PropTypes.number,
+        renderItem: PropTypes.func.isRequired,
+        items: PropTypes.array.isRequired,
+        isFetching: PropTypes.bool.isRequired,
+        onLoadMoreClick: PropTypes.func.isRequired,
+        nextPageUrl: PropTypes.string
+      }
+
+      static defaultProps = {
+        isFetching: true,
+        loadingLabel: 'Loading...'
+      }
+
+      renderLoadMore() {
+        const { isFetching, onLoadMoreClick } = this.props
+        return (
+          &lt;button style={{ fontSize: '150%' }}
+                  onClick={onLoadMoreClick}
+                  disabled={isFetching}&gt;
+            {isFetching ? 'Loading...' : 'Load More'}
+          &lt;/button&gt;
+        )
+      }
+
+      render() {
+        const {
+          isFetching, nextPageUrl, pageCount,
+          items, renderItem, loadingLabel
+        } = this.props
+
+        const isEmpty = items.length === 0
+        if (isEmpty &amp;&amp; isFetching) {
+          return &lt;h2&gt;&lt;i&gt;{loadingLabel}&lt;/i&gt;&lt;/h2&gt;
+        }
+
+        const isLastPage = !nextPageUrl
+        if (isEmpty &amp;&amp; isLastPage) {
+          return &lt;h1&gt;&lt;i&gt;Nothing here!&lt;/i&gt;&lt;/h1&gt;
+        }
+
+        return (
+          &lt;div&gt;
+            {items.map(renderItem)}
+            {pageCount &gt; 0 &amp;&amp; !isLastPage &amp;&amp; this.renderLoadMore()}
+          &lt;/div&gt;
+        )
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Repo.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+    import { Link } from 'react-router-dom'
+
+    const Repo = ({ repo, owner }) =&gt; {
+      const { login } = owner
+      const { name, description } = repo
+
+      return (
+        &lt;div className=&quot;Repo&quot;&gt;
+          &lt;h3&gt;
+            &lt;Link to={`/${login}/${name}`}&gt;
+              {name}
+            &lt;/Link&gt;
+            {' by '}
+            &lt;Link to={`/${login}`}&gt;
+              {login}
+            &lt;/Link&gt;
+          &lt;/h3&gt;
+          {description &amp;&amp;
+            &lt;p&gt;{description}&lt;/p&gt;
+          }
+        &lt;/div&gt;
+      )
+    }
+
+    Repo.propTypes = {
+      repo: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        description: PropTypes.string
+      }).isRequired,
+      owner: PropTypes.shape({
+        login: PropTypes.string.isRequired
+      }).isRequired
+    }
+
+    export default Repo
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;User.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+    import { Link } from 'react-router-dom'
+
+    const User = ({ user }) =&gt; {
+      const { login, avatarUrl, name } = user
+
+      return (
+        &lt;div className=&quot;User&quot;&gt;
+          &lt;Link to={`/${login}`}&gt;
+            &lt;img src={avatarUrl} alt={login} width=&quot;72&quot; height=&quot;72&quot; /&gt;
+            &lt;h3&gt;
+              {login} {name &amp;&amp; &lt;span&gt;({name})&lt;/span&gt;}
+            &lt;/h3&gt;
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      )
+    }
+
+    User.propTypes = {
+      user: PropTypes.shape({
+        login: PropTypes.string.isRequired,
+        avatarUrl: PropTypes.string.isRequired,
+        name: PropTypes.string
+      }).isRequired
+    }
+
+    export default User
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-undef */
+
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+    import { connect } from 'react-redux'
+    import { withRouter } from 'react-router-dom'
+    import Explore from '../components/Explore'
+    import { resetErrorMessage } from '../actions'
+
+    class App extends Component {
+      static propTypes = {
+        // Injected by React Redux
+        errorMessage: PropTypes.string,
+        resetErrorMessage: PropTypes.func.isRequired,
+        inputValue: PropTypes.string.isRequired,
+        // Injected by React Router
+        children: PropTypes.node
+      }
+
+      handleDismissClick = e =&gt; {
+        this.props.resetErrorMessage()
+        e.preventDefault()
+      }
+
+      handleChange = nextValue =&gt; {
+        this.props.history.push(`/${nextValue}`)
+      }
+
+      renderErrorMessage() {
+        const { errorMessage } = this.props
+        if (!errorMessage) {
+          return null
+        }
+
+        return (
+          &lt;p style={{ backgroundColor: '#e99', padding: 10 }}&gt;
+            &lt;b&gt;{errorMessage}&lt;/b&gt;
+            {' '}
+            &lt;button onClick={this.handleDismissClick}&gt;
+              Dismiss
+            &lt;/button&gt;
+          &lt;/p&gt;
+        )
+      }
+
+      render() {
+        const { children, inputValue } = this.props
+        return (
+          &lt;div&gt;
+            &lt;Explore value={inputValue}
+                    onChange={this.handleChange} /&gt;
+            &lt;hr /&gt;
+            {this.renderErrorMessage()}
+            {children}
+          &lt;/div&gt;
+        )
+      }
+    }
+
+    const mapStateToProps = (state, ownProps) =&gt; ({
+      errorMessage: state.errorMessage,
+      inputValue: ownProps.location.pathname.substring(1)
+    })
+
+    export default withRouter(connect(mapStateToProps, {
+      resetErrorMessage
+    })(App))
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;DevTools.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { createDevTools } from 'redux-devtools'
+    import LogMonitor from 'redux-devtools-log-monitor'
+    import DockMonitor from 'redux-devtools-dock-monitor'
+
+    export default createDevTools(
+      &lt;DockMonitor toggleVisibilityKey=&quot;ctrl-h&quot;
+                  changePositionKey=&quot;ctrl-w&quot;&gt;
+        &lt;LogMonitor /&gt;
+      &lt;/DockMonitor&gt;
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;RepoPage.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-undef */
+
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+    import { connect } from 'react-redux'
+    import { withRouter } from 'react-router-dom'
+    import { loadRepo, loadStargazers } from '../actions'
+    import Repo from '../components/Repo'
+    import User from '../components/User'
+    import List from '../components/List'
+
+    const loadData = props =&gt; {
+      const { fullName } = props
+      props.loadRepo(fullName, [ 'description' ])
+      props.loadStargazers(fullName)
+    }
+
+    class RepoPage extends Component {
+      static propTypes = {
+        repo: PropTypes.object,
+        fullName: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        owner: PropTypes.object,
+        stargazers: PropTypes.array.isRequired,
+        stargazersPagination: PropTypes.object,
+        loadRepo: PropTypes.func.isRequired,
+        loadStargazers: PropTypes.func.isRequired
+      }
+
+      componentDidMount() {
+        loadData(this.props)
+      }
+
+      componentDidUpdate(prevProps) {
+        if (prevProps.fullName !== this.props.fullName) {
+          loadData(this.props)
+        }
+      }
+
+      handleLoadMoreClick = () =&gt; {
+        this.props.loadStargazers(this.props.fullName, true)
+      }
+
+      renderUser(user) {
+        return &lt;User user={user} key={user.login} /&gt;
+      }
+
+      render() {
+        const { repo, owner, name } = this.props
+        if (!repo || !owner) {
+          return &lt;h1&gt;&lt;i&gt;Loading {name} details...&lt;/i&gt;&lt;/h1&gt;
+        }
+
+        const { stargazers, stargazersPagination } = this.props
+        return (
+          &lt;div&gt;
+            &lt;Repo repo={repo}
+                  owner={owner} /&gt;
+            &lt;hr /&gt;
+            &lt;List renderItem={this.renderUser}
+                  items={stargazers}
+                  onLoadMoreClick={this.handleLoadMoreClick}
+                  loadingLabel={`Loading stargazers of ${name}...`}
+                  {...stargazersPagination} /&gt;
+          &lt;/div&gt;
+        )
+      }
+    }
+
+    const mapStateToProps = (state, ownProps) =&gt; {
+      // We need to lower case the login/name due to the way GitHub's API behaves.
+      // Have a look at ../middleware/api.js for more details.
+      const login = ownProps.match.params.login.toLowerCase()
+      const name = ownProps.match.params.name.toLowerCase()
+
+      const {
+        pagination: { stargazersByRepo },
+        entities: { users, repos }
+      } = state
+
+      const fullName = `${login}/${name}`
+      const stargazersPagination = stargazersByRepo[fullName] || { ids: [] }
+      const stargazers = stargazersPagination.ids.map(id =&gt; users[id])
+
+      return {
+        fullName,
+        name,
+        stargazers,
+        stargazersPagination,
+        repo: repos[fullName],
+        owner: users[login]
+      }
+    }
+
+    export default withRouter(connect(mapStateToProps, {
+      loadRepo,
+      loadStargazers
+    })(RepoPage))
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Root.dev.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+    import { Provider } from 'react-redux'
+    import DevTools from './DevTools'
+    import { Route } from 'react-router-dom'
+    import App from './App'
+    import UserPage from './UserPage'
+    import RepoPage from './RepoPage'
+
+    const Root = ({ store }) =&gt; (
+      &lt;Provider store={store}&gt;
+        &lt;div&gt;
+          &lt;Route path=&quot;/&quot; component={App} /&gt;
+          &lt;Route path=&quot;/:login/:name&quot;
+                component={RepoPage} /&gt;
+          &lt;Route path=&quot;/:login&quot;
+                component={UserPage} /&gt;
+          &lt;DevTools /&gt;
+        &lt;/div&gt;
+      &lt;/Provider&gt;
+    )
+
+    Root.propTypes = {
+      store: PropTypes.object.isRequired,
+    }
+
+    export default Root
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Root.js</summary>
+  <pre><code class='js'>
+    if (process.env.NODE_ENV === 'production') {
+      module.exports = require('./Root.prod')
+    } else {
+      module.exports = require('./Root.dev')
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Root.prod.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+    import { Provider } from 'react-redux'
+    import { Route } from 'react-router-dom'
+    import App from './App'
+    import UserPage from './UserPage'
+    import RepoPage from './RepoPage'
+
+    const Root = ({ store }) =&gt; (
+      &lt;Provider store={store}&gt;
+        &lt;div&gt;
+          &lt;Route path=&quot;/&quot; component={App} /&gt;
+          &lt;Route path=&quot;/:login/:name&quot;
+                component={RepoPage} /&gt;
+          &lt;Route path=&quot;/:login&quot;
+                component={UserPage} /&gt;
+        &lt;/div&gt;
+      &lt;/Provider&gt;
+    )
+
+    Root.propTypes = {
+      store: PropTypes.object.isRequired,
+    }
+    export default Root
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;UserPage.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-undef */
+
+    import React, { Component } from 'react'
+    import PropTypes from 'prop-types'
+    import { connect } from 'react-redux'
+    import { withRouter } from 'react-router-dom'
+    import { loadUser, loadStarred } from '../actions'
+    import User from '../components/User'
+    import Repo from '../components/Repo'
+    import List from '../components/List'
+    import zip from 'lodash/zip'
+
+    const loadData = ({ login, loadUser, loadStarred }) =&gt; {
+      loadUser(login, [ 'name' ])
+      loadStarred(login)
+    }
+
+    class UserPage extends Component {
+      static propTypes = {
+        login: PropTypes.string.isRequired,
+        user: PropTypes.object,
+        starredPagination: PropTypes.object,
+        starredRepos: PropTypes.array.isRequired,
+        starredRepoOwners: PropTypes.array.isRequired,
+        loadUser: PropTypes.func.isRequired,
+        loadStarred: PropTypes.func.isRequired
+      }
+
+      componentDidMount() {
+        loadData(this.props)
+      }
+
+      componentDidUpdate(prevProps) {
+        if (prevProps.login !== this.props.login) {
+          loadData(this.props)
+        }
+      }
+
+      handleLoadMoreClick = () =&gt; {
+        this.props.loadStarred(this.props.login, true)
+      }
+
+      renderRepo([ repo, owner ]) {
+        return (
+          &lt;Repo
+            repo={repo}
+            owner={owner}
+            key={repo.fullName} /&gt;
+        )
+      }
+
+      render() {
+        const { user, login } = this.props
+        if (!user) {
+          return &lt;h1&gt;&lt;i&gt;Loading {login}{&quot;'s profile...&quot;}&lt;/i&gt;&lt;/h1&gt;
+        }
+
+        const { starredRepos, starredRepoOwners, starredPagination } = this.props
+        return (
+          &lt;div&gt;
+            &lt;User user={user} /&gt;
+            &lt;hr /&gt;
+            &lt;List renderItem={this.renderRepo}
+                  items={zip(starredRepos, starredRepoOwners)}
+                  onLoadMoreClick={this.handleLoadMoreClick}
+                  loadingLabel={`Loading ${login}'s starred...`}
+                  {...starredPagination} /&gt;
+          &lt;/div&gt;
+        )
+      }
+    }
+
+    const mapStateToProps = (state, ownProps) =&gt; {
+      // We need to lower case the login due to the way GitHub's API behaves.
+      // Have a look at ../middleware/api.js for more details.
+      const login = ownProps.match.params.login.toLowerCase()
+
+      const {
+        pagination: { starredByUser },
+        entities: { users, repos }
+      } = state
+
+      const starredPagination = starredByUser[login] || { ids: [] }
+      const starredRepos = starredPagination.ids.map(id =&gt; repos[id])
+      const starredRepoOwners = starredRepos.map(repo =&gt; users[repo.owner])
+
+      return {
+        login,
+        starredRepos,
+        starredRepoOwners,
+        starredPagination,
+        user: users[login]
+      }
+    }
+
+    export default withRouter(connect(mapStateToProps, {
+      loadUser,
+      loadStarred
+    })(UserPage))
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { BrowserRouter as Router } from 'react-router-dom'
+    import Root from './containers/Root'
+    import configureStore from './store/configureStore'
+
+    const store = configureStore()
+
+    render(
+      &lt;Router&gt;
+        &lt;Root store={store} /&gt;
+      &lt;/Router&gt;,
+      document.getElementById('root')
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;middleware</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;api.js</summary>
+  <pre><code class='js'>
+    import { normalize, schema } from 'normalizr'
+    import { camelizeKeys } from 'humps'
+
+    // Extracts the next page URL from Github API response.
+    const getNextPageUrl = response =&gt; {
+      const link = response.headers.get('link')
+      if (!link) {
+        return null
+      }
+
+      const nextLink = link.split(',').find(s =&gt; s.indexOf('rel=&quot;next&quot;') &gt; -1)
+      if (!nextLink) {
+        return null
+      }
+
+      return nextLink.trim().split(';')[0].slice(1, -1)
+    }
+
+    const API_ROOT = 'https://api.github.com/'
+
+    // Fetches an API response and normalizes the result JSON according to schema.
+    // This makes every API response have the same shape, regardless of how nested it was.
+    const callApi = (endpoint, schema) =&gt; {
+      const fullUrl = (endpoint.indexOf(API_ROOT) === -1) ? API_ROOT + endpoint : endpoint
+
+      return fetch(fullUrl)
+        .then(response =&gt;
+          response.json().then(json =&gt; {
+            if (!response.ok) {
+              return Promise.reject(json)
+            }
+
+            const camelizedJson = camelizeKeys(json)
+            const nextPageUrl = getNextPageUrl(response)
+
+            return Object.assign({},
+              normalize(camelizedJson, schema),
+              { nextPageUrl }
+            )
+          })
+        )
+    }
+
+    // We use this Normalizr schemas to transform API responses from a nested form
+    // to a flat form where repos and users are placed in `entities`, and nested
+    // JSON objects are replaced with their IDs. This is very convenient for
+    // consumption by reducers, because we can easily build a normalized tree
+    // and keep it updated as we fetch more data.
+
+    // Read more about Normalizr: https://github.com/paularmstrong/normalizr
+
+    // GitHub's API may return results with uppercase letters while the query
+    // doesn't contain any. For example, &quot;someuser&quot; could result in &quot;SomeUser&quot;
+    // leading to a frozen UI as it wouldn't find &quot;someuser&quot; in the entities.
+    // That's why we're forcing lower cases down there.
+
+    const userSchema = new schema.Entity('users', {}, {
+      idAttribute: user =&gt; user.login.toLowerCase()
+    })
+
+    const repoSchema = new schema.Entity('repos', {
+      owner: userSchema
+    }, {
+      idAttribute: repo =&gt; repo.fullName.toLowerCase()
+    })
+
+    // Schemas for Github API responses.
+    export const Schemas = {
+      USER: userSchema,
+      USER_ARRAY: [userSchema],
+      REPO: repoSchema,
+      REPO_ARRAY: [repoSchema]
+    }
+
+    // Action key that carries API call info interpreted by this Redux middleware.
+    export const CALL_API = 'Call API'
+
+    // A Redux middleware that interprets actions with CALL_API info specified.
+    // Performs the call and promises when such actions are dispatched.
+    export default store =&gt; next =&gt; action =&gt; {
+      const callAPI = action[CALL_API]
+      if (typeof callAPI === 'undefined') {
+        return next(action)
+      }
+
+      let { endpoint } = callAPI
+      const { schema, types } = callAPI
+
+      if (typeof endpoint === 'function') {
+        endpoint = endpoint(store.getState())
+      }
+
+      if (typeof endpoint !== 'string') {
+        throw new Error('Specify a string endpoint URL.')
+      }
+      if (!schema) {
+        throw new Error('Specify one of the exported Schemas.')
+      }
+      if (!Array.isArray(types) || types.length !== 3) {
+        throw new Error('Expected an array of three action types.')
+      }
+      if (!types.every(type =&gt; typeof type === 'string')) {
+        throw new Error('Expected action types to be strings.')
+      }
+
+      const actionWith = data =&gt; {
+        const finalAction = Object.assign({}, action, data)
+        delete finalAction[CALL_API]
+        return finalAction
+      }
+
+      const [ requestType, successType, failureType ] = types
+      next(actionWith({ type: requestType }))
+
+      return callApi(endpoint, schema).then(
+        response =&gt; next(actionWith({
+          response,
+          type: successType
+        })),
+        error =&gt; next(actionWith({
+          type: failureType,
+          error: error.message || 'Something bad happened'
+        }))
+      )
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import * as ActionTypes from '../actions'
+    import merge from 'lodash/merge'
+    import paginate from './paginate'
+    import { combineReducers } from 'redux'
+
+    // Updates an entity cache in response to any action with response.entities.
+    const entities = (state = { users: {}, repos: {} }, action) =&gt; {
+      if (action.response &amp;&amp; action.response.entities) {
+        return merge({}, state, action.response.entities)
+      }
+
+      return state
+    }
+
+    // Updates error message to notify about the failed fetches.
+    const errorMessage = (state = null, action) =&gt; {
+      const { type, error } = action
+
+      if (type === ActionTypes.RESET_ERROR_MESSAGE) {
+        return null
+      } else if (error) {
+        return error
+      }
+
+      return state
+    }
+
+    // Updates the pagination data for different actions.
+    const pagination = combineReducers({
+      starredByUser: paginate({
+        mapActionToKey: action =&gt; action.login,
+        types: [
+          ActionTypes.STARRED_REQUEST,
+          ActionTypes.STARRED_SUCCESS,
+          ActionTypes.STARRED_FAILURE
+        ]
+      }),
+      stargazersByRepo: paginate({
+        mapActionToKey: action =&gt; action.fullName,
+        types: [
+          ActionTypes.STARGAZERS_REQUEST,
+          ActionTypes.STARGAZERS_SUCCESS,
+          ActionTypes.STARGAZERS_FAILURE
+        ]
+      })
+    })
+
+    const rootReducer = combineReducers({
+      entities,
+      pagination,
+      errorMessage,
+    })
+
+    export default rootReducer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;paginate.js</summary>
+  <pre><code class='js'>
+    import union from 'lodash/union'
+
+    // Creates a reducer managing pagination, given the action types to handle,
+    // and a function telling how to extract the key from an action.
+    const paginate = ({ types, mapActionToKey }) =&gt; {
+      if (!Array.isArray(types) || types.length !== 3) {
+        throw new Error('Expected types to be an array of three elements.')
+      }
+      if (!types.every(t =&gt; typeof t === 'string')) {
+        throw new Error('Expected types to be strings.')
+      }
+      if (typeof mapActionToKey !== 'function') {
+        throw new Error('Expected mapActionToKey to be a function.')
+      }
+
+      const [ requestType, successType, failureType ] = types
+
+      const updatePagination = (state = {
+        isFetching: false,
+        nextPageUrl: undefined,
+        pageCount: 0,
+        ids: []
+      }, action) =&gt; {
+        switch (action.type) {
+          case requestType:
+            return {
+              ...state,
+              isFetching: true
+            }
+          case successType:
+            return {
+              ...state,
+              isFetching: false,
+              ids: union(state.ids, action.response.result),
+              nextPageUrl: action.response.nextPageUrl,
+              pageCount: state.pageCount + 1
+            }
+          case failureType:
+            return {
+              ...state,
+              isFetching: false
+            }
+          default:
+            return state
+        }
+      }
+
+      return (state = {}, action) =&gt; {
+        // Update pagination by key
+        switch (action.type) {
+          case requestType:
+          case successType:
+          case failureType:
+            const key = mapActionToKey(action)
+            if (typeof key !== 'string') {
+              throw new Error('Expected key to be a string.')
+            }
+            return {
+              ...state,
+              [key]: updatePagination(state[key], action)
+            }
+          default:
+            return state
+        }
+      }
+    }
+
+    export default paginate
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;store</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;configureStore.dev.js</summary>
+  <pre><code class='js'>
+    import { createStore, applyMiddleware, compose } from 'redux'
+    import thunk from 'redux-thunk'
+    import { createLogger } from 'redux-logger'
+    import api from '../middleware/api'
+    import rootReducer from '../reducers'
+    import DevTools from '../containers/DevTools'
+
+    const configureStore = preloadedState =&gt; {
+      const store = createStore(
+        rootReducer,
+        preloadedState,
+        compose(
+          applyMiddleware(thunk, api, createLogger()),
+          DevTools.instrument()
+        )
+      )
+
+      if (module.hot) {
+        // Enable Webpack hot module replacement for reducers
+        module.hot.accept('../reducers', () =&gt; {
+          store.replaceReducer(rootReducer)
+        })
+      }
+
+      return store
+    }
+
+    export default configureStore
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;configureStore.js</summary>
+  <pre><code class='js'>
+    if (process.env.NODE_ENV === 'production') {
+      module.exports = require('./configureStore.prod')
+    } else {
+      module.exports = require('./configureStore.dev')
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;configureStore.prod.js</summary>
+  <pre><code class='js'>
+    import { createStore, applyMiddleware } from 'redux'
+    import thunk from 'redux-thunk'
+    import api from '../middleware/api'
+    import rootReducer from '../reducers'
+
+    const configureStore = preloadedState =&gt; createStore(
+      rootReducer,
+      preloadedState,
+      applyMiddleware(thunk, api)
+    )
+
+    export default configureStore
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;S H O P P I N G - C A R T</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  import shop from '../api/shop'
+  import * as types from '../constants/ActionTypes'
+
+  const receiveProducts = products =&gt; ({
+    type: types.RECEIVE_PRODUCTS,
+    products
+  })
+
+  export const getAllProducts = () =&gt; dispatch =&gt; {
+    shop.getProducts(products =&gt; {
+      dispatch(receiveProducts(products))
+    })
+  }
+
+  const addToCartUnsafe = productId =&gt; ({
+    type: types.ADD_TO_CART,
+    productId
+  })
+
+  export const addToCart = productId =&gt; (dispatch, getState) =&gt; {
+    if (getState().products.byId[productId].inventory &gt; 0) {
+      dispatch(addToCartUnsafe(productId))
+    }
+  }
+
+  export const checkout = products =&gt; (dispatch, getState) =&gt; {
+    const { cart } = getState()
+
+    dispatch({
+      type: types.CHECKOUT_REQUEST
+    })
+    shop.buyProducts(products, () =&gt; {
+      dispatch({
+        type: types.CHECKOUT_SUCCESS,
+        cart
+      })
+      // Replace the line above with line below to rollback on failure:
+      // dispatch({ type: types.CHECKOUT_FAILURE, cart })
+    })
+  }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;api</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;products.json</summary>
+  <pre><code class='json'>
+  [
+    {&quot;id&quot;: 1, &quot;title&quot;: &quot;iPad 4 Mini&quot;, &quot;price&quot;: 500.01, &quot;inventory&quot;: 2},
+    {&quot;id&quot;: 2, &quot;title&quot;: &quot;H&amp;M T-Shirt White&quot;, &quot;price&quot;: 10.99, &quot;inventory&quot;: 10},
+    {&quot;id&quot;: 3, &quot;title&quot;: &quot;Charli XCX - Sucker CD&quot;, &quot;price&quot;: 19.99, &quot;inventory&quot;: 5}
+  ]
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;shop.js</summary>
+  <pre><code class='js'>
+  /**
+  * Mocking client-server processing
+  */
+  import _products from './products.json'
+
+  const TIMEOUT = 100
+
+  export default {
+    getProducts: (cb, timeout) =&gt; setTimeout(() =&gt; cb(_products), timeout || TIMEOUT),
+    buyProducts: (payload, cb, timeout) =&gt; setTimeout(() =&gt; cb(), timeout || TIMEOUT)
+  }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Cart.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import Product from './Product'
+
+  const Cart  = ({ products, total, onCheckoutClicked }) =&gt; {
+    const hasProducts = products.length &gt; 0
+    const nodes = hasProducts ? (
+      products.map(product =&gt;
+        &lt;Product
+          title={product.title}
+          price={product.price}
+          quantity={product.quantity}
+          key={product.id}
+        /&gt;
+      )
+    ) : (
+      &lt;em&gt;Please add some products to cart.&lt;/em&gt;
+    )
+
+    return (
+      &lt;div&gt;
+        &lt;h3&gt;Your Cart&lt;/h3&gt;
+        &lt;div&gt;{nodes}&lt;/div&gt;
+        &lt;p&gt;Total: &amp;#36;{total}&lt;/p&gt;
+        &lt;button onClick={onCheckoutClicked}
+          disabled={hasProducts ? '' : 'disabled'}&gt;
+          Checkout
+        &lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+
+  Cart.propTypes = {
+    products: PropTypes.array,
+    total: PropTypes.string,
+    onCheckoutClicked: PropTypes.func
+  }
+
+  export default Cart
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Cart.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { shallow } from 'enzyme'
+  import Cart from './Cart'
+  import Product from './Product'
+
+  const setup = (total, products = []) =&gt; {
+    const actions = {
+      onCheckoutClicked: jest.fn()
+    }
+
+    const component = shallow(
+      &lt;Cart products={products} total={total} {...actions} /&gt;
+    )
+
+    return {
+      component: component,
+      actions: actions,
+      button: component.find('button'),
+      products: component.find(Product),
+      em: component.find('em'),
+      p: component.find('p')
+    }
+  }
+
+  describe('Cart component', () =&gt; {
+    it('should display total', () =&gt; {
+      const { p } = setup('76')
+      expect(p.text()).toMatch(/^Total: \$76/)
+    })
+
+    it('should display add some products message', () =&gt; {
+      const { em } = setup()
+      expect(em.text()).toMatch(/^Please add some products to cart/)
+    })
+
+    it('should disable button', () =&gt; {
+      const { button } = setup()
+      expect(button.prop('disabled')).toEqual('disabled')
+    })
+
+    describe('when given product', () =&gt; {
+      const product = [
+        {
+          id: 1,
+          title: 'Product 1',
+          price: 9.99,
+          quantity: 1
+        }
+      ]
+
+      it('should render products', () =&gt; {
+        const { products } = setup('9.99', product)
+        const props = {
+          title: product[0].title,
+          price: product[0].price,
+          quantity: product[0].quantity
+        }
+
+        expect(products.at(0).props()).toEqual(props)
+      })
+
+      it('should not disable button', () =&gt; {
+        const { button } = setup('9.99', product)
+        expect(button.prop('disabled')).toEqual('')
+      })
+
+      it('should call action on button click', () =&gt; {
+        const { button, actions } = setup('9.99', product)
+        button.simulate('click')
+        expect(actions.onCheckoutClicked).toBeCalled()
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Product.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+
+  const Product = ({ price, quantity, title }) =&gt; (
+    &lt;div&gt;
+      {title} - &amp;#36;{price}{quantity ? ` x ${quantity}` : null}
+    &lt;/div&gt;
+  )
+
+  Product.propTypes = {
+    price: PropTypes.number,
+    quantity: PropTypes.number,
+    title: PropTypes.string
+  }
+
+  export default Product
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Product.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { shallow } from 'enzyme'
+  import Product from './Product'
+
+  const setup = props =&gt; {
+    const component = shallow(
+      &lt;Product {...props} /&gt;
+    )
+
+    return {
+      component: component
+    }
+  }
+
+  describe('Product component', () =&gt; {
+    it('should render title and price', () =&gt; {
+      const { component } = setup({ title: 'Test Product', price: 9.99 })
+      expect(component.text()).toBe('Test Product - $9.99')
+    })
+
+    describe('when given inventory', () =&gt; {
+      it('should render title, price, and inventory', () =&gt; {
+        const { component } = setup({ title: 'Test Product', price: 9.99, quantity: 6 })
+        expect(component.text()).toBe('Test Product - $9.99 x 6')
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProductItem.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import Product from './Product'
+
+  const ProductItem = ({ product, onAddToCartClicked }) =&gt; (
+    &lt;div style={{ marginBottom: 20 }}&gt;
+      &lt;Product
+        title={product.title}
+        price={product.price}
+        quantity={product.inventory} /&gt;
+      &lt;button
+        onClick={onAddToCartClicked}
+        disabled={product.inventory &gt; 0 ? '' : 'disabled'}&gt;
+        {product.inventory &gt; 0 ? 'Add to cart' : 'Sold Out'}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+
+  ProductItem.propTypes = {
+    product: PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      inventory: PropTypes.number.isRequired
+    }).isRequired,
+    onAddToCartClicked: PropTypes.func.isRequired
+  }
+
+  export default ProductItem
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProductItem.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { shallow } from 'enzyme'
+  import Product from './Product'
+  import ProductItem from './ProductItem'
+
+  const setup = product =&gt; {
+    const actions = {
+      onAddToCartClicked: jest.fn()
+    }
+
+    const component = shallow(
+      &lt;ProductItem product={product} {...actions} /&gt;
+    )
+
+    return {
+      component: component,
+      actions: actions,
+      button: component.find('button'),
+      product: component.find(Product)
+    }
+  }
+
+  let productProps
+
+  describe('ProductItem component', () =&gt; {
+    beforeEach(() =&gt; {
+      productProps = {
+        title: 'Product 1',
+        price: 9.99,
+        inventory: 6
+      }
+    })
+
+    it('should render product', () =&gt; {
+      const { product } = setup(productProps)
+      expect(product.props()).toEqual({ title: 'Product 1', price: 9.99, quantity: 6 })
+    })
+
+    it('should render Add To Cart message', () =&gt; {
+      const { button } = setup(productProps)
+      expect(button.text()).toMatch(/^Add to cart/)
+    })
+
+    it('should not disable button', () =&gt; {
+      const { button } = setup(productProps)
+      expect(button.prop('disabled')).toEqual('')
+    })
+
+    it('should call action on button click', () =&gt; {
+      const { button, actions } = setup(productProps)
+      button.simulate('click')
+      expect(actions.onAddToCartClicked).toBeCalled()
+    })
+
+    describe('when product inventory is 0', () =&gt; {
+      beforeEach(() =&gt; {
+        productProps.inventory = 0
+      })
+
+      it('should render Sold Out message', () =&gt; {
+        const { button } = setup(productProps)
+        expect(button.text()).toMatch(/^Sold Out/)
+      })
+
+      it('should disable button', () =&gt; {
+        const { button } = setup(productProps)
+        expect(button.prop('disabled')).toEqual('disabled')
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProductsList.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+
+  const ProductsList = ({ title, children }) =&gt; (
+    &lt;div&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+      &lt;div&gt;{children}&lt;/div&gt;
+    &lt;/div&gt;
+  )
+
+  ProductsList.propTypes = {
+    children: PropTypes.node,
+    title: PropTypes.string.isRequired
+  }
+
+  export default ProductsList
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProductsList.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { shallow } from 'enzyme'
+  import ProductsList from './ProductsList'
+
+  const setup = props =&gt; {
+    const component = shallow(
+      &lt;ProductsList title={props.title}&gt;{props.children}&lt;/ProductsList&gt;
+    )
+
+    return {
+      component: component,
+      children: component.children().at(1),
+      h3: component.find('h3')
+    }
+  }
+
+  describe('ProductsList component', () =&gt; {
+    it('should render title', () =&gt; {
+      const { h3 } = setup({ title: 'Test Products' })
+      expect(h3.text()).toMatch(/^Test Products$/)
+    })
+
+    it('should render children', () =&gt; {
+      const { children } = setup({ title: 'Test Products', children: 'Test Children' })
+      expect(children.text()).toMatch(/^Test Children$/)
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;constants</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ActionTypes.js</summary>
+  <pre><code class='js'>
+  export const ADD_TO_CART = 'ADD_TO_CART'
+  export const CHECKOUT_REQUEST = 'CHECKOUT_REQUEST'
+  export const CHECKOUT_SUCCESS = 'CHECKOUT_SUCCESS'
+  export const CHECKOUT_FAILURE = 'CHECKOUT_FAILURE'
+  export const RECEIVE_PRODUCTS = 'RECEIVE_PRODUCTS'
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import ProductsContainer from './ProductsContainer'
+  import CartContainer from './CartContainer'
+
+  const App = () =&gt; (
+    &lt;div&gt;
+      &lt;h2&gt;Shopping Cart Example&lt;/h2&gt;
+      &lt;hr/&gt;
+      &lt;ProductsContainer /&gt;
+      &lt;hr/&gt;
+      &lt;CartContainer /&gt;
+    &lt;/div&gt;
+  )
+
+  export default App
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;CartContainer.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import { connect } from 'react-redux'
+  import { checkout } from '../actions'
+  import { getTotal, getCartProducts } from '../reducers'
+  import Cart from '../components/Cart'
+
+  const CartContainer = ({ products, total, checkout }) =&gt; (
+    &lt;Cart
+      products={products}
+      total={total}
+      onCheckoutClicked={() =&gt; checkout(products)} /&gt;
+  )
+
+  CartContainer.propTypes = {
+    products: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      quantity: PropTypes.number.isRequired
+    })).isRequired,
+    total: PropTypes.string,
+    checkout: PropTypes.func.isRequired
+  }
+
+  const mapStateToProps = (state) =&gt; ({
+    products: getCartProducts(state),
+    total: getTotal(state)
+  })
+
+  export default connect(
+    mapStateToProps,
+    { checkout }
+  )(CartContainer)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ProductsContainer.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import { connect } from 'react-redux'
+  import { addToCart } from '../actions'
+  import { getVisibleProducts } from '../reducers/products'
+  import ProductItem from '../components/ProductItem'
+  import ProductsList from '../components/ProductsList'
+
+  const ProductsContainer = ({ products, addToCart }) =&gt; (
+    &lt;ProductsList title=&quot;Products&quot;&gt;
+      {products.map(product =&gt;
+        &lt;ProductItem
+          key={product.id}
+          product={product}
+          onAddToCartClicked={() =&gt; addToCart(product.id)} /&gt;
+      )}
+    &lt;/ProductsList&gt;
+  )
+
+  ProductsContainer.propTypes = {
+    products: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      inventory: PropTypes.number.isRequired
+    })).isRequired,
+    addToCart: PropTypes.func.isRequired
+  }
+
+  const mapStateToProps = state =&gt; ({
+    products: getVisibleProducts(state.products)
+  })
+
+  export default connect(
+    mapStateToProps,
+    { addToCart }
+  )(ProductsContainer)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { render } from 'react-dom'
+  import { createStore, applyMiddleware } from 'redux'
+  import { Provider } from 'react-redux'
+  import { createLogger } from 'redux-logger'
+  import thunk from 'redux-thunk'
+  import reducer from './reducers'
+  import { getAllProducts } from './actions'
+  import App from './containers/App'
+
+  const middleware = [ thunk ];
+  if (process.env.NODE_ENV !== 'production') {
+    middleware.push(createLogger());
+  }
+
+  const store = createStore(
+    reducer,
+    applyMiddleware(...middleware)
+  )
+
+  store.dispatch(getAllProducts())
+
+  render(
+    &lt;Provider store={store}&gt;
+      &lt;App /&gt;
+    &lt;/Provider&gt;,
+    document.getElementById('root')
+  )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;cart.js</summary>
+  <pre><code class='js'>
+  import {
+    ADD_TO_CART,
+    CHECKOUT_REQUEST,
+    CHECKOUT_FAILURE
+  } from '../constants/ActionTypes'
+
+  const initialState = {
+    addedIds: [],
+    quantityById: {}
+  }
+
+  const addedIds = (state = initialState.addedIds, action) =&gt; {
+    switch (action.type) {
+      case ADD_TO_CART:
+        if (state.indexOf(action.productId) !== -1) {
+          return state
+        }
+        return [ ...state, action.productId ]
+      default:
+        return state
+    }
+  }
+
+  const quantityById = (state = initialState.quantityById, action) =&gt; {
+    switch (action.type) {
+      case ADD_TO_CART:
+        const { productId } = action
+        return { ...state,
+          [productId]: (state[productId] || 0) + 1
+        }
+      default:
+        return state
+    }
+  }
+
+  export const getQuantity = (state, productId) =&gt;
+    state.quantityById[productId] || 0
+
+  export const getAddedIds = state =&gt; state.addedIds
+
+  const cart = (state = initialState, action) =&gt; {
+    switch (action.type) {
+      case CHECKOUT_REQUEST:
+        return initialState
+      case CHECKOUT_FAILURE:
+        return action.cart
+      default:
+        return {
+          addedIds: addedIds(state.addedIds, action),
+          quantityById: quantityById(state.quantityById, action)
+        }
+    }
+  }
+
+  export default cart
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;cart.spec.js</summary>
+  <pre><code class='js'>
+  import cart from './cart'
+
+  describe('reducers', () =&gt; {
+    describe('cart', () =&gt; {
+      const initialState = {
+        addedIds: [],
+        quantityById: {}
+      }
+
+      it('should provide the initial state', () =&gt; {
+        expect(cart(undefined, {})).toEqual(initialState)
+      })
+
+      it('should handle CHECKOUT_REQUEST action', () =&gt; {
+        expect(cart({}, { type: 'CHECKOUT_REQUEST' })).toEqual(initialState)
+      })
+
+      it('should handle CHECKOUT_FAILURE action', () =&gt; {
+        expect(cart({}, { type: 'CHECKOUT_FAILURE', cart: 'cart state' })).toEqual('cart state')
+      })
+
+      it('should handle ADD_TO_CART action', () =&gt; {
+        expect(cart(initialState, { type: 'ADD_TO_CART', productId: 1 })).toEqual({
+          addedIds: [ 1 ],
+          quantityById: { 1: 1 }
+        })
+      })
+
+      describe('when product is already in cart', () =&gt; {
+        it('should handle ADD_TO_CART action', () =&gt; {
+          const state = {
+            addedIds: [ 1, 2 ],
+            quantityById: { 1: 1, 2: 1 }
+          }
+
+          expect(cart(state, { type: 'ADD_TO_CART', productId: 2 })).toEqual({
+            addedIds: [ 1, 2 ],
+            quantityById: { 1: 1, 2: 2 }
+          })
+        })
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  import { combineReducers } from 'redux'
+  import cart, * as fromCart from './cart'
+  import products, * as fromProducts from './products'
+
+  export default combineReducers({
+    cart,
+    products
+  })
+
+  const getAddedIds = state =&gt; fromCart.getAddedIds(state.cart)
+  const getQuantity = (state, id) =&gt; fromCart.getQuantity(state.cart, id)
+  const getProduct = (state, id) =&gt; fromProducts.getProduct(state.products, id)
+
+  export const getTotal = state =&gt;
+    getAddedIds(state)
+      .reduce((total, id) =&gt;
+        total + getProduct(state, id).price * getQuantity(state, id),
+        0
+      )
+      .toFixed(2)
+
+  export const getCartProducts = state =&gt;
+    getAddedIds(state).map(id =&gt; ({
+      ...getProduct(state, id),
+      quantity: getQuantity(state, id)
+    }))
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+  import { getTotal, getCartProducts } from './index'
+
+  describe('selectors', () =&gt; {
+    describe('getTotal', () =&gt; {
+      it('should return price total', () =&gt; {
+        const state = {
+          cart: {
+            addedIds: [ 1, 2, 3 ],
+            quantityById: {
+              1: 4,
+              2: 2,
+              3: 1
+            }
+          },
+          products: {
+            byId: {
+              1: {
+                id: 1,
+                price: 1.99
+              },
+              2: {
+                id: 1,
+                price: 4.99
+              },
+              3: {
+                id: 1,
+                price: 9.99
+              }
+            }
+          }
+        }
+        expect(getTotal(state)).toBe('27.93')
+      })
+    })
+
+    describe('getCartProducts', () =&gt; {
+      it('should return products with quantity', () =&gt; {
+        const state = {
+          cart: {
+            addedIds: [ 1, 2, 3 ],
+            quantityById: {
+              1: 4,
+              2: 2,
+              3: 1
+            }
+          },
+          products: {
+            byId: {
+              1: {
+                id: 1,
+                price: 1.99
+              },
+              2: {
+                id: 1,
+                price: 4.99
+              },
+              3: {
+                id: 1,
+                price: 9.99
+              }
+            }
+          }
+        }
+
+        expect(getCartProducts(state)).toEqual([
+          {
+            id: 1,
+            price: 1.99,
+            quantity: 4
+          },
+          {
+            id: 1,
+            price: 4.99,
+            quantity: 2
+          },
+          {
+            id: 1,
+            price: 9.99,
+            quantity: 1
+          }
+        ])
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;products.js</summary>
+  <pre><code class='js'>
+  import { combineReducers } from 'redux'
+  import { RECEIVE_PRODUCTS, ADD_TO_CART } from '../constants/ActionTypes'
+
+  const products = (state, action) =&gt; {
+    switch (action.type) {
+      case ADD_TO_CART:
+        return {
+          ...state,
+          inventory: state.inventory - 1
+        }
+      default:
+        return state
+    }
+  }
+
+  const byId = (state = {}, action) =&gt; {
+    switch (action.type) {
+      case RECEIVE_PRODUCTS:
+        return {
+          ...state,
+          ...action.products.reduce((obj, product) =&gt; {
+            obj[product.id] = product
+            return obj
+          }, {})
+        }
+      default:
+        const { productId } = action
+        if (productId) {
+          return {
+            ...state,
+            [productId]: products(state[productId], action)
+          }
+        }
+        return state
+    }
+  }
+
+  const visibleIds = (state = [], action) =&gt; {
+    switch (action.type) {
+      case RECEIVE_PRODUCTS:
+        return action.products.map(product =&gt; product.id)
+      default:
+        return state
+    }
+  }
+
+  export default combineReducers({
+    byId,
+    visibleIds
+  })
+
+  export const getProduct = (state, id) =&gt;
+    state.byId[id]
+
+  export const getVisibleProducts = state =&gt;
+    state.visibleIds.map(id =&gt; getProduct(state, id))
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;products.spec.js</summary>
+  <pre><code class='js'>
+  import reducer, * as products from './products'
+
+  describe('reducers', () =&gt; {
+    describe('products', () =&gt; {
+      let state
+
+      describe('when products are received', () =&gt; {
+
+        beforeEach(() =&gt; {
+          state = reducer({}, {
+            type: 'RECEIVE_PRODUCTS',
+            products: [
+              {
+                id: 1,
+                title: 'Product 1',
+                inventory: 2
+              },
+              {
+                id: 2,
+                title: 'Product 2',
+                inventory: 1
+              }
+            ]
+          })
+        })
+
+        it('contains the products from the action', () =&gt; {
+          expect(products.getProduct(state, 1)).toEqual({
+            id: 1,
+            title: 'Product 1',
+              inventory: 2
+          })
+          expect(products.getProduct(state, 2)).toEqual({
+            id: 2,
+            title: 'Product 2',
+              inventory: 1
+          })
+        })
+
+        it ('contains no other products', () =&gt; {
+          expect(products.getProduct(state, 3)).toEqual(undefined)
+        })
+
+        it('lists all of the products as visible', () =&gt; {
+          expect(products.getVisibleProducts(state)).toEqual([
+            {
+              id: 1,
+              title: 'Product 1',
+              inventory: 2
+            }, {
+              id: 2,
+              title: 'Product 2',
+              inventory: 1
+            }
+          ])
+        })
+
+        describe('when an item is added to the cart', () =&gt; {
+
+          beforeEach(() =&gt; {
+            state = reducer(state, { type: 'ADD_TO_CART', productId: 1 })
+          })
+
+          it('the inventory is reduced', () =&gt; {
+            expect(products.getVisibleProducts(state)).toEqual([
+              {
+                id: 1,
+                title: 'Product 1',
+                inventory: 1
+              }, {
+                id: 2,
+                title: 'Product 2',
+                inventory: 1
+              }
+            ])
+          })
+
+        })
+
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;setupTests.js</summary>
+  <pre><code class='js'>
+  import { configure } from 'enzyme'
+  import Adapter from 'enzyme-adapter-react-16'
+
+  configure({ adapter: new Adapter() })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;T O D O - F L O W</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import type { Id, Text, TodosAction } from '../types/todos';
+
+  let nextTodoId: Id = 0;
+
+  export const addTodo = (text: Text): TodosAction =&gt; {
+    return {
+      type: 'ADD_TODO',
+      id: nextTodoId++,
+      text
+    };
+  };
+
+  export const toggleTodo = (id: Id): TodosAction =&gt; {
+    return {
+      type: 'TOGGLE_TODO',
+      id
+    };
+  };
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import type {
+    VisibilityFilter,
+    VisibilityFilterAction
+  } from '../types/visibilityFilter';
+
+  export const setVisibilityFilter = (
+    filter: VisibilityFilter
+  ): VisibilityFilterAction =&gt; {
+    return {
+      type: 'SET_VISIBILITY_FILTER',
+      filter
+    };
+  };
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+
+  import Footer from './Footer';
+  import AddTodo from '../containers/AddTodo';
+  import VisibleTodoList from '../containers/VisibleTodoList';
+
+  const App = () =&gt; (
+    &lt;div&gt;
+      &lt;AddTodo /&gt;
+      &lt;VisibleTodoList /&gt;
+      &lt;Footer /&gt;
+    &lt;/div&gt;
+  );
+
+  export default App;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import configureStore from 'redux-mock-store';
+  import { shallow } from 'enzyme';
+
+  import App from './App';
+
+  const setup = (setupProps = {}) =&gt; {
+    const store = configureStore()();
+    const wrapper = shallow(&lt;App store={store} /&gt;);
+
+    return {
+      store,
+      wrapper
+    };
+  };
+
+  describe('App', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Footer.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+
+  import FilterLink from '../containers/FilterLink';
+
+  const Footer = () =&gt; (
+    &lt;p&gt;
+      Show:
+      {' '}
+      &lt;FilterLink filter=&quot;SHOW_ALL&quot;&gt;
+        All
+      &lt;/FilterLink&gt;
+      {', '}
+      &lt;FilterLink filter=&quot;SHOW_ACTIVE&quot;&gt;
+        Active
+      &lt;/FilterLink&gt;
+      {', '}
+      &lt;FilterLink filter=&quot;SHOW_COMPLETED&quot;&gt;
+        Completed
+      &lt;/FilterLink&gt;
+    &lt;/p&gt;
+  );
+
+  export default Footer;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Footer.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import configureStore from 'redux-mock-store';
+  import { shallow } from 'enzyme';
+
+  import Footer from './Footer';
+
+  const setup = (setupProps = {}) =&gt; {
+    const store = configureStore()();
+    const wrapper = shallow(&lt;Footer store={store} /&gt;);
+
+    return {
+      store,
+      wrapper
+    };
+  };
+
+  describe('Footer', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Link.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React, { type Node } from 'react';
+
+  export type Props = {
+    active: boolean,
+    children?: Node,
+    onClick: () =&gt; void
+  };
+
+  const Link = ({ active, children, onClick }: Props) =&gt; {
+    if (active) {
+      return &lt;span&gt;{children}&lt;/span&gt;;
+    }
+
+    return (
+      &lt;a // eslint-disable-line jsx-a11y/anchor-is-valid
+        href=&quot;#&quot;
+        onClick={(event: Event) =&gt; {
+          event.preventDefault();
+          onClick();
+        }}
+      &gt;
+        {children}
+      &lt;/a&gt;
+    );
+  };
+
+  export default Link;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Link.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import { shallow } from 'enzyme';
+
+  import Link from './Link';
+
+  const setup = (setupProps = {}) =&gt; {
+    const defaultProps = {
+      active: false,
+      onClick: jest.fn(),
+      children: 'Test link'
+    };
+    const props = { ...defaultProps, ...setupProps };
+    const wrapper = shallow(
+      &lt;Link active={props.active} onClick={props.onClick}&gt;
+        {props.children}
+      &lt;/Link&gt;
+    );
+
+    return {
+      props,
+      wrapper
+    };
+  };
+
+  describe('Link', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('renders a span when active is true', () =&gt; {
+      const { wrapper } = setup({ active: true });
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('calls onClick() on click', () =&gt; {
+      const preventDefault = jest.fn();
+      const { props, wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+
+      const link = wrapper.find('a');
+      link.simulate('click', { preventDefault });
+
+      expect(props.onClick).toBeCalled();
+      expect(preventDefault).toBeCalled();
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Todo.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+
+  import type { Text } from '../types/todos';
+
+  export type Props = {
+    onClick: () =&gt; void,
+    completed: boolean,
+    text: Text
+  };
+
+  const Todo = ({ onClick, completed, text }: Props) =&gt; (
+    &lt;li
+      onClick={onClick}
+      style={{
+        textDecoration: completed ? 'line-through' : 'none'
+      }}
+    &gt;
+      {text}
+    &lt;/li&gt;
+  );
+
+  export default Todo;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Todo.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import { shallow } from 'enzyme';
+
+  import Todo from './Todo';
+
+  const setup = (setupProps = {}) =&gt; {
+    const defaultProps = {
+      text: 'Test todo',
+      completed: false,
+      onClick: jest.fn()
+    };
+    const props = { ...defaultProps, ...setupProps };
+    const wrapper = shallow(
+      &lt;Todo
+        text={props.text}
+        completed={props.completed}
+        onClick={props.onClick}
+      /&gt;
+    );
+
+    return {
+      props,
+      wrapper
+    };
+  };
+
+  describe('Todo', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('puts a line through text when completed', () =&gt; {
+      const { wrapper } = setup({ completed: true });
+
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('calls onClick when clicked', () =&gt; {
+      const { props, wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+
+      wrapper.find('li').simulate('click');
+      expect(props.onClick).toHaveBeenCalled();
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoList.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+
+  import Todo from './Todo';
+
+  import type { Todos, Id } from '../types/todos';
+
+  export type Props = {
+    todos: Todos,
+    onTodoClick: (id: Id) =&gt; void
+  };
+
+  const TodoList = ({ todos, onTodoClick }: Props) =&gt; (
+    &lt;ul&gt;
+      {todos.map(todo =&gt; (
+        &lt;Todo key={todo.id} {...todo} onClick={() =&gt; onTodoClick(todo.id)} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+
+  export default TodoList;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoList.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import { shallow } from 'enzyme';
+
+  import TodoList from './TodoList';
+
+  const setup = (setupProps = {}) =&gt; {
+    const defaultProps = {
+      todos: [],
+      onTodoClick: jest.fn()
+    };
+    const props = { ...defaultProps, ...setupProps };
+    const wrapper = shallow(
+      &lt;TodoList todos={props.todos} onTodoClick={props.onTodoClick} /&gt;
+    );
+
+    return {
+      props,
+      wrapper
+    };
+  };
+
+  describe('TodoList', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    describe('with todos', () =&gt; {
+      const { wrapper, props } = setup({
+        todos: [
+          {
+            text: 'Test AddTodo',
+            completed: false,
+            id: 0
+          }
+        ]
+      });
+
+      test('renders a list of todos', () =&gt; {
+        expect(wrapper).toMatchSnapshot();
+      });
+
+      test('todo onClick calls onTodoClick', () =&gt; {
+        wrapper.find('Todo').simulate('click');
+        expect(props.onTodoClick).toHaveBeenCalled();
+      });
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;__snapshots__</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AddTodo.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React, { Component } from 'react';
+  import { connect } from 'react-redux';
+
+  import { addTodo } from '../actions/todos';
+
+  import type { Dispatch } from '../types';
+
+  export type Props = {
+    dispatch: Dispatch
+  };
+
+  export type State = {
+    value: string
+  };
+
+  class AddTodo extends Component&lt;Props, State&gt; {
+    state = {
+      value: ''
+    };
+    handleChange = (event: SyntheticKeyboardEvent&lt;HTMLInputElement&gt;) =&gt; {
+      this.setState({ value: event.currentTarget.value });
+    };
+    handleSubmit = (event: Event) =&gt; {
+      event.preventDefault();
+      if (!this.state.value.trim()) {
+        return;
+      }
+      this.props.dispatch(addTodo(this.state.value));
+      this.setState({ value: '' });
+    };
+    render() {
+      return (
+        &lt;div&gt;
+          &lt;form onSubmit={this.handleSubmit}&gt;
+            &lt;input value={this.state.value} onChange={this.handleChange} /&gt;
+            &lt;button type=&quot;submit&quot;&gt;
+              Add Todo
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      );
+    }
+  }
+
+  export default connect()(AddTodo);
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AddTodo.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import configureStore from 'redux-mock-store';
+  import { shallow } from 'enzyme';
+
+  import AddTodo from './AddTodo';
+
+  const setup = (setupProps = {}) =&gt; {
+    const store = configureStore()({ todos: [] });
+    const wrapper = shallow(&lt;AddTodo store={store} /&gt;);
+
+    return {
+      store,
+      wrapper
+    };
+  };
+
+  describe('AddTodo', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('onSubmit calls preventDefault to stop form submit', () =&gt; {
+      let preventDefault = jest.fn();
+      let { wrapper } = setup();
+      let form = wrapper.shallow().shallow().find('form');
+      form.simulate('submit', { preventDefault });
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    test('onSubmit returns early if input.value is not set', () =&gt; {
+      let { store } = setup();
+      expect(store.getActions()).toEqual([]);
+    });
+
+    test('onSubmit dispatches action if input.value is set', () =&gt; {
+      const { store, wrapper } = setup();
+      let preventDefault = jest.fn();
+      const deeperWrapper = wrapper.shallow();
+
+      deeperWrapper
+        .find('input')
+        .simulate('change', { currentTarget: { value: 'Test todo' } });
+
+      deeperWrapper.find('form').simulate('submit', { preventDefault });
+
+      expect(preventDefault).toHaveBeenCalled();
+      expect(store.getActions()).toEqual([
+        { id: 0, text: 'Test todo', type: 'ADD_TODO' }
+      ]);
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FilterLink.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { connect } from 'react-redux';
+
+  import { setVisibilityFilter } from '../actions/visibilityFilter';
+  import Link from '../components/Link';
+
+  import type { State, Dispatch } from '../types';
+  import type { VisibilityFilter } from '../types/visibilityFilter';
+
+  type OwnProps = {
+    filter: VisibilityFilter
+  };
+
+  const mapStateToProps = (state: State, ownProps: OwnProps) =&gt; {
+    return {
+      active: state.visibilityFilter === ownProps.filter
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch, ownProps: OwnProps) =&gt; {
+    return {
+      onClick: () =&gt; {
+        dispatch(setVisibilityFilter(ownProps.filter));
+      }
+    };
+  };
+
+  const connector = connect(
+    mapStateToProps,
+    mapDispatchToProps
+  );
+
+  export default connector(Link);
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FilterLink.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import configureStore from 'redux-mock-store';
+  import { shallow } from 'enzyme';
+
+  import FilterLink from './FilterLink';
+  import { setVisibilityFilter } from '../actions/visibilityFilter';
+
+  const setup = (setupProps = {}) =&gt; {
+    const store = configureStore()({});
+    const wrapper = shallow(&lt;FilterLink filter=&quot;SHOW_ALL&quot; store={store} /&gt;);
+
+    return {
+      store,
+      wrapper
+    };
+  };
+
+  describe('FilterLink', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('sets the correct filter when clicked', () =&gt; {
+      const { store, wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+      expect(store.getActions()).toEqual([]);
+      wrapper.find('Link').simulate('click');
+      expect(store.getActions()).toEqual([setVisibilityFilter('SHOW_ALL')]);
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;VisibleTodoList.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { connect } from 'react-redux';
+
+  import { toggleTodo } from '../actions/todos';
+  import { visibleTodosSelector } from '../selectors';
+  import TodoList from '../components/TodoList';
+
+  import type { State, Dispatch } from '../types';
+
+  const mapStateToProps = (state: State) =&gt; {
+    return {
+      todos: visibleTodosSelector(state)
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch) =&gt; {
+    return {
+      onTodoClick: id =&gt; {
+        dispatch(toggleTodo(id));
+      }
+    };
+  };
+
+  const connector = connect(
+    mapStateToProps,
+    mapDispatchToProps
+  );
+
+  export default connector(TodoList);
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;VisibleTodoList.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import configureStore from 'redux-mock-store';
+  import { shallow } from 'enzyme';
+
+  import VisibleTodoList from './VisibleTodoList';
+  import { setVisibilityFilter } from '../actions/visibilityFilter';
+
+  const setup = (setupProps = {}) =&gt; {
+    const store = configureStore()({
+      todos: [
+        {
+          text: 'Test AddTodo',
+          completed: false,
+          id: 0
+        },
+        {
+          text: 'Test AddTodo',
+          completed: true,
+          id: 1
+        }
+      ]
+    });
+    const wrapper = shallow(&lt;VisibleTodoList store={store} /&gt;);
+
+    return {
+      store,
+      wrapper
+    };
+  };
+
+  describe('VisibleTodoList', () =&gt; {
+    test('renders without crashing', () =&gt; {
+      const { wrapper } = setup();
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('shows all todos when SHOW_ALL filter is active', () =&gt; {
+      const { store, wrapper } = setup();
+      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+
+      expect(store.getActions()).toEqual([setVisibilityFilter('SHOW_ALL')]);
+
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('shows active todos when SHOW_ACTIVE filter is active', () =&gt; {
+      const { store, wrapper } = setup();
+
+      store.dispatch(setVisibilityFilter('SHOW_ACTIVE'));
+
+      expect(store.getActions()).toEqual([setVisibilityFilter('SHOW_ACTIVE')]);
+
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    test('shows completed todos when SHOW_COMPLETED filter is active', () =&gt; {
+      const { store, wrapper } = setup();
+      store.dispatch(setVisibilityFilter('SHOW_COMPLETED'));
+
+      expect(store.getActions()).toEqual([setVisibilityFilter('SHOW_COMPLETED')]);
+
+      expect(wrapper).toMatchSnapshot();
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;__snapshots__</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import React from 'react';
+  import { render } from 'react-dom';
+  import { Provider } from 'react-redux';
+  import { createStore } from 'redux';
+
+  import App from './components/App';
+  import reducers from './reducers';
+
+  import type { Store } from './types';
+
+  const store: Store = createStore(
+    reducers,
+    window.__REDUX_DEVTOOLS_EXTENSION__ &amp;&amp; window.__REDUX_DEVTOOLS_EXTENSION__()
+  );
+  const element = document.getElementById('root');
+  if (!element) {
+    throw new Error(&quot;couldn't find element with id root&quot;)
+  }
+  render(
+    &lt;Provider store={store}&gt;
+      &lt;App /&gt;
+    &lt;/Provider&gt;,
+    element
+  );
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { combineReducers } from 'redux';
+
+  import todos from './todos';
+  import visibilityFilter from './visibilityFilter';
+
+  export default combineReducers({
+    todos,
+    visibilityFilter
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import reducer from './index';
+
+  describe('root reducer', () =&gt; {
+    it('should combine all reducers', () =&gt; {
+      expect(reducer({}, { type: '@@INIT' })).toEqual({
+        todos: [],
+        visibilityFilter: 'SHOW_ALL'
+      });
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import type { Todos, Todo, Id, Text } from '../types/todos';
+  import type { Action } from '../types';
+
+  const createTodo = (id: Id, text: Text): Todo =&gt; ({
+    id,
+    text,
+    completed: false
+  });
+
+  const toggleTodo = (todos: Todos, id: Id): Todos =&gt;
+    todos.map(t =&gt; (t.id !== id ? t : { ...t, completed: !t.completed }));
+
+  const todos = (state: Todos = [], action: Action): Todos =&gt; {
+    switch (action.type) {
+      case 'ADD_TODO':
+        return [...state, createTodo(action.id, action.text)];
+      case 'TOGGLE_TODO':
+        return toggleTodo(state, action.id);
+      default:
+        return state;
+    }
+  };
+
+  export default todos;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { addTodo, toggleTodo } from '../actions/todos';
+  import todos from './todos';
+
+  describe('todos reducer', () =&gt; {
+    it('should handle initial state', () =&gt; {
+      expect(todos(undefined, { type: '@@INIT' })).toEqual([]);
+    });
+
+    it('should handle ADD_TODO', () =&gt; {
+      expect(todos([], addTodo('Run the tests'))).toEqual([
+        {
+          text: 'Run the tests',
+          completed: false,
+          id: 0
+        }
+      ]);
+
+      expect(
+        todos(
+          [
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 0
+            }
+          ],
+          addTodo('Use Redux')
+        )
+      ).toEqual([
+        {
+          text: 'Run the tests',
+          completed: false,
+          id: 0
+        },
+        {
+          text: 'Use Redux',
+          completed: false,
+          id: 1
+        }
+      ]);
+
+      expect(
+        todos(
+          [
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 0
+            },
+            {
+              text: 'Use Redux',
+              completed: false,
+              id: 1
+            }
+          ],
+          addTodo('Fix the tests')
+        )
+      ).toEqual([
+        {
+          text: 'Run the tests',
+          completed: false,
+          id: 0
+        },
+        {
+          text: 'Use Redux',
+          completed: false,
+          id: 1
+        },
+        {
+          text: 'Fix the tests',
+          completed: false,
+          id: 2
+        }
+      ]);
+    });
+
+    it('should handle TOGGLE_TODO', () =&gt; {
+      expect(
+        todos(
+          [
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 1
+            },
+            {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ],
+          toggleTodo(1)
+        )
+      ).toEqual([
+        {
+          text: 'Run the tests',
+          completed: true,
+          id: 1
+        },
+        {
+          text: 'Use Redux',
+          completed: false,
+          id: 0
+        }
+      ]);
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import type { VisibilityFilter } from '../types/visibilityFilter';
+  import type { Action } from '../types';
+  const visibilityFilter = (
+    state: VisibilityFilter = 'SHOW_ALL',
+    action: Action
+  ): VisibilityFilter =&gt; {
+    switch (action.type) {
+      case 'SET_VISIBILITY_FILTER':
+        return action.filter;
+      default:
+        return state;
+    }
+  };
+
+  export default visibilityFilter;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { setVisibilityFilter } from '../actions/visibilityFilter';
+  import visibilityFilter from './visibilityFilter';
+
+  describe('visibilityFilter', () =&gt; {
+    it('should handle initial state', () =&gt; {
+      expect(visibilityFilter(undefined, { type: '@@INIT' })).toEqual('SHOW_ALL');
+    });
+
+    it('should handle SET_VISIBILITY_FILTER', () =&gt; {
+      expect(
+        visibilityFilter(undefined, setVisibilityFilter('SHOW_ACTIVE'))
+      ).toEqual('SHOW_ACTIVE');
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;selectors</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { createSelector } from 'reselect';
+
+  import type { State } from '../types';
+
+  const todosSelector = (state: State) =&gt; state.todos;
+  const visibilityFilterSelector = (state: State) =&gt; state.visibilityFilter;
+
+  export const visibleTodosSelector = createSelector(
+    todosSelector,
+    visibilityFilterSelector,
+    (todos, visibilityFilter) =&gt; {
+      switch (visibilityFilter) {
+        case 'SHOW_COMPLETED':
+          return todos.filter(t =&gt; t.completed);
+        case 'SHOW_ACTIVE':
+          return todos.filter(t =&gt; !t.completed);
+        case 'SHOW_ALL':
+        default:
+          return todos;
+      }
+    }
+  );
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import { visibleTodosSelector } from './index';
+
+  describe('visibleTodosSelector', () =&gt; {
+    let state;
+    beforeEach(() =&gt; {
+      state = {
+        todos: [
+          { id: 0, text: 'Test Todo 1', completed: false },
+          { id: 1, text: 'Test Todo 2', completed: true }
+        ],
+        visibilityFilter: 'SHOW_ALL'
+      };
+    });
+
+    test('should handle SHOW_ALL', () =&gt; {
+      expect(visibleTodosSelector(state)).toEqual([
+        { id: 0, text: 'Test Todo 1', completed: false },
+        { id: 1, text: 'Test Todo 2', completed: true }
+      ]);
+    });
+
+    test('should handle SHOW_ACTIVE', () =&gt; {
+      state.visibilityFilter = 'SHOW_ACTIVE';
+      expect(visibleTodosSelector(state)).toEqual([
+        { id: 0, text: 'Test Todo 1', completed: false }
+      ]);
+    });
+
+    test('should handle SHOW_COMPLETED', () =&gt; {
+      state.visibilityFilter = 'SHOW_COMPLETED';
+      expect(visibleTodosSelector(state)).toEqual([
+        { id: 1, text: 'Test Todo 2', completed: true }
+      ]);
+    });
+  });
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;setupTests.js</summary>
+  <pre><code class='js'>
+  import { configure } from 'enzyme'
+  import Adapter from 'enzyme-adapter-react-16'
+
+  configure({ adapter: new Adapter() })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;types</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  import type { Store as ReduxStore, Dispatch as ReduxDispatch } from 'redux';
+
+  import type { TodosState, TodosAction } from './todos';
+  import type {
+    VisibilityFilterState,
+    VisibilityFilterAction
+  } from './visibilityFilter';
+
+  export type ReduxInitAction = { type: '@@INIT' };
+
+  export type State = TodosState &amp; VisibilityFilterState;
+
+  export type Action = ReduxInitAction | TodosAction | VisibilityFilterAction;
+
+  export type Store = ReduxStore&lt;State, Action&gt;;
+
+  export type Dispatch = ReduxDispatch&lt;Action&gt;;
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  export type Id = number;
+
+  export type Text = string;
+
+  export type Todo = {
+    +id: Id,
+    +text: Text,
+    +completed: boolean
+  };
+
+  export type Todos = Array&lt;Todo&gt;;
+
+  export type TodosState = {
+    +todos: Todos
+  };
+
+  export type TodosAction =
+    | { type: 'ADD_TODO', +id: Id, +text: Text }
+    | { type: 'TOGGLE_TODO', +id: Id };
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.js</summary>
+  <pre><code class='js'>
+  // @flow
+
+  export type VisibilityFilter = 'SHOW_ALL' | 'SHOW_ACTIVE' | 'SHOW_COMPLETED';
+
+  export type VisibilityFilterState = {
+    +visibilityFilter: VisibilityFilter
+  };
+
+  export type VisibilityFilterAction = {
+    type: 'SET_VISIBILITY_FILTER',
+    +filter: VisibilityFilter
+  };
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;T O D O - M V C</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+  import * as types from '../constants/ActionTypes'
+
+  export const addTodo = text =&gt; ({ type: types.ADD_TODO, text })
+  export const deleteTodo = id =&gt; ({ type: types.DELETE_TODO, id })
+  export const editTodo = (id, text) =&gt; ({ type: types.EDIT_TODO, id, text })
+  export const completeTodo = id =&gt; ({ type: types.COMPLETE_TODO, id })
+  export const completeAllTodos = () =&gt; ({ type: types.COMPLETE_ALL_TODOS })
+  export const clearCompleted = () =&gt; ({ type: types.CLEAR_COMPLETED })
+  export const setVisibilityFilter = filter =&gt; ({ type: types.SET_VISIBILITY_FILTER, filter})
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+  import * as types from '../constants/ActionTypes'
+  import * as actions from './index'
+
+  describe('todo actions', () =&gt; {
+    it('addTodo should create ADD_TODO action', () =&gt; {
+      expect(actions.addTodo('Use Redux')).toEqual({
+        type: types.ADD_TODO,
+        text: 'Use Redux'
+      })
+    })
+
+    it('deleteTodo should create DELETE_TODO action', () =&gt; {
+      expect(actions.deleteTodo(1)).toEqual({
+        type: types.DELETE_TODO,
+        id: 1
+      })
+    })
+
+    it('editTodo should create EDIT_TODO action', () =&gt; {
+      expect(actions.editTodo(1, 'Use Redux everywhere')).toEqual({
+        type: types.EDIT_TODO,
+        id: 1,
+        text: 'Use Redux everywhere'
+      })
+    })
+
+    it('completeTodo should create COMPLETE_TODO action', () =&gt; {
+      expect(actions.completeTodo(1)).toEqual({
+        type: types.COMPLETE_TODO,
+        id: 1
+      })
+    })
+
+    it('completeAll should create COMPLETE_ALL action', () =&gt; {
+      expect(actions.completeAllTodos()).toEqual({
+        type: types.COMPLETE_ALL_TODOS
+      })
+    })
+
+    it('clearCompleted should create CLEAR_COMPLETED action', () =&gt; {
+      expect(actions.clearCompleted()).toEqual({
+        type: types.CLEAR_COMPLETED
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import Header from '../containers/Header'
+  import MainSection from '../containers/MainSection'
+
+  const App = () =&gt; (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;MainSection /&gt;
+    &lt;/div&gt;
+  )
+
+  export default App
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow'
+  import App from './App'
+  import Header from '../containers/Header'
+  import MainSection from '../containers/MainSection'
+
+
+  const setup = propOverrides =&gt; {
+    const renderer = createRenderer()
+    renderer.render(&lt;App /&gt;)
+    const output = renderer.getRenderOutput()
+    return output
+  }
+
+  describe('components', () =&gt; {
+    describe('Header', () =&gt; {
+      it('should render', () =&gt; {
+        const output = setup()
+        const [ header ] = output.props.children
+        expect(header.type).toBe(Header)
+      })
+    })
+
+    describe('Mainsection', () =&gt; {
+      it('should render', () =&gt; {
+        const output = setup()
+        const [ , mainSection ] = output.props.children
+        expect(mainSection.type).toBe(MainSection)
+      })
+    })
+  })</code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Footer.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import FilterLink from '../containers/FilterLink'
+  import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
+
+  const FILTER_TITLES = {
+    [SHOW_ALL]: 'All',
+    [SHOW_ACTIVE]: 'Active',
+    [SHOW_COMPLETED]: 'Completed'
+  }
+
+  const Footer = (props) =&gt; {
+    const { activeCount, completedCount, onClearCompleted } = props
+    const itemWord = activeCount === 1 ? 'item' : 'items'
+    return (
+      &lt;footer className=&quot;footer&quot;&gt;
+        &lt;span className=&quot;todo-count&quot;&gt;
+          &lt;strong&gt;{activeCount || 'No'}&lt;/strong&gt; {itemWord} left
+        &lt;/span&gt;
+        &lt;ul className=&quot;filters&quot;&gt;
+          {Object.keys(FILTER_TITLES).map(filter =&gt;
+            &lt;li key={filter}&gt;
+              &lt;FilterLink filter={filter}&gt;
+                {FILTER_TITLES[filter]}
+              &lt;/FilterLink&gt;
+            &lt;/li&gt;
+          )}
+        &lt;/ul&gt;
+        {
+          !!completedCount &amp;&amp;
+          &lt;button
+            className=&quot;clear-completed&quot;
+            onClick={onClearCompleted}
+          &gt;Clear completed&lt;/button&gt;
+
+        }
+      &lt;/footer&gt;
+    )
+  }
+
+  Footer.propTypes = {
+    completedCount: PropTypes.number.isRequired,
+    activeCount: PropTypes.number.isRequired,
+    onClearCompleted: PropTypes.func.isRequired,
+  }
+
+  export default Footer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Footer.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import Footer from './Footer'
+  import FilterLink from '../containers/FilterLink'
+  import { SHOW_ALL, SHOW_ACTIVE, SHOW_COMPLETED } from '../constants/TodoFilters'
+
+  const setup = propOverrides =&gt; {
+    const props = Object.assign({
+      completedCount: 0,
+      activeCount: 0,
+      onClearCompleted: jest.fn(),
+    }, propOverrides)
+
+    const renderer = createRenderer()
+    renderer.render(&lt;Footer {...props} /&gt;)
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output
+    }
+  }
+
+  const getTextContent = elem =&gt; {
+    const children = Array.isArray(elem.props.children) ?
+      elem.props.children : [ elem.props.children ]
+
+    return children.reduce((out, child) =&gt;
+      // Concatenate the text
+      // Children are either elements or text strings
+      out + (child.props ? getTextContent(child) : child)
+    , '')
+  }
+
+  describe('components', () =&gt; {
+    describe('Footer', () =&gt; {
+      it('should render container', () =&gt; {
+        const { output } = setup()
+        expect(output.type).toBe('footer')
+        expect(output.props.className).toBe('footer')
+      })
+
+      it('should display active count when 0', () =&gt; {
+        const { output } = setup({ activeCount: 0 })
+        const [ count ] = output.props.children
+        expect(getTextContent(count)).toBe('No items left')
+      })
+
+      it('should display active count when above 0', () =&gt; {
+        const { output } = setup({ activeCount: 1 })
+        const [ count ] = output.props.children
+        expect(getTextContent(count)).toBe('1 item left')
+      })
+
+      it('should render filters', () =&gt; {
+        const todoFilters = [SHOW_ALL, SHOW_ACTIVE, SHOW_COMPLETED]
+        const filterTitles = ['All', 'Active', 'Completed']
+        const { output } = setup()
+        const [ , filters ] = output.props.children
+        expect(filters.type).toBe('ul')
+        expect(filters.props.className).toBe('filters')
+        expect(filters.props.children.length).toBe(3)
+        filters.props.children.forEach(function checkFilter(filter, i) {
+          expect(filter.type).toBe('li')
+          const a = filter.props.children
+          expect(a.type).toBe(FilterLink)
+          expect(a.props.filter).toBe(todoFilters[i])
+          expect(a.props.children).toBe(filterTitles[i])
+        })
+      })
+
+      it('shouldnt show clear button when no completed todos', () =&gt; {
+        const { output } = setup({ completedCount: 0 })
+        const [ , , clear ] = output.props.children
+        expect(clear).toBe(false)
+      })
+
+      it('should render clear button when completed todos', () =&gt; {
+        const { output } = setup({ completedCount: 1 })
+        const [ , , clear ] = output.props.children
+        expect(clear.type).toBe('button')
+        expect(clear.props.className).toBe('clear-completed')
+        expect(clear.props.children).toBe('Clear completed')
+      })
+
+      it('should call onClearCompleted on clear button click', () =&gt; {
+        const { output, props } = setup({ completedCount: 1 })
+        const [ , , clear ] = output.props.children
+        clear.props.onClick({})
+        expect(props.onClearCompleted).toBeCalled()
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Header.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import TodoTextInput from './TodoTextInput'
+
+  const Header = ({ addTodo }) =&gt; (
+    &lt;header className=&quot;header&quot;&gt;
+      &lt;h1&gt;todos&lt;/h1&gt;
+      &lt;TodoTextInput
+        newTodo
+        onSave={(text) =&gt; {
+          if (text.length !== 0) {
+            addTodo(text)
+          }
+        }}
+        placeholder=&quot;What needs to be done?&quot;
+      /&gt;
+    &lt;/header&gt;
+  )
+
+  Header.propTypes = {
+    addTodo: PropTypes.func.isRequired
+  }
+
+  export default Header
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Header.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import Header from './Header'
+  import TodoTextInput from '../components/TodoTextInput'
+
+  const setup = () =&gt; {
+    const props = {
+      addTodo: jest.fn()
+    }
+
+    const renderer = createRenderer();
+    renderer.render(&lt;Header {...props} /&gt;)
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output,
+      renderer: renderer
+    }
+  }
+
+  describe('components', () =&gt; {
+    describe('Header', () =&gt; {
+      it('should render correctly', () =&gt; {
+        const { output } = setup()
+        expect(output.type).toBe('header')
+        expect(output.props.className).toBe('header')
+
+        const [ h1, input ] = output.props.children
+        expect(h1.type).toBe('h1')
+        expect(h1.props.children).toBe('todos')
+        expect(input.type).toBe(TodoTextInput)
+        expect(input.props.newTodo).toBe(true)
+        expect(input.props.placeholder).toBe('What needs to be done?')
+      })
+
+      it('should call addTodo if length of text is greater than 0', () =&gt; {
+        const { output, props } = setup()
+        const input = output.props.children[1]
+        input.props.onSave('')
+        expect(props.addTodo).not.toBeCalled()
+        input.props.onSave('Use Redux')
+        expect(props.addTodo).toBeCalled()
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Link.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import classnames from 'classnames'
+
+  const Link = ({ active, children, setFilter }) =&gt;
+    (
+      // eslint-disable-next-line jsx-a11y/anchor-is-valid
+      &lt;a
+        className={classnames({ selected: active })}
+        style={{ cursor: 'pointer' }}
+        onClick={() =&gt; setFilter()}
+      &gt;
+        {children}
+      &lt;/a&gt;
+    )
+
+
+  Link.propTypes = {
+    active: PropTypes.bool.isRequired,
+    children: PropTypes.node.isRequired,
+    setFilter: PropTypes.func.isRequired
+  }
+
+  export default Link
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Link.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import Link from './Link'
+
+  const setup = (propOverrides) =&gt; {
+    const props = Object.assign({
+      active: false,
+      children: 'All',
+      setFilter: jest.fn()
+    }, propOverrides)
+
+    const renderer = createRenderer();
+    renderer.render(&lt;Link {...props} /&gt;)
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output,
+    }
+  }
+
+  describe('component', () =&gt; {
+    describe('Link', () =&gt; {
+      it('should render correctly', () =&gt; {
+        const { output } = setup()
+        expect(output.type).toBe('a')
+        expect(output.props.style.cursor).toBe('pointer')
+        expect(output.props.children).toBe('All')
+      })
+
+      it('should have class selected if active', () =&gt; {
+        const { output } = setup({ active: true })
+        expect(output.props.className).toBe('selected')
+      })
+
+      it('should call setFilter on click', () =&gt; {
+        const { output, props } = setup()
+        output.props.onClick()
+        expect(props.setFilter).toBeCalled()
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;MainSection.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import Footer from './Footer'
+  import VisibleTodoList from '../containers/VisibleTodoList'
+
+  const MainSection = ({ todosCount, completedCount, actions }) =&gt;
+    (
+      &lt;section className=&quot;main&quot;&gt;
+        {
+          !!todosCount &amp;&amp;
+          &lt;span&gt;
+            &lt;input
+              className=&quot;toggle-all&quot;
+              type=&quot;checkbox&quot;
+              checked={completedCount === todosCount}
+              readOnly
+            /&gt;
+            &lt;label onClick={actions.completeAllTodos}/&gt;
+          &lt;/span&gt;
+        }
+        &lt;VisibleTodoList /&gt;
+        {
+          !!todosCount &amp;&amp;
+          &lt;Footer
+            completedCount={completedCount}
+            activeCount={todosCount - completedCount}
+            onClearCompleted={actions.clearCompleted}
+          /&gt;
+        }
+      &lt;/section&gt;
+    )
+
+  MainSection.propTypes = {
+    todosCount: PropTypes.number.isRequired,
+    completedCount: PropTypes.number.isRequired,
+    actions: PropTypes.object.isRequired
+  }
+
+  export default MainSection;</code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;MainSection.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import MainSection from './MainSection'
+  import Footer from './Footer'
+  import VisibleTodoList from '../containers/VisibleTodoList'
+
+  const setup = propOverrides =&gt; {
+    const props = Object.assign({
+      todosCount: 2,
+      completedCount: 1,
+      actions: {
+        editTodo: jest.fn(),
+        deleteTodo: jest.fn(),
+        completeTodo: jest.fn(),
+        completeAllTodos: jest.fn(),
+        clearCompleted: jest.fn()
+      }
+    }, propOverrides)
+
+    const renderer = createRenderer()
+    renderer.render(&lt;MainSection {...props} /&gt;)
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output,
+      renderer: renderer
+    }
+  }
+
+  describe('components', () =&gt; {
+    describe('MainSection', () =&gt; {
+      it('should render container', () =&gt; {
+        const { output } = setup()
+        expect(output.type).toBe('section')
+        expect(output.props.className).toBe('main')
+      })
+
+      describe('toggle all input', () =&gt; {
+        it('should render', () =&gt; {
+          const { output } = setup()
+          const [ toggle ] = output.props.children[0].props.children
+          expect(toggle.type).toBe('input')
+          expect(toggle.props.className).toBe('toggle-all')
+          expect(toggle.props.type).toBe('checkbox')
+          expect(toggle.props.checked).toBe(false)
+        })
+
+        it('should be checked if all todos completed', () =&gt; {
+          const { output } = setup({
+            completedCount: 2
+          })
+          const [ toggle ] = output.props.children[0].props.children
+          expect(toggle.props.checked).toBe(true)
+        })
+
+        it('should call completeAllTodos on change', () =&gt; {
+          const { output, props } = setup()
+          const [ , label ] = output.props.children[0].props.children
+          label.props.onClick({})
+          expect(props.actions.completeAllTodos).toBeCalled()
+        })
+      })
+
+      describe('footer', () =&gt; {
+        it('should render', () =&gt; {
+          const { output } = setup()
+          const [ , , footer ] = output.props.children
+          expect(footer.type).toBe(Footer)
+          expect(footer.props.completedCount).toBe(1)
+          expect(footer.props.activeCount).toBe(1)
+        })
+
+        it('onClearCompleted should call clearCompleted', () =&gt; {
+          const { output, props } = setup()
+          const [ , , footer ] = output.props.children
+          footer.props.onClearCompleted()
+          expect(props.actions.clearCompleted).toBeCalled()
+        })
+      })
+
+      describe('visible todo list', () =&gt; {
+        it('should render', () =&gt; {
+          const { output } = setup()
+          const [ , visibleTodoList ] = output.props.children
+          expect(visibleTodoList.type).toBe(VisibleTodoList)
+        })
+      })
+
+      describe('toggle all input and footer', () =&gt; {
+        it('should not render if there are no todos', () =&gt; {
+          const { output } = setup({
+            todosCount: 0,
+            completedCount: 0
+          })
+          const renderedChildren = output.props.children
+          .filter((item) =&gt; item !== false)
+          expect(renderedChildren.length).toBe(1)
+          expect(renderedChildren[0].type).toBe(VisibleTodoList)
+        })
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoItem.js</summary>
+  <pre><code class='js'>
+  import React, { Component } from 'react'
+  import PropTypes from 'prop-types'
+  import classnames from 'classnames'
+  import TodoTextInput from './TodoTextInput'
+
+  export default class TodoItem extends Component {
+    static propTypes = {
+      todo: PropTypes.object.isRequired,
+      editTodo: PropTypes.func.isRequired,
+      deleteTodo: PropTypes.func.isRequired,
+      completeTodo: PropTypes.func.isRequired
+    }
+
+    state = {
+      editing: false
+    }
+
+    handleDoubleClick = () =&gt; {
+      this.setState({ editing: true })
+    }
+
+    handleSave = (id, text) =&gt; {
+      if (text.length === 0) {
+        this.props.deleteTodo(id)
+      } else {
+        this.props.editTodo(id, text)
+      }
+      this.setState({ editing: false })
+    }
+
+    render() {
+      const { todo, completeTodo, deleteTodo } = this.props
+
+      let element
+      if (this.state.editing) {
+        element = (
+          &lt;TodoTextInput text={todo.text}
+                        editing={this.state.editing}
+                        onSave={(text) =&gt; this.handleSave(todo.id, text)} /&gt;
+        )
+      } else {
+        element = (
+          &lt;div className=&quot;view&quot;&gt;
+            &lt;input className=&quot;toggle&quot;
+                  type=&quot;checkbox&quot;
+                  checked={todo.completed}
+                  onChange={() =&gt; completeTodo(todo.id)} /&gt;
+            &lt;label onDoubleClick={this.handleDoubleClick}&gt;
+              {todo.text}
+            &lt;/label&gt;
+            &lt;button className=&quot;destroy&quot;
+                    onClick={() =&gt; deleteTodo(todo.id)} /&gt;
+          &lt;/div&gt;
+        )
+      }
+
+      return (
+        &lt;li className={classnames({
+          completed: todo.completed,
+          editing: this.state.editing
+        })}&gt;
+          {element}
+        &lt;/li&gt;
+      )
+    }
+  }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoItem.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import TodoItem from './TodoItem'
+  import TodoTextInput from './TodoTextInput'
+
+  const setup = ( editing = false ) =&gt; {
+    const props = {
+      todo: {
+        id: 0,
+        text: 'Use Redux',
+        completed: false
+      },
+      editTodo: jest.fn(),
+      deleteTodo: jest.fn(),
+      completeTodo: jest.fn()
+    }
+
+    const renderer = createRenderer()
+
+    renderer.render(
+      &lt;TodoItem {...props} /&gt;
+    )
+
+    let output = renderer.getRenderOutput()
+
+    if (editing) {
+      const label = output.props.children.props.children[1]
+      label.props.onDoubleClick({})
+      output = renderer.getRenderOutput()
+    }
+
+    return {
+      props: props,
+      output: output,
+      renderer: renderer
+    }
+  }
+
+  describe('components', () =&gt; {
+    describe('TodoItem', () =&gt; {
+      it('initial render', () =&gt; {
+        const { output } = setup()
+
+        expect(output.type).toBe('li')
+        expect(output.props.className).toBe('')
+
+        const div = output.props.children
+
+        expect(div.type).toBe('div')
+        expect(div.props.className).toBe('view')
+
+        const [ input, label, button ] = div.props.children
+
+        expect(input.type).toBe('input')
+        expect(input.props.checked).toBe(false)
+
+        expect(label.type).toBe('label')
+        expect(label.props.children).toBe('Use Redux')
+
+        expect(button.type).toBe('button')
+        expect(button.props.className).toBe('destroy')
+      })
+
+      it('input onChange should call completeTodo', () =&gt; {
+        const { output, props } = setup()
+        const input = output.props.children.props.children[0]
+        input.props.onChange({})
+        expect(props.completeTodo).toBeCalledWith(0)
+      })
+
+      it('button onClick should call deleteTodo', () =&gt; {
+        const { output, props } = setup()
+        const button = output.props.children.props.children[2]
+        button.props.onClick({})
+        expect(props.deleteTodo).toBeCalledWith(0)
+      })
+
+      it('label onDoubleClick should put component in edit state', () =&gt; {
+        const { output, renderer } = setup()
+        const label = output.props.children.props.children[1]
+        label.props.onDoubleClick({})
+        const updated = renderer.getRenderOutput()
+        expect(updated.type).toBe('li')
+        expect(updated.props.className).toBe('editing')
+      })
+
+      it('edit state render', () =&gt; {
+        const { output } = setup(true)
+
+        expect(output.type).toBe('li')
+        expect(output.props.className).toBe('editing')
+
+        const input = output.props.children
+        expect(input.type).toBe(TodoTextInput)
+        expect(input.props.text).toBe('Use Redux')
+        expect(input.props.editing).toBe(true)
+      })
+
+      it('TodoTextInput onSave should call editTodo', () =&gt; {
+        const { output, props } = setup(true)
+        output.props.children.props.onSave('Use Redux')
+        expect(props.editTodo).toBeCalledWith(0, 'Use Redux')
+      })
+
+      it('TodoTextInput onSave should call deleteTodo if text is empty', () =&gt; {
+        const { output, props } = setup(true)
+        output.props.children.props.onSave('')
+        expect(props.deleteTodo).toBeCalledWith(0)
+      })
+
+      it('TodoTextInput onSave should exit component from edit state', () =&gt; {
+        const { output, renderer } = setup(true)
+        output.props.children.props.onSave('Use Redux')
+        const updated = renderer.getRenderOutput()
+        expect(updated.type).toBe('li')
+        expect(updated.props.className).toBe('')
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoList.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import PropTypes from 'prop-types'
+  import TodoItem from './TodoItem'
+
+  const TodoList = ({ filteredTodos, actions }) =&gt; (
+    &lt;ul className=&quot;todo-list&quot;&gt;
+      {filteredTodos.map(todo =&gt;
+        &lt;TodoItem key={todo.id} todo={todo} {...actions} /&gt;
+      )}
+    &lt;/ul&gt;
+  )
+
+  TodoList.propTypes = {
+    filteredTodos: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      completed: PropTypes.bool.isRequired,
+      text: PropTypes.string.isRequired
+    }).isRequired).isRequired,
+    actions: PropTypes.object.isRequired
+  }
+
+  export default TodoList
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoList.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import TodoList from './TodoList'
+  import TodoItem from './TodoItem'
+
+  const setup = () =&gt; {
+    const props = {
+      filteredTodos: [
+        {
+          text: 'Use Redux',
+          completed: false,
+          id: 0
+        }, {
+          text: 'Run the tests',
+          completed: true,
+          id: 1
+        }
+      ],
+      actions: {
+        editTodo: jest.fn(),
+        deleteTodo: jest.fn(),
+        completeTodo: jest.fn(),
+        completeAll: jest.fn(),
+        clearCompleted: jest.fn()
+      }
+    }
+
+    const renderer = createRenderer();
+    renderer.render(&lt;TodoList {...props} /&gt;)
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output
+    }
+  }
+
+  describe('components', () =&gt; {
+    describe('TodoList', () =&gt; {
+      it('should render container', () =&gt; {
+        const { output } = setup()
+        expect(output.type).toBe('ul')
+        expect(output.props.className).toBe('todo-list')
+      })
+
+      it('should render todos', () =&gt; {
+        const { output, props } = setup()
+        expect(output.props.children.length).toBe(2)
+        output.props.children.forEach((todo, i) =&gt; {
+          expect(todo.type).toBe(TodoItem)
+          expect(Number(todo.key)).toBe(props.filteredTodos[i].id)
+          expect(todo.props.todo).toBe(props.filteredTodos[i])
+        })
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoTextInput.js</summary>
+  <pre><code class='js'>
+  import React, { Component } from 'react'
+  import PropTypes from 'prop-types'
+  import classnames from 'classnames'
+
+  export default class TodoTextInput extends Component {
+    static propTypes = {
+      onSave: PropTypes.func.isRequired,
+      text: PropTypes.string,
+      placeholder: PropTypes.string,
+      editing: PropTypes.bool,
+      newTodo: PropTypes.bool
+    }
+
+    state = {
+      text: this.props.text || ''
+    }
+
+    handleSubmit = e =&gt; {
+      const text = e.target.value.trim()
+      if (e.which === 13) {
+        this.props.onSave(text)
+        if (this.props.newTodo) {
+          this.setState({ text: '' })
+        }
+      }
+    }
+
+    handleChange = e =&gt; {
+      this.setState({ text: e.target.value })
+    }
+
+    handleBlur = e =&gt; {
+      if (!this.props.newTodo) {
+        this.props.onSave(e.target.value)
+      }
+    }
+
+    render() {
+      return (
+        &lt;input className={
+          classnames({
+            edit: this.props.editing,
+            'new-todo': this.props.newTodo
+          })}
+          type=&quot;text&quot;
+          placeholder={this.props.placeholder}
+          autoFocus={true}
+          value={this.state.text}
+          onBlur={this.handleBlur}
+          onChange={this.handleChange}
+          onKeyDown={this.handleSubmit} /&gt;
+      )
+    }
+  }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoTextInput.spec.js</summary>
+  <pre><code class='js'>
+  import React from 'react'
+  import { createRenderer } from 'react-test-renderer/shallow';
+  import TodoTextInput from './TodoTextInput'
+
+  const setup = propOverrides =&gt; {
+    const props = Object.assign({
+      onSave: jest.fn(),
+      text: 'Use Redux',
+      placeholder: 'What needs to be done?',
+      editing: false,
+      newTodo: false
+    }, propOverrides)
+
+    const renderer = createRenderer()
+
+    renderer.render(
+      &lt;TodoTextInput {...props} /&gt;
+    )
+
+    const output = renderer.getRenderOutput()
+
+    return {
+      props: props,
+      output: output,
+      renderer: renderer
+    }
+  }
+
+  describe('components', () =&gt; {
+    describe('TodoTextInput', () =&gt; {
+      it('should render correctly', () =&gt; {
+        const { output } = setup()
+        expect(output.props.placeholder).toEqual('What needs to be done?')
+        expect(output.props.value).toEqual('Use Redux')
+        expect(output.props.className).toEqual('')
+      })
+
+      it('should render correctly when editing=true', () =&gt; {
+        const { output } = setup({ editing: true })
+        expect(output.props.className).toEqual('edit')
+      })
+
+      it('should render correctly when newTodo=true', () =&gt; {
+        const { output } = setup({ newTodo: true })
+        expect(output.props.className).toEqual('new-todo')
+      })
+
+      it('should update value on change', () =&gt; {
+        const { output, renderer } = setup()
+        output.props.onChange({ target: { value: 'Use Radox' } })
+        const updated = renderer.getRenderOutput()
+        expect(updated.props.value).toEqual('Use Radox')
+      })
+
+      it('should call onSave on return key press', () =&gt; {
+        const { output, props } = setup()
+        output.props.onKeyDown({ which: 13, target: { value: 'Use Redux' } })
+        expect(props.onSave).toBeCalledWith('Use Redux')
+      })
+
+      it('should reset state on return key press if newTodo', () =&gt; {
+        const { output, renderer } = setup({ newTodo: true })
+        output.props.onKeyDown({ which: 13, target: { value: 'Use Redux' } })
+        const updated = renderer.getRenderOutput()
+        expect(updated.props.value).toEqual('')
+      })
+
+      it('should call onSave on blur', () =&gt; {
+        const { output, props } = setup()
+        output.props.onBlur({ target: { value: 'Use Redux' } })
+        expect(props.onSave).toBeCalledWith('Use Redux')
+      })
+
+      it('shouldnt call onSave on blur if newTodo', () =&gt; {
+        const { output, props } = setup({ newTodo: true })
+        output.props.onBlur({ target: { value: 'Use Redux' } })
+        expect(props.onSave).not.toBeCalled()
+      })
+    })
+  })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;constants</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;ActionTypes.js</summary>
+  <pre><code class='js'>
+  export const ADD_TODO = 'ADD_TODO'
+  export const DELETE_TODO = 'DELETE_TODO'
+  export const EDIT_TODO = 'EDIT_TODO'
+  export const COMPLETE_TODO = 'COMPLETE_TODO'
+  export const COMPLETE_ALL_TODOS = 'COMPLETE_ALL_TODOS'
+  export const CLEAR_COMPLETED = 'CLEAR_COMPLETED'
+  export const SET_VISIBILITY_FILTER = 'SET_VISIBILITY_FILTER'
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoFilters.js</summary>
+  <pre><code class='js'>
+  export const SHOW_ALL = 'show_all'
+  export const SHOW_COMPLETED = 'show_completed'
+  export const SHOW_ACTIVE = 'show_active'
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FilterLink.js</summary>
+  <pre><code class='js'>
+  import { connect } from 'react-redux'
+  import { setVisibilityFilter } from '../actions'
+  import Link from '../components/Link'
+
+  const mapStateToProps = (state, ownProps) =&gt; ({
+    active: ownProps.filter === state.visibilityFilter
+  })
+
+  const mapDispatchToProps = (dispatch, ownProps) =&gt; ({
+    setFilter: () =&gt; {
+      dispatch(setVisibilityFilter(ownProps.filter))
+    }
+  })
+
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(Link)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Header.js</summary>
+  <pre><code class='js'>
+  import { connect } from 'react-redux'
+  import Header from '../components/Header'
+  import { addTodo } from '../actions'
+
+  export default connect(null, { addTodo })(Header)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;MainSection.js</summary>
+  <pre><code class='js'>
+  import { connect } from 'react-redux'
+  import * as TodoActions from '../actions'
+  import { bindActionCreators } from 'redux'
+  import MainSection from '../components/MainSection'
+  import { getCompletedTodoCount } from '../selectors'
+
+
+  const mapStateToProps = state =&gt; ({
+    todosCount: state.todos.length,
+    completedCount: getCompletedTodoCount(state)
+  })
+
+
+  const mapDispatchToProps = dispatch =&gt; ({
+    actions: bindActionCreators(TodoActions, dispatch)
+  })
+
+
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(MainSection)
+
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;VisibleTodoList.js</summary>
+  <pre><code class='js'>
+    import { connect } from 'react-redux'
+    import { bindActionCreators } from 'redux'
+    import * as TodoActions from '../actions'
+    import TodoList from '../components/TodoList'
+    import { getVisibleTodos } from '../selectors'
+
+    const mapStateToProps = state =&gt; ({
+      filteredTodos: getVisibleTodos(state)
+    })
+
+    const mapDispatchToProps = dispatch =&gt; ({
+      actions: bindActionCreators(TodoActions, dispatch)
+    })
+
+
+    const VisibleTodoList = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(TodoList)
+
+    export default VisibleTodoList
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { createStore } from 'redux'
+    import { Provider } from 'react-redux'
+    import App from './components/App'
+    import reducer from './reducers'
+    import 'todomvc-app-css/index.css'
+
+    const store = createStore(reducer)
+
+    render(
+      &lt;Provider store={store}&gt;
+        &lt;App /&gt;
+      &lt;/Provider&gt;,
+      document.getElementById('root')
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { combineReducers } from 'redux'
+    import todos from './todos'
+    import visibilityFilter from './visibilityFilter'
+
+    const rootReducer = combineReducers({
+      todos,
+      visibilityFilter
+    })
+
+    export default rootReducer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.js</summary>
+  <pre><code class='js'>
+    import {
+      ADD_TODO,
+      DELETE_TODO,
+      EDIT_TODO,
+      COMPLETE_TODO,
+      COMPLETE_ALL_TODOS,
+      CLEAR_COMPLETED
+    } from '../constants/ActionTypes'
+
+    const initialState = [
+      {
+        text: 'Use Redux',
+        completed: false,
+        id: 0
+      }
+    ]
+
+    export default function todos(state = initialState, action) {
+      switch (action.type) {
+        case ADD_TODO:
+          return [
+            ...state,
+            {
+              id: state.reduce((maxId, todo) =&gt; Math.max(todo.id, maxId), -1) + 1,
+              completed: false,
+              text: action.text
+            }
+          ]
+
+        case DELETE_TODO:
+          return state.filter(todo =&gt;
+            todo.id !== action.id
+          )
+
+        case EDIT_TODO:
+          return state.map(todo =&gt;
+            todo.id === action.id ?
+              { ...todo, text: action.text } :
+              todo
+          )
+
+        case COMPLETE_TODO:
+          return state.map(todo =&gt;
+            todo.id === action.id ?
+              { ...todo, completed: !todo.completed } :
+              todo
+          )
+
+        case COMPLETE_ALL_TODOS:
+          const areAllMarked = state.every(todo =&gt; todo.completed)
+          return state.map(todo =&gt; ({
+            ...todo,
+            completed: !areAllMarked
+          }))
+
+        case CLEAR_COMPLETED:
+          return state.filter(todo =&gt; todo.completed === false)
+
+        default:
+          return state
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.spec.js</summary>
+  <pre><code class='js'>
+    import todos from './todos'
+    import * as types from '../constants/ActionTypes'
+
+    describe('todos reducer', () =&gt; {
+      it('should handle initial state', () =&gt; {
+        expect(
+          todos(undefined, {})
+        ).toEqual([
+          {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should handle ADD_TODO', () =&gt; {
+        expect(
+          todos([], {
+            type: types.ADD_TODO,
+            text: 'Run the tests'
+          })
+        ).toEqual([
+          {
+            text: 'Run the tests',
+            completed: false,
+            id: 0
+          }
+        ])
+
+        expect(
+          todos([
+            {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ], {
+            type: types.ADD_TODO,
+            text: 'Run the tests'
+          })
+        ).toEqual([
+          {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          },
+          {
+            text: 'Run the tests',
+            completed: false,
+            id: 1
+          }
+        ])
+
+        expect(
+          todos([
+            {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }, {
+              text: 'Run the tests',
+              completed: false,
+              id: 1
+            }
+          ], {
+            type: types.ADD_TODO,
+            text: 'Fix the tests'
+          })
+        ).toEqual([
+          {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          },
+          {
+            text: 'Run the tests',
+            completed: false,
+            id: 1
+          },
+          {
+            text: 'Fix the tests',
+            completed: false,
+            id: 2
+          }
+        ])
+      })
+
+      it('should handle DELETE_TODO', () =&gt; {
+        expect(
+          todos([
+            {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            },
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 1
+            }
+          ], {
+            type: types.DELETE_TODO,
+            id: 1
+          })
+        ).toEqual([
+          {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should handle EDIT_TODO', () =&gt; {
+        expect(
+          todos([
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 1
+            }, {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ], {
+            type: types.EDIT_TODO,
+            text: 'Fix the tests',
+            id: 1
+          })
+        ).toEqual([
+          {
+            text: 'Fix the tests',
+            completed: false,
+            id: 1
+          }, {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should handle COMPLETE_TODO', () =&gt; {
+        expect(
+          todos([
+            {
+              text: 'Run the tests',
+              completed: false,
+              id: 1
+            }, {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ], {
+            type: types.COMPLETE_TODO,
+            id: 1
+          })
+        ).toEqual([
+          {
+            text: 'Run the tests',
+            completed: true,
+            id: 1
+          }, {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should handle COMPLETE_ALL_TODOS', () =&gt; {
+        expect(
+          todos([
+            {
+              text: 'Run the tests',
+              completed: true,
+              id: 1
+            }, {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ], {
+            type: types.COMPLETE_ALL_TODOS
+          })
+        ).toEqual([
+          {
+            text: 'Run the tests',
+            completed: true,
+            id: 1
+          }, {
+            text: 'Use Redux',
+            completed: true,
+            id: 0
+          }
+        ])
+
+        // Unmark if all todos are currently completed
+        expect(
+          todos([
+            {
+              text: 'Run the tests',
+              completed: true,
+              id: 1
+            }, {
+              text: 'Use Redux',
+              completed: true,
+              id: 0
+            }
+          ], {
+            type: types.COMPLETE_ALL_TODOS
+          })
+        ).toEqual([
+          {
+            text: 'Run the tests',
+            completed: false,
+            id: 1
+          }, {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should handle CLEAR_COMPLETED', () =&gt; {
+        expect(
+          todos([
+            {
+              text: 'Run the tests',
+              completed: true,
+              id: 1
+            }, {
+              text: 'Use Redux',
+              completed: false,
+              id: 0
+            }
+          ], {
+            type: types.CLEAR_COMPLETED
+          })
+        ).toEqual([
+          {
+            text: 'Use Redux',
+            completed: false,
+            id: 0
+          }
+        ])
+      })
+
+      it('should not generate duplicate ids after CLEAR_COMPLETED', () =&gt; {
+        expect(
+          [
+            {
+              type: types.COMPLETE_TODO,
+              id: 0
+            }, {
+              type: types.CLEAR_COMPLETED
+            }, {
+              type: types.ADD_TODO,
+              text: 'Write more tests'
+            }
+          ].reduce(todos, [
+            {
+              id: 0,
+              completed: false,
+              text: 'Use Redux'
+            }, {
+              id: 1,
+              completed: false,
+              text: 'Write tests'
+            }
+          ])
+        ).toEqual([
+          {
+            text: 'Write tests',
+            completed: false,
+            id: 1
+          }, {
+            text: 'Write more tests',
+            completed: false,
+            id: 2
+          }
+        ])
+      })
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.js</summary>
+  <pre><code class='js'>
+    import { SET_VISIBILITY_FILTER } from '../constants/ActionTypes'
+    import { SHOW_ALL } from '../constants/TodoFilters'
+
+    const visibilityFilter = (state = SHOW_ALL, action) =&gt; {
+      switch (action.type) {
+        case SET_VISIBILITY_FILTER:
+          return action.filter
+        default:
+          return state
+      }
+    }
+
+    export default visibilityFilter
+</code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;selectors</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { createSelector } from 'reselect'
+    import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
+
+    const getVisibilityFilter = state =&gt; state.visibilityFilter
+    const getTodos = state =&gt; state.todos
+
+    export const getVisibleTodos = createSelector(
+      [getVisibilityFilter, getTodos],
+      (visibilityFilter, todos) =&gt; {
+        switch (visibilityFilter) {
+          case SHOW_ALL:
+            return todos
+          case SHOW_COMPLETED:
+            return todos.filter(t =&gt; t.completed)
+          case SHOW_ACTIVE:
+            return todos.filter(t =&gt; !t.completed)
+          default:
+            throw new Error('Unknown filter: ' + visibilityFilter)
+        }
+      }
+    )
+
+    export const getCompletedTodoCount = createSelector(
+    [getTodos],
+    todos =&gt; (
+      todos.reduce((count, todo) =&gt;
+        todo.completed ? count + 1 : count,
+        0
+      )
+    )
+  )</code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;T O D O - W I T H - U N D O</summary></details>
+  <details><summary>state</summary>
+  <pre><code class='js'>
+    {
+      visibilityFilter: 'SHOW_ALL',
+      todos: {
+        past: [
+          [],
+          [{ text: 'Use Redux' }],
+          [{ text: 'Use Redux', complete: true }]
+        ],
+        present: [
+          { text: 'Use Redux', complete: true },
+          { text: 'Implement Undo' }
+        ],
+        future: [
+          [
+            { text: 'Use Redux', complete: true },
+            { text: 'Implement Undo', complete: true }
+          ]
+        ]
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    let nextTodoId = 0
+    export const addTodo = (text) =&gt; ({
+      type: 'ADD_TODO',
+      id: nextTodoId++,
+      text
+    })
+
+    export const setVisibilityFilter = (filter) =&gt; ({
+      type: 'SET_VISIBILITY_FILTER',
+      filter
+    })
+
+    export const toggleTodo = (id) =&gt; ({
+      type: 'TOGGLE_TODO',
+      id
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import Footer from './Footer'
+    import AddTodo from '../containers/AddTodo'
+    import VisibleTodoList from '../containers/VisibleTodoList'
+    import UndoRedo from '../containers/UndoRedo'
+
+    const App = () =&gt; (
+      &lt;div&gt;
+        &lt;AddTodo /&gt;
+        &lt;VisibleTodoList /&gt;
+        &lt;Footer /&gt;
+        &lt;UndoRedo /&gt;
+      &lt;/div&gt;
+    )
+
+    export default App
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Footer.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import FilterLink from '../containers/FilterLink'
+
+    const Footer = () =&gt; (
+      &lt;p&gt;
+        Show:
+        {&quot; &quot;}
+        &lt;FilterLink filter=&quot;SHOW_ALL&quot;&gt;
+          All
+        &lt;/FilterLink&gt;
+        {&quot;, &quot;}
+        &lt;FilterLink filter=&quot;SHOW_ACTIVE&quot;&gt;
+          Active
+        &lt;/FilterLink&gt;
+        {&quot;, &quot;}
+        &lt;FilterLink filter=&quot;SHOW_COMPLETED&quot;&gt;
+          Completed
+        &lt;/FilterLink&gt;
+      &lt;/p&gt;
+    )
+
+    export default Footer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Link.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+
+    const Link = ({ active, children, onClick }) =&gt; {
+      if (active) {
+        return &lt;span&gt;{children}&lt;/span&gt;
+      }
+
+      return (
+        &lt;a href=&quot;#&quot; onClick={e =&gt; { // eslint-disable-line jsx-a11y/anchor-is-valid
+          e.preventDefault()
+          onClick()
+        }}&gt;
+          {children}
+        &lt;/a&gt;
+      )
+    }
+
+    Link.propTypes = {
+      active: PropTypes.bool.isRequired,
+      children: PropTypes.node.isRequired,
+      onClick: PropTypes.func.isRequired
+    }
+
+    export default Link
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Todo.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+
+    const Todo = ({ onClick, completed, text }) =&gt; (
+      &lt;li
+        onClick={onClick}
+        style={{
+          textDecoration: completed ? 'line-through' : 'none'
+        }}
+      &gt;
+        {text}
+      &lt;/li&gt;
+    )
+
+    Todo.propTypes = {
+      onClick: PropTypes.func.isRequired,
+      completed: PropTypes.bool.isRequired,
+      text: PropTypes.string.isRequired
+    }
+
+    export default Todo
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;TodoList.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+    import Todo from './Todo'
+
+    const TodoList = ({ todos, onTodoClick }) =&gt; (
+      &lt;ul&gt;
+        {todos.map(todo =&gt;
+          &lt;Todo
+            key={todo.id}
+            {...todo}
+            onClick={() =&gt; onTodoClick(todo.id)}
+          /&gt;
+        )}
+      &lt;/ul&gt;
+    )
+
+    TodoList.propTypes = {
+      todos: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        completed: PropTypes.bool.isRequired,
+        text: PropTypes.string.isRequired
+      }).isRequired).isRequired,
+      onTodoClick: PropTypes.func.isRequired
+    }
+
+    export default TodoList
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;AddTodo.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { connect } from 'react-redux'
+    import { addTodo } from '../actions'
+
+    let AddTodo = ({ dispatch }) =&gt; {
+      let input
+
+      return (
+        &lt;div&gt;
+          &lt;form onSubmit={e =&gt; {
+            e.preventDefault()
+            if (!input.value.trim()) {
+              return
+            }
+            dispatch(addTodo(input.value))
+            input.value = ''
+          }}&gt;
+            &lt;input ref={node =&gt; {
+              input = node
+            }} /&gt;
+            &lt;button type=&quot;submit&quot;&gt;
+              Add Todo
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      )
+    }
+    AddTodo = connect()(AddTodo)
+
+    export default AddTodo
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;FilterLink.js</summary>
+  <pre><code class='js'>
+    import { connect } from 'react-redux'
+    import { setVisibilityFilter } from '../actions'
+    import Link from '../components/Link'
+
+    const mapStateToProps = (state, ownProps) =&gt; ({
+      active: ownProps.filter === state.visibilityFilter
+    })
+
+    const mapDispatchToProps = (dispatch, ownProps) =&gt; ({
+      onClick: () =&gt; {
+        dispatch(setVisibilityFilter(ownProps.filter))
+      }
+    })
+
+    const FilterLink = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(Link)
+
+    export default FilterLink
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;UndoRedo.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { ActionCreators as UndoActionCreators } from 'redux-undo'
+    import { connect } from 'react-redux'
+
+    let UndoRedo = ({ canUndo, canRedo, onUndo, onRedo }) =&gt; (
+      &lt;p&gt;
+        &lt;button onClick={onUndo} disabled={!canUndo}&gt;
+          Undo
+        &lt;/button&gt;
+        &lt;button onClick={onRedo} disabled={!canRedo}&gt;
+          Redo
+        &lt;/button&gt;
+      &lt;/p&gt;
+    )
+
+    const mapStateToProps = (state) =&gt; ({
+      canUndo: state.todos.past.length &gt; 0,
+      canRedo: state.todos.future.length &gt; 0
+    })
+
+    const mapDispatchToProps = ({
+      onUndo: UndoActionCreators.undo,
+      onRedo: UndoActionCreators.redo
+    })
+
+    UndoRedo = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(UndoRedo)
+
+    export default UndoRedo
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;VisibleTodoList.js</summary>
+  <pre><code class='js'>
+    import { connect } from 'react-redux'
+    import { toggleTodo } from '../actions'
+    import TodoList from '../components/TodoList'
+
+    const getVisibleTodos = (todos, filter) =&gt; {
+      switch (filter) {
+        case 'SHOW_ALL':
+          return todos
+        case 'SHOW_COMPLETED':
+          return todos.filter(t =&gt; t.completed)
+        case 'SHOW_ACTIVE':
+          return todos.filter(t =&gt; !t.completed)
+        default:
+          throw new Error('Unknown filter: ' + filter)
+      }
+    }
+
+    const mapStateToProps = (state) =&gt; ({
+      todos: getVisibleTodos(state.todos.present, state.visibilityFilter)
+    })
+
+    const mapDispatchToProps = ({
+      onTodoClick: toggleTodo
+    })
+
+    const VisibleTodoList = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(TodoList)
+
+    export default VisibleTodoList
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { createStore } from 'redux'
+    import { Provider } from 'react-redux'
+    import App from './components/App'
+    import reducer from './reducers'
+
+    const store = createStore(reducer)
+
+    render(
+      &lt;Provider store={store}&gt;
+        &lt;App /&gt;
+      &lt;/Provider&gt;,
+      document.getElementById('root')
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { combineReducers } from 'redux'
+    import todos from './todos'
+    import visibilityFilter from './visibilityFilter'
+
+    const todoApp = combineReducers({
+      todos,
+      visibilityFilter
+    })
+
+    export default todoApp
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;todos.js</summary>
+  <pre><code class='js'>
+    import undoable, { distinctState } from 'redux-undo'
+
+    const todo = (state, action) =&gt; {
+      switch (action.type) {
+        case 'ADD_TODO':
+          return {
+            id: action.id,
+            text: action.text,
+            completed: false
+          }
+        case 'TOGGLE_TODO':
+          if (state.id !== action.id) {
+            return state
+          }
+
+          return {
+            ...state,
+            completed: !state.completed
+          }
+        default:
+          return state
+      }
+    }
+
+    const todos = (state = [], action) =&gt; {
+      switch (action.type) {
+        case 'ADD_TODO':
+          return [
+            ...state,
+            todo(undefined, action)
+          ]
+        case 'TOGGLE_TODO':
+          return state.map(t =&gt;
+            todo(t, action)
+          )
+        default:
+          return state
+      }
+    }
+
+    const undoableTodos = undoable(todos, { filter: distinctState() })
+
+    export default undoableTodos
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;visibilityFilter.js</summary>
+  <pre><code class='js'>
+    const visibilityFilter = (state = 'SHOW_ALL', action) =&gt; {
+      switch (action.type) {
+        case 'SET_VISIBILITY_FILTER':
+          return action.filter
+        default:
+          return state
+      }
+    }
+
+    export default visibilityFilter
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;T R E E - V I E W</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    export const INCREMENT = 'INCREMENT'
+    export const CREATE_NODE = 'CREATE_NODE'
+    export const DELETE_NODE = 'DELETE_NODE'
+    export const ADD_CHILD = 'ADD_CHILD'
+    export const REMOVE_CHILD = 'REMOVE_CHILD'
+
+    export const increment = (nodeId) =&gt; ({
+      type: INCREMENT,
+      nodeId
+    })
+
+    let nextId = 0
+    export const createNode = () =&gt; ({
+      type: CREATE_NODE,
+      nodeId: `new_${nextId++}`
+    })
+
+    export const deleteNode = (nodeId) =&gt; ({
+      type: DELETE_NODE,
+      nodeId
+    })
+
+    export const addChild = (nodeId, childId) =&gt; ({
+      type: ADD_CHILD,
+      nodeId,
+      childId
+    })
+
+    export const removeChild = (nodeId, childId) =&gt; ({
+      type: REMOVE_CHILD,
+      nodeId,
+      childId
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Node.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { Component } from 'react'
+    import { connect } from 'react-redux'
+    import * as actions from '../actions'
+
+    export class Node extends Component {
+      handleIncrementClick = () =&gt; {
+        const { increment, id } = this.props
+        increment(id)
+      }
+
+      handleAddChildClick = e =&gt; {
+        e.preventDefault()
+
+        const { addChild, createNode, id } = this.props
+        const childId = createNode().nodeId
+        addChild(id, childId)
+      }
+
+      handleRemoveClick = e =&gt; {
+        e.preventDefault()
+
+        const { removeChild, deleteNode, parentId, id } = this.props
+        removeChild(parentId, id)
+        deleteNode(id)
+      }
+
+      renderChild = childId =&gt; {
+        const { id } = this.props
+        return (
+          &lt;li key={childId}&gt;
+            &lt;ConnectedNode id={childId} parentId={id} /&gt;
+          &lt;/li&gt;
+        )
+      }
+
+      render() {
+        const { counter, parentId, childIds } = this.props
+        return (
+          &lt;div&gt;
+            Counter: {counter}
+            {' '}
+            &lt;button onClick={this.handleIncrementClick}&gt;
+              +
+            &lt;/button&gt;
+            {' '}
+            {typeof parentId !== 'undefined' &amp;&amp;
+              &lt;a href=&quot;#&quot; onClick={this.handleRemoveClick} // eslint-disable-line jsx-a11y/anchor-is-valid
+                style={{ color: 'lightgray', textDecoration: 'none' }}&gt;
+                ×
+              &lt;/a&gt;
+            }
+            &lt;ul&gt;
+              {childIds.map(this.renderChild)}
+              &lt;li key=&quot;add&quot;&gt;
+                &lt;a href=&quot;#&quot; // eslint-disable-line jsx-a11y/anchor-is-valid
+                  onClick={this.handleAddChildClick}
+                &gt;
+                  Add child
+                &lt;/a&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+        )
+      }
+    }
+
+    function mapStateToProps(state, ownProps) {
+      return state[ownProps.id]
+    }
+
+    const ConnectedNode = connect(mapStateToProps, actions)(Node)
+    export default ConnectedNode
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Node.spec.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { shallow } from 'enzyme'
+    import ConnectedNode, { Node } from './Node'
+
+    function setup(id, counter, childIds, parentId) {
+      const actions = {
+        increment: jest.fn(),
+        removeChild: jest.fn(),
+        deleteNode: jest.fn(),
+        createNode: jest.fn(),
+        addChild: jest.fn()
+      }
+
+      const eventArgs = {
+        preventDefault: jest.fn()
+      }
+
+      const component = shallow(
+        &lt;Node id={id} counter={counter} parentId={parentId} childIds={childIds} {...actions} /&gt;
+      )
+
+      return {
+        component: component,
+        removeLink: component.findWhere(n =&gt; n.type() === 'a' &amp;&amp; n.contains('×')),
+        addLink: component.findWhere(n =&gt; n.type() === 'a' &amp;&amp; n.contains('Add child')),
+        button: component.find('button'),
+        childNodes: component.find(ConnectedNode),
+        actions: actions,
+        eventArgs: eventArgs
+      }
+    }
+
+    describe('Node component', () =&gt; {
+      it('should display counter', () =&gt; {
+        const { component } = setup(1, 23, [])
+        expect(component.text()).toMatch(/^Counter: 23/)
+      })
+
+      it('should call increment on button click', () =&gt; {
+        const { button, actions } = setup(1, 23, [])
+        button.simulate('click')
+
+        expect(actions.increment).toBeCalledWith(1)
+      })
+
+      it('should not render remove link', () =&gt; {
+        const { removeLink } = setup(1, 23, [])
+        expect(removeLink.length).toEqual(0)
+      })
+
+      it('should call createNode action on Add child click', () =&gt; {
+        const { addLink, actions, eventArgs } = setup(2, 1, [])
+        actions.createNode.mockReturnValue({ nodeId: 3 })
+        addLink.simulate('click', eventArgs)
+
+        expect(actions.createNode).toBeCalled()
+      })
+
+      it('should call addChild action on Add child click', () =&gt; {
+        const { addLink, actions, eventArgs } = setup(2, 1, [])
+        actions.createNode.mockReturnValue({ nodeId: 3 })
+
+        addLink.simulate('click', eventArgs)
+
+        expect(actions.addChild).toBeCalledWith(2, 3)
+      })
+
+      describe('when given childIds', () =&gt; {
+        it('should render child nodes', () =&gt; {
+          const { childNodes } = setup(1, 23, [ 2, 3 ])
+          expect(childNodes.length).toEqual(2)
+        })
+      })
+
+      describe('when given parentId', () =&gt; {
+        it('should call removeChild action on remove link click', () =&gt; {
+          const { removeLink, actions, eventArgs } = setup(2, 1, [], 1)
+          removeLink.simulate('click', eventArgs)
+
+          expect(actions.removeChild).toBeCalledWith(1, 2)
+        })
+
+        it('should call deleteNode action on remove link click', () =&gt; {
+          const { removeLink, actions, eventArgs } = setup(2, 1, [], 1)
+          removeLink.simulate('click', eventArgs)
+
+          expect(actions.deleteNode).toBeCalledWith(2)
+        })
+      })
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;generateTree.js</summary>
+  <pre><code class='js'>
+    export default function generateTree() {
+      let tree = {
+        0: {
+          id: 0,
+          counter: 0,
+          childIds: []
+        }
+      }
+
+      for (let i = 1; i &lt; 1000; i++) {
+        let parentId = Math.floor(Math.pow(Math.random(), 2) * i)
+        tree[i] = {
+          id: i,
+          counter: 0,
+          childIds: []
+        }
+        tree[parentId].childIds.push(i)
+      }
+
+      return tree
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { createStore } from 'redux'
+    import { Provider } from 'react-redux'
+    import reducer from './reducers'
+    import generateTree from './generateTree'
+    import Node from './containers/Node'
+
+    const tree = generateTree()
+    const store = createStore(reducer, tree)
+
+    render(
+      &lt;Provider store={store}&gt;
+        &lt;Node id={0} /&gt;
+      &lt;/Provider&gt;,
+      document.getElementById('root')
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { INCREMENT, ADD_CHILD, REMOVE_CHILD, CREATE_NODE, DELETE_NODE } from '../actions'
+
+    const childIds = (state, action) =&gt; {
+      switch (action.type) {
+        case ADD_CHILD:
+          return [ ...state, action.childId ]
+        case REMOVE_CHILD:
+          return state.filter(id =&gt; id !== action.childId)
+        default:
+          return state
+      }
+    }
+
+    const node = (state, action) =&gt; {
+      switch (action.type) {
+        case CREATE_NODE:
+          return {
+            id: action.nodeId,
+            counter: 0,
+            childIds: []
+          }
+        case INCREMENT:
+          return {
+            ...state,
+            counter: state.counter + 1
+          }
+        case ADD_CHILD:
+        case REMOVE_CHILD:
+          return {
+            ...state,
+            childIds: childIds(state.childIds, action)
+          }
+        default:
+          return state
+      }
+    }
+
+    const getAllDescendantIds = (state, nodeId) =&gt; (
+      state[nodeId].childIds.reduce((acc, childId) =&gt; (
+        [ ...acc, childId, ...getAllDescendantIds(state, childId) ]
+      ), [])
+    )
+
+    const deleteMany = (state, ids) =&gt; {
+      state = { ...state }
+      ids.forEach(id =&gt; delete state[id])
+      return state
+    }
+
+    export default (state = {}, action) =&gt; {
+      const { nodeId } = action
+      if (typeof nodeId === 'undefined') {
+        return state
+      }
+
+      if (action.type === DELETE_NODE) {
+        const descendantIds = getAllDescendantIds(state, nodeId)
+        return deleteMany(state, [ nodeId, ...descendantIds ])
+      }
+
+      return {
+        ...state,
+        [nodeId]: node(state[nodeId], action)
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.spec.js</summary>
+  <pre><code class='js'>
+    import deepFreeze from 'deep-freeze'
+    import reducer from './index'
+    import { increment, createNode, deleteNode, addChild, removeChild } from '../actions'
+
+    describe('reducer', () =&gt; {
+      it('should provide the initial state', () =&gt; {
+        expect(reducer(undefined, {})).toEqual({})
+      })
+
+      it('should handle INCREMENT action', () =&gt; {
+        const stateBefore = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: []
+          }
+        }
+        const action = increment('node_0')
+        const stateAfter = {
+          'node_0': {
+            id: 'node_0',
+            counter: 1,
+            childIds: []
+          }
+        }
+
+        deepFreeze(stateBefore)
+        deepFreeze(action)
+
+        expect(reducer(stateBefore, action)).toEqual(stateAfter)
+      })
+
+      it('should handle CREATE_NODE action', () =&gt; {
+        const stateBefore = {}
+        const action = createNode()
+        const stateAfter = {
+          [action.nodeId]: {
+            id: action.nodeId,
+            counter: 0,
+            childIds: []
+          }
+        }
+
+        deepFreeze(stateBefore)
+        deepFreeze(action)
+
+        expect(reducer(stateBefore, action)).toEqual(stateAfter)
+      })
+
+      it('should handle DELETE_NODE action', () =&gt; {
+        const stateBefore = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: [ 'node_1' ]
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          },
+          'node_2': {
+            id: 'node_2',
+            counter: 0,
+            childIds: [ 'node_3', 'node_4' ]
+          },
+          'node_3': {
+            id: 'node_3',
+            counter: 0,
+            childIds: []
+          },
+          'node_4': {
+            id: 'node_4',
+            counter: 0,
+            childIds: []
+          }
+        }
+        const action = deleteNode('node_2')
+        const stateAfter = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: [ 'node_1' ]
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          }
+        }
+
+        deepFreeze(stateBefore)
+        deepFreeze(action)
+
+        expect(reducer(stateBefore, action)).toEqual(stateAfter)
+      })
+
+      it('should handle ADD_CHILD action', () =&gt; {
+        const stateBefore = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: []
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          }
+        }
+        const action = addChild('node_0', 'node_1')
+        const stateAfter = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: [ 'node_1' ]
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          }
+        }
+
+        deepFreeze(stateBefore)
+        deepFreeze(action)
+
+        expect(reducer(stateBefore, action)).toEqual(stateAfter)
+      })
+
+      it('should handle REMOVE_CHILD action', () =&gt; {
+        const stateBefore = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: [ 'node_1' ]
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          }
+        }
+        const action = removeChild('node_0', 'node_1')
+        const stateAfter = {
+          'node_0': {
+            id: 'node_0',
+            counter: 0,
+            childIds: []
+          },
+          'node_1': {
+            id: 'node_1',
+            counter: 0,
+            childIds: []
+          }
+        }
+
+        deepFreeze(stateBefore)
+        deepFreeze(action)
+
+        expect(reducer(stateBefore, action)).toEqual(stateAfter)
+      })
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;setupTests.js</summary>
+  <pre><code class='js'>
+    import { configure } from 'enzyme'
+    import Adapter from 'enzyme-adapter-react-16'
+
+    configure({ adapter: new Adapter() })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;U N I V E R S A L</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;client</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import 'babel-polyfill'
+    import React from 'react'
+    import { render } from 'react-dom'
+    import { Provider } from 'react-redux'
+    import configureStore from '../common/store/configureStore'
+    import App from '../common/containers/App'
+
+    const preloadedState = window.__PRELOADED_STATE__
+    const store = configureStore(preloadedState)
+    const rootElement = document.getElementById('app')
+
+    render(
+      &lt;Provider store={store}&gt;
+        &lt;App/&gt;
+      &lt;/Provider&gt;,
+      rootElement
+    )
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;common</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;actions</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    export const SET_COUNTER = 'SET_COUNTER'
+    export const INCREMENT_COUNTER = 'INCREMENT_COUNTER'
+    export const DECREMENT_COUNTER = 'DECREMENT_COUNTER'
+
+    export const set = (value) =&gt; ({
+      type: SET_COUNTER,
+      payload: value
+    })
+
+    export const increment = () =&gt; ({
+      type: INCREMENT_COUNTER
+    })
+
+    export const decrement = () =&gt; ({
+      type: DECREMENT_COUNTER
+    })
+
+    export const incrementIfOdd = () =&gt; (dispatch, getState) =&gt; {
+      const { counter } = getState()
+
+      if (counter % 2 === 0) {
+        return
+      }
+
+      dispatch(increment())
+    }
+
+    export const incrementAsync = (delay = 1000) =&gt; dispatch =&gt; {
+      setTimeout(() =&gt; {
+        dispatch(increment())
+      }, delay)
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;api</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;counter.js</summary>
+  <pre><code class='js'>
+    const getRandomInt = (min, max) =&gt; (
+      Math.floor(Math.random() * (max - min)) + min
+    )
+
+    export const fetchCounter = (callback) =&gt; {
+      // Rather than immediately returning, we delay our code with a timeout to simulate asynchronous behavior
+      setTimeout(() =&gt; {
+        callback(getRandomInt(1, 100))
+      }, 500)
+
+      // In the case of a real world API call, you'll normally run into a Promise like this:
+      // API.getUser().then(user =&gt; callback(user))
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;components</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;Counter.js</summary>
+  <pre><code class='js'>
+    import React from 'react'
+    import PropTypes from 'prop-types'
+
+    const Counter = ({increment, incrementIfOdd, incrementAsync, decrement, counter}) =&gt; (
+      &lt;p&gt;
+        Clicked: {counter} times
+        {' '}
+        &lt;button onClick={increment}&gt;+&lt;/button&gt;
+        {' '}
+        &lt;button onClick={decrement}&gt;-&lt;/button&gt;
+        {' '}
+        &lt;button onClick={incrementIfOdd}&gt;Increment if odd&lt;/button&gt;
+        {' '}
+        &lt;button onClick={() =&gt; incrementAsync()}&gt;Increment async&lt;/button&gt;
+      &lt;/p&gt;
+    )
+
+    Counter.propTypes = {
+      increment: PropTypes.func.isRequired,
+      incrementIfOdd: PropTypes.func.isRequired,
+      incrementAsync: PropTypes.func.isRequired,
+      decrement: PropTypes.func.isRequired,
+      counter: PropTypes.number.isRequired
+    }
+
+    export default Counter
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;containers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;App.js</summary>
+  <pre><code class='js'>
+    import { bindActionCreators } from 'redux'
+    import { connect } from 'react-redux'
+    import Counter from '../components/Counter'
+    import * as CounterActions from '../actions'
+
+    const mapStateToProps = (state) =&gt; ({
+      counter: state.counter
+    })
+
+    const mapDispatchToProps = (dispatch) =&gt; {
+      return bindActionCreators(CounterActions, dispatch)
+    }
+
+    export default connect(mapStateToProps, mapDispatchToProps)(Counter)
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;reducers</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;counter.js</summary>
+  <pre><code class='js'>
+    import { SET_COUNTER, INCREMENT_COUNTER, DECREMENT_COUNTER } from '../actions'
+
+    const counter = (state = 0, action) =&gt; {
+      switch (action.type) {
+        case SET_COUNTER:
+          return action.payload
+        case INCREMENT_COUNTER:
+          return state + 1
+        case DECREMENT_COUNTER:
+          return state - 1
+        default:
+          return state
+      }
+    }
+
+    export default counter
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    import { combineReducers } from 'redux'
+    import counter from './counter'
+
+    const rootReducer = combineReducers({
+      counter
+    })
+
+    export default rootReducer
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;store</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;configureStore.js</summary>
+  <pre><code class='js'>
+    import { createStore, applyMiddleware } from 'redux'
+    import thunk from 'redux-thunk'
+    import rootReducer from '../reducers'
+
+    const configureStore = (preloadedState) =&gt; {
+      const store = createStore(
+        rootReducer,
+        preloadedState,
+        applyMiddleware(thunk)
+      )
+
+      if (module.hot) {
+        // Enable Webpack hot module replacement for reducers
+        module.hot.accept('../reducers', () =&gt; {
+          store.replaceReducer(rootReducer)
+        })
+      }
+
+      return store
+    }
+
+    export default configureStore
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    require('./client')
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;package.json</summary>
+  <pre><code class='json'>
+    {
+      &quot;name&quot;: &quot;universal&quot;,
+      &quot;version&quot;: &quot;0.0.1&quot;,
+      &quot;private&quot;: true,
+      &quot;scripts&quot;: {
+        &quot;start&quot;: &quot;node server/index.js&quot;,
+        &quot;build&quot;: &quot;webpack&quot;
+      },
+      &quot;dependencies&quot;: {
+        &quot;babel-polyfill&quot;: &quot;^6.26.0&quot;,
+        &quot;babel-register&quot;: &quot;^6.26.0&quot;,
+        &quot;express&quot;: &quot;^4.16.4&quot;,
+        &quot;prop-types&quot;: &quot;^15.7.2&quot;,
+        &quot;qs&quot;: &quot;^6.7.0&quot;,
+        &quot;react&quot;: &quot;^16.8.6&quot;,
+        &quot;react-dom&quot;: &quot;^16.8.6&quot;,
+        &quot;react-redux&quot;: &quot;^7.0.2&quot;,
+        &quot;redux&quot;: &quot;^4.0.1&quot;,
+        &quot;redux-thunk&quot;: &quot;^2.3.0&quot;,
+        &quot;serve-static&quot;: &quot;^1.13.2&quot;
+      },
+      &quot;devDependencies&quot;: {
+        &quot;babel-core&quot;: &quot;^6.26.3&quot;,
+        &quot;babel-loader&quot;: &quot;^7.1.5&quot;,
+        &quot;babel-preset-es2015&quot;: &quot;^6.24.0&quot;,
+        &quot;babel-preset-react&quot;: &quot;^6.3.13&quot;,
+        &quot;babel-preset-react-hmre&quot;: &quot;^1.1.1&quot;,
+        &quot;babel-runtime&quot;: &quot;^6.26.0&quot;,
+        &quot;webpack&quot;: &quot;^4.30.0&quot;,
+        &quot;webpack-dev-middleware&quot;: &quot;^3.6.2&quot;,
+        &quot;webpack-hot-middleware&quot;: &quot;^2.24.3&quot;
+      }
+    }
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;server</summary></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;index.js</summary>
+  <pre><code class='js'>
+    require('babel-register')
+    require('./server')
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----&nbsp;server.js</summary>
+  <pre><code class='js'>
+    /* eslint-disable no-console, no-use-before-define */
+
+    import Express from 'express'
+    import qs from 'qs'
+
+    import webpack from 'webpack'
+    import webpackDevMiddleware from 'webpack-dev-middleware'
+    import webpackHotMiddleware from 'webpack-hot-middleware'
+    import webpackConfig from '../webpack.config'
+
+    import React from 'react'
+    import { renderToString } from 'react-dom/server'
+    import { Provider } from 'react-redux'
+
+    import configureStore from '../common/store/configureStore'
+    import App from '../common/containers/App'
+    import { fetchCounter } from '../common/api/counter'
+
+    const app = new Express()
+    const port = 3000
+
+    // Use this middleware to set up hot module reloading via webpack.
+    const compiler = webpack(webpackConfig)
+    app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: webpackConfig.output.publicPath }))
+    app.use(webpackHotMiddleware(compiler))
+
+    const handleRender = (req, res) =&gt; {
+      // Query our mock API asynchronously
+      fetchCounter(apiResult =&gt; {
+        // Read the counter from the request, if provided
+        const params = qs.parse(req.query)
+        const counter = parseInt(params.counter, 10) || apiResult || 0
+
+        // Compile an initial state
+        const preloadedState = { counter }
+
+        // Create a new Redux store instance
+        const store = configureStore(preloadedState)
+
+        // Render the component to a string
+        const html = renderToString(
+          &lt;Provider store={store}&gt;
+            &lt;App /&gt;
+          &lt;/Provider&gt;
+        )
+
+        // Grab the initial state from our Redux store
+        const finalState = store.getState()
+
+        // Send the rendered page back to the client
+        res.send(renderFullPage(html, finalState))
+      })
+    }
+
+    // This is fired every time the server side receives a request
+    app.use(handleRender)
+
+    const renderFullPage = (html, preloadedState) =&gt; {
+      return `
+        &lt;!doctype html&gt;
+        &lt;html&gt;
+          &lt;head&gt;
+            &lt;title&gt;Redux Universal Example&lt;/title&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+            &lt;div id=&quot;app&quot;&gt;${html}&lt;/div&gt;
+            &lt;script&gt;
+              window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(/&lt;/g, '\\x3c')}
+            &lt;/script&gt;
+            &lt;script src=&quot;/static/bundle.js&quot;&gt;&lt;/script&gt;
+          &lt;/body&gt;
+        &lt;/html&gt;
+        `
+    }
+
+    app.listen(port, (error) =&gt; {
+      if (error) {
+        console.error(error)
+      } else {
+        console.info(`==&gt; 🌎  Listening on port ${port}. Open up http://localhost:${port}/ in your browser.`)
+      }
+    })
+  </code></pre></details>
+  <details><summary>&nbsp;&nbsp;&nbsp;+----&nbsp;webpack.config.js</summary>
+  <pre><code class='js'>
+    var path = require('path')
+    var webpack = require('webpack')
+
+    module.exports = {
+      mode: process.env.NODE_ENV || 'development',
+      devtool: 'inline-source-map',
+      entry: [
+        'webpack-hot-middleware/client',
+        './client/index.js'
+      ],
+      output: {
+        path: path.join(__dirname, 'dist'),
+        filename: 'bundle.js',
+        publicPath: '/static/'
+      },
+      plugins: [
+        new webpack.HotModuleReplacementPlugin()
+      ],
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/,
+            include: __dirname,
+            options: {
+              presets: [ 'react-hmre' ]
+            }
+          }
+        ]
+      }
+    }
+  </code></pre></details>
+
+</body>
+</html>

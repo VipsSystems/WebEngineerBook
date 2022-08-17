@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="React tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="react, advanced, 16.8, 17, 18, js, type, strict mode, lazy, suspence, reactdomclient, domclient, client, reactdomserver, domserver, server, ReactTestUtils, jest, create react app, cra, web components, advices, optimization, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <script src="../js/react.development.js" crossorigin></script>
+  <script src="../js/react-dom.development.js" crossorigin></script>
+
+  <script src="../js/prop-types.js" crossorigin></script>
+  <script src="../js/babel.min.js" crossorigin></script>
+
+  <script src="../js/redux.js" crossorigin></script>
+  <script src="../js/react-redux.js" crossorigin></script>
+
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/chosen.jquery.min.js"></script>
+  <link rel="stylesheet" href="../css/chosen.min.css">
+
+  <script src="../js/underscore-min.js"></script>
+  <script src="../js/backbone-min.js"></script>
+
+  <title>React advanced tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="tc">Type Checking</h2>
+
+  <ul>
+    <li>use Flow or TypeScript instead of PropTypes for larger code bases</li>
+    <li><strong>Flow</strong></li>
+    <li>adding to a project
+      <ul>
+        <li>navigate to folder and run: <code>npm install --save-dev flow-bin</code> or <code>yarn add --dev flow-bin</code></li>
+        <li>add flow to the "scripts" section of package.json: { "scripts": { "flow": "flow", ... }, ... }</li>
+        <li>create a Flow configuration file that you will need to commit: <code>npm run flow init</code> or <code>yarn run flow init</code></li>
+      </ul>
+    </li>
+    <li>add flow to files with <strong>// @flow</strong> annotation at the top of a file, or confgure option to check all files regardless of the annotation, reasonable for a new project if you want to fully type it with Flow</li>
+    <li>run Flow with: <code>npm run flow</code> or <code>yarn flow</code></li>
+    <li>removing Flow syntax from the compiled code
+      <ul>
+        <li>project created with Create React App does this automatically</li>
+        <li>for Babel (without Create React App !) install a special preset for Flow: <code>npm install --save-dev babel-preset-flow</code> or <code>yarn add --dev babel-preset-flow</code> and add the flow preset to Babel configuration (.babelrc file): { "presets": [ "flow", "react" ] }</li>
+        <li>OR you can use flow-remove-types to strip the type annotations</li>
+      </ul>
+    </li>
+    <li><strong>TypeScript</strong></li>
+    <li>Create React App with TS support: <code>npx create-react-app my-app --template typescript</code></li>
+    <li>add to existing Create React App project ...</li>
+    <li>add to project: <code>npm install --save-dev typescript</code> or <code>yarn add --dev typescript</code> and add to package.json: { "scripts": { "build": "tsc", ... }, ... }</li>
+    <li>configure compiler: <code>npx tsc --init</code> or <code>yarn run tsc --init</code></li>
+    <li>place code into "src" folder and configure "rootDir" to "src" and "outDir" to "build" in tsconfig.json</li>
+    <li>use .ts and .tsx file extension for TS and JSX</li>
+    <li><code>npm run build</code> or <code>yarn build</code></li>
+    <li>add declaration files to show errors and hints from other packages
+      <ul>
+        <li>library bundles have its own declaration file</li>
+        <li><a href="https://github.com/DefinitelyTyped/DefinitelyTyped">github.com/DefinitelyTyped/DefinitelyTyped</a></li>
+        <li>React declaration file from DefinitelyTyped: <code>npm i --save-dev @types/react</code> or <code>yarn add --dev @types/react</code></li>
+        <li>declare locally own .d.ts</li>
+      </ul>
+    </li>
+    <li><strong>add the build folder to .gitignore</strong></li>
+  </ul>
+
+  <h3>PropTypes</h3>
+
+  <ul>
+    <li>React built-in typechecking abilities, exports a range of validators that can be used to make sure the data you receive is valid, only checked in development mode</li>
+    <li>React.PropTypes has moved into a different package since React v15.5, use the prop-types library instead, use <a href="https://reactjs.org/blog/2017/04/07/react-v15.5.0.html#migrating-from-reactproptypes">codemod script</a> to automate the conversion</li>
+  </ul>
+
+  <pre><code class="">
+    import PropTypes from 'prop-types';
+
+    class Greeting extends React.Component {
+      render() {
+        return (
+          &lt;h1&gt;Hello, {this.props.name}&lt;/h1&gt;
+        );
+      }
+    }
+    Greeting.propTypes = {
+      name: PropTypes.string
+    };
+
+    // --- only a single child can be passed to a component as children
+    class MyComponent extends React.Component {
+      render() {
+        // This must be exactly one element or it will warn.
+        const children = this.props.children;
+        return (
+          &lt;div&gt;
+            {children}
+          &lt;/div&gt;
+        );
+      }
+    }
+    MyComponent.propTypes = {
+      children: PropTypes.element.isRequired
+    };
+
+    // --- default values for props
+    class Greeting extends React.Component {
+      render() {
+        return (
+          &lt;h1&gt;Hello, {this.props.name}&lt;/h1&gt;
+        );
+      }
+    }
+    // Specifies the default values for props:
+    Greeting.defaultProps = {
+      name: 'Stranger'
+    };
+
+    // --- different validators provided
+    MyComponent.propTypes = {
+      // declare that a prop is a specific JS type
+      // by default, these are all optional
+      optionalArray: PropTypes.array,
+      optionalBool: PropTypes.bool,
+      optionalFunc: PropTypes.func,
+      optionalNumber: PropTypes.number,
+      optionalObject: PropTypes.object,
+      optionalString: PropTypes.string,
+      optionalSymbol: PropTypes.symbol,
+      // anything that can be rendered: numbers, strings,
+      // elements or an array (or fragment) containing these types
+      optionalNode: PropTypes.node,
+      // React element
+      optionalElement: PropTypes.element,
+      // prop is an instance of a class, this uses JS instanceof operator
+      optionalMessage: PropTypes.instanceOf(Message),
+      // ensure that prop is limited to specific values
+      // by treating it as an enum
+      optionalEnum: PropTypes.oneOf(['News', 'Photos']),
+      // one of many types
+      optionalUnion: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.instanceOf(Message)
+      ]),
+      // array of a certain type
+      optionalArrayOf: PropTypes.arrayOf(PropTypes.number),
+      // object with property values of a certain type
+      optionalObjectOf: PropTypes.objectOf(PropTypes.number),
+      // object taking on a particular shape
+      optionalObjectWithShape: PropTypes.shape({
+        color: PropTypes.string,
+        fontSize: PropTypes.number
+      }),
+      // chain any of the above with "isRequired" to make sure a warning
+      // is shown if the prop isnt provided
+      requiredFunc: PropTypes.func.isRequired,
+      // value of any data type
+      requiredAny: PropTypes.any.isRequired,
+      // specify a custom validator
+      // returns an Error object if the validation fails
+      // dont "console.warn" or throw, as this wont work inside "oneOfType"
+      customProp: function(props, propName, componentName) {
+        if (!/matchme/.test(props[propName])) {
+          return new Error(
+            'Invalid prop `' + propName + '` supplied to' +
+            ' `' + componentName + '`. Validation failed.'
+          );
+        }
+      },
+      // supply a custom validator to "arrayOf" and "objectOf"
+      // should return an Error object if the validation fails
+      // will be called for each key in the array or object
+      // first two arguments of the validator are the array or object itself
+      // and the current item key
+      customArrayProp: PropTypes.arrayOf(
+        function(propValue, key, componentName, location, propFullName
+      ) {
+        if (!/matchme/.test(propValue[key])) {
+          return new Error(
+            'Invalid prop `' + propFullName + '` supplied to' +
+            ' `' + componentName + '`. Validation failed.'
+          );
+        }
+      })
+    };
+
+    // --- Babel transform (like transform-class-properties)
+    // declare defaultProps as static property within a React component class
+    // syntax has not yet been finalized though and will require a compilation step
+    class Greeting extends React.Component {
+      static defaultProps = {
+        name: 'stranger'
+      }
+      render() {
+        return (
+          &lt;div&gt;Hello, {this.props.name}&lt;/div&gt;
+        )
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="sm">Strict Mode</h2>
+
+  <ul>
+    <li>tool for highlighting potential problems in an application, like Fragment, StrictMode does not render any visible UI, it activates additional checks and warnings for its descendants</li>
+    <li>checks are run in development mode only, do not impact the production build</li>
+    <li>helps with:
+      <ul>
+        <li>identifying unsafe lifecycles - certain legacy lifecycle methods are unsafe for use in async React applications</li>
+        <li>warning about legacy string ref API usage</li>
+        <li>warning about deprecated findDOMNode usage - attach a ref directly to a DOM node</li>
+        <li>detecting unexpected side effects</li>
+        <li>detecting legacy context API </li>
+      </ul>
+    </li>
+    <li><strong>lifecycle functions are double invoked and can cause misbehave from double binding, etc.</strong>, but this is only in development mode</li>
+  </ul>
+
+  <pre><code class="">
+    import React from 'react';
+    function ExampleApplication() {
+      return (
+        &lt;div&gt;
+          &lt;Header /&gt;
+          &lt;React.StrictMode&gt;
+            &lt;div&gt;
+              &lt;ComponentOne /&gt;
+              &lt;ComponentTwo /&gt;
+            &lt;/div&gt;
+          &lt;/React.StrictMode&gt;
+          &lt;Footer /&gt;
+        &lt;/div&gt;
+      );
+    }
+  </code></pre>
+
+
+
+<h2 id="lazy">Lazy/Suspense</h2>
+
+  <pre><code class="">
+    // --- React.lazy
+    // define a component that is loaded dynamically that arent used during the initial render
+    const OtherComponent = React.lazy(() => import('./OtherComponent'));
+    function MyComponent() {
+      return (
+        &lt;div&gt;
+          &lt;OtherComponent /&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    // --- React.Suspense
+    // show some fallback content while we are waiting for it to load
+    // "fallback" prop accepts any React elements that you want to render
+    // while waiting for the component to load
+    // place Suspense where you want to see a loading indicator,
+    // but to use lazy() wherever you want to do code splittin
+    const OtherComponent = React.lazy(() =&gt; import('./OtherComponent'));
+    const AnotherComponent = React.lazy(() =&gt; import('./AnotherComponent'));
+    function MyComponent() {
+      return (
+        &lt;div&gt;
+          &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+            &lt;section&gt;
+              &lt;OtherComponent /&gt;
+              &lt;AnotherComponent /&gt;
+            &lt;/section&gt;
+          &lt;/Suspense&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+    import React, { Suspense, lazy } from 'react';
+    const Home = lazy(() =&gt; import('./routes/Home'));
+    const About = lazy(() =&gt; import('./routes/About'));
+    const App = () =&gt; (
+      &lt;Router&gt;
+        &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+          &lt;Switch&gt;
+            &lt;Route exact path="/" component={Home}/&gt;
+            &lt;Route path="/about" component={About}/&gt;
+          &lt;/Switch&gt;
+        &lt;/Suspense&gt;
+      &lt;/Router&gt;
+    );
+
+    // create an intermediate module that reexports it as the default
+    // treeshaking keeps working and that you dont pull in unused components
+    // ManyComponents.js
+    export const MyComponent = /* ... */;
+    export const MyUnusedComponent = /* ... */;
+    // MyComponent.js
+    export { MyComponent as default } from "./ManyComponents.js";
+    // MyApp.js
+    import React, { lazy } from 'react';
+    const MyComponent = lazy(() =&gt; import("./MyComponent.js"));
+  </code></pre>
+
+
+
+<h2 id="stylecss">Styling/CSS</h2>
+
+  <ul>
+    <li>attributes
+      <ul>
+        <li><strong>className</strong> attribute - specify a CSS class</li>
+        <li><strong>style</strong> - accepts a JavaScript object with camelCased properties rather than a CSS string, most often used in React applications to add dynamically-computed styles at render time, generally not recommended as the primary mean of styling elements, className should be used, React will automatically append a "px" suffix to certain numeric inline style properties, specify the value as a string with the desired unit</li>
+      </ul>
+    </li>
+    <li><a href="https://github.com/MicheleBertoli/css-in-js">github.com/MicheleBertoli/css-in-js</a> - comparison</li>
+  </ul>
+  <!--
+  <div class="example"></div>
+  <script type="text/babel"></script>
+  -->
+  <pre><code class="">
+    // --- style
+    const divStyle = {
+      color: 'blue',
+      backgroundImage: 'url(' + imgUrl + ')',
+      WebkitTransition: 'all', // note the capital 'W' here
+      msTransition: 'all' // 'ms' is the only lowercase vendor prefix
+    };
+    function HelloWorldComponent() {
+      return &lt;div style={divStyle}&gt;Hello World!&lt;/div&gt;;
+    }
+    // Result style: '10px'
+    &lt;div style={{ height: 10 }}&gt;
+      Hello World!
+    &lt;/div&gt;
+    // Result style: '10%'
+    &lt;div style={{ height: '10%' }}&gt;
+      Hello World!
+    &lt;/div&gt;
+
+    // --- classes depends on the component props or state
+    // ...
+      render() {
+        let className = 'menu';
+        if (this.props.isActive) {
+          className += ' menu-active';
+        }
+        return &lt;span className={className}&gt;Menu&lt;/span&gt;
+      }
+    // ...
+  </code></pre>
+
+
+
+<h2 id="no_es6">without ES6/JSX</h2>
+
+  <ul>
+    <li>if you dont use ES6, use the create-react-class module, API of ES6 classes is similar to createReactClass() with a few exceptions</li>
+    <li>JSX is not a requirement for using React, convenient when you dont want to set up compilation in build environment</li>
+  </ul>
+
+  <pre><code class="">
+    // define a React component as a plain JavaScript class
+    class Greeting extends React.Component {
+      render() {
+        return &lt;h1&gt;Hello, {this.props.name}&lt;/h1&gt;;
+      }
+    }
+    // without ES6 , you may use the create-react-class module instead:
+    var createReactClass = require('create-react-class');
+    var Greeting = createReactClass({
+      render: function() {
+        return &lt;h1&gt;Hello, {this.props.name}&lt;/h1&gt;;
+      }
+    });
+
+    // --- declaring default props
+    // with functions and ES6 classes defaultProps is defined as a property
+    class Greeting extends React.Component {
+      // ...
+    }
+    Greeting.defaultProps = {
+      name: 'Mary'
+    };
+    // createReactClass(), define getDefaultProps() as a function on the passed object:
+    var Greeting = createReactClass({
+      getDefaultProps: function() {
+        return {
+          name: 'Mary'
+        };
+      },
+      // ...
+    });
+
+    // --- setting the initial state
+    // in ES6 classes define the initial state by assigning this.state in the constructor:
+    class Counter extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {count: props.initialCount};
+      }
+      // ...
+    }
+    // with createReactClass() provide a separate getInitialState
+    // that returns the initial state:
+    var Counter = createReactClass({
+      getInitialState: function() {
+        return {count: this.props.initialCount};
+      },
+      // ...
+    });
+
+    // --- autobinding
+    // in ES6 use .bind(this) in the constructor:
+    class SayHello extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {message: 'Hello!'};
+        // This line is important!
+        this.handleClick = this.handleClick.bind(this);
+      }
+      handleClick() {
+        alert(this.state.message);
+      }
+      render() {
+        // Because `this.handleClick` is bound, we can use it as an event handler.
+        return (
+          &lt;button onClick={this.handleClick}&gt;
+            Say hello
+          &lt;/button&gt;
+        );
+      }
+    }
+    // with createReactClass(), not necessary because it binds all methods:
+    var SayHello = createReactClass({
+      getInitialState: function() {
+        return {message: 'Hello!'};
+      },
+      handleClick: function() {
+        alert(this.state.message);
+      },
+      render: function() {
+        return (
+          &lt;button onClick={this.handleClick}&gt;
+            Say hello
+          &lt;/button&gt;
+        );
+      }
+    });
+    // or enable the experimental Class Properties syntax proposal with Babel:
+    class SayHello extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {message: 'Hello!'};
+      }
+      // WARNING: this syntax is experimental!
+      // Using an arrow here binds the method:
+      handleClick = () =&gt; {
+        alert(this.state.message);
+      }
+      render() {
+        return (
+          &lt;button onClick={this.handleClick}&gt;
+            Say hello
+          &lt;/button&gt;
+        );
+      }
+    }
+
+    // --- experimental mixins !!!
+    // when very different components may share some common functionality
+    // one common use case is a component wanting to update itself on a time interval
+    var SetIntervalMixin = {
+      componentWillMount: function() {
+        this.intervals = [];
+      },
+      setInterval: function() {
+        this.intervals.push(setInterval.apply(null, arguments));
+      },
+      componentWillUnmount: function() {
+        this.intervals.forEach(clearInterval);
+      }
+    };
+    var createReactClass = require('create-react-class');
+    var TickTock = createReactClass({
+      mixins: [SetIntervalMixin], // Use the mixin
+      getInitialState: function() {
+        return {seconds: 0};
+      },
+      componentDidMount: function() {
+        this.setInterval(this.tick, 1000); // Call a method on the mixin
+      },
+      tick: function() {
+        this.setState({seconds: this.state.seconds + 1});
+      },
+      render: function() {
+        return (
+          &lt;p&gt;
+            React has been running for {this.state.seconds} seconds.
+          &lt;/p&gt;
+        );
+      }
+    });
+    const rootElement = document.getElementById('example');
+    const root = createRoot(rootElement);
+    root.render(
+      &lt;TickTock /&gt;
+    );
+    // if a component is using multiple mixins
+    // and several mixins define the same lifecycle method
+    // (i.e. several mixins want to do some cleanup when the component is destroyed),
+    // all of the lifecycle methods are guaranteed to be called
+    // methods run in the order mixins were listed, followed by a method call on the component
+  </code></pre>
+
+
+
+<h2 id="reactdomclient">ReactDOMClient</h2>
+
+  <ul>
+    <li><code>react-dom/client</code> package provides client-specific methods used for initializing an app on the client, most of your components should not need to use this module</li>
+    <li>older browsers without ES5 methods support or microtasks such as Internet Explorer, apps do work in older browsers if polyfills such as es5-shim and es5-sham are included in the page</li>
+    <li>methods:
+      <ul>
+        <li><code>createRoot(container[, options])</code> - create a React root for the supplied container and return the root, root can be used to render a React element into the DOM with <code>render</code>, controls the contents of the container node you pass in, any existing DOM elements inside are replaced when render is called, does not modify the container node (only modifies the children of the container), it may be possible to insert a component to an existing DOM node without overwriting the existing children, options:
+          <ul>
+            <li><strong>onRecoverableError</strong> - optional callback called when React automatically recovers from errors</li>
+            <li><strong>identifierPrefix</strong> - optional prefix React uses for ids generated by React.useId, useful to avoid conflicts when using multiple roots on the same page, must be the same prefix used on the server</li>
+            <li>root can also be unmounted with <code>unmount</code></li>
+          </ul>
+        </li>
+        <li><code>hydrateRoot(container, element[, options])</code> - same as createRoot(), but is used to hydrate a container whose HTML contents were rendered by ReactDOMServer, React will attempt to attach event listeners to the existing markup, options:
+          <ul>
+            <li><strong>onRecoverableError</strong> - optional callback called when React automatically recovers from errors</li>
+            <li><strong>identifierPrefix</strong> - optional prefix React uses for ids generated by React.useId, useful to avoid conflicts when using multiple roots on the same page, must be the same prefix used on the serve</li>
+          </ul>
+        </li>
+        <li><code>findDOMNode(component)</code> - if this component has been mounted into the DOM, this returns the corresponding native browser DOM element, useful for reading values out of the DOM, such as form field values and performing DOM measurements, cannot be used on function components, <u>attach a ref to the DOM node and avoid using findDOMNode at all</u></li>
+        <li><code>createPortal(child, container)</code> - render children into a DOM node that exists outside the hierarchy of the DOM component</li>
+      </ul>
+    </li>
+    <li>React expects that the rendered content is identical between the server and the client. It can patch up differences in text content, but you should treat mismatches as bugs and fix them. In development mode, React warns about mismatches during hydration. There are no guarantees that attribute differences will be patched up in case of mismatches. This is important for performance reasons because in most apps, mismatches are rare, and so validating all markup would be prohibitively expensive.</li>
+  </ul>
+
+  <pre><code class="">
+    import * as ReactDOM from 'react-dom/client';
+    // if you use ES5 with npm:
+    var ReactDOM = require('react-dom/client');
+
+    const root = createRoot(container);
+    root.render(element);
+    // ...
+    root.unmount();
+  </code></pre>
+
+
+
+<h2 id="reactdomserver">ReactDOMClient</h2>
+
+  <ul>
+    <li>enables you to render components to static markup. Typically, its used on a Node server</li>
+    <li>methods available only in the environments with <a href="https://nodejs.dev/learn/nodejs-streams">Node.js Streams</a>:
+      <ul>
+        <li><code>ReactDOMServer.renderToPipeableStream(element, options)</code> - render a React element to its initial HTML, returns a stream with a <code>pipe(res)</code> method to pipe the output and <code>abort()</code> to abort the request, fully supports Suspense and streaming of HTML with "delayed" content blocks "popping in" via inline &lt;script&gt; tags later</li>
+        <li><code>ReactDOMServer.renderToStaticNodeStream(element)()</code> - render a React element to its initial HTML, returns a Node.js Readable stream that outputs an HTML string, HTML output by this stream is exactly equal to what ReactDOMServer.renderToString would return, doesn't create extra DOM attributes that React uses internally, such as data-reactroot, use this method to generate HTML on the server and send the markup down on the initial request for faster page loads and to allow search engines to crawl your pages for SEO purposes, useful if you want to use React as a simple static page generator, as stripping away the extra attributes can save some bytes</li>
+      </ul>
+    </li>
+    <li>methods are only available in the environments with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Streams_API">Web Streams</a> (this includes browsers, Deno, and some modern edge runtimes:
+      <ul>
+        <li><code>ReactDOMServer.renderToReadableStream(element, options)</code> - streams a React element to its initial HTML. Returns a Promise that resolves to a Readable Stream, fully supports Suspense and streaming of HTML</li>
+      </ul>
+    </li>
+    <li>methods used in the environments that dont support streams:
+      <ul>
+        <li><code>ReactDOMServer.renderToString(element)</code> - render a React element to its initial HTML, React will return an HTML string, use this method to generate HTML on the server and send the markup down on the initial request for faster page loads and to allow search engines to crawl your pages for SEO purposes, this API has limited Suspense support and does not support streaming, n the server, it is recommended to use either renderToPipeableStream (for Node.js) or renderToReadableStream (for Web Streams) instead.</li>
+        <li><code>ReactDOMServer.renderToStaticMarkup(element)</code> - similar to renderToString, except this doesn;t create extra DOM attributes that React uses internally, such as data-reactroot, useful if you want to use React as a simple static page generator, as stripping away the extra attributes can save some bytes</li>
+      </ul>
+    </li>
+    <li>for <strong>renderToPipeableStream(), renderToReadableStream(), renderToString()</strong> methods, if you call ReactDOM.hydrateRoot() on a node that already has this server-rendered markup, React will preserve it and only attach event handlers, allowing you to have a very performant first-load experience</li>
+    <li>if you plan to use React on the client to make the markup interactive, do not use <strong>renderToStaticNodeStream() and renderToStaticMarkup()</strong>, instead, use renderToNodeStream on the server and ReactDOM.hydrateRoot() on the client</li>
+  </ul>
+
+  <pre><code class="">
+    // ES modules
+    import * as ReactDOMServer from 'react-dom/server';
+    // CommonJS
+    var ReactDOMServer = require('react-dom/server');
+  </code></pre>
+
+  <pre><code class="">
+    let didError = false;
+    const stream = renderToPipeableStream(
+      &lt;App /&gt;,
+      {
+        onShellReady() {
+          // The content above all Suspense boundaries is ready.
+          // If something errored before we started streaming, we set the error code appropriately.
+          res.statusCode = didError ? 500 : 200;
+          res.setHeader('Content-type', 'text/html');
+          stream.pipe(res);
+        },
+        onShellError(error) {
+          // Something errored before we could complete the shell so we emit an alternative shell.
+          res.statusCode = 500;
+          res.send(
+            '&lt;!doctype html&gt;&lt;p&gt;Loading...&lt;/p&gt;&lt;script src="clientrender.js"&gt;&lt;/script&gt;'
+          );
+        },
+        onAllReady() {
+          // If you don't want streaming, use this instead of onShellReady.
+          // This will fire after the entire page content is ready.
+          // You can use this for crawlers or static generation.
+
+          // res.statusCode = didError ? 500 : 200;
+          // res.setHeader('Content-type', 'text/html');
+          // stream.pipe(res);
+        },
+        onError(err) {
+          didError = true;
+          console.error(err);
+        },
+      }
+    );
+  </code></pre>
+
+  <pre><code class="">
+    let controller = new AbortController();
+    let didError = false;
+    try {
+      let stream = await renderToReadableStream(
+        &lt;html&gt;
+          &lt;body&gt;Success&lt;/body&gt;
+        &lt;/html&gt;,
+        {
+          signal: controller.signal,
+          onError(error) {
+            didError = true;
+            console.error(error);
+          }
+        }
+      );
+      // This is to wait for all Suspense boundaries to be ready. You can uncomment
+      // this line if you want to buffer the entire HTML instead of streaming it.
+      // You can use this for crawlers or static generation:
+      // await stream.allReady;
+      return new Response(stream, {
+        status: didError ? 500 : 200,
+        headers: {'Content-Type': 'text/html'},
+      });
+    } catch (error) {
+      return new Response(
+        '&lt;!doctype html&gt;&lt;p&gt;Loading...&lt;/p&gt;&lt;script src="clientrender.js"&gt;&lt;/script&gt;',
+        {
+          status: 500,
+          headers: {'Content-Type': 'text/html'},
+        }
+      );
+    }
+  </code></pre>
+
+
+
+<h2 id="reacttest">ReactTest</h2>
+
+  <ul>
+    <li><strong>ReactTestUtils</strong> - test React components in a testing framework
+      <ul>
+        <li><code>import ReactTestUtils from 'react-dom/test-utils';</code> - ES6</li>
+        <li><code>var ReactTestUtils = require('react-dom/test-utils');</code> - ES5 with npm</li>
+        <li>dispatching DOM events only works when the DOM container is added to the document</li>
+        <li>you will need to have window, window.document and window.document.createElement globally available before you import React, otherwise React will think it cant access the DOM and methods like setState wont work</li>
+      </ul>
+    </li>
+    <li><a href="https://reactjs.org/docs/testing-recipes.html">Testing Recipes</a></li>
+    <li><a href="https://jestjs.io/docs/tutorial-react">Test React with Jest</a></li>
+    <li><strong>act()</strong> - prepare a component for assertions, wraps the code rendering it and for performing updates, makes test run closer to how React works in the browse
+      <ul>
+        <li>accepts asynchronous functions to await its call, solves cases where you couldnt use act() before, such as when the state update was inside an asynchronous function</li>
+      </ul>
+    </li>
+    <li><strong>mockComponent(componentClass[,mockTagName])</strong> - pass a mocked component module to this method to augment it with useful methods that allow it to be used as a dummy React component, instead of rendering as usual, the component will become a simple div (or other tag if mockTagName is provided) containing any provided children, <u>legacy API, use shallow rendering or jest.mock() instead</u></li>
+    <li><strong>isElement(element)</strong> - returns true, if element is any React element</li>
+    <li><strong>isElementOfType(element,componentClass)</strong> - returns true if element is a React element whose type is of a React componentClass</li>
+    <li><strong>isDOMComponent(instance)</strong> - returns true if instance is a DOM component (such as a div or span)</li>
+    <li><strong>isCompositeComponent(instance)</strong> - returns true if instance is a user-defined component, such as a class or a function</li>
+    <li><strong>isCompositeComponentWithType(instance,componentClass)</strong> - returns true if instance is a component whose type is of a React componentClass</li>
+    <li><strong>findAllInRenderedTree(tree,test)</strong> - traverse all components in tree and accumulate all components where test(component) is true, not that useful on its own, but its used as a primitive for other test utils</li>
+    <li>scryRenderedDOM<strong>ComponentsWithClass(tree,className)</strong> - finds all DOM elements of components in the rendered tree that are DOM components with the class name matching className
+      <ul>
+        <li>findRenderedDOM<strong>ComponentWithClass(tree,className)</strong> - expects one result and returns it or throws exception if there is any other number of matches besides one</li>
+      </ul>
+    </li>
+    <li>scryRenderedDOM<strong>ComponentsWithTag(tree,tagName)</strong> - finds all DOM elements of components in the rendered tree that are DOM components with the tag name matching tagName
+      <ul>
+        <li>findRenderedDOM<strong>ComponentWithTag(tree,tagName)</strong> - expects one result and returns it  or throws exception if there is any other number of matches besides one</li>
+      </ul>
+    </li>
+    <li>scryRendered<strong>ComponentsWithType(tree,componentClass)</strong> - finds all instances of components with type equal to componentClass
+      <ul>
+        <li>findRendered<strong>ComponentWithType(tree,componentClass)</strong> - expects one result and returns it or throws exception if there is any other number of matches besides one</li>
+      </ul>
+    </li>
+    <li><strong>renderIntoDocument(element)</strong> - render a React element into a detached DOM node in the document, requires a DOM, effectively equivalent to:
+      <ul>
+        <li>
+          const root = ReactDOM.createRoot(document.getElementById('root'));<br>
+          root.render(element, domContainer);
+        </li>
+      </ul>
+    </li>
+    <li><strong>Simulate.{eventName}(element[,eventData])</strong> - simulate an event dispatch on a DOM node with optional eventData event data, has a method for every event that React understands, provide any event property that you are using in component (e.g. keyCode, which, etc…)</li>
+    <li></li>
+    <li><strong>ShallowRenderer</strong> - lets you render a component "one level deep" and assert facts about what its render method returns, without worrying about the behavior of child components, which are not instantiated or rendered, does not require a DOM
+      <ul>
+        <li><strong>import ShallowRenderer from 'react-test-renderer/shallow';</strong> - ES6</li>
+        <li><strong>var ShallowRenderer = require('react-test-renderer/shallow');</strong> - ES5 with npm</li>
+        <li><strong>dont support refs</strong></li>
+      </ul>
+    </li>
+    <li><strong>shallowRenderer.render()</strong> - place to render the tested component, and from which you can extract the component output, similar to ReactDOM.createRoot() but it doesnt require DOM and only renders a single level deep, you can test components isolated from how their children are implemented</li>
+    <li><strong>shallowRenderer.getRenderOutput()</strong> - get the shallowly rendered output after shallowRenderer.render() call, begin to assert facts about the output</li>
+    <li></li>
+    <li><strong>TestRenderer</strong> - renderer that can be used to render React components to pure JS objects, without depending on the DOM or a native mobile environment, makes it easy to grab a snapshot of the platform view hierarchy (similar to a DOM tree) rendered by a React DOM or React Native component without using a browser or jsdom
+      <ul>
+        <li><strong>import TestRenderer from 'react-test-renderer';</strong> - ES6</li>
+        <li><strong>const TestRenderer = require('react-test-renderer');</strong> - ES5 with npm</li>
+      </ul>
+    </li>
+    <li>TestRenderer</li>
+    <li><strong>TestRenderer.create(element, options)</strong> - create a TestRenderer instance with the passed React element, doesnt use the real DOM, but it still fully renders the component tree into memory so you can make assertions about it, returned instance has the following methods and properties:</li>
+    <li>TestRenderer instance</li>
+    <li><strong>testRenderer.toJSON()</strong> - return an object representing the rendered tree, tree only contains the platform-specific nodes like div or View and their props, but doesnt contain any user-written components, handy for snapshot testing</li>
+    <li><strong>testRenderer.toTree()</strong> - return an object representing the rendered tree, unlike toJSON(), more detailed, and includes the user-written components, dont use unless you are writing own assertion library on top of the test renderer</li>
+    <li><strong>testRenderer.update(element)</strong> - re-render the in-memory tree with a new root element, simulates a React update at the root, if the new element has the same type and key as the previous element, the tree will be updated; otherwise, it will re-mount a new tree</li>
+    <li><strong>testRenderer.unmount()</strong> - unmount the in-memory tree, triggering the appropriate lifecycle events</li>
+    <li><strong>testRenderer.getInstance()</strong> - return the instance corresponding to the root element, if available, will not work if the root element is a function component because they dont have instances</li>
+    <li><strong>testRenderer.root</strong> - returns the root "test instance" object that is useful for making assertions about specific nodes in the tree, use it to find other "test instances" deeper below</li>
+    <li>TestInstance</li>
+    <li><strong>testInstance.find(test)</strong> - find a single descendant test instance for which test(testInstance) returns true, if test(testInstance) does not return true for exactly one test instance, it will throw an error</li>
+    <li><strong>testInstance.findByType(type)</strong> - find a single descendant test instance with the provided type, if there is not exactly one test instance with the provided type, it will throw an error</li>
+    <li><strong>testInstance.findByProps(props)</strong> - find a single descendant test instance with the provided props, if there is not exactly one test instance with the provided props, it will throw an error</li>
+    <li><strong>testInstance.findAll(test)</strong> - find all descendant test instances for which test(testInstance) returns true</li>
+    <li><strong>testInstance.findAllByType(type)</strong> - find all descendant test instances with the provided type</li>
+    <li><strong>testInstance.findAllByProps(props)</strong> - find all descendant test instances with the provided props</li>
+    <li><strong>testInstance.instance</strong> - component instance corresponding to this test instance, only available for class components, as function components dont have instances, matches the this value inside the given component</li>
+    <li><strong>testInstance.type</strong> - component type corresponding to this test instance, &lt;Button /&gt; component has a type of Button</li>
+    <li><strong>testInstance.props</strong> - props corresponding to this test instance, &lt;Button size="small" /&gt; component has {size: "small"} as props</li>
+    <li><strong>testInstance.parent</strong> - parent test instance of this test instance</li>
+    <li><strong>testInstance.children</strong> - children test instances of this test instance</li>
+    <li>you can pass createNodeMock function to TestRenderer.create as the option, which allows for custom mock refs, createNodeMock accepts the current element and should return a mock ref object, useful when you test a component that relies on refs</li>
+  </ul>
+
+  <details><summary>ReactTestUtils</summary>
+  <pre><code class="">
+    // --- COMPONENT
+    class Counter extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {count: 0};
+        this.handleClick = this.handleClick.bind(this);
+      }
+      componentDidMount() {
+        document.title = `You clicked ${this.state.count} times`;
+      }
+      componentDidUpdate() {
+        document.title = `You clicked ${this.state.count} times`;
+      }
+      handleClick() {
+        this.setState(state =&gt; ({
+          count: state.count + 1,
+        }));
+      }
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;p&gt;You clicked {this.state.count} times&lt;/p&gt;
+            &lt;button onClick={this.handleClick}&gt;
+              Click me
+            &lt;/button&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+
+    // --- HOOKS version
+    function Example() {
+      const [count, setCount] = useState(0);
+      useEffect(() => {
+        document.title = `You clicked ${count} times`;
+      });
+      return (
+        &lt;div&gt;
+          &lt;p&gt;You clicked {count} times&lt;/p&gt;
+          &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+            Click me
+          &lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    // --- TEST
+    import React from 'react';
+    import * as ReactDOM from 'react-dom/client';
+    import { act } from 'react-dom/test-utils';
+    import Counter from './Counter';
+    let container;
+    beforeEach(() =&gt; {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+    });
+    afterEach(() =&gt; {
+      document.body.removeChild(container);
+      container = null;
+    });
+    it('can render and update a counter', () =&gt; {
+      // Test first render and componentDidMount
+      act(() =&gt; {
+        const root = ReactDOM.createRoot(container);
+        root.render((&lt;Counter /&gt;);
+      });
+      const button = container.querySelector('button');
+      const label = container.querySelector('p');
+      expect(label.textContent).toBe('You clicked 0 times');
+      expect(document.title).toBe('You clicked 0 times');
+      // Test second render and componentDidUpdate
+      act(() =&gt; {
+        button.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      });
+      expect(label.textContent).toBe('You clicked 1 times');
+      expect(document.title).toBe('You clicked 1 times');
+      // asynchronous version of act, to apply resolved promises
+      await act(async () => {
+        render(&lt;User id="123" /&gt;, container);
+      });
+    });
+
+    // --- clicking an element
+    // &lt;button ref={(node) =&gt; this.button = node}&gt;...&lt;/button&gt;
+    const node = this.button;
+    ReactTestUtils.Simulate.click(node);
+
+    // --- changing the value of an input field and then pressing ENTER
+    // &lt;input ref={(node) =&gt; this.textInput = node} /&gt;
+    const node = this.textInput;
+    node.value = 'giraffe';
+    ReactTestUtils.Simulate.change(node);
+    ReactTestUtils.Simulate.keyDown(node, {key: "Enter", keyCode: 13, which: 13});
+  </code></pre></details>
+
+  <details><summary>ShallowRenderer</summary>
+  <pre><code class="">
+    // --- COMPONENT
+    function MyComponent() {
+      return (
+        &lt;div&gt;
+          &lt;span className="heading"&gt;Title&lt;/span&gt;
+          &lt;Subcomponent foo="bar" /&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    // --- ASSERT
+    import ShallowRenderer from 'react-test-renderer/shallow';
+    // in test:
+    const renderer = new ShallowRenderer();
+    renderer.render(&lt;MyComponent /&gt;);
+    const result = renderer.getRenderOutput();
+    expect(result.type).toBe('div');
+    expect(result.props.children).toEqual([
+      &lt;span className="heading"&gt;Title&lt;/span&gt;,
+      &lt;Subcomponent foo="bar" /&gt;
+    ]);
+  </code></pre></details>
+
+  <details><summary>TestRenderer</summary>
+  <pre><code class="">
+    // --- grab a snapshot
+    import TestRenderer from 'react-test-renderer';
+    function Link(props) {
+      return &lt;a href={props.page}&gt;{props.children}&lt;/a&gt;;
+    }
+    const testRenderer = TestRenderer.create(
+      &lt;Link page="https://www.facebook.com/"&gt;Facebook&lt;/Link&gt;
+    );
+    console.log(testRenderer.toJSON());
+    // { type: 'a',
+    //   props: { href: 'https://www.facebook.com/' },
+    //   children: [ 'Facebook' ] }
+
+    // --- traverse the output to find specific nodes and make assertions about them
+    import TestRenderer from 'react-test-renderer';
+    function MyComponent() {
+      return (
+        &lt;div&gt;
+          &lt;SubComponent foo="bar" /&gt;
+          &lt;p className="my"&gt;Hello&lt;/p&gt;
+        &lt;/div&gt;
+      )
+    }
+    function SubComponent() {
+      return (
+        &lt;p className="sub"&gt;Sub&lt;/p&gt;
+      );
+    }
+    const testRenderer = TestRenderer.create(&lt;MyComponent /&gt;);
+    const testInstance = testRenderer.root;
+    expect(testInstance.findByType(SubComponent).props.foo).toBe('bar');
+    expect(testInstance.findByProps({className: "sub"}).children).toEqual(['Sub']);
+
+    // ---
+    import TestRenderer from 'react-test-renderer';
+    class MyComponent extends React.Component {
+      constructor(props) {
+        super(props);
+        this.input = null;
+      }
+      componentDidMount() {
+        this.input.focus();
+      }
+      render() {
+        return &lt;input type="text" ref={el =&gt; this.input = el} /&gt;
+      }
+    }
+    let focused = false;
+    TestRenderer.create(
+      &lt;MyComponent /&gt;,
+      {
+        createNodeMock: (element) =&gt; {
+          if (element.type === 'input') {
+            // mock a focus function
+            return {
+              focus: () =&gt; {
+                focused = true;
+              }
+            };
+          }
+          return null;
+        }
+      }
+    );
+    expect(focused).toBe(true);
+  </code></pre></details>
+
+
+
+<h2 id="proj">Project Structure</h2>
+
+  <ul>
+    <li>pick any of the approaches (or come up with own) and start writing code, youll likely want to rethink it anyway, start by keeping all files in a single folder, eventually it will grow large enough that you will want to separate some files from the rest</li>
+    <li>limit yourself to a maximum of three or four nested folders within a single project, as a recommendation</li>
+    <li>colocation - keep files that often change together close to each other</li>
+  </ul>
+
+  <h3>by features or routes</h3>
+  <pre><code class="">
+    common/
+      Avatar.js
+      Avatar.css
+      APIUtils.js
+      APIUtils.test.js
+    feed/
+      index.js
+      Feed.js
+      Feed.css
+      FeedStory.js
+      FeedStory.test.js
+      FeedAPI.js
+    profile/
+      index.js
+      Profile.js
+      ProfileHeader.js
+      ProfileHeader.css
+      ProfileAPI.js
+  </code></pre>
+
+  <h3>by file type</h3>
+  <pre><code class="">
+    api/
+      APIUtils.js
+      APIUtils.test.js
+      ProfileAPI.js
+      UserAPI.js
+    components/
+      Avatar.js
+      Avatar.css
+      Feed.js
+      Feed.css
+      FeedStory.js
+      FeedStory.test.js
+      Profile.js
+      ProfileHeader.js
+      ProfileHeader.css
+  </code></pre>
+
+  <img src="../images/react-conv.png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+
+<h2 id="tools">TOOLS</h2>
+
+  <ul>
+    <li>BOILERPLATE
+      <ul>
+        <li><a href="https://github.com/iroy2000/react-redux-boilerplate">react-redux-boilerplate</a> - React, Redux, Reselect, Redux Actions, ES6, ESLint, Webpack with integrated environment config support</li>
+        <li><a href="https://github.com/gilbarbara/react-redux-saga-boilerplate">react-redux-saga-boilerplate</a> - boilerplate with react-router, redux, saga, webpack 3, jest w/ coverage and enzyme</li>
+        <li><a href="https://github.com/notrab/create-react-app-redux">Create React App + Redux + React Router</a></li>
+        <li><a href="https://github.com/react-boilerplate/react-boilerplate">react-boilerplate</a> - scalable, offline-first foundation</li>
+        <li><a href="https://github.com/rekit/rekit">rekit</a> - toolkit for building scalable web applications with React, Redux and React-router</li>
+      </ul>
+    </li>
+    <li>FRAMEWORK
+      <ul>
+        <li><a href="https://github.com/storybooks/storybook"><strong>storybook</strong></a> - development environment for UI components, dev & test: React, Angular, Vue, ...</li>
+        <li><a href="https://github.com/gatsbyjs/gatsby"><strong>gatsby</strong></a> - framework based on React, static site generator</li>
+        <li><a href="https://github.com/zeit/next.js"><strong>next.js</strong></a> - framework for server-rendered or statically-exported React apps</li>
+        <li><a href="https://backbonejs.org/">backbone.js</a> - structure to JavaScript-heavy applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to existing application over a RESTful JSON interface</li>
+      </ul>
+    </li>
+    <li>ROUTER
+      <ul>
+        <li><a href="https://github.com/remix-run/react-router"><strong>react-router</strong></a></li>
+        <li><a href="https://github.com/STRML/react-router-component">react-router-component</a></li>
+        <li><a href="https://github.com/reach/router">reach/router</a></li>
+        <li><a href="https://github.com/flatiron/director">director</a> - JS router</li>
+        <li><a href="https://github.com/stereobooster/react-snap">react-snap</a> - pre-renders a web app into static HTML, uses Headless Chrome to crawl all available links starting from the root, <u>take the pressure off the server</u></li>
+      </ul>
+    </li>
+    <li>STORE
+      <ul>
+        <li><a href="https://github.com/reduxjs/redux">redux</a> - state container for JavaScript apps</li>
+        <li><a href="https://github.com/mobxjs/mobx">mobx</a> - scalable state management</li>
+        <li><a href="https://github.com/immutable-js/immutable-js">immutable-js</a> - immutable persistent data collections</li>
+      </ul>
+    </li>
+    <li>REQUEST
+      <ul>
+        <li><a href="https://github.com/request/request"><strong>request</strong></a> - simplified HTTP request client</li>
+        <li><a href="https://github.com/mzabriskie/axios">axios</a> - promise based HTTP client for the browser and node.js</li>
+        <li><a href="https://www.apollographql.com/docs/react/">apollographql</a> - GraphQL client</li>
+      </ul>
+    </li>
+    <li>TEST
+      <ul>
+        <li><a href="https://github.com/testing-library/react-testing-library">react-testing-library</a> - complete React DOM testing utilities</li>
+        <li><a href="https://github.com/pzavolinsky/react-unit">react-unit</a> - unit test library for ReactJS</li>
+        <li><a href="https://jestjs.io/"><strong>jest</strong></a> - test all JavaScript code including React applications</li>
+        <li><a href="https://github.com/airbnb/enzyme/">enzyme</a> - testing utilities for React</li>
+      </ul>
+    </li>
+    <li>UI
+      <ul>
+        <li><a href="https://github.com/ReactTraining/react-media"><strong>react-media</strong></a> - media queries for React </li>
+        <li><a href="https://github.com/casesandberg/reactcss/">reactcss</a> - Inline Styles in JS with  Autoprefixing, Hover, Pseudo-Elements & Media Queries</li>
+        <li><a href="https://github.com/css-modules/css-modules">css-modules</a> - CSS files in which all class names and animation names are scoped locally by default</li>
+        <li><a href="https://github.com/cssinjs/jss/tree/master/packages/react-jss">react-jss</a> - use JS to describe styles</li>
+        <li><a href="https://github.com/paypal/react-engine">react-engine</a> - composite render engine for universal (isomorphic) express apps</li>
+        <li><a href="https://github.com/ryandrewjohnson/react-localize-redux">react-localize-redux</a> - localization library</li>
+        <li><a href="https://material-ui.com/"><strong>material-ui</strong></a> - React components that implement Google Material Design</li>
+        <li><a href="https://github.com/material-components/material-components-web">material-components-web</a></li>
+        <li><a href="https://github.com/video-react/video-react">video-react</a> - web video player built for the HTML5 world using React library</li>
+        <li><a href="https://www.npmjs.com/package/react-timeago">react-timeago</a> - takes a date prop and returns a span with live updating date in a time-ago format</li>
+        <li><a href="https://github.com/martinandert/react-translate-component">react-translate-component</a> - switching locales without a page reload</li>
+        <li><a href="https://github.com/chenglou/react-treeview">react-treeview</a> - treeview</li>
+        <li><a href="https://github.com/recharts/recharts">recharts</a> - redefined chart library built with React and D3</li>
+        <li><a href="https://github.com/Semantic-Org/Semantic-UI-React">Semantic-UI-React</a> - Semantic-UI-React integration</li>
+        <li><a href="https://github.com/fkhadra/react-toastify">toastify</a> - notification</li>
+        <li><a href="https://github.com/akiran/react-slick">react-slick</a> - react port of slick carousel</li>
+        <li><a href="https://github.com/JedWatson/react-select">react-select</a> - Select Component</li>
+        <li><a href="https://github.com/Hacker0x01/react-datepicker">react-datepicker</a></li>
+        <li><a href="https://github.com/react-dnd/react-dnd">react-dnd</a></li>
+        <li><a href="https://github.com/atlassian/react-beautiful-dnd">react-beautiful-dnd</a></li>
+        <li><a href="https://github.com/final-form/react-final-form">react-final-form</a></li>
+        <li><a href="https://github.com/dkozar/react-data-menu">react-data-menu</a></li>
+        <li><a href="https://github.com/react-component/">react-component</a> - React components foundation of ant.design</li>
+        <li><a href="https://github.com/elementalui/elemental">elemental</a> - React & CSS UI Framework</li>
+        <li><a href="https://github.com/grommet/grommet">grommet</a> - React-based UI framework</li>
+        <li><a href="https://onsen.io/">onsen</a> - UI components specifically designed for mobile apps</li>
+        <li><a href="https://github.com/ant-design/ant-design">ant-design</a> - enterprise-class UI design language and React implementation</li>
+        <li><a href="https://github.com/nikgraf/belle/">belle</a> - configurable React UX components</li>
+        <li><a href="https://github.com/yuanyan/halogen">halogen</a> - collection of loading spinners</li>
+        <li><a href="https://github.com/Khan/react-components"><strong>Khan/react-components</strong></a></li>
+        <li><a href="https://github.com/kis/chartify">chartify</a> - plugin for building charts using CSS</li>
+        <li><a href="https://github.com/reactstrap/reactstrap">reactstrap</a> - React Bootstrap 4 components</li>
+        <li><a href="https://github.com/react-bootstrap/react-bootstrap">react-bootstrap</a></li>
+        <li><a href="https://github.com/moroshko/react-autosuggest">react-autosuggest</a> - WAI-ARIA compliant React autosuggest component</li>
+        <li><a href="https://github.com/necolas/react-native-web">react-native-web</a> - run React Native components and APIs on the web using React DOM</li>
+      </ul>
+    </li>
+    <li>ANIMATION
+      <ul>
+        <li><a href="https://github.com/chenglou/react-motion">react-motion</a></li>
+        <li><a href="hhttps://reactcommunity.org/react-transition-group/">react-transition-group</a></li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="cra">create-react-app 4.0.3</h2>
+
+  <ul>
+
+    <li>create-react-app - global command-line utility that you use to create new projects</li>
+    <li>if you have previously installed create-react-app globally via "npm install -g create-react-app", uninstall the package using <code>npm uninstall -g create-react-app</code> to ensure that npx always uses the latest version</li>
+    <li>react-scripts - development dependency in the generated projects</li>
+    <li><code>npx create-react-app my-app</code></li>
+    <li><code>cd my-app</code></li>
+    <li><code>npm start</code> - opens http://localhost:3000/ with app, page will automatically reload if you make changes to the code, you will see the build errors and lint warnings in the console</li>
+    <li>these files <strong>must exist with exact filenames</strong>
+      <ul>
+        <li>public/index.html - page template</li>
+        <li>src/index.js - JS entry point</li>
+        <li>put any JS and CSS files inside <strong>src</strong>, otherwise Webpack wont see them, you may create subdirectories</li>
+        <li>only files inside <strong>public</strong> can be used from public/index.html (assets)</li>
+        <li>create more top-level directories, they will not be included in the production build so you can use them for things like documentation</li>
+      </ul>
+    </li>
+    <li><code>npm test</code> - remove the single build dependency, runs the test watcher in an interactive mode, by default, runs tests related to files changed since the last commit</li>
+    <li><code>npm run build</code> - create a minified bundle
+      <ul>
+        <li>build/static directory will contain JS and CSS files, each filename will contain a unique hash of the file contents - enables long term caching techniques</li>
+        <li>main.[hash].chunk.js - application code: App.js,...</li>
+        <li>[number].[hash].chunk.js - vendor code, or code splitting chunks, includes modules that imported from within node_modules</li>
+        <li>runtime~main.[hash].js - small chunk of webpack runtime logic which is used to load and run application, contents of this will be embedded in build/index.html</li>
+        <li>specify a Cache-Control header for index.html:Cache-Control:max-age=31536000 for build/static assets, and Cache-Control:no-cache for everything else is a safe and effective starting point that ensures user browser will always check for an updated index.html file, and will cache all of the build/static files for one year</li>
+      </ul>
+    </li>
+    <li><code>npm run eject</code> - copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc.) into project as dependencies in package.json (one-way operation!), instead fork react-scripts and any other packages you need</li>
+
+    <li><strong>source map explorer</strong> analyzes JS bundles using the source maps, helps you understand where code bloat is coming from
+      <ul>
+        <li><code>npm install --save source-map-explorer</code> - add Source map explorer to a CRA project</li>
+        <li>add the following line to "scripts" in package.json</li>
+        <li><code>npm run build</code> and <code>npm run analyze</code> - run the production build then run the analyze script</li>
+      </ul>
+    </li>
+
+    <li><strong>serve pages over HTTPS</strong>, set the environment variable to true
+      <ul>
+        <li><code>set HTTPS=true&&npm start</code> - Windows (cmd.exe)</li>
+        <li><code>($env:HTTPS = "true") -and (npm start)</code> - Windows (Powershell)</li>
+        <li><code>HTTPS=true npm start</code> - Linux, macOS (Bash)</li>
+      </ul>
+    </li>
+
+    <li><strong>styles and assets</strong>
+      <ul>
+        <li>put all CSS into src/index.css, imported from src/index.js, you could always remove that import if you later migrate to a different build tool</li>
+        <li>prefix imports from node_modules with ~</li>
+        <li>regular "link" stylesheets and CSS files are fully supported, "CSS Modules" are turned on for files ending with the .module.css extension</li>
+        <li>dont reuse the same CSS classes across different components</li>
+        <li>to use Sass:
+          <ul>
+            <li><code>npm install node-sass --save</code></li>
+            <li>rename src/App.css to src/App.scss</li>
+            <li>update src/App.js to import src/App.scss</li>
+            <li>this file and any other file will be automatically compiled if imported with the extension .scss or .sass</li>
+            <li>to share variables between Sass files, use Sass imports: src/App.scss and other component style files could include "@import "./shared.scss";" with variable definitions, this will allow you to do imports like:
+              <ul>
+                <li>@import 'styles/_colors.scss'; // assuming a styles directory under src/</li>
+                <li>@import '~nprogress/nprogress'; // importing a css file from the nprogress node module</li>
+                <li>node-sass also supports the SASS_PATH variable</li>
+                <li>to use imports relative to a path you specify, and from node_modules without adding the ~ prefix, you can add a .env file at the project root with the variable "SASS_PATH=node_modules:src", to specify more directories you can add them to "SASS_PATH" separated by a ":" like "path1:path2:path3"</li>
+                <li>if you set "SASS_PATH=node_modules:src", this will allow you to do imports like: "@import 'styles/colors';" OR "@import 'nprogress/nprogress';"</li>
+                <li>for windows operating system use: SASS_PATH=./node_modules;./src</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>bootstrap (pure, also try https://github.com/react-bootstrap/react-bootstrap)
+          <ul>
+            <li><code>npm install --save bootstrap</code></li>
+            <li>import Bootstrap CSS and optionally Bootstrap theme CSS in the beginning of src/index.js file: import 'bootstrap/dist/css/bootstrap.css';</li>
+            <li>put any other imports below so that CSS from components takes precedence over default styles</li>
+            <li>to customize Bootstrap, create a file called src/custom.scss (or similar) and import the Bootstrap source stylesheet, add <u>any overrides before the imported file(s)</u>: "@import '~bootstrap/scss/bootstrap.scss';" and import the newly created .scss file instead of the default Bootstrap .css in the beginning of src/index.js file: "import './custom.scss';"</li>
+          </ul>
+        </li>
+        <li>project setup uses PostCSS Normalize for adding a CSS Reset (override default browser styles), to start using it, add "@import-normalize;" once, in index.css or App.css (and duplicate imports are automatically removed)</li>
+        <li>setup minifies CSS and adds vendor prefixes to it automatically through Autoprefixer, customize target support browsers by adjusting the browserslist key in package.json, according to the "Browserslist specification"</li>
+        <li>use static assets like images and fonts works similarly to CSS, "import" a file right in a JS module, tells Webpack to include that file in the bundle, unlike CSS imports, importing a file gives you a string value, the final path you can reference in code, e.g. as the "src" attribute of an image or the "href" of a link to a PDF</li>
+        <li>Webpack finds all relative module references in CSS (they start with ./) and replaces them with the final paths from the compiled bundle (custom feature of Webpack, not required for React)</li>
+        <li><strong>import assets in JS files</strong></li>
+        <li>add other assets to the "public" folder: will <strong>not</strong> be processed by Webpack, copied into the build folder untouched
+          <ul>
+            <li>script tag with the compiled code will be added to it automatically during the build process</li>
+            <li>files with a specific name in the build output, such as manifest.webmanifest</li>
+            <li>thousands of images, and need to dynamically reference their paths</li>
+            <li>to include a small script like pace.js outside of the bundled code</li>
+            <li>some library may be incompatible with Webpack and you have no other option but to include it as a script tag</li>
+          </ul>
+        </li>
+        <li>use a special variable, to reference assets in the public folder: &lt;link rel="shortcut icon" href="<strong>%PUBLIC_URL%</strong>/favicon.ico"&gt; - substitutet with a correct absolute path</li>
+        <li>use process.env.PUBLIC_URL for similar purposes: &lt;img src={process.env.PUBLIC_URL + '/img/logo.png'} /&gt;, but this are not post-processed or minified</li>
+        <li>project setup supports code splitting via dynamic import() - takes the module name as an argument and returns a Promise which always resolves to the namespace object of the module</li>
+      </ul>
+
+    </li>
+
+    <li>install other dependencies (for example, React Router) with npm</li>
+    <li>supports ES6 modules: you can still use require() and module.exports, use import and export</li>
+    <li>absolute imports - configure jsconfig.json or tsconfig.json (baseUrl): "import Button from 'components/Button';" for module located at src/components/Button.js</li>
+    <li><strong>const $ = window.$;</strong> - use a global variable intentionally, reading the global variable explicitly from the window object, when you include a script in the HTML file that defines global variables and try to use one of these variables in the code</li>
+
+    <li><strong>Router</strong> - <code>npm install --save react-router-dom</code></li>
+
+    <li><strong>Flow</strong>
+      <ul>
+        <li><code>npm install --save flow-bin</code></li>
+        <li>add "flow":"flow" to the scripts section of package.json</li>
+        <li><code>npm run flow init</code> to create a .flowconfig file in the root directory</li>
+        <li>add "// @flow" to any files you want to type check (for example, to src/App.js)</li>
+        <li><code>npm run flow</code> - to check the files for type errors</li>
+        <li>optionally use an IDE like Nuclide for a better integrated experience</li>
+      </ul>
+    </li>
+
+    <li><strong>TypeScript</strong>
+      <ul>
+        <li><code>npx create-react-app my-app ---template typescript</code> - start a new Create React App project with TypeScript</li>
+        <li>to add TypeScript to a Create React App project
+          <ul>
+            <li><code>npm install --save typescript @types/node @types/react @types/react-dom @types/jest</code></li>
+            <li>rename any file to be a TS file (e.g. src/index.js to src/index.tsx) and restart development server!</li>
+            <li>constant enums and namespaces are not supported</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><strong>Relay</strong> - data-driven React applications powered by GraphQL
+      <ul>
+        <li><code>npm install --save babel-plugin-relay@dev</code></li>
+        <li>wherever you use the graphql template tag, import the macro:</li>
+        <li>import graphql from 'babel-plugin-relay/macro';</li>
+        <li>instead of: import { graphql } from "babel-plugin-relay"</li>
+      </ul>
+    </li>
+
+    <li><strong>graphql</strong>
+      <ul>
+        <li><code>npm install --save graphql graphql.macro</code> - to load .gql and .graphql files</li>
+        <li>import the loader from the macro package:</li>
+        <li>import { loader } from 'graphql.macro';</li>
+        <li>const query = loader('./foo.graphql');</li>
+        <li>use the "gql" template tag the same way you would use the non-macro version from "graphql-tag" package with the added benefit of inlined parsing results</li>
+      </ul>
+    </li>
+
+    <li><strong>environment variables</strong>
+      <ul>
+        <li>defined on process.env: process.env.REACT_APP_*</li>
+        <li>by default: NODE_ENV and any other environment variables starting with REACT_APP_, other variables except NODE_ENV will be ignored</li>
+        <li><strong>process.env.NODE_ENV</strong> is equal to "development" when "npm start", "test" for "npm test" and "production" when "npm run build"</li>
+        <li>embedded during the build time</li>
+        <li>project can consume variables declared in environment as if they were declared locally in JS files</li>
+        <li>create custom environment variables beginning with REACT_APP_</li>
+        <li>minification step will strip out conditions, and the resulting bundle will be smaller</li>
+        <li>adding temporary environment variables in shell
+          <ul>
+            <li><code>set "REACT_APP_NOT_SECRET_CODE=abcdef" && npm start</code> - Windows (cmd.exe)</li>
+            <li><code>($env:REACT_APP_NOT_SECRET_CODE = "abcdef") -and (npm start)</code> - Windows (Powershell)</li>
+            <li><code>REACT_APP_NOT_SECRET_CODE=abcdef npm start</code> - Linux, macOS (Bash)</li>
+          </ul>
+        </li>
+        <li>adding development environment variables in .env
+          <ul>
+            <li><strong>create a file called .env in the root of project</strong></li>
+            <li>create custom environment variables beginning with REACT_APP_</li>
+            <li>REACT_APP_NOT_SECRET_CODE=abcdef</li>
+            <li>restart the development server after changing .env files</li>
+            <li>.env files should be checked into source control (with the exclusion of .env*.local)</li>
+          </ul>
+        </li>
+        <li>.env files usage
+          <ul>
+            <li>.env - default</li>
+            <li>.env.local - local overrides, loaded for all environments except test</li>
+            <li>.env.development, .env.test, .env.production - environment-specific settings</li>
+            <li>.env.development.local, .env.test.local, .env.production.local - local overrides of environment-specific settings</li>
+          </ul>
+        </li>
+        <li>files on the left have more priority than files on the right
+          <ul>
+            <li><code>npm start</code> .env.development.local, .env.development, .env.local, .env</li>
+            <li><code>npm run build</code> - .env.production.local, .env.production, .env.local, .env</li>
+            <li><code>npm test</code> - .env.test.local, .env.test, .env (note .env.local is missing)</li>
+          </ul>
+        </li>
+        <li>expanding environment variables in .env
+          <ul>
+            <li>REACT_APP_VERSION=$npm_package_version</li>
+            <li>DOMAIN=www.example.com</li>
+            <li>REACT_APP_FOO=$DOMAIN/foo</li>
+            <li>REACT_APP_BAR=$DOMAIN/bar</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><strong>PWA</strong>
+      <ul>
+        <li>production build has all the tools necessary to generate PWA, offline/cache-first behavior is opt-in only, by default, the build process will generate a <strong>service worker file, but it will not be registered</strong>, so it will not take control of production web app</li>
+        <li>look in src/index.js, switch serviceWorker.unregister() to serviceWorker.register()</li>
+        <li>default behavior is to conservatively keep the updated service worker in the "waiting" state, users will end up seeing older content until they close (reloading is not enough) their existing, open tabs</li>
+        <li>generated service worker file will not intercept or cache any cross-origin traffic, like HTTP API requests, images, or embeds loaded from a different domain</li>
+        <li>default configuration includes a web app manifest located at public/manifest.json</li>
+      </ul>
+    </li>
+
+    <li><strong>running tests</strong>
+      <ul>
+        <li>CRA uses Jest as its test runner, tests always run in a Node environment and not in a real browser, provides browser globals such as window thanks to jsdom, they are only approximations of the real browser behavior, <u>used for unit tests</u> of logic and components rather than the DOM quirks, use a separate tool for browser end-to-end tests if you need them., they are beyond the scope of CRA</li>
+        <li>Jest will look for test files with any of the following popular naming conventions:
+          <ul>
+            <li>.js suffix in <strong>__tests__</strong> folder</li>
+            <li><strong>.test.js</strong> suffix</li>
+            <li><strong>.spec.js</strong> suffix</li>
+          </ul>
+        </li>
+        <li>.test.js / .spec.js files (or the __tests__ folders) can be located at any depth under the src top level folder</li>
+        <li><code>npm test</code> launches Jest in watch mode*, saving a file re-runs the tests, pass <code>--watchAll=false</code> flag to disable</li>
+        <li>Jest will <u>only run the tests related to files changed since the last commit</u>, press "a" in the watch mode to force Jest to run all tests</li>
+        <li>Continuous Integration (CI) : un tests once and finish the process by setting an environment variable called CI, instead of launching the watcher
+          <ul>
+            <li><code>set CI=true&&npm test</code> , <code>set CI=true&&npm run build</code> - Windows (cmd.exe)</li>
+            <li><code>($env:CI = "true") -and (npm test)</code> , <code>($env:CI = "true") -and (npm run build)</code> - Windows (Powershell)</li>
+            <li><code>CI=true npm test</code> , <code>CI=true npm run build</code> - Linux, macOS (Bash)</li>
+          </ul>
+        </li>
+        <li>if you know that <strong>none of tests depend on jsdom</strong>, you can safely set --env=node, and tests will run faster: ..."test":"react-scripts test --env=node"...</li>
+        <li>APIs that need jsdom
+          <ul>
+            <li>browser globals like window and document</li>
+            <li>ReactDOM.createRoot()</li>
+            <li>TestUtils.renderIntoDocument() (a shortcut for the above)</li>
+            <li>mount() in Enzyme</li>
+          </ul>
+        </li>
+        <li>APIs that DONT need jsdom
+          <ul>
+            <li>TestUtils.createRenderer() (shallow rendering)</li>
+            <li>shallow() in Enzyme</li>
+            <li>also not needed for snapshot testing</li>
+          </ul>
+        </li>
+        <li>debugging tests in Chrome
+          <ul>
+            <li>add to the scripts section in package.json: "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache"</li>
+            <li>place "debugger;" statements in any test</li>
+            <li><code>npm run test:debug</code></li>
+            <li>start running Jest tests, but pause before executing to allow a debugger to attach to the process</li>
+            <li>open in Chrome: about:inspect</li>
+            <li>Chrome DevTools will be displayed, select "inspect" on process and a breakpoint will be set at the first line of the react script (this is done simply to give you time to open the developer tools and to prevent Jest from executing before you have time to do so), click the button that looks like a "play" button in the upper right hand side of the screen to continue execution, when Jest executes the test that contains the debugger statement, execution will pause and you can examine the current scope and call stack</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><strong>proxying any unknown API requests</strong> to API server in development
+      <ul>
+        <li>supports HTTP, HTTPS and WebSocket, "proxy" field in package.json:  ..."proxy":"http://localhost:4000",...</li>
+        <li>when you will fetch('/api/todos') in development, server will recognize that its not a static asset, and will proxy request to http://localhost:4000/api/todos as a fallback</li>
+        <li>only has effect in development (with npm start), and it is up to you to ensure that URLs like /api/todos point to the right thing in production, you dont have to use the /api prefix, any unrecognized request without a text/html accept header will be redirected to the specified proxy</li>
+        <li>development server will only attempt to send requests without text/html in its Accept header to the proxy</li>
+        <li>this avoids CORS issues and error messages</li>
+        <li>alternatively you can:
+          <ul>
+            <li>configure the proxy yourself</li>
+            <li>enable CORS on server</li>
+            <li>use environment variables to inject the right server host and port into app</li>
+          </ul>
+        </li>
+        <li>configuring the proxy manually, it is recommended you consolidate all of logic into src/setupProxy.js
+          <ul>
+            <li><code>npm install http-proxy-middleware --save</code></li>
+            <li>create src/setupProxy.js and register proxies:</li>
+            <li>
+              const proxy = require('http-proxy-middleware');<br>
+              module.exports = function(app) {<br>
+              &nbsp;&nbsp;app.use(proxy('/api', { target: 'http://localhost:5000/' }));<br>
+              };<br>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><strong>deployment</strong>
+      <ul>
+        <li>redirect all requests to index.html, when app is with client side routing</li>
+        <li>
+          when users install app to the homescreen, default configuration will make a shortcut to /index.html, this may not work for client-side routers which expect the app to be served from /, edit the public/manifest.json and change start_url to match the required URL scheme, for example:<br>
+          "start_url": "."
+        </li>
+        <li>if required, correctly infer the root path to use in the generated HTML file, specify the homepage in package.json: "homepage": "http://mywebsite.com/relativepath"</li>
+        <li>for react-router@^4, you can root &lt;Link&gt; using the basename prop on any &lt;Router&gt;: &lt;BrowserRouter basename="/calendar"/&gt;</li>
+        <li>specify the URL from which app will be served, if you are <u>not using the HTML5 pushState history API or not using client-side routing at all</u>, make sure that all the asset paths are relative to index.html, you will then be able to move app from http://mywebsite.com to http://mywebsite.com/relativepath or even http://mywebsite.com/relative/path without having to rebuild it, in package.json: "homepage": "."</li>
+      </ul>
+    </li>
+
+    <li><strong>polyfill</strong> language features (like fetch() and Promises) as needed based on the browsers are supporting</li>
+
+  </ul>
+
+  <h3>styles and assets</h3>
+  <pre><code class="">
+    // --- Webpack custom way of "extending" the concept of import beyond JS
+    // express that a JS file depends on a CSS file, import the CSS from the JS file
+    // not required for React !
+    // makes code less portable to other build tools and environments than Webpack
+    // - Button.css
+    .Button {
+      padding: 20px;
+    }
+    // - Button.js
+    import React, { Component } from 'react';
+    import './Button.css'; // Tell Webpack that Button.js uses these styles
+    class Button extends Component {
+      render() {
+        // You can use them as regular CSS styles
+        return &lt;div className="Button" /&gt;;
+      }
+    }
+
+    // --- "CSS Modules" Stylesheet
+    // let you use the same CSS class name in different files without worrying about naming clashes.
+    // alongside regular stylesheets using the [name].module.css file naming convention.
+    // modules allows the scoping of CSS by automatically,
+    // creating a unique classname of the format [filename]\_[classname]\_\_[hash]
+    // - Button.module.css
+    .error {
+      background-color: red;
+    }
+    // - another-stylesheet.css
+    .error {
+      color: red;
+    // - Button.js
+    import React, { Component } from 'react';
+    import styles from './Button.module.css'; // Import css modules stylesheet as styles
+    import './another-stylesheet.css'; // Import regular stylesheet
+    class Button extends Component {
+      render() {
+        // reference as a js object
+        return &lt;button className={styles.error}&gt;Error Button&lt;/button&gt;;
+      }
+    }
+
+    // --- importing images that are less than 10,000 bytes returns a data URI
+    // instead of a path
+    // applies to the following file extensions: bmp, gif, jpg, jpeg, png
+    import React from 'react';
+    import logo from './logo.png'; // Tell Webpack this JS file uses this image
+    console.log(logo); // /logo.84287d09.png
+    function Header() {
+      // Import result is the URL of image
+      return &lt;img src={logo} alt="Logo" /&gt;;
+    }
+    export default Header;
+    // - for css:
+    .Logo {
+      background-image: url(./logo.png);
+    }
+
+    // --- import SVGs directly as React components
+    // curly braces in the import
+    // tells CRA about React component that renders an SVG, rather than its filename
+    import { ReactComponent as Logo } from './logo.svg';
+    const App = () =&gt; (
+      &lt;div&gt;
+        {/* Logo is an actual React component */}
+        &lt;Logo /&gt;
+      &lt;/div&gt;
+    );
+
+    // --- code splitting, module exports
+    // this will make moduleA.js and all its unique dependencies as a separate chunk
+    // that only loads after the user clicks the 'Load' button
+    // use it with async / await syntax if you prefer it
+    // - moduleA.js
+    const moduleA = 'Hello';
+    export { moduleA };
+    // - App.js
+    import React, { Component } from 'react';
+    class App extends Component {
+      handleClick = () =&gt; {
+        import('./moduleA')
+          .then(({ moduleA }) =&gt; {
+            // Use moduleA
+          })
+          .catch(err =&gt; {
+            // Handle failure
+          });
+      };
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;button onClick={this.handleClick}&gt;Load&lt;/button&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+    export default App;
+  </code></pre>
+
+  <h3>adjust various dev/prod settings with environment variables in shell or within .env file</h3>
+  <table>
+    <thead>
+    <tr>
+    <th align="left">Variable</th>
+    <th align="center">Development</th>
+    <th align="center">Production</th>
+    <th align="left">Usage</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td align="left">BROWSER</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">By default, Create React App will open the default system browser, favoring Chrome on macOS. Specify a <a href="https://github.com/sindresorhus/open#app">browser</a> to override this behavior, or set it to <code>none</code> to disable it completely. If you need to customize the way the browser is launched, you can specify a node script instead. Any arguments passed to <code>npm start</code> will also be passed to this script, and the url where your app is served will be the last argument. Your script's file name must have the <code>.js</code> extension.</td>
+    </tr>
+    <tr>
+    <td align="left">BROWSER_ARGS</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When the <code>BROWSER</code> environment variable is specified, any arguments that you set to this environment variable will be passed to the browser instance. Multiple arguments are supported as a space separated list. By default, no arguments are passed through to browsers.</td>
+    </tr>
+    <tr>
+    <td align="left">HOST</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">By default, the development web server binds to all hostnames on the device (<code>localhost</code>, LAN network address, etc.). You may use this variable to specify a different host.</td>
+    </tr>
+    <tr>
+    <td align="left">PORT</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">By default, the development web server will attempt to listen on port 3000 or prompt you to attempt the next available port. You may use this variable to specify a different port.</td>
+    </tr>
+    <tr>
+    <td align="left">HTTPS</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set to <code>true</code>, Create React App will run the development server in <code>https</code> mode.</td>
+    </tr>
+    <tr>
+    <td align="left">WDS_SOCKET_HOST</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set, Create React App will run the development server with a custom websocket hostname for hot module reloading. Normally, <code>webpack-dev-server</code> defaults to <code>window.location.hostname</code> for the SockJS hostname. You may use this variable to start local development on more than one Create React App project at a time. See <a href="https://webpack.js.org/configuration/dev-server/#devserversockhost" rel="nofollow">webpack-dev-server documentation</a> for more details.</td>
+    </tr>
+    <tr>
+    <td align="left">WDS_SOCKET_PATH</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set, Create React App will run the development server with a custom websocket path for hot module reloading. Normally, <code>webpack-dev-server</code> defaults to <code>/ws</code> for the SockJS pathname. You may use this variable to start local development on more than one Create React App project at a time. See <a href="https://webpack.js.org/configuration/dev-server/#devserversockpath" rel="nofollow">webpack-dev-server documentation</a> for more details.</td>
+    </tr>
+    <tr>
+    <td align="left">WDS_SOCKET_PORT</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set, Create React App will run the development server with a custom websocket port for hot module reloading. Normally, <code>webpack-dev-server</code> defaults to <code>window.location.port</code> for the SockJS port. You may use this variable to start local development on more than one Create React App project at a time. See <a href="https://webpack.js.org/configuration/dev-server/#devserversockport" rel="nofollow">webpack-dev-server documentation</a> for more details.</td>
+    </tr>
+    <tr>
+    <td align="left">PUBLIC_URL</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">Create React App assumes your application is hosted at the serving web server's root or a subpath as specified in <a href="/facebook/create-react-app/blob/main/docusaurus/docs/deployment#building-for-relative-paths"><code>package.json</code> (<code>homepage</code>)</a>. Normally, Create React App ignores the hostname. You may use this variable to force assets to be referenced verbatim to the url you provide (hostname included). This may be particularly useful when using a CDN to host your application.</td>
+    </tr>
+    <tr>
+    <td align="left">BUILD_PATH</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="center">✅ Used</td>
+    <td align="left">By default, Create React App will output compiled assets to a <code>/build</code> directory adjacent to your <code>/src</code>. You may use this variable to specify a new path for Create React App to output assets. BUILD_PATH should be specified as a path relative to the root of your project.</td>
+    </tr>
+    <tr>
+    <td align="left">CI</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">When set to <code>true</code>, Create React App treats warnings as failures in the build. It also makes the test runner non-watching. Most CIs set this flag by default.</td>
+    </tr>
+    <tr>
+    <td align="left">REACT_EDITOR</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When an app crashes in development, you will see an error overlay with clickable stack trace. When you click on it, Create React App will try to determine the editor you are using based on currently running processes, and open the relevant source file. You can <a href="https://github.com/facebook/create-react-app/issues/2636" data-hovercard-type="issue" data-hovercard-url="/facebook/create-react-app/issues/2636/hovercard">send a pull request to detect your editor of choice</a>. Setting this environment variable overrides the automatic detection. If you do it, make sure your systems <a href="https://en.wikipedia.org/wiki/PATH_(variable)" rel="nofollow">PATH</a> environment variable points to your editor's bin folder. You can also set it to <code>none</code> to disable it completely.</td>
+    </tr>
+    <tr>
+    <td align="left">CHOKIDAR_USEPOLLING</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set to <code>true</code>, the watcher runs in polling mode, as necessary inside a VM. Use this option if <code>npm start</code> isn't detecting changes.</td>
+    </tr>
+    <tr>
+    <td align="left">GENERATE_SOURCEMAP</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="center">✅ Used</td>
+    <td align="left">When set to <code>false</code>, source maps are not generated for a production build. This solves out of memory (OOM) issues on some smaller machines.</td>
+    </tr>
+    <tr>
+    <td align="left">INLINE_RUNTIME_CHUNK</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="center">✅ Used</td>
+    <td align="left">By default, Create React App will embed the runtime script into <code>index.html</code> during the production build. When set to <code>false</code>, the script will not be embedded and will be imported as usual. This is normally required when dealing with CSP.</td>
+    </tr>
+    <tr>
+    <td align="left">IMAGE_INLINE_SIZE_LIMIT</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">By default, images smaller than 10,000 bytes are encoded as a data URI in base64 and inlined in the CSS or JS build artifact. Set this to control the size limit in bytes. Setting it to <code>0</code> will disable the inlining of images.</td>
+    </tr>
+    <tr>
+    <td align="left">FAST_REFRESH</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set to <code>false</code>, disables experimental support for Fast Refresh to allow you to tweak your components in real time without reloading the page.</td>
+    </tr>
+    <tr>
+    <td align="left">TSC_COMPILE_ON_ERROR</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">When set to <code>true</code>, you can run and properly build TypeScript projects even if there are TypeScript type check errors. These errors are printed as warnings in the terminal and/or browser console.</td>
+    </tr>
+    <tr>
+    <td align="left">ESLINT_NO_DEV_ERRORS</td>
+    <td align="center">✅ Used</td>
+    <td align="center">🚫 Ignored</td>
+    <td align="left">When set to <code>true</code>, ESLint errors are converted to warnings during development. As a result, ESLint output will no longer appear in the error overlay.</td>
+    </tr>
+    <tr>
+    <td align="left">DISABLE_ESLINT_PLUGIN</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">When set to <code>true</code>, <a href="https://github.com/webpack-contrib/eslint-webpack-plugin">eslint-webpack-plugin</a> will be completely disabled.</td>
+    </tr>
+    <tr>
+    <td align="left">DISABLE_NEW_JSX_TRANSFORM</td>
+    <td align="center">✅ Used</td>
+    <td align="center">✅ Used</td>
+    <td align="left">When set to <code>true</code>, disables the <a href="https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html" rel="nofollow">new JSX transform</a> introduced in React 17 and backported to React 16.14.0, 15.7.0, and 0.14.10. New projects will use a version of React that supports this by default but you may need to disable it in existing projects if you can't upgrade React.</td>
+    </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="webc">+ WebComponents</h2>
+
+  <ul>
+    <li>React and Web Components are built to solve different problems, Web Components provide strong encapsulation for reusable components, while React provides a declarative library that keeps the DOM in sync with data</li>
+    <li>use a "ref" to interact with the DOM node directly and use imperative API, for instance, a video Web Component might expose play() and pause() functions</li>
+    <li>for hird-party Web Components, the best solution is to write a React component that behaves as a wrapper for Web Component</li>
+    <li>events emitted by a Web Component may not properly propagate through a React render tree, attach manually event handlers to handle these events within React components</li>
+  </ul>
+
+  <pre><code class="">
+    // --- Web Components in React
+    class HelloMessage extends React.Component {
+      render() {
+        return &lt;div&gt;Hello &lt;x-search&gt;{this.props.name}&lt;/x-search&gt;!&lt;/div&gt;;
+      }
+    }
+
+    // --- React in Web Components
+    // this code will not work if you transform classes with Babel
+    // include the custom-elements-es5-adapter
+    // before you load web components to fix this issue
+    class XSearch extends HTMLElement {
+      connectedCallback() {
+        const mountPoint = document.createElement('span');
+        this.attachShadow({ mode: 'open' }).appendChild(mountPoint);
+        const name = this.getAttribute('name');
+        const url = 'https://www.google.com/search?q=' + encodeURIComponent(name);
+        const root = createRoot(mountPoint);
+        root.render(
+          &lt;a href={url}&gt;{name}&lt;/a&gt;
+        );
+      }
+    }
+    customElements.define('x-search', XSearch);
+  </code></pre>
+
+
+
+<h2 id="integration">+ Other Libs</h2>
+
+  <details><summary>jQuery</summary>
+  <div class="example h-10" id="jq_root"></div>
+  <style>
+    .Chosen-select,
+    .chosen-container,
+    .chosen-container-single
+    .chosen-container-active {
+      width: 150px !important;
+    }
+  </style>
+  <script type="text/babel">
+    class JqChosen extends React.Component {
+      componentDidMount() {
+        this.$el = $(this.el);
+        this.$el.chosen();
+        this.handleChange = this.handleChange.bind(this);
+        this.$el.on('change', this.handleChange);
+      }
+      componentDidUpdate(prevProps) {
+        if (prevProps.children !== this.props.children) {
+          this.$el.trigger("chosen:updated");
+        }
+      }
+      componentWillUnmount() {
+        this.$el.off('change', this.handleChange);
+        this.$el.chosen('destroy');
+      }
+      handleChange(e) {
+        this.props.onChange(e.target.value);
+      }
+      render() {
+        return (
+          <div>
+            <select className="Chosen-select" ref={el => this.el = el}>
+              {this.props.children}
+            </select>
+          </div>
+        );
+      }
+    }
+    function JqExample() {
+      return (
+        <JqChosen onChange={value => console.log(value)}>
+          <option>vanilla</option>
+          <option>chocolate</option>
+          <option>strawberry</option>
+        </JqChosen>
+      );
+    }
+    const jq_root = ReactDOM.createRoot(document.getElementById('jq_root'));
+    jq_root.render(
+      <JqExample />
+    );
+  </script>
+  <pre><code class="">
+    // easiest way to avoid conflicts is to prevent the React component from updating,
+    // you can do this by rendering elements that React has no reason to update, like an empty div
+    // attach a ref to the root DOM element
+    // inside componentDidMount get a reference to it to pass to the jQuery plugin
+    class SomePlugin extends React.Component {
+      componentDidMount() {
+        this.$el = $(this.el);
+        this.$el.somePlugin();
+      }
+      componentWillUnmount() {
+        this.$el.somePlugin('destroy');
+      }
+      render() {
+        return &lt;div ref={el =&gt; this.el = el} /&gt;;
+      }
+    }
+    // --- integrating with jquery "Chosen" plugin
+    // implement it as an uncontrolled component for simplicity
+    class JqChosen extends React.Component {
+      componentDidMount() {
+        this.$el = $(this.el);
+        this.$el.chosen();
+        this.handleChange = this.handleChange.bind(this);
+        this.$el.on('change', this.handleChange);
+      }
+      componentDidUpdate(prevProps) {
+        if (prevProps.children !== this.props.children) {
+          this.$el.trigger("chosen:updated");
+        }
+      }
+      componentWillUnmount() {
+        this.$el.off('change', this.handleChange);
+        this.$el.chosen('destroy');
+      }
+      handleChange(e) {
+        this.props.onChange(e.target.value);
+      }
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;select className="Chosen-select" ref={el =&gt; this.el = el}&gt;
+              {this.props.children}
+            &lt;/select&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+    function JqExample() {
+      return (
+        &lt;JqChosen onChange={value =&gt; console.log(value)}&gt;
+          &lt;option&gt;vanilla&lt;/option&gt;
+          &lt;option&gt;chocolate&lt;/option&gt;
+          &lt;option&gt;strawberry&lt;/option&gt;
+        &lt;/JqChosen&gt;
+      );
+    }
+    const jq_root = ReactDOM.createRoot(document.getElementById('jq_root'));
+    jq_root.render(
+      &lt;JqExample /&gt;
+    );
+  </code></pre></details>
+
+  <details><summary>other view libraries</summary>
+  <pre><code class="">
+    // following jQuery implementation ...
+    $('#container').html('&lt;button id="btn"&gt;Say Hello&lt;/button&gt;');
+    $('#btn').click(function() {
+      alert('Hello!');
+    });
+    // ... could be rewritten using a React component:
+    function Button() {
+      return &lt;button id="btn"&gt;Say Hello&lt;/button&gt;;
+    }
+    $('#btn').click(function() {
+      alert('Hello!');
+    });
+    const root = ReactDOM.createRoot(document.getElementById('container'));
+    root.render(&lt;Button /&gt;);
+
+    // --- dont rely on IDs because the same component can be rendered multiple times
+    // register the click handler directly on the React button element
+    function Button(props) {
+      return &lt;button onClick={props.onClick}&gt;Say Hello&lt;/button&gt;;
+    }
+    function HelloButton() {
+      function handleClick() {
+        alert('Hello!');
+      }
+      return &lt;Button onClick={handleClick} /&gt;;
+    }
+    const root = ReactDOM.createRoot(document.getElementById('container'));
+    root.render(&lt;HelloButton /&gt;);
+
+    // --- embedding react in a backbone view
+    // create a Backbone view called ParagraphView
+    // will override Backbone render() function to render a React Paragraph-component
+    // into the DOM element provided by Backbone (this.el)
+    function Paragraph(props) {
+      return &lt;p&gt;{props.text}&lt;/p&gt;;
+    }
+    const ParagraphView = Backbone.View.extend({
+      initialize(options) {
+        this.reactRoot = ReactDOM.createRoot(this.el);
+      },
+      render() {
+        const text = this.model.get('text');
+        this.reactRoot.render(&lt;Paragraph text={text} /&gt;);
+        return this;
+      },
+      remove() {
+        this.reactRoot.unmount();
+        Backbone.View.prototype.remove.call(this);
+      }
+    });
+  </code></pre></details>
+
+  <details><summary>integrating with model layers</summary>
+  <div  id="ml_root_1" class="example w-50"></div>
+  <div  id="ml_root_2" class="example w-50"></div>
+  <script type="text/babel">
+    class Item extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
+      }
+      handleChange() {
+        this.forceUpdate();
+      }
+      componentDidMount() {
+        this.props.model.on('change', this.handleChange);
+      }
+      componentWillUnmount() {
+        this.props.model.off('change', this.handleChange);
+      }
+      render() {
+        return <li>{this.props.model.get('text')}</li>;
+      }
+    }
+    class List extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange();
+      }
+      handleChange() {
+        this.forceUpdate();
+      }
+      componentDidMount() {
+        this.props.collection.on('add', 'remove', this.handleChange);
+      }
+      componentWillUnmount() {
+        this.props.collection.off('add', 'remove', this.handleChange);
+      }
+      render() {
+        return (
+          <ul>
+            {this.props.collection.map(model => (
+              <Item key={model.cid} model={model} />
+            ))}
+          </ul>
+        );
+      }
+    }
+    const collection = new Backbone.Collection([
+      new Backbone.Model({ text: 'A' }),
+      new Backbone.Model({ text: 'B' }),
+      new Backbone.Model({ text: 'C' })
+    ]);
+    const ml_root_1 = ReactDOM.createRoot(document.getElementById('ml_root_1'));
+    ml_root_1.render(<List collection={collection} />);
+
+    // --- --- ---
+
+    function connectToBackboneModel(WrappedComponent) {
+      return class BackboneComponent extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = Object.assign({}, props.model.attributes);
+          this.handleChange = this.handleChange.bind(this);
+        }
+        componentDidMount() {
+          this.props.model.on('change', this.handleChange);
+        }
+        componentWillReceiveProps(nextProps) {
+          this.setState(Object.assign({}, nextProps.model.attributes));
+          if (nextProps.model !== this.props.model) {
+            this.props.model.off('change', this.handleChange);
+            nextProps.model.on('change', this.handleChange);
+          }
+        }
+        componentWillUnmount() {
+          this.props.model.off('change', this.handleChange);
+        }
+        handleChange(model) {
+          this.setState(model.changedAttributes());
+        }
+        render() {
+          const propsExceptModel = Object.assign({}, this.props);
+          delete propsExceptModel.model;
+          return <WrappedComponent {...propsExceptModel} {...this.state} />;
+        }
+      }
+    }
+
+    function NameInput(props) {
+      return (
+        <p>
+          <input value={props.firstName} onChange={props.handleChange} />
+          <br />
+          My name is {props.firstName}.
+        </p>
+      );
+    }
+    const BackboneNameInput = connectToBackboneModel(NameInput);
+    function Example(props) {
+      function handleChange(e) {
+        props.model.set('firstName', e.target.value);
+      }
+      return (
+        <BackboneNameInput
+          model={props.model}
+          handleChange={handleChange}
+        />
+      );
+    }
+    const model = new Backbone.Model({ firstName: 'Frodo' });
+    const ml_root_2 = ReactDOM.createRoot(document.getElementById('ml_root_2'));
+    ml_root_2.render(<Example model={model} />);
+  </script>
+
+  <pre><code class="">
+    // --- using backbone models in react components
+    // simplest way to consume Backbone models and collections from a React component
+    // is to listen to the various change events and manually force an update.
+    // List component renders a Backbone collection,
+    // using the Item component to render individual items:
+    class Item extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
+      }
+      handleChange() {
+        this.forceUpdate();
+      }
+      componentDidMount() {
+        this.props.model.on('change', this.handleChange);
+      }
+      componentWillUnmount() {
+        this.props.model.off('change', this.handleChange);
+      }
+      render() {
+        return &lt;li&gt;{this.props.model.get('text')}&lt;/li&gt;;
+      }
+    }
+    class List extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange();
+      }
+      handleChange() {
+        this.forceUpdate();
+      }
+      componentDidMount() {
+        this.props.collection.on('add', 'remove', this.handleChange);
+      }
+      componentWillUnmount() {
+        this.props.collection.off('add', 'remove', this.handleChange);
+      }
+      render() {
+        return (
+          &lt;ul&gt;
+            {this.props.collection.map(model =&gt; (
+              &lt;Item key={model.cid} model={model} /&gt;
+            ))}
+          &lt;/ul&gt;
+        );
+      }
+    }
+    const collection = new Backbone.Collection([
+      new Backbone.Model({ text: 'A' }),
+      new Backbone.Model({ text: 'B' }),
+      new Backbone.Model({ text: 'C' })
+    ]);
+    const ml_root_1 = ReactDOM.createRoot(document.getElementById('ml_root_1'));
+    ml_root_1.render(&lt;List collection={collection} /&gt;);
+
+    // --- extracting data from backbone models
+    // concentrate the knowledge about Backbone in as few parts of the code as possible
+    // if you later plan to migrate to another data management solution
+    // use HOC that extracts all attributes of a Backbone model into state,
+    // passing the data to the wrapped component
+    function connectToBackboneModel(WrappedComponent) {
+      return class BackboneComponent extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = Object.assign({}, props.model.attributes);
+          this.handleChange = this.handleChange.bind(this);
+        }
+        componentDidMount() {
+          this.props.model.on('change', this.handleChange);
+        }
+        componentWillReceiveProps(nextProps) {
+          this.setState(Object.assign({}, nextProps.model.attributes));
+          if (nextProps.model !== this.props.model) {
+            this.props.model.off('change', this.handleChange);
+            nextProps.model.on('change', this.handleChange);
+          }
+        }
+        componentWillUnmount() {
+          this.props.model.off('change', this.handleChange);
+        }
+        handleChange(model) {
+          this.setState(model.changedAttributes());
+        }
+        render() {
+          const propsExceptModel = Object.assign({}, this.props);
+          delete propsExceptModel.model;
+          return &lt;WrappedComponent {...propsExceptModel} {...this.state} /&gt;;
+        }
+      }
+    }
+
+    function NameInput(props) {
+      return (
+        &lt;p&gt;
+          &lt;input value={props.firstName} onChange={props.handleChange} /&gt;
+          &lt;br /&gt;
+          My name is {props.firstName}.
+        &lt;/p&gt;
+      );
+    }
+    const BackboneNameInput = connectToBackboneModel(NameInput);
+    function Example(props) {
+      function handleChange(e) {
+        props.model.set('firstName', e.target.value);
+      }
+      return (
+        &lt;BackboneNameInput
+          model={props.model}
+          handleChange={handleChange}
+        /&gt;
+      );
+    }
+    const model = new Backbone.Model({ firstName: 'Frodo' });
+    const ml_root_2 = ReactDOM.createRoot(document.getElementById('ml_root_2'));
+    ml_root_2.render(&lt;Example model={model} /&gt;);
+  </code></pre></details>
+
+
+
+<h2 id="adv">Advices</h2>
+
+  <ul>
+    <li>break the UI into a component hierarchy - component should ideally only do one thing, if it ends up growing, it should be decomposed into smaller subcomponents</li>
+    <li>build a static version in react to create a library of reusable components that render data model  and test with input values, use props only, and state when you add future interactivity</li>
+    <li>identify the minimal (but complete) representation of UI state - store and use wisely</li>
+    <li>identify where state should live
+      <ul>
+        <li>identify every component that renders something based on that state</li>
+        <li>find a common owner component (a single component above all the components that need the state in the hierarchy)</li>
+        <li>either the common owner or another component higher up in the hierarchy should own the state</li>
+        <li>if you cant find a component where it makes sense to own the state, create a new component simply for holding the state and add it somewhere in the hierarchy above the common owner component</li>
+      </ul>
+    </li>
+    <li>add inverse data flow</li>
+  </ul>
+
+  <details><summary>Example</summary>
+  <div class="example" id="adv_root"></div>
+  <script type="text/babel">
+    class ProductCategoryRow extends React.Component {
+      render() {
+        const category = this.props.category;
+        return (
+          <tr>
+            <th colSpan="2">
+              {category}
+            </th>
+          </tr>
+        );
+      }
+    }
+
+    class ProductRow extends React.Component {
+      render() {
+        const product = this.props.product;
+        const name = product.stocked ?
+          product.name :
+          <span style={{color: 'red'}}>
+            {product.name}
+          </span>;
+
+        return (
+          <tr>
+            <td>{name}</td>
+            <td>{product.price}</td>
+          </tr>
+        );
+      }
+    }
+
+    class ProductTable extends React.Component {
+      render() {
+        const filterText = this.props.filterText;
+        const inStockOnly = this.props.inStockOnly;
+
+        const rows = [];
+        let lastCategory = null;
+
+        this.props.products.forEach((product) => {
+          if (product.name.indexOf(filterText) === -1) {
+            return;
+          }
+          if (inStockOnly && !product.stocked) {
+            return;
+          }
+          if (product.category !== lastCategory) {
+            rows.push(
+              <ProductCategoryRow
+                category={product.category}
+                key={product.category} />
+            );
+          }
+          rows.push(
+            <ProductRow
+              product={product}
+              key={product.name}
+            />
+          );
+          lastCategory = product.category;
+        });
+
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </table>
+        );
+      }
+    }
+
+    class SearchBar extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+        this.handleInStockChange = this.handleInStockChange.bind(this);
+      }
+
+      handleFilterTextChange(e) {
+        this.props.onFilterTextChange(e.target.value);
+      }
+
+      handleInStockChange(e) {
+        this.props.onInStockChange(e.target.checked);
+      }
+
+      render() {
+        return (
+          <form>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={this.props.filterText}
+              onChange={this.handleFilterTextChange}
+            />
+            <p>
+              <input
+                type="checkbox"
+                checked={this.props.inStockOnly}
+                onChange={this.handleInStockChange}
+              />
+              {' '}
+              Only show products in stock
+            </p>
+          </form>
+        );
+      }
+    }
+
+    class FilterableProductTable extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          filterText: '',
+          inStockOnly: false
+        };
+
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+        this.handleInStockChange = this.handleInStockChange.bind(this);
+      }
+
+      handleFilterTextChange(filterText) {
+        this.setState({
+          filterText: filterText
+        });
+      }
+
+      handleInStockChange(inStockOnly) {
+        this.setState({
+          inStockOnly: inStockOnly
+        })
+      }
+
+      render() {
+        return (
+          <div>
+            <SearchBar
+              filterText={this.state.filterText}
+              inStockOnly={this.state.inStockOnly}
+              onFilterTextChange={this.handleFilterTextChange}
+              onInStockChange={this.handleInStockChange}
+            />
+            <ProductTable
+              products={this.props.products}
+              filterText={this.state.filterText}
+              inStockOnly={this.state.inStockOnly}
+            />
+          </div>
+        );
+      }
+    }
+
+    const PRODUCTS = [
+      {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
+      {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
+      {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},
+      {category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch'},
+      {category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5'},
+      {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
+    ];
+
+    const adv_root = ReactDOM.createRoot(document.getElementById('adv_root'));
+    adv_root.render(<FilterableProductTable products={PRODUCTS} />);
+  </script>
+  <pre><code class="">
+    class ProductCategoryRow extends React.Component {
+      render() {
+        const category = this.props.category;
+        return (
+          &lt;tr&gt;
+            &lt;th colSpan="2"&gt;
+              {category}
+            &lt;/th&gt;
+          &lt;/tr&gt;
+        );
+      }
+    }
+
+    class ProductRow extends React.Component {
+      render() {
+        const product = this.props.product;
+        const name = product.stocked ?
+          product.name :
+          &lt;span style={{color: 'red'}}&gt;
+            {product.name}
+          &lt;/span&gt;;
+
+        return (
+          &lt;tr&gt;
+            &lt;td&gt;{name}&lt;/td&gt;
+            &lt;td&gt;{product.price}&lt;/td&gt;
+          &lt;/tr&gt;
+        );
+      }
+    }
+
+    class ProductTable extends React.Component {
+      render() {
+        const filterText = this.props.filterText;
+        const inStockOnly = this.props.inStockOnly;
+
+        const rows = [];
+        let lastCategory = null;
+
+        this.props.products.forEach((product) =&gt; {
+          if (product.name.indexOf(filterText) === -1) {
+            return;
+          }
+          if (inStockOnly && !product.stocked) {
+            return;
+          }
+          if (product.category !== lastCategory) {
+            rows.push(
+              &lt;ProductCategoryRow
+                category={product.category}
+                key={product.category} /&gt;
+            );
+          }
+          rows.push(
+            &lt;ProductRow
+              product={product}
+              key={product.name}
+            /&gt;
+          );
+          lastCategory = product.category;
+        });
+
+        return (
+          &lt;table&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th&gt;Name&lt;/th&gt;
+                &lt;th&gt;Price&lt;/th&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;{rows}&lt;/tbody&gt;
+          &lt;/table&gt;
+        );
+      }
+    }
+
+    class SearchBar extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+        this.handleInStockChange = this.handleInStockChange.bind(this);
+      }
+
+      handleFilterTextChange(e) {
+        this.props.onFilterTextChange(e.target.value);
+      }
+
+      handleInStockChange(e) {
+        this.props.onInStockChange(e.target.checked);
+      }
+
+      render() {
+        return (
+          &lt;form&gt;
+            &lt;input
+              type="text"
+              placeholder="Search..."
+              value={this.props.filterText}
+              onChange={this.handleFilterTextChange}
+            /&gt;
+            &lt;p&gt;
+              &lt;input
+                type="checkbox"
+                checked={this.props.inStockOnly}
+                onChange={this.handleInStockChange}
+              /&gt;
+              {' '}
+              Only show products in stock
+            &lt;/p&gt;
+          &lt;/form&gt;
+        );
+      }
+    }
+
+    class FilterableProductTable extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          filterText: '',
+          inStockOnly: false
+        };
+
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+        this.handleInStockChange = this.handleInStockChange.bind(this);
+      }
+
+      handleFilterTextChange(filterText) {
+        this.setState({
+          filterText: filterText
+        });
+      }
+
+      handleInStockChange(inStockOnly) {
+        this.setState({
+          inStockOnly: inStockOnly
+        })
+      }
+
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;SearchBar
+              filterText={this.state.filterText}
+              inStockOnly={this.state.inStockOnly}
+              onFilterTextChange={this.handleFilterTextChange}
+              onInStockChange={this.handleInStockChange}
+            /&gt;
+            &lt;ProductTable
+              products={this.props.products}
+              filterText={this.state.filterText}
+              inStockOnly={this.state.inStockOnly}
+            /&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+
+    const PRODUCTS = [
+      {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
+      {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
+      {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},
+      {category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch'},
+      {category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5'},
+      {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
+    ];
+
+    const adv_root = ReactDOM.createRoot(document.getElementById('adv_root'));
+    adv_root.render(&lt;FilterableProductTable products={PRODUCTS} /&gt;);
+  </code></pre></details>
+
+  <details><summary>Blur / Focus</summary>
+  <div class="example" id="adv_root_2"></div>
+  <script type="text/babel">
+    class BlurExample extends React.Component {
+      constructor(props) {
+        super(props);
+
+        this.state = { isOpen: false };
+        this.timeOutId = null;
+
+        this.onClickHandler = this.onClickHandler.bind(this);
+        this.onBlurHandler = this.onBlurHandler.bind(this);
+        this.onFocusHandler = this.onFocusHandler.bind(this);
+      }
+
+      onClickHandler() {
+        this.setState(currentState => ({
+          isOpen: !currentState.isOpen
+        }));
+      }
+
+      // We close the popover on the next tick by using setTimeout.
+      // This is necessary because we need to first check if
+      // another child of the element has received focus as
+      // the blur event fires prior to the new focus event.
+      onBlurHandler() {
+        this.timeOutId = setTimeout(() => {
+          this.setState({
+            isOpen: false
+          });
+        });
+      }
+
+      // If a child receives focus, do not close the popover.
+      onFocusHandler() {
+        clearTimeout(this.timeOutId);
+      }
+
+      render() {
+        // React assists us by bubbling the blur and
+        // focus events to the parent.
+        return (
+          <div onBlur={this.onBlurHandler}
+              onFocus={this.onFocusHandler}>
+            <button onClick={this.onClickHandler}
+                    aria-haspopup="true"
+                    aria-expanded={this.state.isOpen}>
+              Select an option
+            </button>
+            {this.state.isOpen ? (
+              <ul>
+                <li>Option 1</li>
+                <li>Option 2</li>
+                <li>Option 3</li>
+              </ul>
+            ) : null}
+          </div>
+        );
+      }
+    }
+
+    const adv_root_2 = ReactDOM.createRoot(document.getElementById('adv_root_2'));
+    adv_root_2.render(<BlurExample />);
+  </script>
+  <pre><code class="">
+    class BlurExample extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { isOpen: false };
+        this.timeOutId = null;
+        this.onClickHandler = this.onClickHandler.bind(this);
+        this.onBlurHandler = this.onBlurHandler.bind(this);
+        this.onFocusHandler = this.onFocusHandler.bind(this);
+      }
+      onClickHandler() {
+        this.setState(currentState =&gt; ({
+          isOpen: !currentState.isOpen
+        }));
+      }
+      // We close the popover on the next tick by using setTimeout.
+      // This is necessary because we need to first check if
+      // another child of the element has received focus as
+      // the blur event fires prior to the new focus event.
+      onBlurHandler() {
+        this.timeOutId = setTimeout(() =&gt; {
+          this.setState({
+            isOpen: false
+          });
+        });
+      }
+      // If a child receives focus, do not close the popover.
+      onFocusHandler() {
+        clearTimeout(this.timeOutId);
+      }
+      render() {
+        // React assists us by bubbling the blur and
+        // focus events to the parent.
+        return (
+          &lt;div onBlur={this.onBlurHandler}
+              onFocus={this.onFocusHandler}&gt;
+            &lt;button onClick={this.onClickHandler}
+                    aria-haspopup="true"
+                    aria-expanded={this.state.isOpen}&gt;
+              Select an option
+            &lt;/button&gt;
+            {this.state.isOpen ? (
+              &lt;ul&gt;
+                &lt;li&gt;Option 1&lt;/li&gt;
+                &lt;li&gt;Option 2&lt;/li&gt;
+                &lt;li&gt;Option 3&lt;/li&gt;
+              &lt;/ul&gt;
+            ) : null}
+          &lt;/div&gt;
+        );
+      }
+    }
+    const adv_root_2 = ReactDOM.createRoot(document.getElementById('adv_root_2'));
+    adv_root_2.render(&lt;BlurExample /&gt;);
+  </code></pre></details>
+
+
+
+<h2 id="optimizing">Optimizing</h2>
+
+  <ul>
+    <li>use .production.min.js for production</li>
+    <li>dont apply uglify or production flag for development, to leave error descriptions</li>
+    <li>use react-window and react-virtualized for large lists or tables</li>
+    <li>to avoid unneed re-rendering (reconciliation) use shouldComponentUpdate or just inherit from React.PureComponent (only does a shallow comparison, so you cant use it if the props or state may have been mutated in a way that a shallow comparison would miss), consider using the built-in PureComponent instead of writing shouldComponentUpdate() by hand</li>
+    <li>avoid mutating values that you are using as props or state, use example solutions or immutable.js, immer, immutability-helper or seamless-immutable</li>
+    <li><a href="https://reactjs.org/docs/profiler.html">Profiler</a> - measures how often a React application renders and what the cost of rendering is, help identify parts of an application that are slow and may benefit from optimizations such as memoization, adds some additional overhead, so it is disabled in the production build, to opt into production profiling, React provides a special production build with profiling enabled (fb.me/react-profiling)</li>
+    <li>use <a href="https://github.com/reactjs/react-codemod">react-codemod</a> to update and clean React project
+      <ul>
+        <li><code>npx react-codemod update-react-imports</code> - removing unused React imports</li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="python">
+    # PRODUCTION BUILD
+
+    # --- uglify-js-brunch
+    npm install --save-dev uglify-js-brunch # npm
+    yarn add --dev uglify-js-brunch # Yarn
+    # to create a production build, add the -p flag to the build command
+    brunch build -p
+    # dont pass -p flag in development
+
+    # --- Browserify
+    npm install --save-dev envify uglify-js uglifyify  # npm
+    yarn add --dev envify uglify-js uglifyify  # Yarn
+    # envify transform ensures the right build environment is set
+    # uglifyify transform removes development imports
+    # make them global (-g)
+    # resulting bundle is piped to uglify-js for mangling:
+    browserify ./index.js \
+    -g [ envify --NODE_ENV production ] \
+    -g uglifyify \
+    | uglifyjs --compress --mangle > ./bundle.js
+
+    # --- Rollup
+    npm install --save-dev rollup-plugin-commonjs rollup-plugin-replace rollup-plugin-uglify
+    yarn add --dev rollup-plugin-commonjs rollup-plugin-replace rollup-plugin-uglify
+    # to create a production build,
+    # make sure that you add these plugins (the order matters):
+    plugins: [
+      // ...
+      require('rollup-plugin-replace')({
+        'process.env.NODE_ENV': JSON.stringify('production')
+      }),
+      require('rollup-plugin-commonjs')(),
+      require('rollup-plugin-uglify')(),
+      // ...
+    ]
+
+    # --- webpack
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    }),
+    new webpack.optimize.UglifyJsPlugin()
+  </code></pre>
+
+  <h3>avoid reconciliation: shouldComponentUpdate | React.PureComponent</h3>
+  <pre><code class="">
+    // --- with shouldComponentUpdate
+    class CounterButton extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {count: 1};
+      }
+      shouldComponentUpdate(nextProps, nextState) {
+        if (this.props.color !== nextProps.color) {
+          return true;
+        }
+        if (this.state.count !== nextState.count) {
+          return true;
+        }
+        return false;
+      }
+      render() {
+        return (
+          &lt;button
+            color={this.props.color}
+            onClick={() =&gt; this.setState(state =&gt; ({count: state.count + 1}))}&gt;
+            Count: {this.state.count}
+          &lt;/button&gt;
+        );
+      }
+    }
+    // --- or with React.PureComponent
+    class CounterButton extends React.PureComponent {
+      constructor(props) {
+        super(props);
+        this.state = {count: 1};
+      }
+      render() {
+        return (
+          &lt;button
+            color={this.props.color}
+            onClick={() =&gt; this.setState(state =&gt; ({count: state.count + 1}))}&gt;
+            Count: {this.state.count}
+          &lt;/button&gt;
+        );
+      }
+    }
+
+    // code mutates the words array in the handleClick
+    // old and new values of this.props.words will compare as equal,
+    // even though the actual words in the array have changed !!!
+    // ListOfWords will not update even though it has new words that should be rendered
+    class ListOfWords extends React.PureComponent {
+      render() {
+        return &lt;div&gt;{this.props.words.join(',')}&lt;/div&gt;;
+      }
+    }
+    class WordAdder extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          words: ['marklar']
+        };
+        this.handleClick = this.handleClick.bind(this);
+      }
+      handleClick() {
+        // this section is bad style and causes a bug
+        const words = this.state.words;
+        words.push('marklar');
+        this.setState({words: words});
+      }
+
+      // --- avoid problem by avoiding mutation of values used as props or state
+      handleClick() {
+        this.setState(state => ({
+          words: state.words.concat(['marklar'])
+          // or
+          words: [...state.words, 'marklar'],
+        }));
+      }
+      // or without mutating the original objec use Object.assign
+      function updateColorMap(colormap) {
+        return Object.assign({}, colormap, {right: 'blue'});
+        // same with object spread properties
+        return {...colormap, right: 'blue'};
+        // instead of:
+        // colormap.right = 'blue';
+      }
+
+      render() {
+        return (
+          &lt;div&gt;
+            &lt;button onClick={this.handleClick} /&gt;
+            &lt;ListOfWords words={this.state.words} /&gt;
+          &lt;/div&gt;
+        );
+      }
+    }
+  </code></pre>
+
+  <h3>&lt;Profiler&gt;</h3>
+  <pre><code class="">
+    // can be added anywhere in a React tree
+    // to measure the cost of rendering that part of the tree
+    // requires two props: an id (string) and an onRender callback (function)
+    // which React calls any time a component within the tree "commits" an update
+    render(
+      &lt;Profiler id="application" onRender={onRenderCallback}&gt;
+        &lt;App&gt;
+          &lt;Navigation {...props} /&gt;
+          &lt;Main {...props} /&gt;
+        &lt;/App&gt;
+      &lt;/Profiler&gt;
+    );
+    // nested to measure different components within the same subtree:
+    render(
+      &lt;App&gt;
+        &lt;Profiler id="Panel" onRender={callback}&gt;
+          &lt;Panel {...props}&gt;
+            &lt;Profiler id="Content" onRender={callback}&gt;
+              &lt;Content {...props} /&gt;
+            &lt;/Profiler&gt;
+            &lt;Profiler id="PreviewPane" onRender={callback}&gt;
+              &lt;PreviewPane {...props} /&gt;
+            &lt;/Profiler&gt;
+          &lt;/Panel&gt;
+        &lt;/Profiler&gt;
+      &lt;/App&gt;
+    );
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

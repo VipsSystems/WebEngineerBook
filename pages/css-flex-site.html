@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CSS and CSS3 flex layout tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="css, css3, flex, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Style the body */
+    body {
+        font-family: Arial;
+        margin: 0;
+    }
+
+    /* Header/logo Title */
+    .header {
+        padding: 60px;
+        text-align: center;
+        background: #1abc9c;
+        color: white;
+    }
+
+    /* Style the top navigation bar */
+    .navbar {
+        display: flex;
+        background-color: #333;
+    }
+
+    /* Style the navigation bar links */
+    .navbar a {
+        color: white;
+        padding: 14px 20px;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    /* Change color on hover */
+    .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+
+    /* Column container */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    /* Create two unequal columns that sits next to each other */
+    /* Sidebar/left column */
+    .side {
+        flex: 30%;
+        background-color: #f1f1f1;
+        padding: 20px;
+    }
+
+    /* Main column */
+    .main {
+        flex: 70%;
+        background-color: white;
+        padding: 20px;
+    }
+
+    /* Fake image, just for this example */
+    .fakeimg {
+        background-color: #aaa;
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 20px;
+        text-align: center;
+        background: #ddd;
+    }
+
+    /* Responsive layout - when the screen is less than 700px wide, make the two columns stack on top of each other instead of next to each other */
+    @media screen and (max-width: 700px) {
+        .row, .navbar {
+            flex-direction: column;
+        }
+    }
+
+    .flex_gallery_row {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 4px;
+    }
+    /* Create four equal columns that sits next to each other */
+    .flex_gallery_column {
+        flex: 16%;
+        max-width: 16%;
+    }
+    .flex_gallery_column img {
+        margin-top: 8px;
+        vertical-align: middle;
+    }
+    /* Responsive layout - makes a two column-layout instead of four columns */
+    @media (max-width: 900px) {
+        .flex_gallery_column {
+            flex: 32%;
+            max-width: 32%;
+        }
+    }
+    /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+    @media (max-width: 700px) {
+        .flex_gallery_column {
+            flex: 50%;
+            max-width: 50%;
+        }
+    }
+    @media (max-width: 500px) {
+        .flex_gallery_column {
+            flex: 100%;
+            max-width: 100%;
+        }
+    }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>CSS and CSS3 flex layout tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+  <!-- Note -->
+  <div style="background:yellow;padding:5px">
+    <h4 style="text-align:center">Resize the browser window to see the responsive effect.</h4>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>My Website</h1>
+    <p>With a <b>flexible</b> layout.</p>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a href="#">Link</a>
+    <a href="#">Link</a>
+    <a href="#">Link</a>
+    <a href="#">Link</a>
+  </div>
+
+  <!-- The flexible grid (content) -->
+  <div class="row">
+    <div class="side">
+        <h2>About Me</h2>
+        <h5>Photo of me:</h5>
+        <div class="fakeimg" style="height:200px;">Image</div>
+        <p>Some text about me in culpa qui officia deserunt mollit anim..</p>
+        <h3>More Text</h3>
+        <p>Lorem ipsum dolor sit ame.</p>
+        <div class="fakeimg" style="height:60px;">Image</div><br>
+        <div class="fakeimg" style="height:60px;">Image</div><br>
+        <div class="fakeimg" style="height:60px;">Image</div>
+    </div>
+    <div class="main">
+        <h2>TITLE HEADING</h2>
+        <h5>Title description, Dec 7, 2017</h5>
+        <div class="fakeimg" style="height:200px;">Image</div>
+        <p>Some text..</p>
+        <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+        <br>
+        <h2>TITLE HEADING</h2>
+        <h5>Title description, Sep 2, 2017</h5>
+        <div class="fakeimg" style="height:200px;">Image</div>
+        <p>Some text..</p>
+        <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+    </div>
+  </div>
+
+  <!-- Photo Grid -->
+  <div class="flex_gallery_row">
+    <div class="flex_gallery_column">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+    </div>
+    <div class="flex_gallery_column">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+    </div>
+    <div class="flex_gallery_column">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+    </div>
+    <div class="flex_gallery_column">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+    </div>
+    <div class="flex_gallery_column">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+    </div>
+    <div class="flex_gallery_column">
+      <img src="../images/workplace.jpg" style="width:100%">
+      <img src="../images/rock.jpg" style="width:100%">
+      <img src="../images/paris.jpg" style="width:100%">
+      <img src="../images/img_pink_flowers.jpg" style="width:100%">
+      <img src="../images/coffee.jpg" style="width:100%">
+      <img src="../images/cellphone.jpg" style="width:100%">
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <h2>Footer</h2>
+  </div>
+
+
+  <hr>
+
+  <pre><code class="html">
+    &lt;!-- Note --&gt;
+    &lt;div style="background:yellow;padding:5px"&gt;
+      &lt;h4 style="text-align:center"&gt;Resize ...&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;!-- Header --&gt;
+    &lt;div class="header"&gt;
+      &lt;h1&gt;My Website&lt;/h1&gt;
+      &lt;p&gt;With a &lt;b&gt;flexible&lt;/b&gt; layout.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;!-- Navigation Bar --&gt;
+    &lt;div class="navbar"&gt;
+      &lt;a href="#"&gt;Link&lt;/a&gt;
+      &lt;a href="#"&gt;Link&lt;/a&gt;
+      &lt;a href="#"&gt;Link&lt;/a&gt;
+      &lt;a href="#"&gt;Link&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;!-- The flexible grid (content) --&gt;
+    &lt;div class="row"&gt;
+      &lt;div class="side"&gt;
+        &lt;h2&gt;About Me&lt;/h2&gt;
+        &lt;h5&gt;Photo of me:&lt;/h5&gt;
+        &lt;div class="fakeimg" style="height:200px;"&gt;Image&lt;/div&gt;
+        &lt;p&gt;Some text about me in culpa qui officia deserunt mollit anim..&lt;/p&gt;
+        &lt;h3&gt;More Text&lt;/h3&gt;
+        &lt;p&gt;Lorem ipsum dolor sit ame.&lt;/p&gt;
+        &lt;div class="fakeimg" style="height:60px;"&gt;Image&lt;/div&gt;&lt;br&gt;
+        &lt;div class="fakeimg" style="height:60px;"&gt;Image&lt;/div&gt;&lt;br&gt;
+        &lt;div class="fakeimg" style="height:60px;"&gt;Image&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="main"&gt;
+        &lt;h2&gt;TITLE HEADING&lt;/h2&gt;
+        &lt;h5&gt;Title description, Dec 7, 2017&lt;/h5&gt;
+        &lt;div class="fakeimg" style="height:200px;"&gt;Image&lt;/div&gt;
+        &lt;p&gt;Some text..&lt;/p&gt;
+        &lt;p&gt;Sunt in cul...&lt;/p&gt;
+        &lt;br&gt;
+        &lt;h2&gt;TITLE HEADING&lt;/h2&gt;
+        &lt;h5&gt;Title description, Sep 2, 2017&lt;/h5&gt;
+        &lt;div class="fakeimg" style="height:200px;"&gt;Image&lt;/div&gt;
+        &lt;p&gt;Some text..&lt;/p&gt;
+        &lt;p&gt;Sunt ....&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- Photo Grid --&gt;
+    &lt;div class="flex_gallery_row"&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+      &lt;div class="flex_gallery_column"&gt;
+        &lt;img src="../images/workplace.jpg" style="width:100%"&gt;
+        &lt;img src="../images/rock.jpg" style="width:100%"&gt;
+        &lt;img src="../images/paris.jpg" style="width:100%"&gt;
+        &lt;img src="../images/img_pink_flowers.jpg" style="width:100%"&gt;
+        &lt;img src="../images/coffee.jpg" style="width:100%"&gt;
+        &lt;img src="../images/cellphone.jpg" style="width:100%"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- Footer --&gt;
+    &lt;div class="footer"&gt;
+      &lt;h2&gt;Footer&lt;/h2&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="css">
+    * {
+      box-sizing: border-box;
+    }
+    /* Style the body */
+    body {
+      font-family: Arial;
+      margin: 0;
+    }
+    /* Header/logo Title */
+    .header {
+      padding: 60px;
+      text-align: center;
+      background: #1abc9c;
+      color: white;
+    }
+    /* Style the top navigation bar */
+    .navbar {
+      display: flex;
+      background-color: #333;
+    }
+    /* Style the navigation bar links */
+    .navbar a {
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+      text-align: center;
+    }
+    /* Change color on hover */
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+    /* Column container */
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    /* Create two unequal columns that sits next to each other */
+    /* Sidebar/left column */
+    .side {
+      flex: 30%;
+      background-color: #f1f1f1;
+      padding: 20px;
+    }
+    /* Main column */
+    .main {
+      flex: 70%;
+      background-color: white;
+      padding: 20px;
+    }
+    /* Fake image, just for this example */
+    .fakeimg {
+      background-color: #aaa;
+      width: 100%;
+      padding: 20px;
+    }
+    /* Footer */
+    .footer {
+      padding: 20px;
+      text-align: center;
+      background: #ddd;
+    }
+    /*
+      Responsive layout
+        when the screen is less than 700px wide,
+        make the two columns stack on top of each other instead of next to each other
+    */
+    @media screen and (max-width: 700px) {
+      .row, .navbar {
+          flex-direction: column;
+      }
+    }
+    .flex_gallery_row {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0 4px;
+    }
+    /*
+      Create four equal columns that sits next to each other
+    */
+    .flex_gallery_column {
+      flex: 16%;
+      max-width: 16%;
+    }
+    .flex_gallery_column img {
+      margin-top: 8px;
+      vertical-align: middle;
+    }
+    /*
+      Responsive layout
+        makes a two column-layout instead of four columns
+    */
+    @media (max-width: 900px) {
+      .flex_gallery_column {
+          flex: 32%;
+          max-width: 32%;
+      }
+    }
+    /*
+      Responsive layout
+        makes the two columns stack on top of each other instead of next to each other
+    */
+    @media (max-width: 700px) {
+      .flex_gallery_column {
+          flex: 50%;
+          max-width: 50%;
+      }
+    }
+    @media (max-width: 500px) {
+      .flex_gallery_column {
+          flex: 100%;
+          max-width: 100%;
+      }
+    }
+  </code></pre>
+
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Canvas game, flappy bird, tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="canvas, html, javascript, js, game, flappy bird, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+  canvas {
+      border:1px solid #d3d3d3;
+      background-color: #f1f1f1;
+  }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Canvas game tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body onload="startGame()">
+
+<h2>FlappyBird game</h2>
+
+  <div class="example">
+    <canvas
+      id="canvas"
+      width="500"
+      height="300"
+      style="border:1px solid #000000;"
+    >
+      <code>&lt;canvas&gt;</code> element that is used to draw graphics on a web page is not supported here
+    </canvas>
+
+    <div style="text-align:center;width:480px;">
+      <button onmousedown="moveup()" onmouseup="clearmove()" ontouchstart="moveup()">UP</button><br>
+      <button onmousedown="moveleft()" onmouseup="clearmove()" ontouchstart="moveleft()">LEFT</button>
+      <button onmousedown="moveright()" onmouseup="clearmove()" ontouchstart="moveright()">RIGHT</button><br>
+      <button onmousedown="movedown()" onmouseup="clearmove()" ontouchstart="movedown()">DOWN</button>
+    </div>
+
+  </div>
+
+  <ul>
+    <li>press buttons to move Bird or hover over area</li>
+    <li>obstacles are generated randomly</li>
+    <li>press on game link in menu again to reload</li>
+  </ul>
+
+  <script>
+
+    var myGamePiece;
+    var myObstacles = [];
+    var myScore;
+    var myBackground;
+    var is_gravity = true;
+    // // --- control buttons inside canvas
+    // var myUpBtn;
+    // var myDownBtn;
+    // var myLeftBtn;
+    // var myRightBtn;
+
+    function sound(src, loop) {
+      if(loop == null) { loop = false; }
+      var sound = new Audio(src);
+      // this.sound.src = src;
+      sound.setAttribute("preload", "auto");
+      sound.setAttribute("controls", "none");
+      // this.sound.style.display = "none";
+      // document.body.appendChild(this.sound);
+
+      if (!loop) {
+        // this.sound.addEventListener('ended', function() {
+        //     this.currentTime = 0;
+        //     this.play();
+        // }, false);
+      }
+      sound.loop = loop;
+
+      return sound;
+    }
+    var music = {
+      bg : sound("flappy/bg.mp3", true),
+      hit : sound("flappy/hit.mp3")
+    };
+
+    function startGame() {
+      myBackground = new component(500, 300, "flappy/bg.png", 0, 0, "background");
+      myGamePiece = new component(35, 25, "flappy/bird.png", 10, 120, "image");
+      myScore = new component("30px", "Consolas", "black", 280, 40, "text");
+
+      // // --- control buttons inside canvas
+      // myUpBtn = new component(20, 20, "blue", 450, 230);
+      // myRightBtn = new component(20, 20, "blue", 470, 250);
+      // myDownBtn = new component(20, 20, "blue", 450, 270);
+      // myLeftBtn = new component(20, 20, "blue", 430, 250);
+
+      music.bg.play();
+
+      myGameArea.start();
+    }
+
+    var myGameArea = {
+      canvas : document.getElementById("canvas"),
+      start : function() {
+        this.context = this.canvas.getContext("2d");
+
+
+        // ctx = this.context;
+        // cnv = this.canvas;
+        // img = new Image();
+        // img.src = 'flappy/bg.png';
+        // img.onload = function(){
+        //   // create pattern
+        //   var ptrn = ctx.createPattern(img, 'repeat'); // Create a pattern with this image, and set it to "repeat".
+        //   ctx.fillStyle = ptrn;
+        //   ctx.fillRect(0, 0, cnv.width, cnv.height); // context.fillRect(x, y, width, height);
+        // }
+
+        this.frameNo = 0;
+        this.interval = setInterval(updateGameArea, 1000/60);
+
+        // keyboard control
+        window.addEventListener('keydown', function (e) {
+          // accelerate anti gravity on up-arrow key pressed
+          if (e.keyCode == 38) {
+            accelerate(-0.2);
+          }
+
+          myGameArea.keys = (myGameArea.keys || []);
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        })
+        window.addEventListener('keyup', function (e) {
+          // increase gravity on up-arrow key unpressed
+          if (e.keyCode == 38) {
+            accelerate(0.1);
+          }
+
+          myGameArea.keys[e.keyCode] = false;
+        })
+
+        // mousedown, mouseenter, mouseleave, mousemove, mouseout, mouseover, mouseup
+        this.canvas.addEventListener('mousemove', function (e) {
+            myGameArea.x = e.pageX;
+            myGameArea.y = e.pageY;
+        })
+        this.canvas.addEventListener('mouseleave', function (e) {
+            myGameArea.x = 0;
+            myGameArea.y = 0;
+        })
+
+        window.addEventListener('touchmove', function (e) {
+            myGameArea.x = e.touches[0].screenX;
+            myGameArea.y = e.touches[0].screenY;
+        })
+
+        // // --- controls inside canvas
+        // window.addEventListener('mousedown', function (e) {
+        //     myGameArea.x = e.pageX;
+        //     myGameArea.y = e.pageY;
+        // })
+        // window.addEventListener('mouseup', function (e) {
+        //     myGameArea.x = false;
+        //     myGameArea.y = false;
+        // })
+        // window.addEventListener('touchstart', function (e) {
+        //     myGameArea.x = e.pageX;
+        //     myGameArea.y = e.pageY;
+        // })
+        // window.addEventListener('touchend', function (e) {
+        //     myGameArea.x = false;
+        //     myGameArea.y = false;
+        // })
+
+      },
+      clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      },
+      // stop game
+      stop : function() {
+        // console.log(myGamePiece);
+        myGamePiece.image.src = "flappy/dead.png";
+        myGamePiece.update();
+        // updateGameArea();
+        music.bg.pause();
+        music.hit.play();
+        clearInterval(this.interval);
+      }
+
+    }
+
+    function component(width, height, color, x, y, type) {
+      this.type = type;
+      if (this.type == "image" || type == "background") {
+        this.image = new Image();
+        this.image.src = color;
+      }
+
+      this.width = width;
+      this.height = height;
+      this.speedX = 0;
+      this.speedY = 0;
+      this.x = x;
+      this.y = y;
+      this.gravity = 0.05;
+      this.gravitySpeed = 0;
+      this.bounce = 0.6;
+
+      this.update = function() {
+        ctx = myGameArea.context;
+
+        if (this.type == "text") {
+          ctx.font = this.width + " " + this.height;
+          ctx.fillStyle = color;
+          ctx.fillText(this.text, this.x, this.y);
+        } else if (this.type == "image" || type == "background") {
+          ctx.drawImage(
+            this.image,
+            this.x,
+            this.y,
+            this.width,
+            this.height
+          );
+          // draw second image for background for loop
+          if (type == "background") {
+            ctx.drawImage(this.image,
+              this.x + this.width,
+              this.y,
+              this.width, this.height
+            );
+          }
+        } else {
+          ctx.fillStyle = color;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+      }
+
+      // // --- controls inside canvas
+      // this.clicked = function() {
+      //   var myleft = this.x;
+      //   var myright = this.x + (this.width);
+      //   var mytop = this.y;
+      //   var mybottom = this.y + (this.height);
+      //   var clicked = true;
+      //   if (
+      //     (mybottom < myGameArea.y) ||
+      //     (mytop > myGameArea.y) ||
+      //     (myright < myGameArea.x) ||
+      //     (myleft > myGameArea.x)
+      //   ) {
+      //     clicked = false;
+      //   }
+      //   return clicked;
+      // }
+
+      this.newPos = function() {
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+
+        if (is_gravity) {
+          this.y += this.speedY + this.gravitySpeed;
+        } else {
+          this.y += this.speedY;
+        }
+
+        this.hitBottom();
+
+        // move background image to start of canvas for new loop
+        if (this.type == "background") {
+            if (this.x == -(this.width)) {
+                this.x = 0;
+            }
+        }
+      }
+      this.hitBottom = function() {
+          var rockbottom = myGameArea.canvas.height - this.height;
+          if (this.y > rockbottom) {
+              this.y = rockbottom;
+              // this.gravitySpeed = 0; // without bounce
+              this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+          }
+      }
+      this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+
+        var crash = true;
+        if (
+          (mybottom < othertop) ||
+          (mytop > otherbottom) ||
+          (myright < otherleft) ||
+          (myleft > otherright)
+        ) {
+            crash = false;
+        }
+        return crash;
+      }
+    }
+
+    function updateGameArea() {
+      var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+      for (i = 0; i < myObstacles.length; i += 1) {
+        if (myGamePiece.crashWith(myObstacles[i])) {
+          myGameArea.stop();
+          return;
+        }
+      }
+
+      myGameArea.clear(); // clean canvas to redraw everything
+
+      myGameArea.frameNo += 1;
+
+      // draw background first, as lowest layer
+      myBackground.speedX = -0.3;
+      myBackground.newPos();
+      myBackground.update();
+
+      // build walls with a gap, in the begining and after an interval
+      if (myGameArea.frameNo == 1 || everyinterval(150)) {
+        x = myGameArea.canvas.width;
+        minHeight = 20;
+        maxHeight = 200;
+        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
+        minGap = 50;
+        maxGap = 200;
+        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
+
+        myObstacles.push(new component(30, height, "flappy/top-wall.png", x, 0, "image"));
+        myObstacles.push(new component(30, x - height - gap, "flappy/bottom-wall.png", x, height + gap, "image"));
+
+        // myObstacles.push(new component(10, height, "green", x, 0));
+        // myObstacles.push(new component(30, x - height - gap, "green", x, height + gap));
+      }
+
+      // move walls
+      for (i = 0; i < myObstacles.length; i += 1) {
+        myObstacles[i].x += -1;
+        myObstacles[i].update();
+      }
+
+      // keyboard controls
+      if (myGameArea.keys) {
+        myGamePiece.speedX = 0;
+        myGamePiece.speedY = 0;
+        if (myGameArea.keys[37]) { // left
+          myGamePiece.speedX = -1;
+        }
+        if (myGameArea.keys[39]) { // right
+          myGamePiece.speedX = 1;
+        }
+        if (myGameArea.keys[38]) { // up
+          myGamePiece.speedY = -1;
+        }
+        if (myGameArea.keys[40]) { // down
+          myGamePiece.speedY = 1;
+        }
+      }
+
+      // mousemove/touch update
+      if (myGameArea.x && myGameArea.y) {
+        myGamePiece.x = myGameArea.x;
+        myGamePiece.y = myGameArea.y;
+      }
+
+      // // --- controls inside canvas
+      // if (myGameArea.x && myGameArea.y) {
+      //     if (myUpBtn.clicked()) {
+      //         myGamePiece.y -= 1;
+      //     }
+      //     if (myDownBtn.clicked()) {
+      //         myGamePiece.y += 1;
+      //     }
+      //     if (myLeftBtn.clicked()) {
+      //         myGamePiece.x += -1;
+      //     }
+      //     if (myRightBtn.clicked()) {
+      //         myGamePiece.x += 1;
+      //     }
+      // }
+      // myUpBtn.update();
+      // myDownBtn.update();
+      // myLeftBtn.update();
+      // myRightBtn.update();
+
+      myScore.text="SCORE: " + myGameArea.frameNo;
+      myScore.update();
+
+      myGamePiece.newPos();
+      myGamePiece.update();
+    }
+
+    function everyinterval(n) {
+      if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+      return false;
+    }
+
+    function accelerate(n) {
+      myGamePiece.gravity = n;
+    }
+
+    function moveup() {
+      myGamePiece.speedY = -1;
+      accelerate(-0.2);
+    }
+    function movedown() {
+      myGamePiece.speedY = 1;
+    }
+    function moveleft() {
+      myGamePiece.speedX = -1;
+    }
+    function moveright() {
+      myGamePiece.speedX = 1;
+    }
+    function clearmove() {
+      myGamePiece.speedX = 0;
+      myGamePiece.speedY = 0;
+      accelerate(0.1);
+    }
+
+  </script>
+
+  <pre><code class="html">
+    &lt;canvas
+      id="canvas"
+      width="500"
+      height="300"
+      style="border:1px solid #000000;"
+    &gt;&lt;/canvas&gt;
+
+    &lt;div style="text-align:center;width:480px;"&gt;
+      &lt;button onmousedown="moveup()" onmouseup="clearmove()" ontouchstart="moveup()"&gt;UP&lt;/button&gt;&lt;br&gt;
+      &lt;button onmousedown="moveleft()" onmouseup="clearmove()" ontouchstart="moveleft()"&gt;LEFT&lt;/button&gt;
+      &lt;button onmousedown="moveright()" onmouseup="clearmove()" ontouchstart="moveright()"&gt;RIGHT&lt;/button&gt;&lt;br&gt;
+      &lt;button onmousedown="movedown()" onmouseup="clearmove()" ontouchstart="movedown()"&gt;DOWN&lt;/button&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var myGamePiece;
+    var myObstacles = [];
+    var myScore;
+    var myBackground;
+    var is_gravity = true;
+    // // --- control buttons inside canvas
+    // var myUpBtn;
+    // var myDownBtn;
+    // var myLeftBtn;
+    // var myRightBtn;
+
+    function sound(src, loop) {
+      if(loop == null) { loop = false; }
+      var sound = new Audio(src);
+      // this.sound.src = src;
+      sound.setAttribute("preload", "auto");
+      sound.setAttribute("controls", "none");
+      // this.sound.style.display = "none";
+      // document.body.appendChild(this.sound);
+      if (!loop) {
+        // this.sound.addEventListener('ended', function() {
+        //     this.currentTime = 0;
+        //     this.play();
+        // }, false);
+      }
+      sound.loop = loop;
+      return sound;
+    }
+    var music = {
+      bg : sound("flappy/bg.mp3", true),
+      hit : sound("flappy/hit.mp3")
+    };
+
+    function startGame() {
+      myBackground = new component(500, 300, "flappy/bg.png", 0, 0, "background");
+      myGamePiece = new component(35, 25, "flappy/bird.png", 10, 120, "image");
+      myScore = new component("30px", "Consolas", "black", 280, 40, "text");
+      // // --- control buttons inside canvas
+      // myUpBtn = new component(20, 20, "blue", 450, 230);
+      // myRightBtn = new component(20, 20, "blue", 470, 250);
+      // myDownBtn = new component(20, 20, "blue", 450, 270);
+      // myLeftBtn = new component(20, 20, "blue", 430, 250);
+      music.bg.play();
+      myGameArea.start();
+    }
+
+    var myGameArea = {
+      canvas : document.getElementById("canvas"),
+      start : function() {
+        this.context = this.canvas.getContext("2d");
+        // ctx = this.context;
+        // cnv = this.canvas;
+        // img = new Image();
+        // img.src = 'flappy/bg.png';
+        // img.onload = function(){
+        //   // create pattern
+        //   var ptrn = ctx.createPattern(img, 'repeat'); // Create a pattern with this image, and set it to "repeat".
+        //   ctx.fillStyle = ptrn;
+        //   ctx.fillRect(0, 0, cnv.width, cnv.height); // context.fillRect(x, y, width, height);
+        // }
+        this.frameNo = 0;
+        this.interval = setInterval(updateGameArea, 1000/60);
+        // keyboard control
+        window.addEventListener('keydown', function (e) {
+          // accelerate anti gravity on up-arrow key pressed
+          if (e.keyCode == 38) { accelerate(-0.2); }
+          myGameArea.keys = (myGameArea.keys || []);
+          myGameArea.keys[e.keyCode] = (e.type == "keydown");
+        })
+        window.addEventListener('keyup', function (e) {
+          // increase gravity on up-arrow key unpressed
+          if (e.keyCode == 38) { accelerate(0.1); }
+          myGameArea.keys[e.keyCode] = false;
+        })
+        // mousedown, mouseenter, mouseleave, mousemove, mouseout, mouseover, mouseup
+        this.canvas.addEventListener('mousemove', function (e) {
+            myGameArea.x = e.pageX;
+            myGameArea.y = e.pageY;
+        })
+        this.canvas.addEventListener('mouseleave', function (e) {
+            myGameArea.x = 0;
+            myGameArea.y = 0;
+        })
+        window.addEventListener('touchmove', function (e) {
+            myGameArea.x = e.touches[0].screenX;
+            myGameArea.y = e.touches[0].screenY;
+        })
+        // // --- controls inside canvas
+        // window.addEventListener('mousedown', function (e) {
+        //     myGameArea.x = e.pageX;
+        //     myGameArea.y = e.pageY;
+        // })
+        // window.addEventListener('mouseup', function (e) {
+        //     myGameArea.x = false;
+        //     myGameArea.y = false;
+        // })
+        // window.addEventListener('touchstart', function (e) {
+        //     myGameArea.x = e.pageX;
+        //     myGameArea.y = e.pageY;
+        // })
+        // window.addEventListener('touchend', function (e) {
+        //     myGameArea.x = false;
+        //     myGameArea.y = false;
+        // })
+      },
+      clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      },
+      // stop game
+      stop : function() {
+        // console.log(myGamePiece);
+        myGamePiece.image.src = "flappy/dead.png";
+        myGamePiece.update();
+        // updateGameArea();
+        music.bg.pause();
+        music.hit.play();
+        clearInterval(this.interval);
+      }
+    }
+
+    function component(width, height, color, x, y, type) {
+      this.type = type;
+      if (this.type == "image" || type == "background") {
+        this.image = new Image();
+        this.image.src = color;
+      }
+      this.width = width;
+      this.height = height;
+      this.speedX = 0;
+      this.speedY = 0;
+      this.x = x;
+      this.y = y;
+      this.gravity = 0.05;
+      this.gravitySpeed = 0;
+      this.bounce = 0.6;
+      this.update = function() {
+        ctx = myGameArea.context;
+        if (this.type == "text") {
+          ctx.font = this.width + " " + this.height;
+          ctx.fillStyle = color;
+          ctx.fillText(this.text, this.x, this.y);
+        } else if (this.type == "image" || type == "background") {
+          ctx.drawImage(
+            this.image,
+            this.x,
+            this.y,
+            this.width,
+            this.height
+          );
+          // draw second image for background for loop
+          if (type == "background") {
+            ctx.drawImage(this.image,
+              this.x + this.width,
+              this.y,
+              this.width, this.height
+            );
+          }
+        } else {
+          ctx.fillStyle = color;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+      }
+      // // --- controls inside canvas
+      // this.clicked = function() {
+      //   var myleft = this.x;
+      //   var myright = this.x + (this.width);
+      //   var mytop = this.y;
+      //   var mybottom = this.y + (this.height);
+      //   var clicked = true;
+      //   if (
+      //     (mybottom &lt; myGameArea.y) ||
+      //     (mytop > myGameArea.y) ||
+      //     (myright &lt; myGameArea.x) ||
+      //     (myleft > myGameArea.x)
+      //   ) {
+      //     clicked = false;
+      //   }
+      //   return clicked;
+      // }
+      this.newPos = function() {
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+        if (is_gravity) { this.y += this.speedY + this.gravitySpeed; }
+        else { this.y += this.speedY; }
+        this.hitBottom();
+        // move background image to start of canvas for new loop
+        if (this.type == "background") {
+          if (this.x == -(this.width)) {
+            this.x = 0;
+          }
+        }
+      }
+      this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height;
+        if (this.y > rockbottom) {
+          this.y = rockbottom;
+          // this.gravitySpeed = 0; // without bounce
+          this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+        }
+      }
+      this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var crash = true;
+        if (
+          (mybottom &lt; othertop) ||
+          (mytop > otherbottom) ||
+          (myright &lt; otherleft) ||
+          (myleft > otherright)
+        ) {
+            crash = false;
+        }
+        return crash;
+      }
+    }
+
+    function updateGameArea() {
+      var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+      for (i = 0; i &lt; myObstacles.length; i += 1) {
+        if (myGamePiece.crashWith(myObstacles[i])) {
+          myGameArea.stop();
+          return;
+        }
+      }
+      myGameArea.clear(); // clean canvas to redraw everything
+      myGameArea.frameNo += 1;
+      // draw background first, as lowest layer
+      myBackground.speedX = -0.3;
+      myBackground.newPos();
+      myBackground.update();
+      // build walls with a gap, in the begining and after an interval
+      if (myGameArea.frameNo == 1 || everyinterval(150)) {
+        x = myGameArea.canvas.width;
+        minHeight = 20;
+        maxHeight = 200;
+        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
+        minGap = 50;
+        maxGap = 200;
+        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
+        myObstacles.push(
+          new component(
+            30, height,
+            "flappy/top-wall.png",
+            x, 0, "image"));
+        myObstacles.push(
+          new component(
+            30, x - height - gap,
+            "flappy/bottom-wall.png",
+            x, height + gap, "image"));
+        // myObstacles.push(new component(10, height, "green", x, 0));
+        // myObstacles.push(new component(30, x - height - gap, "green", x, height + gap));
+      }
+      // move walls
+      for (i = 0; i &lt; myObstacles.length; i += 1) {
+        myObstacles[i].x += -1;
+        myObstacles[i].update();
+      }
+      // keyboard controls
+      if (myGameArea.keys) {
+        myGamePiece.speedX = 0;
+        myGamePiece.speedY = 0;
+        if (myGameArea.keys[37]) { // left
+          myGamePiece.speedX = -1;
+        }
+        if (myGameArea.keys[39]) { // right
+          myGamePiece.speedX = 1;
+        }
+        if (myGameArea.keys[38]) { // up
+          myGamePiece.speedY = -1;
+        }
+        if (myGameArea.keys[40]) { // down
+          myGamePiece.speedY = 1;
+        }
+      }
+      // mousemove/touch update
+      if (myGameArea.x && myGameArea.y) {
+        myGamePiece.x = myGameArea.x;
+        myGamePiece.y = myGameArea.y;
+      }
+      // // --- controls inside canvas
+      // if (myGameArea.x && myGameArea.y) {
+      //     if (myUpBtn.clicked()) {
+      //         myGamePiece.y -= 1;
+      //     }
+      //     if (myDownBtn.clicked()) {
+      //         myGamePiece.y += 1;
+      //     }
+      //     if (myLeftBtn.clicked()) {
+      //         myGamePiece.x += -1;
+      //     }
+      //     if (myRightBtn.clicked()) {
+      //         myGamePiece.x += 1;
+      //     }
+      // }
+      // myUpBtn.update();
+      // myDownBtn.update();
+      // myLeftBtn.update();
+      // myRightBtn.update();
+      myScore.text="SCORE: " + myGameArea.frameNo;
+      myScore.update();
+      myGamePiece.newPos();
+      myGamePiece.update();
+    }
+    function everyinterval(n) {
+      if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+      return false;
+    }
+    function accelerate(n) { myGamePiece.gravity = n; }
+    function moveup() { myGamePiece.speedY = -1; accelerate(-0.2); }
+    function movedown() { myGamePiece.speedY = 1; }
+    function moveleft() { myGamePiece.speedX = -1; }
+    function moveright() { myGamePiece.speedX = 1; }
+    function clearmove() {
+      myGamePiece.speedX = 0;
+      myGamePiece.speedY = 0;
+      accelerate(0.1);
+    }
+  </code></pre>
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

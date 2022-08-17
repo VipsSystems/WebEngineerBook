@@ -1,0 +1,4629 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NodeJS tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="node, js, nodejs, modules, lib, libraries, built in, strems, commands, forms, mail, database, db, tools, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>NodeJS tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="intro">Intro</h2>
+
+  <ul>
+    <li><strong>download NodeJS installer:</strong> <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></li>
+    <li>single-threaded, non-blocking, asynchronous programming, eliminates the waiting, and simply continues with the next request</li>
+    <li>files have extension ".js", initiated on the server before having any effect, contain tasks that will be executed on certain events like someone trying to access a port on the server</li>
+    <li>generate dynamic page content; create, open, read, write, delete, and close files on the server; collect form data; add, delete, modify data in your database</li>
+    <li>run file: <code>node file.js</code></li>
+    <li><strong>modules</strong> - same as JS libraries, set of functions to include in application</li>
+    <li><strong>package</strong> contains all the files you need for a module</li>
+  </ul>
+
+  <pre><code class="python">
+    # Using Ubuntu
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+
+    # Using Debian, as root
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    apt-get install -y nodejs
+
+
+    // Clear NPM cache:
+    sudo npm cache clean -f
+    // install a little helper called 'n'
+    sudo npm install -g n
+    // Install latest stable Node.js version
+    sudo n stable
+
+    // specific version install:
+    sudo n 0.8.20
+
+    // remove
+    sudo apt-get purge nodejs
+    sudo apt-get autoremove
+  </code></pre>
+
+
+<h2 id="globals">Globals</h2>
+
+  <h3>Global object - global or module scope modules, functions, strings and object etc.</h3>
+
+  <ul>
+    <li>__dirname - name of the directory that currently contains the code</li>
+    <li>__filename - filename of the code being executed, resolved absolute path of this code file</li>
+    <li>Console</li>
+    <li>Process</li>
+    <li>Buffer</li>
+    <li>setImmediate(callback[, arg][, ...])</li>
+    <li>setInterval(callback, delay[, arg][, ...])</li>
+    <li>setTimeout(callback, delay[, arg][, ...])</li>
+    <li>clearImmediate(immediateObject)</li>
+    <li>clearInterval(intervalObject)</li>
+    <li>clearTimeout(timeoutObject)</li>
+  </ul>
+
+  <h3>Process</h3>
+  <table>
+    <caption>properties</caption>
+    <tbody><tr><th>Property</th><th>Description</th></tr>
+    <tr><td>arch</td><td>returns process architecture: 'arm', 'ia32', or 'x64'</td></tr>
+    <tr><td>args</td><td>returns commands line arguments as an array</td></tr>
+    <tr><td>env</td><td>returns user environment</td></tr>
+    <tr><td>pid</td><td>returns process id of the process</td></tr>
+    <tr><td>platform</td><td>returns platform of the process: 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'</td></tr>
+    <tr><td>release</td><td>returns the metadata for the current node release</td></tr>
+    <tr><td>version</td><td>returns the node version</td></tr>
+    <tr><td>versions</td><td>returns the node version and its dependencies</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code class="js">
+    console.log(`Process Architecture: ${process.arch}`);
+    console.log(`Process PID: ${process.pid}`);
+    console.log(`Process Platform: ${process.platform}`);
+    console.log(`Process Version: ${process.version}`);
+
+    process.argv.forEach((value, index, array) => {
+      console.log(`${index}: ${value}`);
+    });
+  </code></pre>
+
+  <table>
+    <caption>functions</caption>
+    <tbody><tr><th>Function</th><th>Description</th></tr>
+    <tr><td>cwd()</td><td>returns path of current working directory</td></tr>
+    <tr><td>hrtime()</td><td>returns the current high-resolution real time in a [seconds, nanoseconds] array</td></tr>
+    <tr><td>memoryUsage()</td><td>returns an object having information of memory usage.</td></tr>
+    <tr><td>process.kill(pid[, signal])</td><td>is used to kill the given pid.</td></tr>
+    <tr><td>uptime()</td><td>returns the Node.js process uptime in seconds.</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code class="js">
+    console.log(`Current directory: ${process.cwd()}`);
+    console.log(`Uptime: ${process.uptime()}`);
+  </code></pre>
+
+
+
+<h2 id="module">Modules</h2>
+
+  <ul>
+    <li><strong>exports</strong> variable is available within a module file-level scope, and is assigned the value of <strong>module.exports</strong> before the module is evaluated:
+      <ul>
+        <li>if you assign anything to module.exports or to exports they are no longer bounded</li>
+      </ul>
+    </li>
+    <li>you cant require() ESM scripts; you can only import ESM scripts, like this: import {foo} from 'foo'</li>
+    <li>CJS scripts cant use static import statements like the one above</li>
+    <li>ESM scripts can import CJS scripts, but only by using the "default import" syntax import _ from 'lodash', not the "named import" syntax import {shuffle} from 'lodash', which is a hassle if the CJS script uses named exports</li>
+    <li>ESM scripts can require() CJS scripts, even with named exports, but its typically not worth the trouble, because it requires even more boilerplate, and, worst of all, bundlers like Webpack and Rollup dont/wont know how to work with ESM scripts that use require()</li>
+    <li>CJS is the default; <strong>opt-in to ESM</strong> mode by renaming your script from .js to .mjs. Alternately, you can set "type": "module" in package.json, and then you can <strong>opt-out of ESM</strong> by renaming scripts from .js to .cjs. (you can even tweak just an individual subdirectory by putting a one-line {"type": "module"} package.json file in there.)</li>
+  </ul>
+
+  <pre><code class="js">
+    module.exports = {a: 'A'};
+    exports.b = 'B'; // exports !== module.exports
+
+    module.exports.hello = true; // exported from require of module , if then
+    exports = { hello: false };  // exports !== module.exports
+
+    exports.foo = 'foo'; // ignored ...
+    module.exports = () => { console.log('bar'); }; // exported
+
+    // when the module.exports property is being completely replaced by a new object,
+    // it is common to also reassign exports:
+    module.exports = exports = function Constructor() {
+      // ... etc.
+    }
+
+    // --- CommonJS (CJS)
+
+    // - export
+    // named
+    module.exports.sayHello = function sayHello (name) { return `Hello ${name}` }
+    exports.method = function() {};
+    exports.otherMethod = function() {};
+    // default
+    module.exports = function sayHello (name) { return `Hello ${name}` }
+    // or
+    module.exports = {
+      sayHello: function sayHello (name) {
+        return `Hello ${name}`
+      },
+      sayHello2,
+    }
+
+    // - import
+    // named without changing the name
+    const { sayHello } = require('./commonjs/named')
+    // named import changing the name
+    const { sayHello: say2 } = require('./commonjs/named')
+    // default
+    const sayDefault = require('./commonjs/default')
+    // or
+    const say2 = require('./commonjs/named').sayHello
+
+    // --- ES Modules (ESM) (Node 14+)
+
+    // - export
+    // named
+    export function sayHello (name) { return `Hello ${name}` }
+    // default
+    export default function sayHello (name) { return `Hello ${name}` }
+
+    // - import
+    // named without changing the name
+    import { sayHello } from './esm/named.js'
+    // named import changing the name
+    import { sayHello as say2 } from './esm/named.js'
+    // default
+    import sayDefault from './esm/default.js'
+
+    console.log(sayHello('World'))
+    console.log(say2('World'))
+    console.log(sayDefault('World'))
+
+    // --- bare-paths - declare/export libraries from a node_modules directory
+    // - CJM
+    // node_modules/my-lib/package.json
+    { "main": "index.js" }
+    // node_modules/my-lib/index.js
+    module.exports.sayHello = function sayHello (name) { return `Hello ${name}` }
+    // import
+    const say3 = require('my-lib')
+    console.log(say3('World'))
+    // - ESM
+    // node_modules/my-esm-lib/package.json
+    { "main": "index.js" }
+    // node_modules/my-esm-lib/index.js
+    export default function sayHello (name) { return `Hello ${name}` }
+    // import
+    import say3 from 'my-esm-lib'
+    console.log(say3('World'))
+  </code></pre>
+
+  <details><summary>Import CJS module into ESM project</summary><pre><code class="js">
+    // commonjs/named.js
+    module.exports.sayHello = function sayHello (name) { return `Hello ${name}` }
+    // commonjs/default.js
+    module.exports = function sayHello (name) { return `Hello ${name}` }
+    // all the module.exports object in CJS will be converted to a single ESM default export
+    // you cannot use ESM named exports when importing CommonJS modules
+
+    // --- "fake" import
+    // named without changing the name
+    import named from './commonjs/named.js'
+    const { sayHello } = named
+    // named import changing the name
+    import named2 from './commonjs/named.js'
+    const { sayHello: say2 } = named2
+    // default
+    import sayDefault from './commonjs/default.js'
+
+    // --- intermediate module
+    // bridge/named.mjs
+    import named from '../commonjs/named.js'
+    export const sayHello = named.sayHello
+    Import it as named import
+    // index.mjs (with bridged modules)
+    // named without changing the name
+    import { sayHello } from './bridge/named.mjs'
+    // named import changing the name
+    import { sayHello as say2 } from './bridge/named.mjs'
+  </code></pre></details>
+
+  <details><summary>Import ESM module into CJS project</summary><pre><code class="js">
+    // esm/named.mjs
+    export function sayHello (name) { return `Hello ${name}` }
+    // esm/default.mjs
+    export default function sayHello (name) { return `Hello ${name}` }
+
+    // --- import with "esm" package
+    // returns everything as an object of named imports
+    const esmRequire = require('esm')(module)
+    // named without changing the name
+    const named = esmRequire('./esm/named.mjs')
+    const { sayHello } = named
+    // named import changing the name
+    const { sayHello: say2 } = named
+    // ESM default export becomes a named import called .default
+    const sayDefault = esmRequire('./esm/default.mjs').default
+
+    // --- with import() operator
+    // - returns a Promise, you need .then() or await
+    // - returns everything as an object of named imports
+    // - access the default-exported thing with .default-property
+    // index.js
+    ;(async function () {
+      // named without changing the name
+      const named = await import('./esm/named.mjs')
+      const { sayHello } = named
+      // named import changing the name
+      const { sayHello: say2 } = named
+      // default
+      const sayDefault = (await import('./esm/default.mjs')).default
+
+      console.log(sayHello('World'))
+      console.log(say2('World'))
+      console.log(sayDefault('World'))
+    })()
+
+    // --- intermediate modules with "esm" package
+    // bridge2/default.js - enable CJS default export
+    require = require('esm')(module)
+    module.exports = require('../esm/default.mjs').default
+    // bridge2/named.js - make other libraries ready for CJS import
+    require = require('esm')(module)
+    module.exports = require('../esm/named.mjs')
+    // require them:
+    const named = require('./bridge2/named.mjs')
+    const { sayHello } = named
+    // named import changing the name
+    const { sayHello: say2 } = named
+    // default
+    const sayDefault = require('./bridge2/default.mjs')
+  </code></pre></details>
+
+
+
+<h2 id="modules">Built-in</h2>
+
+  <ul>
+    <li>built-in modules, use without any further installation</li>
+    <li><a href="https://nodejs.org/api/">https://nodejs.org/api/</a></li>
+  </ul>
+
+  <table >
+    <tbody><tr>
+    <th>Module</th>
+    <th>Description</th>
+    </tr>
+    <tr><td>assert</td><td>set of assertion tests</td></tr>
+    <tr><td>buffer</td><td>handle binary data</td></tr>
+    <tr><td>child_process</td><td>run a child process</td></tr>
+    <tr><td>cluster</td><td>split a single Node process into multiple processes</td></tr>
+    <tr><td>crypto</td><td>handle OpenSSL cryptographic functions</td></tr>
+    <tr><td>dgram</td><td>implementation of UDP datagram sockets</td></tr>
+    <tr><td>dns</td><td>do DNS lookups and name resolution functions</td></tr>
+    <tr><td>events</td><td>handle events</td></tr>
+    <tr><td>fs</td><td>handle the file system</td></tr>
+    <tr><td>http</td><td>make Node.js act as an HTTP server</td></tr>
+    <tr><td>https</td><td>make Node.js act as an HTTPS server.</td></tr>
+    <tr><td>net</td><td>create servers and clients</td></tr>
+    <tr><td>os</td><td>Provides information about the operation system</td></tr>
+    <tr><td>path</td><td>handle file paths</td></tr>
+    <tr><td>punycode</td><td>Deprecated. A character encoding scheme</td></tr>
+    <tr><td>querystring</td><td>handle URL query strings</td></tr>
+    <tr><td>readline</td><td>handle readable streams one line at the time</td></tr>
+    <tr><td>stream</td><td>handle streaming data</td></tr>
+    <tr><td>string_decoder</td><td>decode buffer objects into strings</td></tr>
+    <tr><td>timers</td><td>execute a function after a given number of milliseconds</td></tr>
+    <tr><td>tls</td><td>implement TLS and SSL protocols</td></tr>
+    <tr><td>tty</td><td>Provides classes used by a text terminal</td></tr>
+    <tr><td>url</td><td>parse URL strings</td></tr>
+    <tr><td>util</td><td>access utility functions</td></tr>
+    <tr><td>v8</td><td>access information about V8 (the JavaScript engine)</td></tr>
+    <tr><td>vm</td><td>compile JavaScript code in a virtual machine</td></tr>
+    <tr><td>zlib</td><td>compress or decompress files</td></tr>
+    </tbody>
+  </table>
+
+  <details><summary>assert - test expressions</summary>
+  <pre><code class="js">
+    // if the expression evaluates to 0, or false,
+    // an assertion failure is being caused, and the program is terminated
+    var assert = require('assert');
+
+    // --- assert(expression, ?message)
+    assert(5 > 7);
+    assert(50 > 70, "My message goes here");
+    assert(50 - 50);
+
+    // --- assert.deepEqual(value1, value2, ?message)
+    var x = { a : { n: 0 } };
+    var y = { a : { n: 0 } };
+    var z = { a : { n: 1 } };
+    assert.deepEqual(x, y); // OK
+    assert.deepEqual(x, z); // AssertionError: { a: { n: 0 } } deepEqual {a: { n: 1 }
+    assert.deepEqual(x, z, "My message goes here");
+
+    // --- assert.deepStrictEqual(value1, value2, ?message)
+    var x = { a : { n: 0 } };
+    var y = { a : { n: 0 } };
+    var z = { a : { n: '0' } };
+    assert.deepStrictEqual(x, y); //OK
+    assert.deepStrictEqual(x, z); // AssertionError: { a: { n: 0 } } deepStrictEqual {a: { n: '0' } }
+    assert.deepStrictEqual(x, z, "My message goes here");
+
+    // --- assert.equal(value1, value2, ?message);
+    assert.equal(50, 50); //OK
+    assert.equal(50, "50"); //OK
+    assert.equal(50, 70); // AssertionError: 50 == 70
+    assert.equal(50, 70, "My message goes here");
+
+    // --- assert.notDeepEqual(value1, value2, ?message)
+    var x = { a : { n: 0 } };
+    var y = { a : { n: 0 } };
+    var z = { a : { n: 1 } };
+    assert.notDeepEqual(x, z); //OK
+    assert.notDeepEqual(x, y); // AssertionError: { a: { n: 0 } } notDeepEqual {a: { n: 0 } }
+    assert.notDeepEqual(x, y, "My message goes here");
+
+    // assert.notDeepStrictEqual(value1, value2, ?message)
+    var x = { a : { n: 0 } };
+    var y = { a : { n: 0 } };
+    var z = { a : { n: '0' } };
+    assert.notDeepStrictEqual(x, z); //OK
+    assert.notDeepStrictEqual(x, y); // AssertionError: { a: { n: 0 } } notDeepStrictEqual {a: { n: 0 } }
+    assert.notDeepStrictEqual(x, y, "My message goes here");
+
+    // --- assert.notEqual(value1, value2, ?message)
+    assert.notEqual(50, 70); //OK
+    assert.notEqual(50, 50); /*AssertionError: 50 != 50 */
+    assert.notEqual(50, 50, "My message goes here");
+
+    // --- assert.notStrictEqual(value1, value2, ?message)
+    assert.notStrictEqual(50, 70); //OK
+    assert.notStrictEqual(50, "50"); //OK
+    assert.notStrictEqual(50, 50); // AssertionError: 50 != 50
+    assert.notStrictEqual(50, 50, "My message goes here");
+
+    // --- assert.ok(expression, ?message)
+    assert.ok(50 > 70);
+    assert.ok(50 > 70, "My message goes here");
+    assert.ok(50 - 50); // throws an error if the expression evaluates to 0
+
+    // --- assert.strictEqual(value1, value2, ?message)
+    assert.strictEqual(50, 50); //OK
+    assert.strictEqual(50, "50"); // AssertionError: 50 === '50'
+    assert.strictEqual(50, "50", "My message goes here");
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>assert()</td>
+      <td>Checks if a value is true. Same as assert.ok()</td>
+    </tr>
+    <tr>
+      <td>deepEqual()</td>
+      <td>Checks if two values are equal</td>
+    </tr>
+    <tr>
+      <td>deepStrictEqual()</td>
+      <td>Checks if two values are equal, using the strict equal operator (===)</td>
+    </tr>
+    <tr>
+      <td>doesNotThrow()</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>equal()</td>
+      <td>Checks if two values are equal, using the equal operator (==)</td>
+    </tr>
+    <tr>
+      <td>fail()</td>
+      <td>Throws an Assertion Error</td>
+    </tr>
+    <tr>
+      <td>ifError()</td>
+      <td>Throws a specified error if the specified error evaluates to true</td>
+    </tr>
+    <tr>
+      <td>notDeepEqual()</td>
+      <td>Checks if two values are not equal</td>
+    </tr>
+    <tr>
+      <td>notDeepStrictEqual()</td>
+      <td>Checks if two values are not equal, using the strict not equal operator
+      (!==)</td>
+    </tr>
+    <tr>
+      <td>notEqual()</td>
+      <td>Checks if two values are not equal, using the not equal operator (!=)</td>
+    </tr>
+    <tr>
+      <td>notStrictEqual()</td>
+      <td>Checks if two values are not equal, using the strict not equal operator
+      (!==)</td>
+    </tr>
+    <tr>
+      <td>ok()</td>
+      <td>Checks if a value is true</td>
+    </tr>
+    <tr>
+      <td>strictEqual()</td>
+      <td>Checks if two values are equal, using the strict equal operator (===)</td>
+    </tr>
+    <tr>
+      <td>throws()</td>
+      <td>&nbsp;</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>buffers - handling streams of binary data</summary>
+  <pre><code class="js">
+    // --- keys()
+    for (x of buf.keys()) {
+      console.log(x);
+    }
+
+    // --- values() - display each value in a buffer object
+    for (x of buf.values()) {
+      console.log(x);
+    }
+
+    // --- entries() - content of a Buffer, both index and byte
+    var buf = Buffer.from('abc');
+    for (x of buf.entries()) {
+      console.log(x);
+    }
+
+    // --- toJSON() - buffer object as a JSON object
+    console.log(buf.toJSON())
+
+    // --- toString(?encoding, ?start, ?end) - buffer object as a string
+    console.log(buf.toString())
+
+    // --- write(value, ?start, ?bytes, ?encoding) - overwrite parts of an existing buffer
+    var buf = Buffer.from('abcdef');
+    buf.write('qq', 2);
+    console.log(buf.toString());
+
+    // --- from(obj, ?encoding)
+    // new buffer filled with the specified string, array, or buffer, default encoding is "utf8"
+    var buf = Buffer.from('abc');
+    console.log(buf);
+
+    // --- copy(target, ?targetStart, ?sourceStart, ?sourceEnd) - copy one buffer into parts of another buffer
+    var buf1 = Buffer.from('abcdefghijkl');
+    var buf2 = Buffer.from('HELLO');
+    buf2.copy(buf1, 2);
+    console.log(buf1.toString());
+    // copy parts of a buffer into parts of another buffer
+    var buf1 = Buffer.from('abcdefghijkl');
+    var buf2 = Buffer.from('HELLO');
+    buf2.copy(buf1, 2, 0, 2);
+    console.log(buf1.toString());
+
+    // --- concat(arr, ?length)
+    // join three buffer objects into one
+    var buf1 = Buffer.from('a');
+    var buf2 = Buffer.from('b');
+    var buf3 = Buffer.from('c');
+    var arr = [buf1, buf2, buf3];
+    var buf = Buffer.concat(arr);
+    console.log(buf);
+
+    // --- fill(value, ?start, ?end, ?encoding) - fills a buffer with the specified value
+    var buf = Buffer.alloc(15);
+    buf.fill('a');
+    console.log(buf);
+    var buf = Buffer.alloc(15);
+    buf.fill('a', 5, 10);
+    console.log(buf);
+
+    // --- slice(?start, ?end) - make a new buffer, based on parts from an existing buffer
+    var x = Buffer.from('abcdef');
+    var y = x.slice(2,5);
+
+    // --- alloc(size, ?fill, ?encoding)
+    var buf = Buffer.alloc(15);
+    console.log(buf);
+    var buf = Buffer.alloc(15, 'a');
+    console.log(buf);
+
+    // --- allocUnsafe(size)
+    var buf = Buffer.allocUnsafe(15);
+    console.log(buf);
+    var buf = Buffer.allocUnsafe(15);
+    console.log(buf);
+    //Empty the buffer, use the Buffer.fill() method to pre-fill the buffer
+    buf.fill(0);
+    console.log(buf);
+
+    // --- length - size of a buffer, in bytes
+    console.log(buf.length);
+
+    // --- byteLength(string, ?encoding)
+    var buf = Buffer.alloc(15);
+    var len = Buffer.byteLength(buf);
+    console.log(len);
+    var len = Buffer.byteLength('abc');
+    console.log(len);
+
+    // --- indexOf(value, ?start, ?encoding) - if a buffer incudes the phrase
+    var buf = Buffer.from('Hello, and welcome to Rome!');
+    console.log(buf.indexOf('e'));
+
+    // --- lastIndexOf(value, ?start, ?encoding)
+    // checks if a specified value is present in the buffer and returns the position
+    var buf = Buffer.from('Hello, and welcome to Rome!');
+    console.log(buf.lastIndexOf('e'));
+
+    // --- includes(value, ?start, ?encoding)
+    var buf = Buffer.from('Hello, and welcome to Rome!');
+    console.log(buf.includes('welcome'));
+
+    // --- compare(buf1, buf2)
+    var buf1 = Buffer.from('abc');
+    var buf2 = Buffer.from('abc');
+    var x = Buffer.compare(buf1, buf2);
+    console.log(x);
+    var buf1 = Buffer.from('a');
+    var buf2 = Buffer.from('b');
+    var x = Buffer.compare(buf1, buf2);
+    console.log(x);
+    var buf1 = Buffer.from('b');
+    var buf2 = Buffer.from('a');
+    var x = Buffer.compare(buf1, buf2);
+    console.log(x);
+
+    // --- equals(buf)
+    var buf1 = Buffer.from('abc');
+    var buf2 = Buffer.from('abc');
+    console.log(buf1.equals(buf2));
+    var buf1 = Buffer.from('abc');
+    var buf2 = Buffer.from('abcd');
+    console.log(buf1.equals(buf2);
+
+    // --- isEncoding(encoding) - returns true if the specified encoding is supported
+    console.log(Buffer.isEncoding('utf8'));
+    console.log(Buffer.isEncoding('windows-1252'));
+
+    // --- isBuffer(obj) - if an object is a Buffer object
+    var x = 'abc';
+    console.log(Buffer.isBuffer(x));
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>alloc()</td>
+      <td>Creates a Buffer object of the specified length</td>
+    </tr>
+    <tr>
+      <td>allocUnsafe()</td>
+      <td>Creates a non-zero-filled Buffer of the specified
+      length</td>
+    </tr>
+    <tr>
+      <td>allocUnsafeSlow</td>
+      <td>Creates a non-zero-filled and non-pooled Buffer of
+      the specified length</td>
+    </tr>
+    <tr>
+      <td>byteLength()</td>
+      <td>Returns the numbers of bytes in a specified object</td>
+    </tr>
+    <tr>
+      <td>compare()</td>
+      <td>Compares two Buffer objects</td>
+    </tr>
+    <tr>
+      <td>concat()</td>
+      <td>Concatenates an array of Buffer objects into one
+      Buffer object</td>
+    </tr>
+    <tr>
+      <td>copy()</td>
+      <td>Copies the specified number of bytes of a Buffer
+      object</td>
+    </tr>
+    <tr>
+      <td>entries()</td>
+      <td>Returns an iterator of "index" "byte" pairs of a
+      Buffer object</td>
+    </tr>
+    <tr>
+      <td>equals()</td>
+      <td>Compares two Buffer objects, and returns true if it
+      is a match, otherwise false</td>
+    </tr>
+    <tr>
+      <td>fill()</td>
+      <td>Fills a Buffer object with the specified values</td>
+    </tr>
+    <tr>
+      <td>from()</td>
+      <td>Creates a Buffer object from an object (string/array/buffer)</td>
+    </tr>
+    <tr>
+      <td>includes()</td>
+      <td>Checks if the Buffer object contains the specified value. Returns true
+      if there is a match, otherwise false</td>
+    </tr>
+    <tr>
+      <td>indexOf()</td>
+      <td>Checks if the Buffer object contains the specified value. Returns the
+      first occurrence, otherwise -1</td>
+    </tr>
+    <tr>
+      <td>isBuffer()</td>
+      <td>Checks if an object is a Buffer object</td>
+    </tr>
+    <tr>
+      <td>isEncoding()</td>
+      <td>Checks if the Buffer object supports the specified encoding</td>
+    </tr>
+    <tr>
+      <td>keys()</td>
+      <td>Returns an array of keys in a Buffer object</td>
+    </tr>
+    <tr>
+      <td>lastIndexOf()</td>
+      <td>Checks if the Buffer object contains the specified value. Returns the
+      first occurrence, starting from the end, otherwise -1</td>
+    </tr>
+    <tr>
+      <td>length</td>
+      <td>Returns the length of a Buffer object, in bytes</td>
+    </tr>
+    <tr>
+      <td>poolSize</td>
+      <td>Sets or returns the number of bytes used for pooling</td>
+    </tr>
+    <tr>
+      <td>readDoubleBE()</td>
+      <td>Reads a 64 bit double from a Buffer object, returns the result in big
+      endian</td>
+    </tr>
+    <tr>
+      <td>readDoubleLE()</td>
+      <td>Reads a 64 bit double from a Buffer object, returns the result in little
+      endian</td>
+    </tr>
+    <tr>
+      <td>readFloatBE()</td>
+      <td>Reads a 32 bit float from a Buffer object, returns the result in big
+      endian</td>
+    </tr>
+    <tr>
+      <td>readFloatLE()</td>
+      <td>Reads a 32 bit float from a Buffer object, returns the result in little
+      endian</td>
+    </tr>
+    <tr>
+      <td>readInt8()</td>
+      <td>Reads a 8 bit integer from a Buffer object</td>
+    </tr>
+    <tr>
+      <td>readInt16BE()</td>
+      <td>Reads a 16 bit integer from a Buffer object, returns the result in big
+      endian</td>
+    </tr>
+    <tr>
+      <td>readInt16LE()</td>
+      <td>Reads a 16 bit integer from a Buffer object, returns the result in
+      little endian</td>
+    </tr>
+    <tr>
+      <td>readInt32BE()</td>
+      <td>Reads a 32 bit integer from a Buffer object, returns the result in big
+      endian</td>
+    </tr>
+    <tr>
+      <td>readInt32LE()</td>
+      <td>Reads a 32 bit integer from a Buffer object, returns the result in
+      little endian</td>
+    </tr>
+    <tr>
+      <td>readIntBE()</td>
+      <td>Reads the specified number of bytes from a Buffer object, returns the
+      result in big endian</td>
+    </tr>
+    <tr>
+      <td>readIntLE()</td>
+      <td>Reads the specified number of bytes from a Buffer object, returns the
+      result in little endian</td>
+    </tr>
+    <tr>
+      <td>readUInt8()</td>
+      <td>Reads an unsigned 8 bit integer from a Buffer object</td>
+    </tr>
+    <tr>
+      <td>readUInt16BE()</td>
+      <td>Reads an unsigned 16 bit integer from a Buffer object, returns the
+      result in big endian</td>
+    </tr>
+    <tr>
+      <td>readUInt16LE()</td>
+      <td>Reads an unsigned 16 bit integer from a Buffer object, returns the
+      result in little endian</td>
+    </tr>
+    <tr>
+      <td>readUInt32BE()</td>
+      <td>Reads an unsigned 32 bit integer from a Buffer object, returns the
+      result in big endian</td>
+    </tr>
+    <tr>
+      <td>readUInt32LE()</td>
+      <td>Reads an unsigned 32 bit integer from a Buffer object, returns the
+      result in little endian</td>
+    </tr>
+    <tr>
+      <td>readUintBE()</td>
+      <td>Reads the specified number of bytes from a Buffer object, returns the
+      result as an unsigned integer</td>
+    </tr>
+    <tr>
+      <td>readUIntLE()</td>
+      <td>Reads the specified number of bytes from a Buffer object, returns the
+      result as an unsigned integer</td>
+    </tr>
+    <tr>
+      <td>slice()</td>
+      <td>Slices a Buffer object into a new Buffer objects starting and ending at
+      the specified positions</td>
+    </tr>
+    <tr>
+      <td>swap16()</td>
+      <td>Swaps the byte-order of a 16 bit Buffer object</td>
+    </tr>
+    <tr>
+      <td>swap32()</td>
+      <td>Swaps the byte-order of a 32 bit Buffer object</td>
+    </tr>
+    <tr>
+      <td>swap64()</td>
+      <td>Swaps the byte-order of a 64 bit Buffer object</td>
+    </tr>
+    <tr>
+      <td>toString()</td>
+      <td>Returns a string version of a Buffer object</td>
+    </tr>
+    <tr>
+      <td>toJSON()</td>
+      <td>Returns a JSON version of a Buffer object</td>
+    </tr>
+    <tr>
+      <td>values()</td>
+      <td>Returns an array of values in a Buffer object</td>
+    </tr>
+    <tr>
+      <td>write()</td>
+      <td>Writes a specified string to a Buffer object</td>
+    </tr>
+    <tr>
+      <td>writeDoubleBE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 64 bit double.</td>
+    </tr>
+    <tr>
+      <td>writeDoubleLE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 64 bit double.</td>
+    </tr>
+    <tr>
+      <td>writeFloatBE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 32 bit float.</td>
+    </tr>
+    <tr>
+      <td>writeFloatLE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 32 bit float.</td>
+    </tr>
+    <tr>
+      <td>writeInt8()</td>
+      <td>Writes the specified bytes to a Buffer object. The bytes should be 8 bit
+      integer</td>
+    </tr>
+    <tr>
+      <td>writeInt16BE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 16 bit integer.</td>
+    </tr>
+    <tr>
+      <td>writeInt16LE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 16 bit integer.</td>
+    </tr>
+    <tr>
+      <td>writeInt32BE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 32 bit integer.</td>
+    </tr>
+    <tr>
+      <td>writeInt32LE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 32 bit integer.</td>
+    </tr>
+    <tr>
+      <td>writeIntBE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object.</td>
+    </tr>
+    <tr>
+      <td>writeIntLE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object.</td>
+    </tr>
+    <tr>
+      <td>writeUInt8()</td>
+      <td>Writes the specified bytes to a Buffer object. The bytes should be 8 bit
+      unsigned integer</td>
+    </tr>
+    <tr>
+      <td>writeUInt16BE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 16 bit unsigned integer.</td>
+    </tr>
+    <tr>
+      <td>writeUInt16LE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 16 bit unsigned integer.</td>
+    </tr>
+    <tr>
+      <td>writeUInt32BE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object. The
+      bytes should be 32 bit unsigned integer.</td>
+    </tr>
+    <tr>
+      <td>writeUInt32LE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object. The
+      bytes should be 32 bit unsigned integer.</td>
+    </tr>
+    <tr>
+      <td>writeUIntBE()</td>
+      <td>Writes the specified bytes, using big endian, to a Buffer object</td>
+    </tr>
+    <tr>
+      <td>writeUIntLE()</td>
+      <td>Writes the specified bytes, using little endian, to a Buffer object</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>child_process - creation of child processes for parallel processing on multi-core CPU</summary>
+
+    <ul>
+      <li>child processes always have three streams <strong>child.stdin</strong>, <strong>child.stdout</strong>, and <strong>child.stderr</strong> which may be <u>shared with the stdio streams of the parent</u> process</li>
+      <li>ways to create a child process
+        <ul>
+          <li><strong>exec</strong> - runs a command in a shell/console and buffers the output</li>
+          <li><strong>spawn</strong> - launches a new process with a given command</li>
+          <li><strong>fork</strong> - special case of the spawn() to create child processes</li>
+        </ul>
+      </li>
+    </ul>
+
+    <details><summary> --- child_process.exec(command[, options], callback)</summary>
+      <ul>
+        <li><strong>command</strong> (String) The command to run, with space-separated arguments</strong></li>
+        <li><strong>options</strong> (Object) may comprise one or more of the following options −</p>
+          <ul>
+          <li><strong>cwd</strong> (String) Current working directory of the child process</strong></li>
+          <li><strong>env</strong> (Object) Environment key-value pairs</strong></li>
+          <li><strong>encoding</strong> (String) (Default: 'utf8')</strong></li>
+          <li><strong>shell</strong> (String) Shell to execute the command with (Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows, The shell should understand the -c switch on UNIX or /s /c on Windows. On Windows, command line parsing should be compatible with cmd.exe.)</strong></li>
+          <li><strong>timeout</strong> (Number) (Default: 0)</strong></li>
+          <li><strong>maxBuffer</strong> (Number) (Default: 200*1024)</strong></li>
+          <li><strong>killSignal</strong> (String) (Default: 'SIGTERM')</strong></li>
+          <li><strong>uid</strong> (Number) Sets the user identity of the process</strong></li>
+          <li><strong>gid</strong> (Number) Sets the group identity of the process</li>
+          </ul>
+        </li>
+        <li><strong>callback</strong> The function gets three arguments <strong>error</strong>, <strong>stdout,</strong> and <strong>stderr</strong> which are called with the output when the process terminates</li>
+        <li><strong>returns a buffer with a max size and waits for the process to end and tries to return all the buffered data at once</strong></li>
+      </ul>
+    <pre><code class="js">
+      // support.js
+      console.log("Child Process " + process.argv[2] + " executed." );
+
+      // master.js
+      const fs = require('fs');
+      const child_process = require('child_process');
+      for(var i=0; i&lt;3; i++) {
+        var workerProcess = child_process.exec('node support.js '+i,function
+          (error, stdout, stderr) {
+          if (error) {
+            console.log(error.stack);
+            console.log('Error code: '+error.code);
+            console.log('Signal received: '+error.signal);
+          }
+          console.log('stdout: ' + stdout);
+          console.log('stderr: ' + stderr);
+        });
+        workerProcess.on('exit', function (code) {
+          console.log('Child process exited with exit code '+code);
+        });
+      }
+
+      // > node master.js
+
+      // Child process exited with exit code 0
+      // stdout: Child Process 1 executed.
+      // stderr:
+      // Child process exited with exit code 0
+      // stdout: Child Process 0 executed.
+      // stderr:
+      // Child process exited with exit code 0
+      // stdout: Child Process 2 executed.
+    </code></pre></details>
+
+    <details><summary> --- child_process.spawn(command[, args][, options])</summary>
+      <ul>
+        <li><strong>command</strong> (String) The command to run</strong></li>
+        <li><strong>args</strong> (Array) List of string arguments</strong></li>
+        <li><strong>options</strong> (Object) may comprise one or more of the following options −</p>
+          <ul>
+          <li><strong>cwd</strong> (String) Current working directory of the child process</li>
+          <li><strong>env</strong> (Object) Environment key-value pairs</li>
+          <li><strong>stdio</strong> (Array) String Child's stdio configuration</li>
+          <li><strong>customFds</strong> (Array) Deprecated File descriptors for the child to use for stdio</li>
+          <li><strong>detached</strong> (Boolean) The child will be a process group leader</li>
+          <li><strong>uid</strong> (Number) Sets the user identity of the process</li>
+          <li><strong>gid</strong> (Number) Sets the group identity of the process</li>
+          </ul>
+        </li>
+        <li><strong>returns streams (stdout &stderr) and it should be used when the process returns a volume amount of data, starts receiving the response as soon as the process starts executing</strong></li>
+      </ul>
+    <pre><code class="js">
+      // support.js
+      console.log("Child Process " + process.argv[2] + " executed." );
+
+      // master.js
+      const fs = require('fs');
+      const child_process = require('child_process');
+      for(var i = 0; i&lt;3; i++) {
+        var workerProcess = child_process.spawn('node', ['support.js', i]);
+        workerProcess.stdout.on('data', function (data) {
+          console.log('stdout: ' + data);
+        });
+        workerProcess.stderr.on('data', function (data) {
+          console.log('stderr: ' + data);
+        });
+        workerProcess.on('close', function (code) {
+          console.log('child process exited with code ' + code);
+        });
+      }
+
+      // > node master.js
+
+      // Verify the Output. Server has started
+      // stdout: Child Process 0 executed.
+      // child process exited with code 0
+      // stdout: Child Process 1 executed.
+      // stdout: Child Process 2 executed.
+      // child process exited with code 0
+      // child process exited with code 0
+    </code></pre></details>
+
+    <details><summary> --- child_process.fork(modulePath[, args][, options])</summary>
+      <ul>
+        <li><strong>modulePath</strong> (String) The module to run in the child</li>
+        <li><strong>args</strong> (Array) List of string arguments</strong></li>
+        <li><strong>options</strong> (Object) may comprise one or more of the following options −</p>
+          <ul>
+          <li><strong>cwd</strong> (String) Current working directory of the child process</li>
+          <li><strong>env</strong> (Object) Environment key-value pairs</li>
+          <li><strong>execPath</strong> (String) Executable used to create the child process</li>
+          <li><strong>execArgv</strong> (Array) List of string arguments passed to the executable (Default: process.execArgv)</li>
+          <li><strong>silent</strong> (Boolean) If true, stdin, stdout, and stderr of the child will be piped to the parent, otherwise they will be inherited from the parent, see the "pipe" and "inherit" options for spawn()'s stdio for more details (default is false)</li>
+          <li><strong>uid</strong> (Number) Sets the user identity of the process</strong></li>
+          <li><strong>gid</strong> (Number) Sets the group identity of the process</li>
+          </ul>
+        </li>
+      </ul>
+    <pre><code class="js">
+      // support.js
+      console.log("Child Process " + process.argv[2] + " executed." );
+
+      // master.js
+      const fs = require('fs');
+      const child_process = require('child_process');
+      for(var i=0; i&lt;3; i++) {
+          var worker_process = child_process.fork("support.js", [i]);
+          worker_process.on('close', function (code) {
+            console.log('child process exited with code ' + code);
+          });
+      }
+
+      // > node master.js
+
+      // Child Process 0 executed.
+      // Child Process 1 executed.
+      // Child Process 2 executed.
+      // child process exited with code 0
+      // child process exited with code 0
+      // child process exited with code 0
+    </code></pre></details>
+
+  </details>
+
+  <details><summary>cluster - creating child processes that runs simultaneously and share the same server port</summary>
+  <ul>
+    <li>take advantage of computers multi-core systems, module allows to easily create child processes that each runs on their own single thread, to handle the load</li>
+  </ul>
+  <pre><code class="js">
+    var cluster = require('cluster');
+    if (cluster.isWorker) {
+      console.log('I am a worker');
+    } else {
+      console.log('I am a master');
+      cluster.fork();
+      cluster.fork();
+    }
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>disconnect()</td>
+      <td>Disconnects all workers</td>
+    </tr>
+    <tr>
+      <td>exitedAfterDisconnect</td>
+      <td>Returns true if a worker was exited after disconnect, or the kill method</td>
+    </tr>
+    <tr>
+      <td>fork()</td>
+      <td>Creates a new worker, from a master</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>A unique id for a worker</td>
+    </tr>
+    <tr>
+      <td>isConnected</td>
+      <td>Returns true if the worker is connected to its
+      master, otherwise false</td>
+    </tr>
+    <tr>
+      <td>isDead</td>
+      <td>Returns true if the worker's process is dead,
+      otherwise false</td>
+    </tr>
+    <tr>
+      <td>isMaster</td>
+      <td>Returns true if the current process is master,
+      otherwise false</td>
+    </tr>
+    <tr>
+      <td>isWorker</td>
+      <td>Returns true if the current process is worker,
+      otherwise false</td>
+    </tr>
+    <tr>
+      <td>kill()</td>
+      <td>Kills the current worker</td>
+    </tr>
+    <tr>
+      <td>process</td>
+      <td>Returns the global Child Process</td>
+    </tr>
+    <tr>
+      <td>schedulingPolicy</td>
+      <td>Sets or gets the schedulingPolicy</td>
+    </tr>
+    <tr>
+      <td>send()</td>
+      <td>sends a message to a master or a worker</td>
+    </tr>
+    <tr>
+      <td>settings</td>
+      <td>Returns an object containing the cluster's settings</td>
+    </tr>
+    <tr>
+      <td>setupMaster()</td>
+      <td>Changes the settings of a cluster</td>
+    </tr>
+    <tr>
+      <td>worker</td>
+      <td>Returns the current worker object</td>
+    </tr>
+    <tr>
+      <td>workers</td>
+      <td>Returns all workers of a master</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>crypto - handling encrypted data</summary>
+  <pre><code class="js">
+    var crypto = require('crypto');
+    var mykey = crypto.createCipher('aes-128-cbc', 'mypassword');
+    var mystr = mykey.update('abc', 'utf8', 'hex')
+    mystr += mykey.final('hex');
+    console.log(mystr); //34feb914c099df25794bf9ccb85bea72
+
+    var crypto = require('crypto');
+    var mykey = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var mystr = mykey.update('34feb914c099df25794bf9ccb85bea72', 'hex', 'utf8')
+    mystr += mykey.final('utf8');
+    console.log(mystr); //abc
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>constants</td>
+      <td>Returns an object containing Crypto Constants</td>
+    </tr>
+    <tr>
+      <td>fips</td>
+      <td>Checks if a FIPS crypto provider is in use</td>
+    </tr>
+    <tr>
+      <td>createCipher()</td>
+      <td>Creates a Cipher object using the specific
+      algorithm and password</td>
+    </tr>
+    <tr>
+      <td>createCipheriv()</td>
+      <td>Creates a Cipher object using the specific
+      algorithm, password and initialization vector</td>
+    </tr>
+    <tr>
+      <td>createDecipher()</td>
+      <td>Creates a Decipher object using the specific
+      algorithm and password</td>
+    </tr>
+    <tr>
+      <td>createDecipheriv()</td>
+      <td>Creates a Decipher object using the specific
+      algorithm, password and initialization vector</td>
+    </tr>
+    <tr>
+      <td>createDiffieHellman()</td>
+      <td>Creates a DiffieHellman key exchange object</td>
+    </tr>
+    <tr>
+      <td>createECDH()</td>
+      <td>Creates an Elliptic Curve Diffie Hellmann key
+      exchange object</td>
+    </tr>
+    <tr>
+      <td>createHash()</td>
+      <td>Creates a Hash object using the specified algorithm</td>
+    </tr>
+    <tr>
+      <td>createHmac()</td>
+      <td>Creates a Hmac object using the specified algorithm
+      and key</td>
+    </tr>
+    <tr>
+      <td>createSign()</td>
+      <td>Creates a Sign object using the specified algorithm
+      and key</td>
+    </tr>
+    <tr>
+      <td>createVerify()</td>
+      <td>Creates a Verify object using the specified
+      algorithm</td>
+    </tr>
+    <tr>
+      <td>getCiphers</td>
+      <td>Returns an array of supported cipher algorithms</td>
+    </tr>
+    <tr>
+      <td>getCurves()</td>
+      <td>Returns an array of supported elliptic curves</td>
+    </tr>
+    <tr>
+      <td>getDiffieHellman()</td>
+      <td>Returns a predefined Diffie Hellman key exchange
+      object</td>
+    </tr>
+    <tr>
+      <td>getHashes()</td>
+      <td>Returns an array of supported hash algorithms</td>
+    </tr>
+    <tr>
+      <td>pbkdf2()</td>
+      <td>Creates a Password Based Key Derivation Function 2
+      implementation</td>
+    </tr>
+    <tr>
+      <td>pbkdf2Sync()</td>
+      <td>Creates a synchronous Password Based Key Derivation
+      Function 2 implementation</td>
+    </tr>
+    <tr>
+      <td>privateDecrypt()</td>
+      <td>Decrypts data using a private key</td>
+    </tr>
+    <tr>
+      <td>timingSafeEqual()</td>
+      <td>Compare two Buffers and returns true is they are
+      equal, otherwise false</td>
+    </tr>
+    <tr>
+      <td>privateEncrypt()</td>
+      <td>Encrypts data using a private key</td>
+    </tr>
+    <tr>
+      <td>publicDecrypt()</td>
+      <td>Decrypts data using a public key</td>
+    </tr>
+    <tr>
+      <td>publicEncrypt()</td>
+      <td>Encrypts data using a public key</td>
+    </tr>
+    <tr>
+      <td>randomBytes()</td>
+      <td>Creates random data</td>
+    </tr>
+    <tr>
+      <td>setEngine()</td>
+      <td>Sets the engine for some or all OpenSSL function</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>dgram - working with Datagram sockets (send messages from one computer/server to another)</summary>
+  <pre><code class="js">
+    // dgram.js
+    var dgram = require('dgram');
+    var s = dgram.createSocket('udp4');
+    s.on('message', function(msg, rinfo) {
+      console.log('I got this message: ' + msg.toString());
+    });
+    s.bind(8080);
+
+    // dgram_send.js
+    var dgram = require('dgram');
+    var s = dgram.createSocket('udp4');
+    s.send(Buffer.from('abc'), 8080, 'localhost');
+  </code></pre>
+  </details>
+
+  <details><summary>dns - performing name resolutions</summary>
+  <pre><code class="js">
+    var dns = require('dns');
+    var w3 = dns.lookup('w3schools.com', function (err, addresses, family) {
+      console.log(addresses);
+    });
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>getServers()</td>
+      <td>Returns an array containing all IP addresses belonging to the current
+      server</td>
+    </tr>
+    <tr>
+      <td>lookup()</td>
+      <td>Looks up a hostname. A callback function contains information about the
+      hostname, including it's IP address</td>
+    </tr>
+    <tr>
+      <td>lookupService()</td>
+      <td>Looks up a address and port. A callback function contains information
+      about the address, such as the hostname</td>
+    </tr>
+    <tr>
+      <td>resolve()</td>
+      <td>Returns an array of record types belonging to the
+      specified hostname</td>
+    </tr>
+    <tr>
+      <td>resolve4()</td>
+      <td>Looks up an IPv4 address. The callback function
+      includes an array of IPv4 addresses</td>
+    </tr>
+    <tr>
+      <td>resolve6()</td>
+      <td>Looks up an IPv6 address. The callback function
+      includes an array of IPv6 addresses</td>
+    </tr>
+    <tr>
+      <td>resolveCname()</td>
+      <td>Looks up CNAME records for the specified hostname.
+      The callback function includes an array of available domains for the
+      hostname</td>
+    </tr>
+    <tr>
+      <td>resolveMx()</td>
+      <td>Looks up mail exchange records for the specified
+      hostname.</td>
+    </tr>
+    <tr>
+      <td>resolveNaptr()</td>
+      <td>Looks up regular expression based records for the
+      specified hostname.</td>
+    </tr>
+    <tr>
+      <td>resolveNs()</td>
+      <td>Looks up name server records for the specified
+      hostname.</td>
+    </tr>
+    <tr>
+      <td>resolveSoa()</td>
+      <td>Looks up a start of authority record for the
+      specified hostname.</td>
+    </tr>
+    <tr>
+      <td>resolveSrv()</td>
+      <td>Looks up service records for the specified
+      hostname.</td>
+    </tr>
+    <tr>
+      <td>resolvePtr()</td>
+      <td>Looks up pointer records for the specified
+      hostname.</td>
+    </tr>
+    <tr>
+      <td>resolveTxt()</td>
+      <td>Looks up text query records for the specified
+      hostname.</td>
+    </tr>
+    <tr>
+      <td>reverse()</td>
+      <td>Reverses an IP address into an array of hostnames</td>
+    </tr>
+    <tr>
+      <td>setServers()</td>
+      <td>Sets the IP addresses of the servers</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>events - working with events</summary>
+  <ul>
+    <li>instance of the EventEmitter object</li>
+    <li>every action on a computer is an event: connection is made or a file is opened, readStream object fires events when opening and closing a file,...</li>
+  </ul>
+  <pre><code class="js">
+    var fs = require('fs');
+    var rs = fs.createReadStream('./demofile.txt');
+    rs.on('open', function () {
+      console.log('The file is open');
+    });
+
+    var events = require('events');
+    var eventEmitter = new events.EventEmitter();
+    //Create an event handler:
+    var myEventHandler = function () {
+      console.log('I hear a scream!');
+    }
+    //Assign the event handler to an event:
+    eventEmitter.on('scream', myEventHandler);
+    //Fire the 'scream' event:
+    eventEmitter.emit('scream');
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>addListener()</td>
+      <td>Adds the specified listener</td>
+    </tr>
+    <tr>
+      <td>defaultMaxListeners</td>
+      <td>Sets the maximum number of listeners allowed for one event. Default is
+      10</td>
+    </tr>
+    <tr>
+      <td>emit()</td>
+      <td>Call all the listeners registered with the specified name</td>
+    </tr>
+    <tr>
+      <td>eventNames()</td>
+      <td>Returns an array containing all registered events</td>
+    </tr>
+    <tr>
+      <td>getMaxListeners()</td>
+      <td>Returns the maximum number of listeners allowed for
+      one event</td>
+    </tr>
+    <tr>
+      <td>listenerCount()</td>
+      <td>Returns the number of listeners with the specified
+      name</td>
+    </tr>
+    <tr>
+      <td>listeners()</td>
+      <td>Returns an array of listeners with the specified
+      name</td>
+    </tr>
+    <tr>
+      <td>on()</td>
+      <td>Adds the specified listener</td>
+    </tr>
+    <tr>
+      <td>once()</td>
+      <td>Adds the specified listener once. When the
+      specified listener has been executed, the listener is removed</td>
+    </tr>
+    <tr>
+      <td>prependListener()</td>
+      <td>Adds the specified listener as the first event with
+      the specified name</td>
+    </tr>
+    <tr>
+      <td>prependOnceListener()</td>
+      <td>Adds the specified listener as the first event with
+      the specified name, once. When the specified listener has been executed, the
+      listener is removed</td>
+    </tr>
+    <tr>
+      <td>removeAllListeners()</td>
+      <td>Removes all listeners with the specified name, or
+      ALL listeners if no name is specified</td>
+    </tr>
+    <tr>
+      <td>removeListener()</td>
+      <td>Removes the specified listener with the specified
+      name</td>
+    </tr>
+    <tr>
+      <td>setMaxListeners()</td>
+      <td>Sets the maximum number of listeners allowed for
+      one event. Default is 10</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>fs - working with the file system</summary>
+  <pre><code class="js">
+    var fs = require('fs');
+    fs.readFile('demofile.txt', 'utf8', function(err, data) {
+      if (err) throw err;
+      console.log(data);
+    });
+
+    var http = require('http');
+    var fs = require('fs');
+    http.createServer(function (req, res) {
+      fs.readFile('demofile1.html', function(err, data) {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write(data);
+        res.end();
+      });
+    }).listen(8080);
+
+    // --- Create Files
+
+    // new file using the appendFile()
+    var fs = require('fs');
+    fs.appendFile('mynewfile1.txt', 'Hello content!', function (err) {
+      if (err) throw err;
+      console.log('Saved!');
+    });
+
+    // open() - takes a "flag" as the second argument,
+    // if the flag is "w" for "writing", the specified file is opened for writing
+    // if the file does not exist, an empty file is created
+    var fs = require('fs');
+    fs.open('mynewfile2.txt', 'w', function (err, file) {
+      if (err) throw err;
+      console.log('Saved!');
+    });
+
+    // writeFile() - replace the specified file and content if it exists
+    // if the file does not exist, a new file, containing the specified content, will be created
+    var fs = require('fs');
+    fs.writeFile('mynewfile3.txt', 'Hello content!', function (err) {
+      if (err) throw err;
+      console.log('Saved!');
+    });
+
+    // --- Update Files
+
+    // appendFile() - append specified content at the end of the specified file
+    var fs = require('fs');
+    fs.appendFile('mynewfile1.txt', ' This is my text.', function (err) {
+      if (err) throw err;
+      console.log('Updated!');
+    });
+
+    // writeFile() - replace specified file and content
+    var fs = require('fs');
+    fs.writeFile('mynewfile3.txt', 'This is my text', function (err) {
+      if (err) throw err;
+      console.log('Replaced!');
+    });
+
+    // --- Delete Files - unlink()
+    var fs = require('fs');
+    fs.unlink('mynewfile2.txt', function (err) {
+      if (err) throw err;
+      console.log('File DELETED !');
+    });
+
+    // --- Rename Files - rename()
+    var fs = require('fs');
+    fs.rename('mynewfile1.txt', 'myrenamedfile.txt', function (err) {
+      if (err) throw err;
+      console.log('File Renamed!');
+    });
+
+    // --- serve the file requested by the client
+    // http://localhost:8080/summer.html
+    // http://localhost:8080/winter.html
+    var http = require('http');
+    var url = require('url');
+    var fs = require('fs');
+    http.createServer(function (req, res) {
+      var q = url.parse(req.url, true);
+      var filename = "." + q.pathname;
+      fs.readFile(filename, function(err, data) {
+        if (err) {
+          res.writeHead(404, {'Content-Type': 'text/html'});
+          return res.end("404 Not Found");
+        }
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write(data);
+        return res.end();
+      });
+    }).listen(8080);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>access()</td>
+      <td>Checks if a user has access to this file or directory</td>
+    </tr>
+    <tr>
+      <td>accessSync()</td>
+      <td>Same as access(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>appendFile()</td>
+      <td>Appends data to a file</td>
+    </tr>
+    <tr>
+      <td>appendFileSync()</td>
+      <td>Same as appendFile(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>chmod()</td>
+      <td>Changes the mode of a file</td>
+    </tr>
+    <tr>
+      <td>chmodSync()</td>
+      <td>Same as chmod(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>chown()</td>
+      <td>Changes the owner of a file</td>
+    </tr>
+    <tr>
+      <td>chownSync()</td>
+      <td>Same as chown(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>close()</td>
+      <td>Closes a file</td>
+    </tr>
+    <tr>
+      <td>closeSync()</td>
+      <td>Same as close(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>constants</td>
+      <td>Returns an object containing constant values for the file system</td>
+    </tr>
+    <tr>
+      <td>createReadStream()</td>
+      <td>Returns a new stream object</td>
+    </tr>
+    <tr>
+      <td>createWriteStream()</td>
+      <td>Returns a new writeable stream object</td>
+    </tr>
+    <tr>
+      <td>exists()</td>
+      <td>Deprecated. Checks if a file or folder exists</td>
+    </tr>
+    <tr>
+      <td>existsSync()</td>
+      <td>Same as exists(), but synchronous instead of asynchronous. This
+      method is NOT deprecated</td>
+    </tr>
+    <tr>
+      <td>fchmod()</td>
+      <td>Changes the mode of a file</td>
+    </tr>
+    <tr>
+      <td>fchmodSync()</td>
+      <td>Same as fchmod(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>fchown()</td>
+      <td>Changes the owner of a file</td>
+    </tr>
+    <tr>
+      <td>fchownSync()</td>
+      <td>Same as fchown(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>fdatasync()</td>
+      <td>Syncronizes a file with the one stored on the computer</td>
+    </tr>
+    <tr>
+      <td>fdatasyncSync()</td>
+      <td>Same as fdatasync(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>fstat()</td>
+      <td>Returns the status of a file</td>
+    </tr>
+    <tr>
+      <td>fstatSync()</td>
+      <td>Same as fstat(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>fsync()</td>
+      <td>Syncronizes a file with the one stored on the computer</td>
+    </tr>
+    <tr>
+      <td>fsyncSync()</td>
+      <td>Same as fsync(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>ftruncated()</td>
+      <td>Truncates a file</td>
+    </tr>
+    <tr>
+      <td>ftruncatedSync()</td>
+      <td>Same as ftruncated(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>futimes()</td>
+      <td>Change the timestamp of a file</td>
+    </tr>
+    <tr>
+      <td>futimesSync()</td>
+      <td>Same as futimes(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>lchmod()</td>
+      <td>Changes the mode of a file, for Mac OS X</td>
+    </tr>
+    <tr>
+      <td>lchmodSync()</td>
+      <td>Same as lchmod(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>lchown()</td>
+      <td>Changes the owner of a file, for Mac OS X</td>
+    </tr>
+    <tr>
+      <td>lchownSync()</td>
+      <td>Same as lchown(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>link()</td>
+      <td>Makes an addition name for a file. Both the old and the new name may be
+      used</td>
+    </tr>
+    <tr>
+      <td>linksync()</td>
+      <td>Same as link(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>lstat()</td>
+      <td>Returns the status of a file</td>
+    </tr>
+    <tr>
+      <td>lstatSync()</td>
+      <td>Same as lstat(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>mkdir()</td>
+      <td>Makes a new directory</td>
+    </tr>
+    <tr>
+      <td>mkdirSync()</td>
+      <td>Same as mkdir(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>mkdtemp()</td>
+      <td>Makes a new temporary directory</td>
+    </tr>
+    <tr>
+      <td>mkdtempSync()</td>
+      <td>Same as mktemp(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>open()</td>
+      <td>Opens a file</td>
+    </tr>
+    <tr>
+      <td>openSync()</td>
+      <td>Same as open(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>read()</td>
+      <td>Reads the content of a file</td>
+    </tr>
+    <tr>
+      <td>readdir()</td>
+      <td>Reads the content of a directory</td>
+    </tr>
+    <tr>
+      <td>readdirSync()</td>
+      <td>Same as readdir(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>readFile()</td>
+      <td>Reads the content of a file</td>
+    </tr>
+    <tr>
+      <td>readFileSync()</td>
+      <td>Same as readFile(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>readlink()</td>
+      <td>Reads the value of a link</td>
+    </tr>
+    <tr>
+      <td>readlinkSync()</td>
+      <td>Same as readlink(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>realpath()</td>
+      <td>Returns the absolute pathname</td>
+    </tr>
+    <tr>
+      <td>realpathSync()</td>
+      <td>Same as realpath(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>rename()</td>
+      <td>Renames a file</td>
+    </tr>
+    <tr>
+      <td>renameSync()</td>
+      <td>Same as rename(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>rmdir()</td>
+      <td>Removes a directory</td>
+    </tr>
+    <tr>
+      <td>rmdirSync()</td>
+      <td>Same as rmdir(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>stat()</td>
+      <td>Returns the status of a file</td>
+    </tr>
+    <tr>
+      <td>statSync()</td>
+      <td>Same as stat(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>symlink()</td>
+      <td>Makes a symbolic name for a file</td>
+    </tr>
+    <tr>
+      <td>symlinkSync()</td>
+      <td>Same as symlink(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>truncate()</td>
+      <td>Truncates a file</td>
+    </tr>
+    <tr>
+      <td>truncateSync()</td>
+      <td>Same as truncate(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>unlink()</td>
+      <td>Removes a link</td>
+    </tr>
+    <tr>
+      <td>unlinkSync()</td>
+      <td>Same as unlink(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>unwatchFile()</td>
+      <td>Stops watching for changes on a filename</td>
+    </tr>
+    <tr>
+      <td>utimes()</td>
+      <td>Change the timestamp of a file</td>
+    </tr>
+    <tr>
+      <td>utimesSync()</td>
+      <td>Same as utimes(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>watch()</td>
+      <td>Watch for changes of a filename or directoryname</td>
+    </tr>
+    <tr>
+      <td>watchFile()</td>
+      <td>Watch for changes of a filename</td>
+    </tr>
+    <tr>
+      <td>write()</td>
+      <td>Writes buffer to a file</td>
+    </tr>
+    <tr>
+      <td>write()</td>
+      <td>Writes data to a file</td>
+    </tr>
+    <tr>
+      <td>writeFile()</td>
+      <td>Writes data to a file</td>
+    </tr>
+    <tr>
+      <td>writeFileSync()</td>
+      <td>Same as writeFile(), but synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>writeSync()</td>
+      <td>Same as write(); writes buffer to a file synchronous instead of asynchronous</td>
+    </tr>
+    <tr>
+      <td>writeSync()</td>
+      <td>Same as write(); writes data to a file synchronous instead of asynchronous</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>http - making Node.js transfer data over HTTP</summary>
+  <pre><code class="js">
+    // --- createServer(requestListener)
+    // function to be executed every time the server gets a request
+    // called a requestListener, and handles request from the user and back
+    // - app.js
+    var http = require('http'); // HTTP module
+    var dt = require('./firstmodule');
+    http.createServer(function (req, res) { // create a server
+      res.writeHead(200, {'Content-Type': 'text/html'}); // http header
+      res.write("The date and time are currently: " + dt.myDateTime()); // response to the client
+      // res.end('Hello World!'); //end the response
+      res.end();
+    }).listen(8080);
+    // - firstmodule.js - module example, returns a date and time object
+    exports.myDateTime = function () {
+      return Date();
+    };
+    // start script: node app.js
+    // local server page: http://localhost:8080
+
+    var http = require('http');
+    http.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(req.url); // url - holds the part of the url that comes after the domain name
+      res.end();
+    }).listen(8080);
+    // "localhost:8080/summer" produces "/summer"
+
+    var http = require('http');
+    var url = require('url');
+    http.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      var q = url.parse(req.url, true).query;
+      var txt = q.year + " " + q.month;
+      res.end(txt);
+    }).listen(8080);
+    // "localhost:8080/?year=2017&month=July" produces "2017 July"
+
+    var http = require('http');
+    var url = require('url');
+    var fs = require('fs');
+    http.createServer(function (req, res) {
+      var q = url.parse(req.url, true);
+      var filename = "." + q.pathname;
+      fs.readFile(filename, function(err, data) {
+        if (err) {
+          res.writeHead(404, {'Content-Type': 'text/html'});
+          return res.end("404 Not Found");
+        }
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write(data);
+        return res.end();
+      });
+    }).listen(8080);
+    // http://localhost:8080/summer.html
+    // http://localhost:8080/winter.html
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>createServer()</td>
+      <td>Creates an HTTP server</td>
+    </tr>
+    <tr>
+      <td>get()</td>
+      <td>Sets the method to GET, and returns an object containing the user's
+      request</td>
+    </tr>
+    <tr>
+      <td>globalAgent</td>
+      <td>Returns the HTTP Agent</td>
+    </tr>
+    <tr>
+      <td>request()</td>
+      <td>Returns an object containing the user's request</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>https -  making Node.js transfer data over HTTP TLS/SSL protocol</summary>
+  <pre><code class="js">
+    var https = require('https');
+    https.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.write('Hello World!');
+      res.end();
+    }).listen(8080);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>createServer()</td>
+      <td>Creates an HTTPS server</td>
+    </tr>
+    <tr>
+      <td>get()</td>
+      <td>Sets the method to GET, and returns an object containing the user's
+      request</td>
+    </tr>
+    <tr>
+      <td>globalAgent</td>
+      <td>Returns the HTTPS Agent</td>
+    </tr>
+    <tr>
+      <td>request</td>
+      <td>Makes a request to a secure web server</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>net - creating TCP servers and TCP clients</summary>
+  <pre><code class="js">
+    var net = require('net');
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>connect()</td>
+      <td>Creates a new connection to the server, and returns a new Socket</td>
+    </tr>
+    <tr>
+      <td>createConnection()</td>
+      <td>Creates a new connection to the server, and returns a new Socket</td>
+    </tr>
+    <tr>
+      <td>createServer()</td>
+      <td>Creates a new server</td>
+    </tr>
+    <tr>
+      <td>isIP</td>
+      <td>Checks if the specified value is an IP address</td>
+    </tr>
+    <tr>
+      <td>isIPv4</td>
+      <td>Checks if the specified value is an IPv4 address</td>
+    </tr>
+    <tr>
+      <td>isIPv6</td>
+      <td>Checks if the specified value is an IPv6 address</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>os -  information about operating system</summary>
+  <pre><code class="js">
+    var os = require('os');
+    console.log("Platform: " + os.platform());
+    console.log("Architecture: " + os.arch());
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>arch()</td>
+      <td>Returns the operating system CPU architecture</td>
+    </tr>
+    <tr>
+      <td>constants</td>
+      <td>Returns an object containing the operating system's constants for
+      process signals, error cotes etc.</td>
+    </tr>
+    <tr>
+      <td>cpus()</td>
+      <td>Returns an array containing information about the computer's CPUs</td>
+    </tr>
+    <tr>
+      <td>endiannes()</td>
+      <td>Returns the endianness of the CPU</td>
+    </tr>
+    <tr>
+      <td>EOL</td>
+      <td>Returns the end-of-line marker for the current
+      operating system</td>
+    </tr>
+    <tr>
+      <td>freemem()</td>
+      <td>Returns the number of free memory of the system</td>
+    </tr>
+    <tr>
+      <td>hostname()</td>
+      <td>Returns the hostname of the operating system</td>
+    </tr>
+    <tr>
+      <td>loadavg()</td>
+      <td>Returns an array containing the load averages, (1,
+      5, and 15 minutes)</td>
+    </tr>
+    <tr>
+      <td>networkInterfaces()</td>
+      <td>Returns the network interfaces that has a network
+      address</td>
+    </tr>
+    <tr>
+      <td>platform()</td>
+      <td>Returns information about the operating system's
+      platform</td>
+    </tr>
+    <tr>
+      <td>release()</td>
+      <td>Returns information about the operating system's
+      release</td>
+    </tr>
+    <tr>
+      <td>tmpdir()</td>
+      <td>Returns the operating system's default directory
+      for temporary files</td>
+    </tr>
+    <tr>
+      <td>totalmem()</td>
+      <td>Returns the number of total memory of the system</td>
+    </tr>
+    <tr>
+      <td>type()</td>
+      <td>Returns the name of the operating system</td>
+    </tr>
+    <tr>
+      <td>uptime()</td>
+      <td>Returns the uptime of the operating system, in
+      seconds</td>
+    </tr>
+    <tr>
+      <td>userInfo()</td>
+      <td>Returns information about the current user</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>path - working with directories and file paths</summary>
+  <pre><code class="js">
+    // --- basename(path, ?extension) - filename part of a file path
+    var filename = path.basename('/Users/Refsnes/demo_path.js');
+    console.log(filename);
+    var filename = path.basename('/Users/Refsnes/demo_path.js', '.js');
+    console.log(filename);
+
+    // --- path.delimiter - delimiter specified for the server
+    // ; - (semicolon) for Windows
+    // : - (colon) for POSIX
+    var path = require('path');
+    console.log(path.delimiter);
+
+    // --- path.dirname(path) - returns the directories of a file path, search in
+    var directories = path.dirname('/Users/Refsnes/demo_path.js');
+    console.log(directories);
+
+    // --- extname(path) - extension of a file path
+    var ext = path.extname('/Users/Refsnes/demo_path.js');
+    console.log(ext);
+
+    // --- format(pathObject) - method formats a path object into a path string
+    var obj = { dir: 'C:\\Users\\Refsnes', base: 'demo_path.js' }
+    var p = path.format(obj);
+    console.log(p);
+
+    // --- isAbsolute(path) - returns true if the specified path is an absolute path OR false
+    console.log(path.isAbsolute('/test/demo_path.js')); //true
+    console.log(path.isAbsolute('test/demo_path.js')); //false
+    console.log(path.isAbsolute('C:\\test\\demo_path.js')); //true
+
+    // --- join(paths) - joins the specified path segments into one path
+    // specify as many path segments as you like
+    // path segments must be strings, separated by comma
+    var x = path.join('Users', 'Refsnes', 'demo_path.js');
+    console.log(x);
+
+    // --- normalize(path) - method resolves the specified path, fixing '..','\\\\' etc.
+    var x = path.normalize('Users/Refsnes/../Jackson');
+    console.log(x);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>basename()</td>
+      <td>Returns the last part of a path</td>
+    </tr>
+    <tr>
+      <td>delimiter</td>
+      <td>Returns the delimiter specified for the platform</td>
+    </tr>
+    <tr>
+      <td>dirname()</td>
+      <td>Returns the directories of a path</td>
+    </tr>
+    <tr>
+      <td>extname()</td>
+      <td>Returns the file extension of a path</td>
+    </tr>
+    <tr>
+      <td>format()</td>
+      <td>Formats a path object into a path string</td>
+    </tr>
+    <tr>
+      <td>isAbsolute()</td>
+      <td>Returns true if a path is an absolute path,
+      otherwise false</td>
+    </tr>
+    <tr>
+      <td>join()</td>
+      <td>Joins the specified paths into one</td>
+    </tr>
+    <tr>
+      <td>normalize()</td>
+      <td>Normalizes the specified path</td>
+    </tr>
+    <tr>
+      <td>parse()</td>
+      <td>Formats a path string into a path object</td>
+    </tr>
+    <tr>
+      <td>posix</td>
+      <td>Returns an object containing POSIX specific
+      properties and methods</td>
+    </tr>
+    <tr>
+      <td>relative()</td>
+      <td>Returns the relative path from one specified path
+      to another specified path</td>
+    </tr>
+    <tr>
+      <td>resolve()</td>
+      <td>Resolves the specified paths into an absolute path</td>
+    </tr>
+    <tr>
+      <td>sep</td>
+      <td>Returns the segment separator specified for the
+      platform</td>
+    </tr>
+    <tr>
+      <td>win32</td>
+      <td>Returns an object containing Windows specific
+      properties and methods</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>querystring - parsing the URL query string</summary>
+  <pre><code class="js">
+    var querystring = require('querystring');
+    var q = querystring.parse('year=2017&month=february');
+    console.log(q.year);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>escape()</td>
+      <td>Returns an escaped querystring</td>
+    </tr>
+    <tr>
+      <td>parse()</td>
+      <td>Parses the querystring and returns an object</td>
+    </tr>
+    <tr>
+      <td>stringify()</td>
+      <td>Stringifies an object, and returns a query string</td>
+    </tr>
+    <tr>
+      <td>unescape()</td>
+      <td>Returns an unescaped query string</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>readline - reading a datastream, one line at a time</summary>
+  <pre><code class="js">
+    var readline = require('readline');
+    var fs = require('fs');
+    var myInterface = readline.createInterface({
+      input: fs.createReadStream('demofile1.html')
+    });
+    var lineno = 0;
+    myInterface.on('line', function (line) {
+      lineno++;
+      console.log('Line number ' + lineno + ': ' + line);
+    });
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>clearLine()</td>
+      <td>Clears the current line of the specified stream</td>
+    </tr>
+    <tr>
+      <td>clearScreenDown()</td>
+      <td>Clears the specified stream from the current cursor down position</td>
+    </tr>
+    <tr>
+      <td>createInterface()</td>
+      <td>Creates an Interface object</td>
+    </tr>
+    <tr>
+      <td>cursorTo()</td>
+      <td>Moves the cursor to the specified position</td>
+    </tr>
+    <tr>
+      <td>emitKeypressEvents()</td>
+      <td>Fires keypress events for the specified stream</td>
+    </tr>
+    <tr>
+      <td>moveCursor()</td>
+      <td>Moves the cursor to a new position, relative to the
+      current position</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>stream - handling streaming data</summary>
+  <ul>
+    <li>two types of streams: readable and writeable</li>
+    <li>readable stream - response object from http.createServer(), etc.</li>
+    <li>writable stream - request object from http.createServer(), etc.</li>
+    <li>some methods returns a readable/writable stream object, like http.createServer(), and if that is the case, don't include the stream module, otherwise: require('stream')</li>
+  </ul>
+  <pre><code class="js">
+    var http = require('http');
+    http.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write('Hello World!');
+      res.end();
+    }).listen(8080);
+  </code></pre>
+  <table>
+    <caption>Readable Stream</caption>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>isPaused()</td>
+      <td>Returns true if the state of&nbsp; the readable stream is paused,
+      otherwise false</td>
+    </tr>
+    <tr>
+      <td>pause()</td>
+      <td>Pauses the readable stream</td>
+    </tr>
+    <tr>
+      <td>pipe()</td>
+      <td>Turns the readable stream into the specified writable stream</td>
+    </tr>
+    <tr>
+      <td>read()</td>
+      <td>Returns a specified part of the readable stream</td>
+    </tr>
+    <tr>
+      <td>resume()</td>
+      <td>Resumes a paused stream</td>
+    </tr>
+    <tr>
+      <td>setEncoding()</td>
+      <td>Sets the character encoding of the readable stream</td>
+    </tr>
+    <tr>
+      <td>unpipe()</td>
+      <td>Stops turning a readable stream into a writable stream, caused by the
+      pipe() method</td>
+    </tr>
+    <tr>
+      <td>unshift()</td>
+      <td>Pushes some specified data back into the internal buffer</td>
+    </tr>
+    <tr>
+      <td>wrap()</td>
+      <td>Helps reading streams made by older Node.js versions</td>
+    </tr>
+    </tbody>
+  </table>
+  <table>
+    <caption>Writable Stream</caption>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>cork()</td>
+      <td>Stops the writable stream and all written data will be buffered in
+      memory</td>
+    </tr>
+    <tr>
+      <td>end()</td>
+      <td>Ends the writable stream</td>
+    </tr>
+    <tr>
+      <td>setDefaultEncoding()</td>
+      <td>Sets the encoding for the writable stream</td>
+    </tr>
+    <tr>
+      <td>uncork()</td>
+      <td>Flushes all data that has been buffered since the cork() method was
+      called</td>
+    </tr>
+    <tr>
+      <td>write()</td>
+      <td>Writes data to the stream</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>string_decoder - decoding Buffer objects into strings</summary>
+  <pre><code class="js">
+    var StringDecoder = require('string_decoder').StringDecoder;
+    var d = new StringDecoder('utf8');
+    var b = Buffer('abc');
+    console.log(b); //write buffer
+    console.log(d.write(b)); // write decoded buffer;
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>end()</td>
+      <td>Returns what remains of the input stored in the internal buffer</td>
+    </tr>
+    <tr>
+      <td>write()</td>
+      <td>Returns the specified buffer as a string</td>
+    </tr></tbody>
+  </table>
+  </details>
+
+  <details><summary>Timers - scheduling functions to be called later at a given time</summary>
+  <ul>
+    <li>global object - not necessary to import it using the require keyword</li>
+  </ul>
+  <pre><code class="js">
+    var myInt = setInterval(function () {
+      console.log("Hello");
+    }, 500);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>clearImmediate()</td>
+      <td>Cancels an Immediate object</td>
+    </tr>
+    <tr>
+      <td>clearInterval()</td>
+      <td>Cancels an Interval object</td>
+    </tr>
+    <tr>
+      <td>clearTimeout()</td>
+      <td>Cancels a Timeout object</td>
+    </tr>
+    <tr>
+      <td>ref()</td>
+      <td>Makes the Timeout object active. Will only have an effect if the
+      Timeout.unref() method has been called to make the Timeout object inactive.</td>
+    </tr>
+    <tr>
+      <td>setImmediate()</td>
+      <td>Executes a given function immediately. </td>
+    </tr>
+    <tr>
+      <td>setInterval()</td>
+      <td>Executes a given function at every given milliseconds</td>
+    </tr>
+    <tr>
+      <td>setTimeout()</td>
+      <td>Executes a given function after a given time (in milliseconds)</td>
+    </tr>
+    <tr>
+      <td>unref()</td>
+      <td>Stops the Timeout object from remaining active.</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>tls -  implementing TLS (Transport Layer Security) and SSL (Secure Socket Layer)</summary>
+  <pre><code class="js">
+    var tls = require('tls');
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>connect()</td>
+      <td>Returns a Socket object</td>
+    </tr>
+    <tr>
+      <td>createSecureContext()</td>
+      <td>Creates an object containing security details</td>
+    </tr>
+    <tr>
+      <td>createServer()</td>
+      <td>Creates a Server object</td>
+    </tr>
+    <tr>
+      <td>getCiphers()</td>
+      <td>Returns an array containing the supported SSL ciphers</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>url - parsing the URL string</summary>
+  <pre><code class="js">
+    var http = require('http');
+    var url = require('url');
+    http.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      var q = url.parse(req.url, true);
+      res.write(q.href);
+      res.end();
+    }).listen(8080);
+
+    // split a web address into readable parts
+    var url = require('url');
+    var adr = 'http://localhost:8080/default.htm?year=2017&month=february';
+    var q = url.parse(adr, true);
+    console.log(q.host); //returns 'localhost:8080'
+    console.log(q.pathname); //returns '/default.htm'
+    console.log(q.search); //returns '?year=2017&month=february'
+    var qdata = q.query; //returns an object: { year: 2017, month: 'february' }
+    console.log(qdata.month); //returns 'february'
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>url.format()</td>
+      <td>Returns a formatted URL string</td>
+    </tr>
+    <tr>
+      <td>url.parse()</td>
+      <td>Returns a URL object</td>
+    </tr>
+    <tr>
+      <td>url.resolve()</td>
+      <td>Resolves a URL</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+  <details><summary>util - access to some utility functions</summary>
+  <pre><code class="js">
+    var util = require('util');
+    var txt = 'Congratulate %s on his %dth birthday!';
+    var result = util.format(txt, 'Linus', 6);
+    console.log(result);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>debuglog()</td>
+      <td>Writes debug messages to the error object</td>
+    </tr>
+    <tr>
+      <td>deprecate()</td>
+      <td>Marks the specified function as deprecated</td>
+    </tr>
+    <tr>
+      <td>format()</td>
+      <td>Formats the specified string, using the specified arguments</td>
+    </tr>
+    <tr>
+      <td>inherits()</td>
+      <td>Inherits methods from one function into another </td>
+    </tr>
+    <tr>
+      <td>inspect()</td>
+      <td>Inspects the specified object and returns the object as a string</td>
+    </tr></tbody>
+  </table>
+  </details>
+
+  <details><summary>vm - executing JS on a virtual machine, almost like eval() in JS</summary>
+  <pre><code class="js">
+    var vm = require('vm');
+    var myObj = { name: 'John', age: 38 };
+    vm.createContext(myObj);
+    vm.runInContext('age += 1;', myObj);
+    console.log(myObj);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>createContext()</td>
+      <td>Prepares a virtual machine, or <em>sandbox</em>, where you can execute
+      scripts</td>
+    </tr>
+    <tr>
+      <td>isContext()</td>
+      <td>Returns true if the specified sandbox has been created by the
+      createContext() method</td>
+    </tr>
+    <tr>
+      <td>runInContext()</td>
+      <td>Executes JavaScript code in the specified context, and returns the
+      result</td>
+    </tr>
+    <tr>
+      <td>runInDebug()</td>
+      <td>Executes JavaScript inside the debug context</td>
+    </tr>
+    <tr>
+      <td>runInNewContext()</td>
+      <td>Executes JavaScript code in a new context, and returns the result</td>
+    </tr>
+    <tr>
+      <td>runInThisContext()</td>
+      <td>Executes JavaScript code in the global context, and returns the result</td>
+    </tr></tbody>
+  </table>
+  </details>
+
+  <details><summary>zlib - zip and unzip files</summary>
+  <pre><code class="js">
+    var zlib = require('zlib');
+    var fs = require('fs');
+    var gzip = zlib.createGzip();
+    var r = fs.createReadStream('./demofile.txt');
+    var w = fs.createWriteStream('./mygzipfile.txt.gz');
+    r.pipe(gzip).pipe(w);
+  </code></pre>
+  <table>
+    <tbody><tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>constants</td>
+      <td>Returns an object containing Zlib constants</td>
+    </tr>
+    <tr>
+      <td>createDeflate()</td>
+      <td>Creates a Deflate object</td>
+    </tr>
+    <tr>
+      <td>createDeflateRaw()</td>
+      <td>Creates a DeflateRaw object</td>
+    </tr>
+    <tr>
+      <td>createGunzip()</td>
+      <td>Creates a Gunzip object</td>
+    </tr>
+    <tr>
+      <td>createGzip()</td>
+      <td>Creates a Gzip object</td>
+    </tr>
+    <tr>
+      <td>createInflate()</td>
+      <td>Creates a Inflate object</td>
+    </tr>
+    <tr>
+      <td>createInflateRaw()</td>
+      <td>Creates a InflateRaw object</td>
+    </tr>
+    <tr>
+      <td>createUnzip()</td>
+      <td>Creates a Unzip object</td>
+    </tr>
+    <tr>
+      <td>deflate()</td>
+      <td>Compress a string or buffer, using Deflate</td>
+    </tr>
+    <tr>
+      <td>deflateSync()</td>
+      <td>Compress a string or buffer, syncronously, using Deflate</td>
+    </tr>
+    <tr>
+      <td>deflateRaw()</td>
+      <td>Compress a string or buffer, using DeflateRaw</td>
+    </tr>
+    <tr>
+      <td>deflateRawSync()</td>
+      <td>Compress a string or buffer, syncronously, using DeflateRaw</td>
+    </tr>
+    <tr>
+      <td>gunzip()</td>
+      <td>Compress a string or buffer, using Gunzip</td>
+    </tr>
+    <tr>
+      <td>gunzipSync()</td>
+      <td>Compress a string or buffer, syncronously, using Gunzip</td>
+    </tr>
+    <tr>
+      <td>gzip()</td>
+      <td>Compress a string or buffer, using Gzip</td>
+    </tr>
+    <tr>
+      <td>gzipSync()</td>
+      <td>Compress a string or buffer, syncronously, using Gzip</td>
+    </tr>
+    <tr>
+      <td>inflate()</td>
+      <td>Decompress a string or buffer, using Inflate</td>
+    </tr>
+    <tr>
+      <td>inflateSync()</td>
+      <td>Decompress a string or buffer, syncronously, using Inflate</td>
+    </tr>
+    <tr>
+      <td>inflateRaw()</td>
+      <td>Decompress a string or buffer, using InflateRaw</td>
+    </tr>
+    <tr>
+      <td>inflateRawSync()</td>
+      <td>Decompress a string or buffer, syncronously, using InflateRaw</td>
+    </tr>
+    <tr>
+      <td>unzip()</td>
+      <td>Decompress a string or buffer, using Unzip</td>
+    </tr>
+    <tr>
+      <td>unzipSync()</td>
+      <td>Decompress a string or buffer, syncronously, using Unzip</td>
+    </tr>
+    </tbody>
+  </table>
+  </details>
+
+
+
+<h2 id="streams">Streams</h2>
+
+  <ul>
+    <li>objects that let you read data from a source or write data to a destination in continuous fashion
+      <ul>
+        <li><strong>Readable</strong> - read operation, have two main modes that affect the way we can consume them
+          <ul>
+            <li>paused (pull) mode - use the read() method to read from the stream on demand</li>
+            <li>flowing (push) mode - data is continuously flowing and we have to listen to events to consume it, we need a data event handler, data can actually be lost if no consumers are available to handle it</li>
+            <li>all readable streams start in the paused mode by default but they can be easily switched to flowing and back to paused when needed, sometimes, the switching happens automatically</li>
+            <li>adding a data event handler switches a paused stream into flowing mode and removing the data event handler switches the stream back to paused mode</li>
+            <li>use the resume() and pause() to manually switch between these two stream modes</li>
+          </ul>
+        </li>
+        <li><strong>Writable</strong> - write operation</li>
+        <li><strong>Duplex</strong> - read and write operation, readable and writable sides operate completely independently from one another</li>
+        <li><strong>Transform</strong> - output is computed based on input</li>
+      </ul>
+    </li>
+    <li>each type of Stream is an EventEmitter instance and throws several events at different instance of times, some of the commonly used events
+      <ul>
+        <li><strong>data</strong> - when there is data is available to read</li>
+        <li><strong>end</strong> - when there is no more data to read</li>
+        <li><strong>drain</strong> - signal that the writable stream can receive more data</li>
+        <li><strong>error</strong> - when there is any error receiving or writing data</li>
+        <li><strong>finish</strong> - when all the data has been flushed to underlying system</li>
+      </ul>
+    </li>
+  </ul>
+
+  <img src="../images/node-stream.png"
+  style="position:relative;width:80%;margin-left:10%;">
+
+  <details><summary>Reading from a Stream</summary><pre><code class="js">
+    var fs = require("fs");
+    var data = '';
+    // Create a readable stream
+    var readerStream = fs.createReadStream('input.txt');
+    // Set the encoding to be utf8.
+    readerStream.setEncoding('UTF8');
+    // Handle stream events --> data, end, and error
+    readerStream.on('data', function(chunk) {
+        data += chunk;
+    });
+    readerStream.on('end',function() {
+        console.log(data);
+    });
+    readerStream.on('error', function(err) {
+        console.log(err.stack);
+    });
+    console.log("Program Ended");
+
+    // implement a readable stream
+    const { Readable } = require('stream');
+    const inStream = new Readable({
+      read() {}
+    });
+    inStream.push('ABCDEFGHIJKLM');
+    inStream.push('NOPQRSTUVWXYZ');
+    inStream.push(null); // signal that the stream does not have any more data
+    inStream.pipe(process.stdout); // consume
+
+    const inStream = new Readable({
+      read(size) {
+        this.push(String.fromCharCode(this.currentCharCode++));
+        if (this.currentCharCode > 90) {
+          this.push(null);
+        }
+      }
+    });
+    inStream.currentCharCode = 65;
+    inStream.pipe(process.stdout);
+  </code></pre></details>
+
+  <details><summary>Writing to a Stream</summary><pre><code class="js">
+    var fs = require("fs");
+    var data = 'Simply Easy Learning';
+    // Create a writable stream
+    var writerStream = fs.createWriteStream('output.txt');
+    // Write the data to stream with encoding to be utf8
+    writerStream.write(data,'UTF8');
+    // Mark the end of file
+    writerStream.end();
+    // Handle stream events --> finish, and error
+    writerStream.on('finish', function() {
+        console.log("Write completed.");
+    });
+    writerStream.on('error', function(err) {
+        console.log(err.stack);
+    });
+    console.log("Program Ended");
+
+    // implementing a writable stream
+    const outStream = new Writable({
+      write(
+        chunk, // buffer, unless we configure the stream differently
+        encoding, // needed in this case, but usually we can ignore it
+        callback
+      ) {
+        console.log(chunk.toString());
+        callback();
+      }
+    });
+    process.stdin.pipe(outStream); // consume
+  </code></pre></details>
+
+  <details><summary>Events</summary>
+
+    <img src="../images/node-events.png"
+    style="position:relative;width:80%;margin-left:10%;">
+
+  <pre><code class="js">
+    // readable.pipe(writable)
+    readable.on('data', (chunk) => {
+      writable.write(chunk);
+    });
+    readable.on('end', () => {
+      writable.end();
+    });
+  </code></pre></details>
+
+  <details><summary>Piping the Streams</summary><pre><code class="js">
+    // provide the output of one stream as the input to another stream.
+    // normally used to get data from one stream and
+    // to pass the output of that stream to another stream.
+    // there is no limit on piping operations
+
+    // reading from one file and writing it to another file
+    var fs = require("fs");
+    // Create a readable stream
+    var readerStream = fs.createReadStream('input.txt');
+    // Create a writable stream
+    var writerStream = fs.createWriteStream('output.txt');
+    // Pipe the read and write operations
+    // read input.txt and write data to output.txt
+    readerStream.pipe(writerStream);
+    console.log("Program Ended");
+  </code></pre></details>
+
+  <details><summary>Chaining the Streams</summary><pre><code class="js">
+    // connect the output of one stream to another stream and
+    // create a chain of multiple stream operations.
+    // normally used with piping operations
+
+    // use piping and chaining to first compress a file
+    var fs = require("fs");
+    var zlib = require('zlib');
+    // Compress the file input.txt to input.txt.gz
+    fs.createReadStream('input.txt')
+       .pipe(zlib.createGzip())
+       .pipe(fs.createWriteStream('input.txt.gz'));
+    console.log("File Compressed.");
+
+    //  and then decompress the same
+    var fs = require("fs");
+    var zlib = require('zlib');
+    // Decompress the file input.txt.gz to input.txt
+    fs.createReadStream('input.txt.gz')
+       .pipe(zlib.createGunzip())
+       .pipe(fs.createWriteStream('input.txt'));
+    console.log("File Decompressed.");
+  </code></pre></details>
+
+  <details><summary>Duplex/Transform Streams</summary><pre><code class="js">
+    // combines the two writable and readable examples
+    const { Duplex } = require('stream');
+    const inoutStream = new Duplex({
+      write(chunk, encoding, callback) {
+        console.log(chunk.toString());
+        callback();
+      },
+      read(size) {
+        this.push(String.fromCharCode(this.currentCharCode++));
+        if (this.currentCharCode > 90) {
+          this.push(null);
+        }
+      }
+    });
+    inoutStream.currentCharCode = 65;
+    process.stdin.pipe(inoutStream).pipe(process.stdout);
+
+    // simple transform stream which echoes back anything in upper case format
+    const { Transform } = require('stream');
+    const upperCaseTr = new Transform({
+      transform(chunk, encoding, callback) {
+        this.push(chunk.toString().toUpperCase());
+        callback();
+      }
+    });
+    process.stdin.pipe(upperCaseTr).pipe(process.stdout);
+
+    // string of comma-separated values into a JS object
+    // "a,b,c,d" becomes "{a: b, c: d}"
+    const { Transform } = require('stream');
+    const commaSplitter = new Transform({
+      readableObjectMode: true,
+      transform(chunk, encoding, callback) {
+        this.push(chunk.toString().trim().split(','));
+        callback();
+      }
+    });
+    const arrayToObject = new Transform({
+      readableObjectMode: true,
+      writableObjectMode: true,
+      transform(chunk, encoding, callback) {
+        const obj = {};
+        for(let i=0; i < chunk.length; i+=2) {
+          obj[chunk[i]] = chunk[i+1];
+        }
+        this.push(obj);
+        callback();
+      }
+    });
+    const objectToString = new Transform({
+      writableObjectMode: true,
+      transform(chunk, encoding, callback) {
+        this.push(JSON.stringify(chunk) + '\n');
+        callback();
+      }
+    });
+    process.stdin
+      .pipe(commaSplitter)
+      .pipe(arrayToObject)
+      .pipe(objectToString)
+      .pipe(process.stdout)
+  </code></pre></details>
+
+  <pre><code class="js">
+    // file-compression script, gzip any file
+    const fs = require('fs');
+    const zlib = require('zlib');
+    const file = process.argv[2];
+    fs.createReadStream(file)
+      .pipe(zlib.createGzip())
+      .pipe(fs.createWriteStream(file + '.gz'));
+
+    // with progress indicator
+    const fs = require('fs');
+    const zlib = require('zlib');
+    const file = process.argv[2];
+    fs.createReadStream(file)
+      .pipe(zlib.createGzip())
+      .on('data', () => process.stdout.write('.'))
+      .pipe(fs.createWriteStream(file + '.zz'))
+      .on('finish', () => console.log('Done'));
+
+    // or ...
+    const fs = require('fs');
+    const zlib = require('zlib');
+    const file = process.argv[2];
+    const { Transform } = require('stream');
+    const reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        process.stdout.write('.');
+        callback(null, chunk);
+      }
+    });
+    fs.createReadStream(file)
+      .pipe(zlib.createGzip())
+      .pipe(reportProgress)
+      .pipe(fs.createWriteStream(file + '.zz'))
+      .on('finish', () => console.log('Done'));
+
+    // encrypt the file before or after we gzip it
+    const crypto = require('crypto');
+    // ...
+    fs.createReadStream(file)
+      .pipe(zlib.createGzip())
+      .pipe(crypto.createCipher('aes192', 'a_secret'))
+      .pipe(reportProgress)
+      .pipe(fs.createWriteStream(file + '.zz'))
+      .on('finish', () => console.log('Done'));
+    // then unzip
+    fs.createReadStream(file)
+      .pipe(crypto.createDecipher('aes192', 'a_secret'))
+      .pipe(zlib.createGunzip())
+      .pipe(reportProgress)
+      .pipe(fs.createWriteStream(file.slice(0, -3)))
+      .on('finish', () => console.log('Done'));
+  </code></pre>
+
+
+
+<h2 id="err">Errors</h2>
+
+  <ul>
+    <li><strong>Standard JavaScript errors</strong> i.e. &lt;EvalError&gt;, &lt;SyntaxError&gt;, &lt;RangeError&gt;, &lt;ReferenceError&gt;, &lt;TypeError&gt;, &lt;URIError&gt; etc.</li>
+    <li><strong>System errors</strong></li>
+    <li><strong>User-specified errors</strong></li>
+    <li><strong>Assertion errors</strong></li>
+
+    <li>four main ways to deliver an error
+      <ul>
+        <li><u>throw</u> the error (making it an exception)</li>
+        <li>pass the error to a callback, a function provided specifically for handling errors and the results of asynchronous operations</li>
+        <li>pass the error to a reject Promise function</li>
+        <li>emit an "error" event on an EventEmitter</li>
+      </ul>
+    </li>
+
+    <li>there is a difference between an error and an exception
+      <ul>
+        <li>error is any instance of the Error class, may be constructed and then passed directly to another function or thrown: <strong>callback(new Error('something bad happened'))</strong></li>
+        <li>exception - thrown error: <strong>throw new Error('something bad happened')</strong></li>
+      </ul>
+    </li>
+
+    <li><strong>Operational errors</strong> - run-time problems experienced by correctly-written programs, not bugs in the program, usually problems with something else: system itself (e.g., out of memory or too many open files), the system configuration (e.g., no route to a remote host), the network (e.g., socket hang-up), or a remote service (e.g., a 500 error, failure to connect, or the like)
+      <ul>
+        <li>failed to connect to server</li>
+        <li>failed to resolve hostname</li>
+        <li>invalid user input</li>
+        <li>request timeout</li>
+        <li>server returned a 500 response</li>
+        <li>socket hang-up</li>
+        <li>system is out of memory</li>
+      </ul>
+    </li>
+
+    <li><strong>Programmer errors</strong> - bugs in the program, things that can always be avoided by changing the code, can never be handled properly (since by definition the code in question is broken)
+      <ul>
+        <li>tried to read property of "undefined"</li>
+        <li>called an asynchronous function without a callback</li>
+        <li>passed a "string" where an object was expected</li>
+        <li>passed an object where an IP address string was expected</li>
+      </ul>
+    </li>
+
+  </ul>
+
+  <pre><code class="js">
+    // Throws with a ReferenceError because b is undefined
+    try {
+      const a = 1;
+      const c = a + b;
+    } catch (err) {
+      console.log(err);
+    }
+
+    const fs = require('fs');
+    function nodeStyleCallback(err, data) {
+     if (err) {
+       console.error('There was an error', err);
+       return;
+     }
+     console.log(data);
+    }
+    fs.readFile('/some/file/that/does-not-exist', nodeStyleCallback);
+    fs.readFile('/some/file/that/does-exist', nodeStyleCallback);
+  </code></pre>
+
+
+
+<h2 id="cl">CL options</h2>
+
+  <table>
+    <tbody><tr>
+      <th>Index</th>
+      <th>Option</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>v, --version</td>
+      <td>It is used to print node's version</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>-h, --help</td>
+      <td>It is used to print node command line options </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>-e, --eval "script"</td>
+      <td>It evaluates the following argument as JavaScript. The modules which are predefined in the REPL can also be used in script</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>-p, --print "script"</td>
+      <td>It is identical to -e but prints the result</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>-c, --check</td>
+      <td>Syntax check the script without executing</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>-i, --interactive</td>
+      <td>It opens the REPL even if stdin does not appear to be a terminal</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>-r, --require module</td>
+      <td>It is used to preload the specified module at startup. It follows require()'s module resolution rules. Module may be either a path to a file, or a node module name</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>--no-deprecation</td>
+      <td>Silence deprecation warnings</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>--trace-deprecation</td>
+      <td>It is used to print stack traces for deprecations</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>--throw-deprecation</td>
+      <td>It throws errors for deprecations</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>--no-warnings</td>
+      <td>It silence all process warnings (including deprecations)</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>--trace-warnings</td>
+      <td>It prints stack traces for process warnings (including deprecations)</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>--trace-sync-io</td>
+      <td>It prints a stack trace whenever synchronous i/o is detected after the first turn of the event loop</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>--zero-fill-buffers</td>
+      <td>Automatically zero-fills all newly allocated buffer and slowbuffer instances</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>--track-heap-objects</td>
+      <td>It tracks heap object allocations for heap snapshots</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>--prof-process</td>
+      <td>It processes  V8 profiler output generated using the v8 option --prof</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>--V8-options</td>
+      <td>It prints V8 command line options</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>--tls-cipher-list=list</td>
+      <td>It specifies an alternative default tls cipher list. (requires node.js to be built with crypto support (default))</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>--enable-fips</td>
+      <td>It enables fips-compliant crypto at startup. (requires node.js to be built with ./configure --openssl-fips)</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>--force-fips</td>
+      <td>It forces fips-compliant crypto on startup. (cannot be disabled from script code) (same requirements as --enable-fips)</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>--icu-data-dir=file</td>
+      <td>It specifies ICU data load path (Overrides node_icu_data)</td>
+    </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="formidable">Formidable - file uploads</h2>
+
+  <ul>
+    <li><code>npm install formidable</code></li>
+  </ul>
+
+  <pre><code class="js">
+    // --- Upload Form
+
+    var http = require('http');
+    http.createServer(function (req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write('&lt;form action="fileupload" method="post" enctype="multipart/form-data"&gt;');
+      res.write('&lt;input type="file" name="filetoupload"&gt;&lt;br&gt;');
+      res.write('&lt;input type="submit"&gt;');
+      res.write('&lt;/form&gt;');
+      return res.end();
+    }).listen(8080);
+
+    // --- Parse the Uploaded File
+
+    var http = require('http');
+    var formidable = require('formidable');
+    http.createServer(function (req, res) {
+      if (req.url == '/fileupload') {
+        var form = new formidable.IncomingForm();
+        form.parse(req, function (err, fields, files) {
+          res.write('File uploaded');
+          res.end();
+        });
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write('&lt;form action="fileupload" method="post" enctype="multipart/form-data"&gt;');
+        res.write('&lt;input type="file" name="filetoupload"&gt;&lt;br&gt;');
+        res.write('&lt;input type="submit"&gt;');
+        res.write('&lt;/form&gt;');
+        return res.end();
+      }
+    }).listen(8080);
+
+    // --- Save the File
+
+    var http = require('http');
+    var formidable = require('formidable');
+    var fs = require('fs');
+    http.createServer(function (req, res) {
+      if (req.url == '/fileupload') {
+        var form = new formidable.IncomingForm();
+        form.parse(req, function (err, fields, files) {
+          var oldpath = files.filetoupload.path;
+          var newpath = 'C:/Users/Your Name/' + files.filetoupload.name;
+          fs.rename(oldpath, newpath, function (err) {
+            if (err) throw err;
+            res.write('File uploaded and moved!');
+            res.end();
+          });
+     });
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write('&lt;form action="fileupload" method="post" enctype="multipart/form-data"&gt;');
+        res.write('&lt;input type="file" name="filetoupload"&gt;&lt;br&gt;');
+        res.write('&lt;input type="submit"&gt;');
+        res.write('&lt;/form&gt;');
+        return res.end();
+      }
+    }).listen(8080);
+  </code></pre>
+
+
+
+<h2 id="nodemailer">Nodemailer</h2>
+
+  <ul>
+    <li><code>npm install nodemailer</code></li>
+  </ul>
+
+  <pre><code class="js">
+    // --- Send an Email
+
+    var nodemailer = require('nodemailer');
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'youremail@gmail.com',
+        pass: 'yourpassword'
+      }
+    });
+    var mailOptions = {
+      from: 'youremail@gmail.com',
+      to: 'myfriend@yahoo.com',
+      subject: 'Sending Email using Node.js',
+      text: 'That was easy!'
+    };
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
+    // --- Multiple Receivers
+    // "to" property of the mailOptions object, separated by commas
+
+    var mailOptions = {
+      from: 'youremail@gmail.com',
+      to: 'myfriend@yahoo.com, myotherfriend@yahoo.com',
+      subject: 'Sending Email using Node.js',
+      text: 'That was easy!'
+    }
+
+    // --- Send HTML
+
+    var mailOptions = {
+      from: 'youremail@gmail.com',
+      to: 'myfriend@yahoo.com',
+      subject: 'Sending Email using Node.js',
+      html: '&lt;h1&gt;Welcome&lt;/h1&gt;&lt;p&gt;That was easy!&lt;/p&gt;'
+    }
+  </code></pre>
+
+
+
+<h2 id="mysql">MySQL</h2>
+
+  <ul>
+    <li><code>npm install mysql </code></li>
+  </ul>
+
+  <pre><code class="js">
+    // --- Create Connection
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+    });
+    // --- Query a Database
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Result: " + result);
+      });
+    });
+  </code></pre>
+
+  <details><summary>Creating a Database</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      con.query("CREATE DATABASE mydb", function (err, result) {
+        if (err) throw err;
+        console.log("Database created");
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Creating a Table</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table created");
+      });
+    });
+
+    // --- Primary Key
+
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "CREATE TABLE customers (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table created");
+      });
+    });
+    // --- on an existing table, ALTER TABLE:
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "ALTER TABLE customers ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table altered");
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Insert</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "INSERT INTO customers (name, address) VALUES ('Company Inc', 'Highway 37')";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("1 record inserted");
+      });
+    });
+
+    // --- Multiple Records
+    // make an array containing the values,
+    // and insert a question mark in the sql, which will be replaced by the value array:
+    // INSERT INTO customers (name, address) VALUES ?
+
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "INSERT INTO customers (name, address) VALUES ?";
+      var values = [
+        ['John', 'Highway 71'],
+        ['Peter', 'Lowstreet 4'],
+        ['Amy', 'Apple st 652'],
+        ...
+      ];
+      con.query(sql, [values], function (err, result) {
+        if (err) throw err;
+        console.log("Number of records inserted: " + result.affectedRows);
+      });
+    });
+
+    // --- Result Object
+
+    {
+      fieldCount: 0,
+      affectedRows: 14,
+      insertId: 0,
+      serverStatus: 2,
+      warningCount: 0,
+      message: '\'Records:14  Duplicated: 0  Warnings: 0',
+      protocol41: true,
+      changedRows: 0
+    }
+    // number of affected rows:
+    console.log(result.affectedRows) // 14
+
+    // --- Inserted ID
+    // for tables with an auto increment id field
+    // get the id of the row you just inserted by asking the result object
+    // to be able to get the inserted id, only one row can be inserted
+
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      var sql = "INSERT INTO customers (name, address) VALUES ('Michelle', 'Blue Village 1')";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("1 record inserted, ID: " + result.insertId);
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Select</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      con.query("SELECT * FROM customers", function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+    // will give:
+    [
+      { id: 1, name: 'John', address: 'Highway 71'},
+      { id: 2, name: 'Peter', address: 'Lowstreet 4'},
+      ...
+    ]
+
+    // --- Selecting Columns
+
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      con.query("SELECT name, address FROM customers", function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+    // will give:
+    [
+      { name: 'John', address: 'Highway 71'},
+      { name: 'Peter', address: 'Lowstreet 4'},
+      ...
+    ]
+
+    // --- Result Object
+
+    console.log(result[2].address); // Apple st 652
+
+    // --- Fields Object
+
+    // third parameter of the callback function
+    // an array containing information about each field in the result
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      con.query("SELECT name, address FROM customers", function (err, result, fields) {
+        if (err) throw err;
+        console.log(fields);
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Where</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      con.query(
+        "SELECT * FROM customers WHERE address = 'Park Lane 38'",
+        function (err, result) {
+          if (err) throw err;
+          console.log(result);
+      });
+    });
+
+    // --- Wildcard Characters
+    // % - represent zero, one or multiple characters
+
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      con.query("SELECT * FROM customers WHERE address LIKE 'S%'", function (err, result) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+
+    // --- Escaping Query Values
+
+    var adr = 'Mountain 21';
+    var sql = 'SELECT * FROM customers WHERE address = ' + mysql.escape(adr);
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log(result);
+    });
+    // use a ? as a placeholder for the values to escape
+    var adr = 'Mountain 21';
+    var sql = 'SELECT * FROM customers WHERE address = ?';
+    con.query(sql, [adr], function (err, result) {
+      if (err) throw err;
+      console.log(result);
+    });
+    // multiple placeholders
+    var name = 'Amy';
+    var adr = 'Mountain 21';
+    var sql = 'SELECT * FROM customers WHERE name = ? OR address = ?';
+    con.query(sql, [name, adr], function (err, result) {
+      if (err) throw err;
+      console.log(result);
+    });
+  </code></pre></details>
+
+  <details><summary>Order</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      // con.query("SELECT * FROM customers ORDER BY name", function (err, result) {
+      con.query("SELECT * FROM customers ORDER BY name DESC", function (err, result) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Delete</summary><pre><code class="js">
+    // If you omit the WHERE clause, all records will be deleted !!!
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      var sql = "DELETE FROM customers WHERE address = 'Mountain 21'";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Number of records deleted: " + result.affectedRows);
+      });
+    });
+
+    // --- Result Object
+    {
+      fieldCount: 0,
+      affectedRows: 1,
+      insertId: 0,
+      serverStatus: 34,
+      warningCount: 0,
+      message: '',
+      protocol41: true,
+      changedRows: 0
+    }
+
+    console.log(result.affectedRows)
+  </code></pre></details>
+
+  <details><summary>Drop</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      // var sql = "DROP TABLE customers";
+      var sql = "DROP TABLE IF EXISTS customers";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table deleted");
+      });
+    });
+    // If the table exist, the result object will look like this:
+    {
+      fieldCount: 0,
+      affectedRows: 0,
+      insertId: 0,
+      serverstatus: 2,
+      warningCount: 0,
+      message: '',
+      protocol41: true,
+      changedRows: 0
+    }
+    // If the table does not exist, the result object will look like this:
+    {
+      fieldCount: 0,
+      affectedRows: 0,
+      insertId: 0,
+      serverstatus: 2,
+      warningCount: 1,
+      message: '',
+      protocol41: true,
+      changedRows: 0
+    }
+    // warningCount property is set to 1 if the table does not exist
+  </code></pre></details>
+
+  <details><summary>Update</summary><pre><code class="js">
+    // If you omit the WHERE clause, all records will be updated !!!
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      var sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log(result.affectedRows + " record(s) updated");
+      });
+    });
+
+    // --- Result Object
+
+    {
+      fieldCount: 0,
+      affectedRows: 1,
+      insertId: 0,
+      serverStatus: 34,
+      warningCount: 0,
+      message: '(Rows matched: 1 Changed: 1 Warnings: 0',
+      protocol41: true,
+      changedRows: 1
+    }
+
+    console.log(result.affectedRows)
+  </code></pre></details>
+
+  <details><summary>Limit, Offset</summary><pre><code class="js">
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      // var sql = "SELECT * FROM customers LIMIT 5";
+      // var sql = "SELECT * FROM customers LIMIT 5 OFFSET 2"; // starting from the third position !
+      var sql = "SELECT * FROM customers LIMIT 2, 5";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Join</summary><pre><code class="js">
+    // INNER JOIN and JOIN will both give same result
+    var mysql = require('mysql');
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "yourusername",
+      password: "yourpassword",
+      database: "mydb"
+    });
+    con.connect(function(err) {
+      if (err) throw err;
+      var sql = "SELECT users.name AS user, products.name AS favorite FROM users JOIN products ON users.favorite_product = products.id";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
+
+    // --- Left Join
+    // all users, no matter if they have a favorite product or not
+    SELECT users.name AS user,
+    products.name AS favorite
+    FROM users
+    LEFT JOIN products ON users.favorite_product = products.id
+
+
+    // --- Right Join
+    // all products, and the users who have them as their favorite,
+    // even if no user have them as their favorite
+    SELECT users.name AS user,
+    products.name AS favorite
+    FROM users
+    RIGHT JOIN products ON users.favorite_product = products.id
+  </code></pre></details>
+
+
+
+<h2 id="mongo">MongoDB</h2>
+
+  <ul>
+    <li><code>npm install mongodb</code></li>
+    <li>MongoDB:
+      <ul>
+        <li>waits until you have created a collection (table), with at least one document (record) before it actually creates the database (and collection)</li>
+        <li>waits until you have inserted a document before it actually creates the collection</li>
+        <li>will create the collection automatically if you try to insert documents in a collection that do not exist</li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="js">
+    // --- Creating a Database
+
+    // database is not created until it gets content
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/mydb";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      console.log("Database created!");
+      db.close();
+    });
+
+    // --- Creating a Collection
+    // collection is not created until it gets content
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.createCollection("customers", function(err, res) {
+        if (err) throw err;
+        console.log("Collection created!");
+        db.close();
+      });
+    });
+  </code></pre>
+
+  <details><summary>Insert</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myobj = { name: "Company Inc", address: "Highway 37" };
+      dbo.collection("customers").insertOne(myobj, function(err, res) {
+        if (err) throw err;
+        console.log("1 document inserted");
+        db.close();
+      });
+    });
+
+    // --- Insert Multiple Documents
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myobj = [
+        { name: 'John', address: 'Highway 71'},
+        { name: 'Peter', address: 'Lowstreet 4'},
+        { name: 'Amy', address: 'Apple st 652'},
+        { name: 'Hannah', address: 'Mountain 21'},
+        { name: 'Michael', address: 'Valley 345'},
+        { name: 'Sandy', address: 'Ocean blvd 2'},
+        { name: 'Betty', address: 'Green Grass 1'},
+        { name: 'Richard', address: 'Sky st 331'},
+        { name: 'Susan', address: 'One way 98'},
+        { name: 'Vicky', address: 'Yellow Garden 2'},
+        { name: 'Ben', address: 'Park Lane 38'},
+        { name: 'William', address: 'Central st 954'},
+        { name: 'Chuck', address: 'Main Road 989'},
+        { name: 'Viola', address: 'Sideway 1633'}
+      ];
+      dbo.collection("customers").insertMany(myobj, function(err, res) {
+        if (err) throw err;
+        console.log("Number of documents inserted: " + res.insertedCount);
+        db.close();
+      });
+    });
+
+    //  --- _id Field
+    // If you do not specify an _id field, MongoDB will add one
+    // and assign a unique id for each document
+    // if you specify the _id field, value must be unique for each document
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myobj = [
+        { _id: 154, name: 'Chocolate Heaven'},
+        { _id: 155, name: 'Tasty Lemon'},
+        { _id: 156, name: 'Vanilla Dream'}
+      ];
+      dbo.collection("products").insertMany(myobj, function(err, res) {
+        if (err) throw err;
+        console.log(res);
+        db.close();
+      });
+    });
+    // will give:
+    {
+      result: { ok: 1, n: 3 },
+      ops: [
+        { _id: 154, name: 'Chocolate Heaven },
+        { _id: 155, name: 'Tasty Lemon },
+        { _id: 156, name: 'Vanilla Dream } ],
+      insertedCount: 3,
+      insertedIds: [
+        154,
+        155,
+        156 ]
+    }
+  </code></pre></details>
+
+  <details><summary>Find</summary><pre><code class="js">
+    // --- Find One
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").findOne({}, function(err, result) {
+        if (err) throw err;
+        console.log(result.name);
+        db.close();
+      });
+    });
+
+    // --- Find All
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find({}).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+
+    // --- Find Some
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find(
+        {},
+        // which fields to include in the result
+        { projection: { _id: 0, name: 1, address: 1 } }
+      ).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+    // you are not allowed to specify both 0 and 1 values in the same object ( error ! )
+    // (except if one of the fields is the _id field).
+    // if you specify a field with the value 0, all other fields get the value 1, and vice versa:
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find({}, { projection: { address: 0 } }).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+    // to exclude the _id field, you must set its value to 0
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find({}, { projection: { _id: 0, name: 1 } }).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+    // same result as the first example; return all fields except the _id field:
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find({}, { projection: { _id: 0 } }).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Filter</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var query = { address: "Park Lane 38" };
+      dbo.collection("customers").find(query).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+
+    // --- Regular Expressions, can only be used to query strings
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var query = { address: /^S/ };
+      dbo.collection("customers").find(query).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Sort</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var mysort = { name: 1 };
+      // var mysort = { name: -1 };
+      dbo.collection("customers").find().sort(mysort).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Delete</summary><pre><code class="js">
+    // if the query finds more than one document, only the first occurrence is deleted
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myquery = { address: 'Mountain 21' };
+      dbo.collection("customers").deleteOne(myquery, function(err, obj) {
+        if (err) throw err;
+        console.log("1 document deleted");
+        db.close();
+      });
+    });
+
+    // --- Delete Many
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myquery = { address: /^O/ };
+      dbo.collection("customers").deleteMany(myquery, function(err, obj) {
+        if (err) throw err;
+        console.log(obj.result.n + " document(s) deleted");
+        db.close();
+      });
+    });
+
+    // deleteMany() method returns an object which contains information
+    // about how the execution affected the database
+    console.log(obj.result.n);
+  </code></pre></details>
+
+  <details><summary>Drop - delete a table, or collection</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").drop(function(err, delOK) {
+        if (err) throw err;
+        if (delOK) console.log("Collection deleted");
+        db.close();
+      });
+    });
+
+    // --- db.dropCollection
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.dropCollection("customers", function(err, delOK) {
+        if (err) throw err;
+        if (delOK) console.log("Collection deleted");
+        db.close();
+      });
+    });
+  </code></pre></details>
+
+  <details><summary>Update</summary><pre><code class="js">
+    // if the query finds more than one record, only the first occurrence is updated
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://127.0.0.1:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myquery = { address: "Valley 345" };
+      var newvalues = { $set: {name: "Mickey", address: "Canyon 123" } };
+      // var newvalues = { $set: { address: "Canyon 123" } }; // Update Only Specific Fields
+      dbo.collection("customers").updateOne(myquery, newvalues, function(err, res) {
+        if (err) throw err;
+        console.log("1 document updated");
+        db.close();
+      });
+    });
+
+    // --- Update Many Documents
+
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://127.0.0.1:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myquery = { address: /^S/ };
+      var newvalues = {$set: {name: "Minnie"} };
+      dbo.collection("customers").updateMany(myquery, newvalues, function(err, res) {
+        if (err) throw err;
+        console.log(res.result.nModified + " document(s) updated");
+        db.close();
+      });
+    });
+
+    // updateOne() and the updateMany() methods return an object
+    / which contains information about how the execution affected the database
+    {
+      n: 1, nModified: 2, ok: 1
+    }
+
+    console.log(res.result.nModified); // 2
+  </code></pre></details>
+
+  <details><summary>Limit</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://localhost:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("customers").find().limit(5).toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+      });
+    });
+
+    // {a:1, b:1} , {a:2, b:1} , {a:2, b:2} , {a:2, b:3} , {a:3, b:1}
+    // 1st Page
+    find().sort({a:1, b:1}).limit(2) // {a:1, b:1} , {a:2, b:1}
+    // 2nd Page
+    find().min({a:2, b:1}).sort({a:1, b:1}).skip(1).limit(2) // {a:2, b:2} , {a:2, b:3}
+    // 3rd Page
+    find().min({a:2, b:3}).sort({a:1, b:1}).skip(1).limit(2) // {a:3, b:1}
+  </code></pre></details>
+
+  <details><summary>Join</summary><pre><code class="js">
+    var MongoClient = require('mongodb').MongoClient;
+    var url = "mongodb://127.0.0.1:27017/";
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection('orders').aggregate([
+        { $lookup:
+            {
+              from: 'products',
+              localField: 'product_id',
+              foreignField: '_id',
+              as: 'orderdetails'
+            }
+          }
+        ]).toArray(function(err, res) {
+        if (err) throw err;
+        console.log(JSON.stringify(res));
+        db.close();
+      });
+    });
+  </code></pre></details>
+
+
+
+<h2 id="redis">Redis/Cache</h2>
+
+  <ul>
+    <li>in-memory data structure store which can be used as a database, a cache and a message broker</li>
+    <li>uses you RAM to store data which is very fast, however if you reboot your server the values are gone, unless you enable <a href="https://redis.io/topics/persistence">Redis persistence</a> - <u>enabled by default</u> (disable or configure persistence according to your needs)</li>
+    <li><a href="https://redis.io/commands">commands</a></li>
+  </ul>
+
+  <pre><code class="python">
+    wget http://download.redis.io/releases/redis-4.0.9.tar.gz
+    tar xzf redis-4.0.9.tar.gz
+    cd redis-4.0.9
+    make
+    # run Redis
+    src/redis-server
+    # interact with Redis using the built-in client
+    src/redis-cli
+    redis> set foo bar
+    OK
+    redis> get foo
+    "bar"
+
+    # start, stop
+    /etc/init.d/redis-server stop
+    /etc/init.d/redis-server start
+
+    # client for NodeJS
+    npm install redis
+  </code></pre>
+
+  <pre><code class="js">
+    // redisDemo.js
+    var redis = require('redis');
+    var client = redis.createClient(); // this creates a new client
+    // var client = redis.createClient(port, host);
+
+    // check for a successful connection
+    client.on('connect', function() {
+      console.log('Redis client connected');
+    });
+
+    // check if we failed to connect to the redis-server
+    // might trigger when forget to start the redis-server before application is run
+    client.on('error', function (err) {
+      console.log('Something went wrong ' + err);
+    });
+
+    // set/get value
+    client.set('my test key', 'my test value', redis.print);
+    client.get('my test key', function (error, result) {
+      if (error) {
+        console.log(error);
+        throw error;
+      }
+      console.log('GET result ->' + result);
+    });
+
+    // OUTPUT:
+    //   Redis client connected
+    //   Reply: OK
+    //   GET result ->my test value
+  </code></pre>
+
+  <details><summary>rediscache</summary><pre><code class="js">
+    "use strict";
+    // API Example with Redis as a Cache
+
+    const express = require("express");
+    const app = express();
+    const { URL } = require("url");
+    const redis = require("redis");
+    const fetch = require("node-fetch");
+
+    const apikey = process.env.DATAGOVAPIKEY;
+
+    let connectionString = process.env.COMPOSE_REDIS_URL;
+
+    if (connectionString === undefined) {
+      console.error("Please set the COMPOSE_REDIS_URL environment variable");
+      process.exit(1);
+    }
+
+    let client = null;
+
+    if (connectionString.startsWith("rediss://")) {
+      client = redis.createClient(connectionString, {
+        tls: { servername: new URL(connectionString).hostname }
+      });
+    } else {
+      client = redis.createClient(connectionString);
+    }
+
+    app.get("/schools", (req, resp) => {
+      let terms = req.query.name;
+      client.get("schools/" + terms, (err, result) => {
+        if (result != null) {
+          console.log("Cache hit for " + terms);
+          resp.send(result);
+        } else {
+          console.log("Cache missed for " + terms);
+          fetch(
+            "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=" +
+              apikey +
+              "&school.name=" +
+              terms +
+              "&fields=school.name,location.lon,location.lat&per_page=100"
+          )
+            .then(res => res.json())
+            .then(json => {
+              client.setex("schools/" + terms, 300, JSON.stringify(json));
+              resp.send(json);
+            })
+            .catch(err => {
+              console.error(err);
+              resp.send(202);
+            });
+        }
+      });
+      return;
+    });
+
+    app.listen(3000);
+  </code></pre></details>
+
+  <details><summary>cache</summary><pre><code class="js">
+    "use strict";
+    // API example with in-memory caching
+    const express = require("express");
+    const app = express();
+    const fetch = require("node-fetch");
+
+    const apikey = process.env.DATAGOVAPIKEY;
+
+    let cache = {};
+
+    app.get("/schools", (req, resp) => {
+      let terms = req.query.name;
+      let result = cache[terms];
+      if (result != null) {
+        console.log("Cache hit for " + terms);
+        resp.send(result);
+      } else {
+        console.log("Cache missed for " + terms);
+        fetch(
+          "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=" +
+            apikey +
+            "&school.name=" +
+            terms +
+            "&fields=school.name,location.lon,location.lat&per_page=100"
+        )
+          .then(res => res.json())
+          .then(json => {
+            cache[terms] = json;
+            resp.send(json);
+          })
+          .catch(err => {
+            console.error(err);
+            resp.send(202);
+          });
+      }
+      return;
+    });
+
+    app.listen(3000);
+  </code></pre></details>
+
+  <details><summary>nocache</summary><pre><code class="js">
+    "use strict";
+    // API Example with no caching at all
+    const express = require("express");
+    const app = express();
+    const fetch = require("node-fetch");
+
+    const apikey = process.env.DATAGOVAPIKEY;
+
+    app.get("/schools", (req, resp) => {
+      let terms = req.query.name;
+      fetch(
+        "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=" +
+          apikey +
+          "&school.name=" +
+          terms +
+          "&fields=school.name,location.lon,location.lat&per_page=100"
+      )
+        .then(res => res.json())
+        .then(json => {
+          resp.send(json);
+        })
+        .catch(err => {
+          console.error(err);
+          resp.send(202);
+        });
+    });
+
+    app.listen(3000);
+  </code></pre></details>
+
+
+
+<h2 id="pi">Raspberry Pi</h2>
+
+  <ul>
+    <li><a href="https://www.w3schools.com/nodejs/nodejs_raspberrypi.asp">Node.js and Raspberry Pi</a></li>
+  </ul>
+
+
+
+<h2 id="practices">Practices</h2>
+
+  <ul>
+    <li>start all projects with <code>npm init</code></li>
+    <li>npm scripts - dont write bash scripts when you can organize them better with npm scripts and Node: <code>npm run build</code>, <code>start</code> and <code>test</code>. npm scripts are like single source of truth when Node developers look at a new project</li>
+    <li>env vars - process.env.NODE_ENV by setting it to development, or production, some frameworks will use this variable too, so play by the convention, Nodemon has a config file where you can put your env vars</li>
+    <li>understand the event loop - perform something CPU-intensive (e.g., computation, hashing of passwords, or compressing), then in addition to spawning new processes for those CPU-tasks, you might want to explore the deferring of the task with setImmediate() or setTimeout() - the code in their callbacks will continue on the next event loop cycle. nextTick() works on the same cycle contrary to the name</li>
+    <li>say no to synchronous functions - turn on -trace-sync-io flag to make sure no synchronous function is a part of the code and it will display a warning upon encountering a synchronous API</li>
+    <li>functional inheritance - avoid getting into mindless debates and a brain-draining trap of debugging and understanding prototypal inheritance or classes by just using functional inheritance like some of the most prolific Node contributors do</li>
+    <li>name things appropriately - give meaningful names which will serve as a documentation, for module imports, etc., no uppercase filenames, use a dash if needed, uppercase in filenames not just look strange but can cause cross-platform issues</li>
+    <li>provide native code - when using transpilers, commit native JS code (result of the builds) so your projects can run without the builds</li>
+    <li>gzip</li>
+    <li>scale up - start thinking about clustering and having stateless services from day one of Node development, use pm2 or strongloop cluster control</li>
+    <li>cache requests - hiding Node servers behind a static file server such as nginx and/or request level cache like Varnish Cache and CDN caching</li>
+
+    <li><strong>EventEmitter pattern</strong> - allows implementors to emit an event and consumers to subscribe to the events they are interested in, think of this as an extension to the pattern of passing a callback to an asynchronous function that the function invokes upon completion, useful when one callback isnt enough, usually, because there is more than one event that might be interesting to the caller, if a descendant of EventEmitter has cause to emit('error') and there are no listeners subscribed to that event, the EventEmitter base class will throw an exception, which will lead to the uncaughtException event firing on the process object</li>
+
+  </ul>
+
+  <pre><code class="js">
+    // --- pre and post hooks, get a very sophisticated level of automation
+    "scripts": {
+      "preinstall": "node prepare.js",
+      "postintall": "node clean.js",
+      "build": "webpack",
+      "postbuild": "node index.js",
+      "postversion": "npm publish"
+    }
+
+    // --- functional inheritance
+    exports = module.exports = createApplication;
+    // ...
+    function createApplication() {
+      var app = function(req, res, next) {
+        app.handle(req, res, next);
+      };
+      mixin(app, EventEmitter.prototype, false);
+      mixin(app, proto, false);
+      app.request = { __proto__: req, app: app };
+      app.response = { __proto__: res, app: app };
+      app.init();
+      return app;
+    }
+
+    // --- EventEmitter pattern
+    const EventEmitter = require('events').EventEmitter;
+    class MyClass extends EventEmitter {
+      constructor() {
+        super();
+        setTimeout(() => {
+          this.emit('myEvent', 'hello world', 42);
+        }, 1000);
+      }
+    }
+    // ...
+    const myObj = new MyClass();
+    const start = Date.now();
+    myObj.on('myEvent', (str, num) => {
+      console.log('myEvent triggered', str, num, Date.now() - start);
+    });
+
+    // -- example of documented function
+    /*
+    * Make a TCP connection to the given IPv4 address.  Arguments:
+    *
+    *    ip4addr        a string representing a valid IPv4 address
+    *
+    *    tcpPort        a positive integer representing a valid TCP port
+    *
+    *    timeout        a positive integer denoting the number of milliseconds
+    *                   to wait for a response from the remote server before
+    *                   considering the connection to have failed.
+    *
+    *    callback       invoked when the connection succeeds or fails.  Upon
+    *                   success, callback is invoked as callback(null, socket),
+    *                   where `socket` is a Node net.Socket object.  Upon failure,
+    *                   callback is invoked as callback(err) instead.
+    *
+    * This function may fail for several reasons:
+    *
+    *    SystemError    For "connection refused" and "host unreachable" and other
+    *                   errors returned by the connect(2) system call.  For these
+    *                   errors, err.errno will be set to the actual errno symbolic
+    *                   name.
+    *
+    *    TimeoutError   Emitted if "timeout" milliseconds elapse without
+    *                   successfully completing the connection.
+    *
+    * All errors will have the conventional "remoteIp" and "remotePort" properties.
+    * After any error, any socket that was created will be closed.
+    */
+    function connect(ip4addr, tcpPort, timeout, callback) {
+      assert.equal(typeof (ip4addr), 'string',
+          "argument 'ip4addr' must be a string");
+      assert.ok(net.isIPv4(ip4addr),
+          "argument 'ip4addr' must be a valid IPv4 address");
+      assert.equal(typeof (tcpPort), 'number',
+          "argument 'tcpPort' must be a number");
+      assert.ok(!isNaN(tcpPort) && tcpPort > 0 && tcpPort < 65536,
+          "argument 'tcpPort' must be a positive integer between 1 and 65535");
+      assert.equal(typeof (timeout), 'number',
+          "argument 'timeout' must be a number");
+      assert.ok(!isNaN(timeout) && timeout > 0,
+          "argument 'timeout' must be a positive integer");
+      assert.equal(typeof (callback), 'function');
+      /* do work */
+    }
+  </code></pre>
+
+
+
+<h2 id="tools">Tools</h2>
+
+  <ul>
+    <li><a href="https://github.com/sindresorhus/awesome-nodejs">awesome-nodejs</a> - packages and resources</li>
+    <li><a href="https://www.npmjs.com/package/concurrently">concurrently</a> - spawn multiple processes and run them at the same time, run multiple commands concurrently, like npm run watch-js & npm run watch-less but better</li>
+    <li><strong><a href="https://github.com/remy/nodemon">nodemon</a></strong> - monitor for any changes in your node.js application and automatically restart the server - perfect for development</li>
+    <li><a href="https://github.com/node-inspector/node-inspector">node-inspector</a> - debugger</li>
+    <li><a href="https://github.com/winstonjs/winston">winston</a> - logger</li>
+    <li><a href="https://github.com/Marak/Faker.js">Faker</a></li>
+    <li><a href="https://github.com/tj/commander.js/">commander</a> - command-line interfaces</li>
+    <li>compress/minify
+      <ul>
+        <li><a href="https://github.com/mishoo/UglifyJS2">UglifyJS2</a> - JavaScript compressor/parser/mangler/beautifier</li>
+        <li><a href="https://github.com/jakubpawlowicz/clean-css">clean-css</a> - CSS optimizer</li>
+        <li><a href="https://github.com/kangax/html-minifier">html-minifier</a> - HTML compressor/minifier</li>
+        <li><a href="https://github.com/imagemin/imagemin">imagemin</a> - minify images</li>
+        <li><a href="https://github.com/Ensighten/spritesmith">spritesmith</a> - generate sprite sheets</li>
+        <li><a href="https://github.com/aheckmann/gm">gm</a> - GraphicsMagick and ImageMagick for node, manipulate images</li>
+        <li><a href="https://github.com/lovell/sharp">sharp</a> - process images</li>
+        <li><a href="https://github.com/svg/svgo">svgo</a> - optimizing SVG</li>
+        <li><a href="https://github.com/bgrins/TinyColor">TinyColor</a> - color manipulation and conversion</li>
+      </ul>
+    </li>
+    <li><a href="https://github.com/foliojs/pdfkit">pdfkit</a> - PDF generation</li>
+    <li><a href="https://github.com/adaltas/node-csv">node-csv</a> - CSV parser</li>
+    <li><a href="https://github.com/cheeriojs/cheerio">cheerio</a> -  jQuery for server, scrape web pages, efficient parsing, manipulating, and rendering</li>
+  </ul>
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

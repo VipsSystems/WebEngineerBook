@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTML Media Video, Audio and SVG tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="html, media, video, audio, formats, svg, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+  <style>
+    figure {
+      margin:0;
+    }
+  </style>
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>HTML Media Video, Audio and SVG tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="vid">Video example</h2>
+
+  <div class="example">
+
+    <figure id="videoContainer">
+      <!-- <video id="video" width="300" height="200" controls autoplay preload="metadata" poster="video/battle.png"> -->
+      <video id="video" width="300" height="200" controls preload="metadata" poster="video/battle.png">
+          <source src="video/battle.mp4" type="video/mp4">
+          <source src="video/battle.webm" type="video/webm">
+          <source src="video/battle.ogg" type="video/ogg">
+          <!--
+          <track src="subtitles_en.vtt" kind="subtitles" srclang="en" label="English" default>
+          <track src="subtitles_no.vtt" kind="captions|chapters|descriptions|metadata|subtitles" srclang="no" label="Norwegian">
+          -->
+          <object type="application/x-shockwave-flash" data="flash-player.swf?videoUrl=video/tears-of-steel-battle-clip-medium.mp4" width="300" height="200">
+            <param name="movie" value="flash-player.swf?videoUrl=video/tears-of-steel-battle-clip-medium.mp4" />
+            <param name="allowfullscreen" value="true" />
+            <param name="wmode" value="transparent" />
+            <param name="flashvars" value="controlbar=over&amp;image=img/poster.jpg&amp;file=flash-player.swf?videoUrl=video/battle.mp4" />
+            <img alt="Tears of Steel poster image" src="video/battle.png" width="300" height="150" title="No video playback possible, please download the video from the link below" />
+          </object>
+
+          <a href="video/battle.mp4">Download MP4</a>
+      </video>
+      <figcaption>video with a CG battle</figcaption>
+    </figure>
+
+    <h3>Outer controls</h3>
+    <button onclick="playPause()">Play/Pause</button>
+    <button onclick="makeBig()">Big</button>
+    <button onclick="makeSmall()">Small</button>
+    <button onclick="makeNormal()">Normal</button>
+
+  </div>
+
+  <div class="example w-50 h-30" id="vid_events">
+    <h3>Events</h3>
+  </div>
+
+  <div class="example w-50 h-30">
+    <h3>States</h3>
+    readyState: <span id="rs"></span><br/>
+    networkState: <span id="ns"></span><br/>
+    seeking: <span id="seek"></span><br/>
+    buffered: <span id="buffered"></span><br/>
+    currentTime : <span id="ct"></span><br/>
+    duration: <span id="duration"></span><br/>
+    loop: <span id="loop"></span><br/>
+    volume: <span id="volume"></span><br/>
+    currentSrc: <span id="src"></span><br/>
+    preload: <span id="preload"></span><br/>
+    playbackRate: <span id="pr"></span><br/>
+    defaultPlaybackRate: <span id="dpr"></span><br/>
+    paused: <span id="paused"></span><br/>
+    ended : <span id="ended"></span><br/>
+    muted : <span id="muted"></span><br/>
+    mediaGroup : <span id="mg"></span><br/>
+    <!-- error.code : <span id="err"></span><br/> -->
+  </div>
+
+  <script>
+    var myVideo = document.getElementById("video");
+    var playPause = () => { (myVideo.paused) ? myVideo.play() : myVideo.pause(); }
+    function makeBig() { myVideo.width = 600; }
+    function makeSmall() { myVideo.width = 150; }
+    function makeNormal() { myVideo.width = 300; }
+
+    ;(function () {
+      var video = document.getElementById("video");
+      video.loop = 0;
+      video.currentTime = 5;
+      video.volume = 0.86;
+      video.playbackRate = 2;
+      video.defaultPlaybackRate = 2;
+      video.mediaGroup = "video";
+      rs = document.getElementById("rs");
+      ns = document.getElementById("ns");
+
+      setInterval(function(){
+        switch(video.networkState) {
+          case 0: rs.innerHTML = "0 = HAVE_NOTHING"; break;
+          case 1: rs.innerHTML = "1 = HAVE_METADATA"; break;
+          case 2: rs.innerHTML = "2 = HAVE_CURRENT_DATA"; break;
+          case 3: rs.innerHTML = "3 = HAVE_FUTURE_DATA"; break;
+          case 4: rs.innerHTML = "4 = HAVE_ENOUGH_DATA"; break;
+          default: rs.innerHTML = "???";
+        }
+        switch(video.networkState) {
+          case 0: ns.innerHTML = "0 = NETWORK_EMPTY"; break;
+          case 1: ns.innerHTML = "1 = NETWORK_IDLE"; break;
+          case 2: ns.innerHTML = "2 = NETWORK_LOADING"; break;
+          case 3: ns.innerHTML = "3 = NETWORK_NO_SOURCE"; break;
+          default: ns.innerHTML = "???";
+        }
+        document.getElementById("seek").innerHTML = (video.networkState) ? "1" : "0";
+        document.getElementById("buffered").innerHTML =
+          "Start: " + video.buffered.start + " End: "  + video.buffered.end + " Length: "  + video.length;
+        document.getElementById("ct").innerHTML = video.currentTime;
+        document.getElementById("duration").innerHTML = video.duration;
+        document.getElementById("loop").innerHTML = (video.loop) ? "1" : "0";
+        document.getElementById("volume").innerHTML = video.volume;
+        document.getElementById("src").innerHTML = video.currentSrc;
+        document.getElementById("preload").innerHTML = video.preload;
+        document.getElementById("pr").innerHTML = video.playbackRate; // 1.0, -1.5, ...
+        document.getElementById("dpr").innerHTML = video.defaultPlaybackRate;
+        document.getElementById("paused").innerHTML = video.paused;
+        document.getElementById("ended").innerHTML = video.ended;
+        document.getElementById("muted").innerHTML = video.muted;
+        document.getElementById("mg").innerHTML = video.mediaGroup;
+        // document.getElementById("err").innerHTML = video.error.code;
+      },100);
+      var ve = document.getElementById("vid_events");
+      video.onwaiting = () => { ve.innerHTML += "Wait! I need to buffer the next frame<br/>"; };
+      video.oncanplay = () => { ve.innerHTML += "Can start playing video<br/>"; };
+      video.oncanplaythrough = () => { ve.innerHTML += "Can play through video without stopping<br/>"; };
+      video.ondurationchange  = () => { ve.innerHTML += "The video duration has changed<br/>"; };
+      video.onvolumechange = () => { ve.innerHTML += "The volume has been changed<br/>"; };
+      video.ontimeupdate = () => { ve.innerHTML += "The playing position has changed<br/>"; };
+      video.onsuspend = () => { ve.innerHTML += "Loading of the media is suspended<br/>"; };
+      video.onstalled = () => { ve.innerHTML += "Media data is not available<br/>"; };
+      video.onseeking = () => { ve.innerHTML += "Seek operation began<br/>"; };
+      video.onseeked = () => { ve.innerHTML += "Seek operation completed<br/>"; };
+      video.onratechange = () => { ve.innerHTML += "The playing speed of the video was changed<br/>"; };
+      video.onratechange = () => { ve.innerHTML += "The playing speed of the video was changed<br/>"; };
+      video.onprogress = () => { ve.innerHTML += "Downloading video<br/>"; };
+      video.onplaying = () => { ve.innerHTML += "The video is now playing<br/>"; };
+      video.onloadstart = () => { ve.innerHTML += "Starting to load video<br/>"; };
+      video.onloadedmetadata = () => { ve.innerHTML += "Meta data for video loaded<br/>"; };
+      video.onloadeddata = () => { ve.innerHTML += "Browser has loaded the current frame<br/>"; };
+      video.onerror = () => { ve.innerHTML += "Error! Something went wrong<br/>"; };
+
+    })();
+  </script>
+
+  <pre><code class="html">
+    &lt;figure id="videoContainer"&gt;
+      &lt;!--
+        &lt;video
+          id="video"
+          width="300" height="200"
+          controls autoplay
+          preload="metadata"
+          poster="video/battle.png"
+        &gt;
+      --&gt;
+      &lt;video
+        id="video"
+        width="300"
+        height="200"
+        controls
+        preload="metadata"
+        poster="video/battle.png"
+      &gt;
+          &lt;source src="video/battle.mp4" type="video/mp4"&gt;
+          &lt;source src="video/battle.webm" type="video/webm"&gt;
+          &lt;source src="video/battle.ogg" type="video/ogg"&gt;
+          &lt;!--
+          &lt;track src="subtitles_en.vtt"
+            kind="subtitles"
+            srclang="en"
+            label="English"
+            default
+          &gt;
+          &lt;track
+            src="subtitles_no.vtt"
+            kind="captions|chapters|descriptions|metadata|subtitles"
+            srclang="no"
+            label="Norwegian"
+          &gt;
+          --&gt;
+          &lt;object
+            type="application/x-shockwave-flash"
+            data="flash-player.swf?videoUrl=video/tears-of-steel-battle-clip-medium.mp4"
+            width="300"
+            height="200"
+          &gt;
+            &lt;param
+              name="movie"
+              value="flash-player.swf?videoUrl=video/tears-of-steel-battle-clip-medium.mp4"/&gt;
+            &lt;param
+              name="allowfullscreen"
+              value="true" /&gt;
+            &lt;param
+              name="wmode"
+              value="transparent" /&gt;
+            &lt;param
+              name="flashvars"
+              value="controlbar=over&amp;image=img/poster.jpg&amp;file=flash-player.swf?videoUrl=video/battle.mp4" /&gt;
+            &lt;img
+              alt="Tears of Steel poster image"
+              src="video/battle.png"
+              width="300"
+              height="150"
+              title="No video playback possible, please download the video from the link below" /&gt;
+          &lt;/object&gt;
+          &lt;a href="video/battle.mp4"&gt;Download MP4&lt;/a&gt;
+      &lt;/video&gt;
+      &lt;figcaption&gt;video with a CG battle&lt;/figcaption&gt;
+    &lt;/figure&gt;
+
+    &lt;h3&gt;Outer controls&lt;/h3&gt;
+    &lt;button onclick="playPause()"&gt;Play/Pause&lt;/button&gt;
+    &lt;button onclick="makeBig()"&gt;Big&lt;/button&gt;
+    &lt;button onclick="makeSmall()"&gt;Small&lt;/button&gt;
+    &lt;button onclick="makeNormal()"&gt;Normal&lt;/button&gt;
+
+    &lt;h3&gt;States&lt;/h3&gt;
+    readyState: &lt;span id="rs"&gt;&lt;/span&gt;
+    networkState: &lt;span id="ns"&gt;&lt;/span&gt;
+    seeking: &lt;span id="seek"&gt;&lt;/span&gt;
+    buffered: &lt;span id="buffered"&gt;&lt;/span&gt;
+    currentTime : &lt;span id="ct"&gt;&lt;/span&gt;
+    duration: &lt;span id="duration"&gt;&lt;/span&gt;
+    loop: &lt;span id="loop"&gt;&lt;/span&gt;
+    volume: &lt;span id="volume"&gt;&lt;/span&gt;
+    currentSrc: &lt;span id="src"&gt;&lt;/span&gt;
+    preload: &lt;span id="preload"&gt;&lt;/span&gt;
+    playbackRate: &lt;span id="pr"&gt;&lt;/span&gt;
+    defaultPlaybackRate: &lt;span id="dpr"&gt;&lt;/span&gt;
+    paused: &lt;span id="paused"&gt;&lt;/span&gt;
+    ended : &lt;span id="ended"&gt;&lt;/span&gt;
+    muted : &lt;span id="muted"&gt;&lt;/span&gt;
+    mediaGroup : &lt;span id="mg"&gt;&lt;/span&gt;
+    &lt;!-- error.code : &lt;span id="err"&gt;&lt;/span&gt; --&gt;
+
+    &lt;div id="vid_events"&gt;
+      &lt;h3&gt;Events&lt;/h3&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var myVideo = document.getElementById("video");
+    var playPause = () => { (myVideo.paused) ? myVideo.play() : myVideo.pause(); }
+    function makeBig() { myVideo.width = 600; }
+    function makeSmall() { myVideo.width = 150; }
+    function makeNormal() { myVideo.width = 300; }
+
+    ;(function () {
+      var video = document.getElementById("video");
+      video.loop = 0;
+      video.currentTime = 5;
+      video.volume = 0.86;
+      video.playbackRate = 2;
+      video.defaultPlaybackRate = 2;
+      video.mediaGroup = "video";
+      rs = document.getElementById("rs");
+      ns = document.getElementById("ns");
+      setInterval(function(){
+        switch(video.networkState) {
+          case 0: rs.innerHTML = "0 = HAVE_NOTHING"; break;
+          case 1: rs.innerHTML = "1 = HAVE_METADATA"; break;
+          case 2: rs.innerHTML = "2 = HAVE_CURRENT_DATA"; break;
+          case 3: rs.innerHTML = "3 = HAVE_FUTURE_DATA"; break;
+          case 4: rs.innerHTML = "4 = HAVE_ENOUGH_DATA"; break;
+          default: rs.innerHTML = "???";
+        }
+        switch(video.networkState) {
+          case 0: ns.innerHTML = "0 = NETWORK_EMPTY"; break;
+          case 1: ns.innerHTML = "1 = NETWORK_IDLE"; break;
+          case 2: ns.innerHTML = "2 = NETWORK_LOADING"; break;
+          case 3: ns.innerHTML = "3 = NETWORK_NO_SOURCE"; break;
+          default: ns.innerHTML = "???";
+        }
+        document.getElementById("seek").innerHTML = (video.networkState) ? "1" : "0";
+        document.getElementById("buffered").innerHTML =
+          "Start: " + video.buffered.start(0) + " End: "  + video.buffered.end(0) +
+          " Length: "  + video.length;
+        document.getElementById("ct").innerHTML = video.currentTime;
+        document.getElementById("duration").innerHTML = video.duration;
+        document.getElementById("loop").innerHTML = (video.loop) ? "1" : "0";
+        document.getElementById("volume").innerHTML = video.volume;
+        document.getElementById("src").innerHTML = video.currentSrc;
+        document.getElementById("preload").innerHTML = video.preload;
+        document.getElementById("pr").innerHTML = video.playbackRate; // 1.0, -1.5, ...
+        document.getElementById("dpr").innerHTML = video.defaultPlaybackRate;
+        document.getElementById("paused").innerHTML = video.paused;
+        document.getElementById("ended").innerHTML = video.ended;
+        document.getElementById("muted").innerHTML = video.muted;
+        document.getElementById("mg").innerHTML = video.mediaGroup;
+        // document.getElementById("err").innerHTML = video.error.code;
+      },100);
+
+      var ve = document.getElementById("vid_events");
+      video.onwaiting = () => { ve.innerHTML += "Wait! I need to buffer the next frame"; };
+      video.oncanplay = () => { ve.innerHTML += "Can start playing video"; };
+      video.oncanplaythrough = () => { ve.innerHTML += "Can play through video without stopping"; };
+      video.ondurationchange  = () => { ve.innerHTML += "The video duration has changed"; };
+      video.onvolumechange = () => { ve.innerHTML += "The volume has been changed"; };
+      video.ontimeupdate = () => { ve.innerHTML += "The playing position has changed"; };
+      video.onsuspend = () => { ve.innerHTML += "Loading of the media is suspended"; };
+      video.onstalled = () => { ve.innerHTML += "Media data is not available"; };
+      video.onseeking = () => { ve.innerHTML += "Seek operation began"; };
+      video.onseeked = () => { ve.innerHTML += "Seek operation completed"; };
+      video.onratechange = () => { ve.innerHTML += "The playing speed of the video was changed"; };
+      video.onratechange = () => { ve.innerHTML += "The playing speed of the video was changed"; };
+      video.onprogress = () => { ve.innerHTML += "Downloading video"; };
+      video.onplaying = () => { ve.innerHTML += "The video is now playing"; };
+      video.onloadstart = () => { ve.innerHTML += "Starting to load video"; };
+      video.onloadedmetadata = () => { ve.innerHTML += "Meta data for video loaded"; };
+      video.onloadeddata = () => { ve.innerHTML += "Browser has loaded the current frame"; };
+      video.onerror = () => { ve.innerHTML += "Error! Something went wrong"; };
+
+    })();
+  </code></pre>
+
+  <ul>
+    <li>Video formats support:
+      <ul>
+        <li>MP4 has most support</li>
+        <li>others (WebM, Ogg) will depend on browser</li>
+      </ul>
+    </li>
+  </ul>
+
+<h3>Video formats media types</h3>
+
+  <table>
+    <tr>
+      <th style="width:50%">File Format</th>
+      <th style="width:50%">Media Type</th>
+    </tr>
+    <tr>
+      <td>MP4</td>
+      <td>video/mp4</td>
+    </tr>
+    <tr>
+      <td>WebM</td>
+      <td>video/webm</td>
+    </tr>
+    <tr>
+      <td>Ogg</td>
+      <td>video/ogg</td>
+    </tr>
+  </table>
+
+
+<h2 id="aud">Audio example</h2>
+
+  <div class="example">
+
+    <figure id="audioContainer">
+      <audio id="audio" controls>
+        <!-- <source src="horse.ogg" type="audio/ogg"> -->
+        <source src="flappy/bg.mp3" type="audio/mpeg">
+        Your browser does not support the audio element
+      </audio>
+      <figcaption>MarioBros soundtrack</figcaption>
+    </figure>
+
+    <h3>Outer controls</h3>
+    <button onclick="audioPlayPause()">Play/Pause</button>
+
+  </div>
+
+  <div class="example w-50 h-30" id="audio_events">
+    <h3>Events</h3>
+  </div>
+
+  <div class="example w-50 h-30">
+    <h3>States</h3>
+    readyState: <span id="a_rs"></span><br/>
+    networkState: <span id="a_ns"></span><br/>
+    seeking: <span id="a_seek"></span><br/>
+    buffered: <span id="a_buffered"></span><br/>
+    currentTime : <span id="a_ct"></span><br/>
+    duration: <span id="a_duration"></span><br/>
+    loop: <span id="a_loop"></span><br/>
+    volume: <span id="a_volume"></span><br/>
+    currentSrc: <span id="a_src"></span><br/>
+    preload: <span id="a_preload"></span><br/>
+    playbackRate: <span id="a_pr"></span><br/>
+    defaultPlaybackRate: <span id="a_dpr"></span><br/>
+    paused: <span id="a_paused"></span><br/>
+    ended : <span id="a_ended"></span><br/>
+    muted : <span id="a_muted"></span><br/>
+    mediaGroup : <span id="a_mg"></span><br/>
+    <!-- error.code : <span id="err"></span><br/> -->
+  </div>
+
+  <script>
+    var audio = document.getElementById("audio");
+    var audioPlayPause = () => { (audio.paused) ? audio.play() : audio.pause(); }
+
+    ;(function () {
+      var audio = document.getElementById("audio");
+      audio.loop = 0;
+      audio.currentTime = 3;
+      audio.volume = 0.86;
+      audio.playbackRate = 1.1;
+      audio.defaultPlaybackRate = 1.1;
+      audio.mediaGroup = "audio";
+      a_rs = document.getElementById("a_rs");
+      a_ns = document.getElementById("a_ns");
+      setInterval(function(){
+        switch(audio.networkState) {
+          case 0: a_rs.innerHTML = "0 = HAVE_NOTHING"; break;
+          case 1: a_rs.innerHTML = "1 = HAVE_METADATA"; break;
+          case 2: a_rs.innerHTML = "2 = HAVE_CURRENT_DATA"; break;
+          case 3: a_rs.innerHTML = "3 = HAVE_FUTURE_DATA"; break;
+          case 4: a_rs.innerHTML = "4 = HAVE_ENOUGH_DATA"; break;
+          default: a_rs.innerHTML = "???";
+        }
+        switch(audio.networkState) {
+          case 0: a_ns.innerHTML = "0 = NETWORK_EMPTY"; break;
+          case 1: a_ns.innerHTML = "1 = NETWORK_IDLE"; break;
+          case 2: a_ns.innerHTML = "2 = NETWORK_LOADING"; break;
+          case 3: a_ns.innerHTML = "3 = NETWORK_NO_SOURCE"; break;
+          default: a_ns.innerHTML = "???";
+        }
+        document.getElementById("a_seek").innerHTML = (audio.networkState) ? "1" : "0";
+        document.getElementById("a_buffered").innerHTML =
+          "Start: " + audio.buffered.start + " End: "  + audio.buffered.end + " Length: "  + audio.length;
+        document.getElementById("a_ct").innerHTML = audio.currentTime;
+        document.getElementById("a_duration").innerHTML = audio.duration;
+        document.getElementById("a_loop").innerHTML = (audio.loop) ? "1" : "0";
+        document.getElementById("a_volume").innerHTML = audio.volume;
+        document.getElementById("a_src").innerHTML = audio.currentSrc;
+        document.getElementById("a_preload").innerHTML = audio.preload;
+        document.getElementById("a_pr").innerHTML = audio.playbackRate; // 1.0, -1.5, ...
+        document.getElementById("a_dpr").innerHTML = audio.defaultPlaybackRate;
+        document.getElementById("a_paused").innerHTML = audio.paused;
+        document.getElementById("a_ended").innerHTML = audio.ended;
+        document.getElementById("a_muted").innerHTML = audio.muted;
+        document.getElementById("a_mg").innerHTML = audio.mediaGroup;
+        // document.getElementById("err").innerHTML = audio.error.code;
+      },100);
+
+      var aev = document.getElementById("audio_events");
+      audio.onwaiting = () => { aev.innerHTML += "Wait! I need to buffer the next frame<br/>"; };
+      audio.oncanplay = () => { aev.innerHTML += "can start playing<br/>"; };
+      audio.oncanplaythrough = () => { aev.innerHTML += "can play through without stopping<br/>"; };
+      audio.ondurationchange = () => { aev.innerHTML += "duration has changed<br/>"; };
+      audio.onvolumechange = () => { aev.innerHTML += "volume has been changed<br/>"; };
+      audio.ontimeupdate = () => { aev.innerHTML += "playing position has changed<br/>"; };
+      audio.onsuspend = () => { aev.innerHTML += "loading is suspended<br/>"; };
+      audio.onstalled = () => { aev.innerHTML += "media data is not available<br/>"; };
+      audio.onseeking = () => { aev.innerHTML += "seek operation began<br/>"; };
+      audio.onseeked = () => { aev.innerHTML += "seek operation completed<br/>"; };
+      audio.onratechange = () => { aev.innerHTML += "playing speed was changed<br/>"; };
+      audio.onratechange = () => { aev.innerHTML += "playing speed was changed<br/>"; };
+      audio.onprogress = () => { aev.innerHTML += "downloading<br/>"; };
+      audio.onplaying = () => { aev.innerHTML += "now playing<br/>"; };
+      audio.onloadstart = () => { aev.innerHTML += "starting to load<br/>"; };
+      audio.onloadedmetadata = () => { aev.innerHTML += "meta data for loaded<br/>"; };
+      audio.onloadeddata = () => { aev.innerHTML += "browser has loaded the current frame<br/>"; };
+      audio.onerror = () => { aev.innerHTML += "Error! Something went wrong<br/>"; };
+    })();
+  </script>
+
+  <pre><code class="html">
+    &lt;figure id="audioContainer"&gt;
+      &lt;audio id="audio" controls&gt;
+        &lt;!-- &lt;source src="horse.ogg" type="audio/ogg"&gt; --&gt;
+        &lt;source src="flappy/bg.mp3" type="audio/mpeg"&gt;
+        Your browser does not support the audio element
+      &lt;/audio&gt;
+      &lt;figcaption&gt;MarioBros soundtrack&lt;/figcaption&gt;
+    &lt;/figure&gt;
+
+    &lt;h3&gt;Outer controls&lt;/h3&gt;
+    &lt;button onclick="audioPlayPause()"&gt;Play/Pause&lt;/button&gt;
+
+    &lt;h3&gt;States&lt;/h3&gt;
+    readyState: &lt;span id="a_rs"&gt;&lt;/span&gt;
+    networkState: &lt;span id="a_ns"&gt;&lt;/span&gt;
+    seeking: &lt;span id="a_seek"&gt;&lt;/span&gt;
+    buffered: &lt;span id="a_buffered"&gt;&lt;/span&gt;
+    currentTime : &lt;span id="a_ct"&gt;&lt;/span&gt;
+    duration: &lt;span id="a_duration"&gt;&lt;/span&gt;
+    loop: &lt;span id="a_loop"&gt;&lt;/span&gt;
+    volume: &lt;span id="a_volume"&gt;&lt;/span&gt;
+    currentSrc: &lt;span id="a_src"&gt;&lt;/span&gt;
+    preload: &lt;span id="a_preload"&gt;&lt;/span&gt;
+    playbackRate: &lt;span id="a_pr"&gt;&lt;/span&gt;
+    defaultPlaybackRate: &lt;span id="a_dpr"&gt;&lt;/span&gt;
+    paused: &lt;span id="a_paused"&gt;&lt;/span&gt;
+    ended : &lt;span id="a_ended"&gt;&lt;/span&gt;
+    muted : &lt;span id="a_muted"&gt;&lt;/span&gt;
+    mediaGroup : &lt;span id="a_mg"&gt;&lt;/span&gt;
+    &lt;!-- error.code : &lt;span id="err"&gt;&lt;/span&gt; --&gt;
+
+    &lt;div id="audio_events"&gt;
+      &lt;h3&gt;Events&lt;/h3&gt;
+    &lt;/div&gt;
+  </code></pre>
+
+  <pre><code class="javascript">
+    var audio = document.getElementById("audio");
+    var audioPlayPause = () => { (audio.paused) ? audio.play() : audio.pause(); }
+
+    ;(function () {
+      var audio = document.getElementById("audio");
+      audio.loop = 0;
+      audio.currentTime = 3;
+      audio.volume = 0.86;
+      audio.playbackRate = 1.1;
+      audio.defaultPlaybackRate = 1.1;
+      audio.mediaGroup = "audio";
+      a_rs = document.getElementById("a_rs");
+      a_ns = document.getElementById("a_ns");
+
+      setInterval(function(){
+        switch(audio.networkState) {
+          case 0: a_rs.innerHTML = "0 = HAVE_NOTHING"; break;
+          case 1: a_rs.innerHTML = "1 = HAVE_METADATA"; break;
+          case 2: a_rs.innerHTML = "2 = HAVE_CURRENT_DATA"; break;
+          case 3: a_rs.innerHTML = "3 = HAVE_FUTURE_DATA"; break;
+          case 4: a_rs.innerHTML = "4 = HAVE_ENOUGH_DATA"; break;
+          default: a_rs.innerHTML = "???";
+        }
+        switch(audio.networkState) {
+          case 0: a_ns.innerHTML = "0 = NETWORK_EMPTY"; break;
+          case 1: a_ns.innerHTML = "1 = NETWORK_IDLE"; break;
+          case 2: a_ns.innerHTML = "2 = NETWORK_LOADING"; break;
+          case 3: a_ns.innerHTML = "3 = NETWORK_NO_SOURCE"; break;
+          default: a_ns.innerHTML = "???";
+        }
+        document.getElementById("a_seek").innerHTML = (audio.networkState) ? "1" : "0";
+        document.getElementById("a_buffered").innerHTML =
+          "Start: " + audio.buffered.start(0) + " End: "  + audio.buffered.end(0) +
+          " Length: "  + audio.length;
+        document.getElementById("a_ct").innerHTML = audio.currentTime;
+        document.getElementById("a_duration").innerHTML = audio.duration;
+        document.getElementById("a_loop").innerHTML = (audio.loop) ? "1" : "0";
+        document.getElementById("a_volume").innerHTML = audio.volume;
+        document.getElementById("a_src").innerHTML = audio.currentSrc;
+        document.getElementById("a_preload").innerHTML = audio.preload;
+        document.getElementById("a_pr").innerHTML = audio.playbackRate; // 1.0, -1.5, ...
+        document.getElementById("a_dpr").innerHTML = audio.defaultPlaybackRate;
+        document.getElementById("a_paused").innerHTML = audio.paused;
+        document.getElementById("a_ended").innerHTML = audio.ended;
+        document.getElementById("a_muted").innerHTML = audio.muted;
+        document.getElementById("a_mg").innerHTML = audio.mediaGroup;
+        // document.getElementById("err").innerHTML = audio.error.code;
+      },100);
+
+      var aev = document.getElementById("audio_events");
+      audio.onwaiting = () => { aev.innerHTML += "Wait! I need to buffer the next frame"; };
+      audio.oncanplay = () => { aev.innerHTML += "can start playing"; };
+      audio.oncanplaythrough = () => { aev.innerHTML += "can play through without stopping"; };
+      audio.ondurationchange = () => { aev.innerHTML += "duration has changed"; };
+      audio.onvolumechange = () => { aev.innerHTML += "volume has been changed"; };
+      audio.ontimeupdate = () => { aev.innerHTML += "playing position has changed"; };
+      audio.onsuspend = () => { aev.innerHTML += "loading is suspended"; };
+      audio.onstalled = () => { aev.innerHTML += "media data is not available"; };
+      audio.onseeking = () => { aev.innerHTML += "seek operation began"; };
+      audio.onseeked = () => { aev.innerHTML += "seek operation completed"; };
+      audio.onratechange = () => { aev.innerHTML += "playing speed was changed"; };
+      audio.onratechange = () => { aev.innerHTML += "playing speed was changed"; };
+      audio.onprogress = () => { aev.innerHTML += "downloading"; };
+      audio.onplaying = () => { aev.innerHTML += "now playing"; };
+      audio.onloadstart = () => { aev.innerHTML += "starting to load"; };
+      audio.onloadedmetadata = () => { aev.innerHTML += "meta data for loaded"; };
+      audio.onloadeddata = () => { aev.innerHTML += "browser has loaded the current frame"; };
+      audio.onerror = () => { aev.innerHTML += "Error! Something went wrong"; };
+
+    })();
+  </code></pre>
+
+  <ul>
+    <li>Audio formats support:
+      <ul>
+        <li>MP3 has most support</li>
+        <li>others (Wav,	Ogg) will depend on browser</li>
+      </ul>
+    </li>
+  </ul>
+
+<h3>Audio formats media types</h3>
+
+  <table>
+    <tbody>
+    <tr>
+      <th style="width:50%">File Format</th>
+      <th style="width:50%">Media Type</th>
+    </tr>
+    <tr>
+      <td>MP3</td>
+      <td>audio/mpeg</td>
+    </tr>
+    <tr>
+      <td>Ogg</td>
+      <td>audio/ogg</td>
+    </tr>
+    <tr>
+      <td>Wav</td>
+      <td>audio/wav</td>
+    </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="youtube">YouTube</h2>
+
+  <div class="example">
+    <iframe
+      width="420"
+      height="315"
+      src="https://www.youtube.com/embed/tgbNymZ7vqY?autoplay=0&loop=1&controls=1"
+    >
+    </iframe>
+  </div>
+
+  <pre><code class="html">
+    &lt;iframe
+      width="420"
+      height="315"
+      src="https://www.youtube.com/embed/tgbNymZ7vqY?autoplay=0&loop=1&controls=1"
+    &gt;
+    &lt;/iframe&gt;
+  </code></pre>
+
+
+
+<h2 id="svg">SVG</h2>
+
+  <svg width="100" height="100">
+    <circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="100" height="100"&gt;
+      &lt;circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="100">
+    <rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="100"&gt;
+      &lt;rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="180">
+    <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+    style="fill:red;stroke:black;stroke-width:5;opacity:0.5" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="180"&gt;
+      &lt;rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+      style="fill:red;stroke:black;stroke-width:5;opacity:0.5" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="300" height="200">
+    <polygon points="100,10 40,198 190,78 10,78 160,198"
+    style="fill:gray;stroke:black;stroke-width:5;fill-rule:evenodd;" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="300" height="200"&gt;
+      &lt;polygon points="100,10 40,198 190,78 10,78 160,198"
+      style="fill:gray;stroke:black;stroke-width:5;fill-rule:evenodd;" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="80" width="300">
+    <g fill="none" stroke="black" stroke-width="4">
+      <path stroke-dasharray="5,5" d="M5 20 l215 0" />
+      <path stroke-dasharray="10,10" d="M5 40 l215 0" />
+      <path stroke-dasharray="20,10,5,5,5,10" d="M5 60 l215 0" />
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="80" width="300"&gt;
+      &lt;g fill="none" stroke="black" stroke-width="4"&gt;
+        &lt;path stroke-dasharray="5,5" d="M5 20 l215 0" /&gt;
+        &lt;path stroke-dasharray="10,10" d="M5 40 l215 0" /&gt;
+        &lt;path stroke-dasharray="20,10,5,5,5,10" d="M5 60 l215 0" /&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="80" width="300">
+    <g fill="none" stroke="black" stroke-width="6">
+      <path stroke-linecap="butt" d="M5 20 l215 0" />
+      <path stroke-linecap="round" d="M5 40 l215 0" />
+      <path stroke-linecap="square" d="M5 60 l215 0" />
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="80" width="300"&gt;
+      &lt;g fill="none" stroke="black" stroke-width="6"&gt;
+        &lt;path stroke-linecap="butt" d="M5 20 l215 0" /&gt;
+        &lt;path stroke-linecap="round" d="M5 40 l215 0" /&gt;
+        &lt;path stroke-linecap="square" d="M5 60 l215 0" /&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="80" width="300">
+    <g fill="none" stroke="black">
+      <path stroke-width="2" d="M5 20 l215 0" />
+      <path stroke-width="4" d="M5 40 l215 0" />
+      <path stroke-width="6" d="M5 60 l215 0" />
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="80" width="300"&gt;
+      &lt;g fill="none" stroke="black"&gt;
+        &lt;path stroke-width="2" d="M5 20 l215 0" /&gt;
+        &lt;path stroke-width="4" d="M5 40 l215 0" /&gt;
+        &lt;path stroke-width="6" d="M5 60 l215 0" /&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="80" width="300">
+    <g fill="none">
+      <path stroke="red" d="M5 20 l215 0" />
+      <path stroke="black" d="M5 40 l215 0" />
+      <path stroke="blue" d="M5 60 l215 0" />
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="80" width="300"&gt;
+      &lt;g fill="none"&gt;
+        &lt;path stroke="red" d="M5 20 l215 0" /&gt;
+        &lt;path stroke="black" d="M5 40 l215 0" /&gt;
+        &lt;path stroke="blue" d="M5 60 l215 0" /&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="90" width="200">
+    <text x="10" y="20" style="fill:red;">Several lines:
+      <tspan x="10" y="45">First line.</tspan>
+      <tspan x="10" y="70">Second line.</tspan>
+    </text>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="90" width="200"&gt;
+      &lt;text x="10" y="20" style="fill:red;"&gt;Several lines:
+        &lt;tspan x="10" y="45"&gt;First line.&lt;/tspan&gt;
+        &lt;tspan x="10" y="70"&gt;Second line.&lt;/tspan&gt;
+      &lt;/text&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="60" width="200">
+    <text x="0" y="15" fill="red" transform="rotate(30 20,40)">I love SVG</text>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="60" width="200"&gt;
+      &lt;text x="0" y="15" fill="red" transform="rotate(30 20,40)"&gt;I love SVG&lt;/text&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="180" width="500">
+    <polyline points="0,40 40,40 40,80 80,80 80,120 120,120 120,160" style="fill:white;stroke:red;stroke-width:4" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="180" width="500"&gt;
+      &lt;polyline points="0,40 40,40 40,80 80,80 80,120 120,120 120,160" style="fill:white;stroke:red;stroke-width:4" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="210" width="500">
+    <polygon points="200,10 250,190 160,210" style="fill:lime;stroke:purple;stroke-width:1" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="210" width="500"&gt;
+      &lt;polygon points="200,10 250,190 160,210" style="fill:lime;stroke:purple;stroke-width:1" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="100" width="500">
+    <ellipse cx="240" cy="50" rx="220" ry="30" style="fill:yellow" />
+    <ellipse cx="220" cy="50" rx="190" ry="20" style="fill:white" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="100" width="500"&gt;
+      &lt;ellipse cx="240" cy="50" rx="220" ry="30" style="fill:yellow" /&gt;
+      &lt;ellipse cx="220" cy="50" rx="190" ry="20" style="fill:white" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="500">
+    <ellipse cx="240" cy="100" rx="220" ry="30" style="fill:purple" />
+    <ellipse cx="220" cy="70" rx="190" ry="20" style="fill:lime" />
+    <ellipse cx="210" cy="45" rx="170" ry="15" style="fill:yellow" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="500"&gt;
+      &lt;ellipse cx="240" cy="100" rx="220" ry="30" style="fill:purple" /&gt;
+      &lt;ellipse cx="220" cy="70" rx="190" ry="20" style="fill:lime" /&gt;
+      &lt;ellipse cx="210" cy="45" rx="170" ry="15" style="fill:yellow" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="110" width="110">
+    <defs>
+      <filter id="f1" x="0" y="0">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
+      </filter>
+    </defs>
+    <rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="110" width="110"&gt;
+      &lt;defs&gt;
+        &lt;filter id="f1" x="0" y="0"&gt;
+          &lt;feGaussianBlur in="SourceGraphic" stdDeviation="15" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="120" width="120">
+    <defs>
+      <filter id="filter" x="0" y="0">
+        <feGaussianBlur stdDeviation="5" />
+        <feOffset dx="5" dy="5" />
+      </filter>
+    </defs>
+    <rect width="90" height="90" fill="grey" filter="url(#filter)" />
+    <rect width="90" height="90" fill="yellow" stroke="black" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="120" width="120"&gt;
+      &lt;defs&gt;
+        &lt;filter id="filter" x="0" y="0"&gt;
+          &lt;feGaussianBlur stdDeviation="5" /&gt;
+          &lt;feOffset dx="5" dy="5" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect width="90" height="90" fill="grey" filter="url(#filter)" /&gt;
+      &lt;rect width="90" height="90" fill="yellow" stroke="black" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="140" width="140">
+    <defs>
+      <filter id="f1" x="0" y="0" width="200%" height="200%">
+        <feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" />
+        <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+        <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      </filter>
+    </defs>
+    <rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="140" width="140"&gt;
+      &lt;defs&gt;
+        &lt;filter id="f1" x="0" y="0" width="200%" height="200%"&gt;
+          &lt;feOffset result="offOut" in="SourceGraphic" dx="20" dy="20" /&gt;
+          &lt;feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" /&gt;
+          &lt;feBlend in="SourceGraphic" in2="blurOut" mode="normal" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="140" width="140">
+    <defs>
+      <filter id="f1" x="0" y="0" width="200%" height="200%">
+        <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
+        <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+        <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      </filter>
+    </defs>
+    <rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="140" width="140"&gt;
+      &lt;defs&gt;
+        &lt;filter id="f1" x="0" y="0" width="200%" height="200%"&gt;
+          &lt;feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" /&gt;
+          &lt;feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" /&gt;
+          &lt;feBlend in="SourceGraphic" in2="blurOut" mode="normal" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect width="90" height="90" stroke="green" stroke-width="3" fill="yellow" filter="url(#f1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="550">
+    <defs>
+      <linearGradient id="MyGradient" gradientUnits="userSpaceOnUse" x1="100" y1="0" x2="300" y2="0">
+        <stop offset="0" style="stop-color:#000000" />
+        <stop offset=".33" style="stop-color:#ffffff" />
+        <stop offset=".67" style="stop-color:#ffff00" />
+        <stop offset="1" style="stop-color:#808080" />
+      </linearGradient>
+      <filter id="normal">
+        <feBlend mode="normal" in="SourceGraphic" />
+      </filter>
+      <filter id="multiply">
+        <feBlend mode="multiply" in="SourceGraphic" />
+      </filter>
+      <filter id="screen">
+        <feBlend mode="screen" in="SourceGraphic" />
+      </filter>
+      <filter id="darken">
+        <feBlend mode="darken" in="SourceGraphic" />
+      </filter>
+      <filter id="lighten">
+        <feBlend mode="lighten" in="SourceGraphic" />
+      </filter>
+    </defs>
+    <g style="enable-background:new">
+      <rect x="40" y="20" width="300" height="450" style="fill:url(#MyGradient)" />
+      <g style="font-size:75px;fill:#888888;fill-opacity:.6">
+        <text x="50" y="90" filter="url(#normal)">Normal</text>
+        <text x="50" y="180" filter="url(#multiply)">Multiply</text>
+        <text x="50" y="270" filter="url(#screen)">Screen</text>
+        <text x="50" y="360" filter="url(#darken)">Darken</text>
+        <text x="50" y="450" filter="url(#lighten)">Lighten</text>
+      </g>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="550"&gt;
+      &lt;defs&gt;
+        &lt;linearGradient id="MyGradient" gradientUnits="userSpaceOnUse" x1="100" y1="0" x2="300" y2="0"&gt;
+          &lt;stop offset="0" style="stop-color:#000000" /&gt;
+          &lt;stop offset=".33" style="stop-color:#ffffff" /&gt;
+          &lt;stop offset=".67" style="stop-color:#ffff00" /&gt;
+          &lt;stop offset="1" style="stop-color:#808080" /&gt;
+        &lt;/linearGradient&gt;
+        &lt;filter id="normal"&gt;
+          &lt;feBlend mode="normal" in="SourceGraphic" /&gt;
+        &lt;/filter&gt;
+        &lt;filter id="multiply"&gt;
+          &lt;feBlend mode="multiply" in="SourceGraphic" /&gt;
+        &lt;/filter&gt;
+        &lt;filter id="screen"&gt;
+          &lt;feBlend mode="screen" in="SourceGraphic" /&gt;
+        &lt;/filter&gt;
+        &lt;filter id="darken"&gt;
+          &lt;feBlend mode="darken" in="SourceGraphic" /&gt;
+        &lt;/filter&gt;
+        &lt;filter id="lighten"&gt;
+          &lt;feBlend mode="lighten" in="SourceGraphic" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;g style="enable-background:new"&gt;
+        &lt;rect x="40" y="20" width="300" height="450" style="fill:url(#MyGradient)" /&gt;
+        &lt;g style="font-size:75px;fill:#888888;fill-opacity:.6"&gt;
+          &lt;text x="50" y="90" filter="url(#normal)"&gt;Normal&lt;/text&gt;
+          &lt;text x="50" y="180" filter="url(#multiply)"&gt;Multiply&lt;/text&gt;
+          &lt;text x="50" y="270" filter="url(#screen)"&gt;Screen&lt;/text&gt;
+          &lt;text x="50" y="360" filter="url(#darken)"&gt;Darken&lt;/text&gt;
+          &lt;text x="50" y="450" filter="url(#lighten)"&gt;Lighten&lt;/text&gt;
+        &lt;/g&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+        <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" /&gt;
+          &lt;feOffset in="blur" dx="4" dy="4" result="offsetBlur" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+        <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+          <fePointLight x="-5000" y="-10000" z="20000" />
+        </feSpecularLighting>
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" /&gt;
+          &lt;feOffset in="blur" dx="4" dy="4" result="offsetBlur" /&gt;
+          &lt;feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut"&gt;
+            &lt;fePointLight x="-5000" y="-10000" z="20000" /&gt;
+          &lt;/feSpecularLighting&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+        <feOffset in="blur" dx="4" dy="4" result="offsetBlur"/>
+        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+          <fePointLight x="-5000" y="-10000" z="20000" />
+        </feSpecularLighting>
+        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" />
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" /&gt;
+          &lt;feOffset in="blur" dx="4" dy="4" result="offsetBlur"/&gt;
+          &lt;feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut"&gt;
+            &lt;fePointLight x="-5000" y="-10000" z="20000" /&gt;
+          &lt;/feSpecularLighting&gt;
+          &lt;feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+        <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+          <fePointLight x="-5000" y="-10000" z="20000" />
+        </feSpecularLighting>
+        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" />
+        <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litPaint" />
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" /&gt;
+          &lt;feOffset in="blur" dx="4" dy="4" result="offsetBlur" /&gt;
+          &lt;feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut"&gt;
+            &lt;fePointLight x="-5000" y="-10000" z="20000" /&gt;
+          &lt;/feSpecularLighting&gt;
+          &lt;feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" /&gt;
+          &lt;feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litPaint" /&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="200">
+    <defs>
+      <filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+        <feOffset in="blur" dx="4" dy="4" result="offsetBlur" />
+        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut">
+          <fePointLight x="-5000" y="-10000" z="20000" />
+        </feSpecularLighting>
+        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" />
+        <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litPaint" />
+        <feMerge>
+          <feMergeNode in="offsetBlur" />
+          <feMergeNode in="litPaint" />
+        </feMerge>
+      </filter>
+    </defs>
+    <rect x="1" y="1" width="198" height="118" fill="#cccccc" />
+    <g filter="url(#MyFilter)">
+      <path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" />
+      <text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76">SVG</text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="200"&gt;
+      &lt;defs&gt;
+        &lt;filter id="MyFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="200" height="120"&gt;
+          &lt;feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" /&gt;
+          &lt;feOffset in="blur" dx="4" dy="4" result="offsetBlur" /&gt;
+          &lt;feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" specularExponent="20" lighting-color="#bbbbbb" result="specOut"&gt;
+            &lt;fePointLight x="-5000" y="-10000" z="20000" /&gt;
+          &lt;/feSpecularLighting&gt;
+          &lt;feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut" /&gt;
+          &lt;feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litPaint" /&gt;
+          &lt;feMerge&gt;
+            &lt;feMergeNode in="offsetBlur" /&gt;
+            &lt;feMergeNode in="litPaint" /&gt;
+          &lt;/feMerge&gt;
+        &lt;/filter&gt;
+      &lt;/defs&gt;
+      &lt;rect x="1" y="1" width="198" height="118" fill="#cccccc" /&gt;
+      &lt;g filter="url(#MyFilter)"&gt;
+        &lt;path fill="none" stroke="#D90000" stroke-width="10" d="M50,90 C0,90 0,30 50,30 L150,30 C200,30 200,90 150,90 z" /&gt;
+        &lt;text fill="#FFFFFF" stroke="black" font-size="45" font-family="Verdana" x="52" y="76"&gt;SVG&lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="400">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="400"&gt;
+      &lt;defs&gt;
+        &lt;linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%"&gt;
+          &lt;stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" /&gt;
+          &lt;stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" /&gt;
+        &lt;/linearGradient&gt;
+      &lt;/defs&gt;
+      &lt;ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="400">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="400"&gt;
+      &lt;defs&gt;
+        &lt;linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%"&gt;
+          &lt;stop offset="0%" style="stop-color:rgb(255,0,0);stop-opacity:1" /&gt;
+          &lt;stop offset="100%" style="stop-color:rgb(255,255,0);stop-opacity:1" /&gt;
+        &lt;/linearGradient&gt;
+      &lt;/defs&gt;
+      &lt;ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="400">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+    <text fill="#ffffff" font-size="45" font-family="Verdana" x="150" y="86">SVG</text>
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="400"&gt;
+      &lt;defs&gt;
+        &lt;linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%"&gt;
+          &lt;stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" /&gt;
+          &lt;stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" /&gt;
+        &lt;/linearGradient&gt;
+      &lt;/defs&gt;
+      &lt;ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" /&gt;
+      &lt;text fill="#ffffff" font-size="45" font-family="Verdana" x="150" y="86"&gt;SVG&lt;/text&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="500">
+    <defs>
+      <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+        <stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:0" />
+        <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
+      </radialGradient>
+    </defs>
+    <ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="500"&gt;
+      &lt;defs&gt;
+        &lt;radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%"&gt;
+          &lt;stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:0" /&gt;
+          &lt;stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" /&gt;
+        &lt;/radialGradient&gt;
+      &lt;/defs&gt;
+      &lt;ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg height="150" width="500">
+    <defs>
+      <radialGradient id="grad1" cx="20%" cy="30%" r="30%" fx="50%" fy="50%">
+        <stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:0" />
+        <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
+      </radialGradient>
+    </defs>
+    <ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg height="150" width="500"&gt;
+      &lt;defs&gt;
+        &lt;radialGradient id="grad1" cx="20%" cy="30%" r="30%" fx="50%" fy="50%"&gt;
+          &lt;stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:0" /&gt;
+          &lt;stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" /&gt;
+        &lt;/radialGradient&gt;
+      &lt;/defs&gt;
+      &lt;ellipse cx="200" cy="70" rx="85" ry="55" fill="url(#grad1)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="400" height="400">
+    <rect x="20" y="20" width="250" height="250" style="fill:blue">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0" dur="5s" repeatCount="indefinite" />
+    </rect>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="400" height="400"&gt;
+      &lt;rect x="20" y="20" width="250" height="250" style="fill:blue"&gt;
+        &lt;animate attributeType="CSS" attributeName="opacity" from="1" to="0" dur="5s" repeatCount="indefinite" /&gt;
+      &lt;/rect&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="500" height="500">
+    <rect id="rec" x="300" y="100" width="300" height="100" style="fill:lime">
+      <animate attributeName="x" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="0" />
+      <animate attributeName="y" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="0" />
+      <animate attributeName="width" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="800" />
+      <animate attributeName="height" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="300" />
+      <animate attributeName="fill" attributeType="CSS" from="lime" to="red" begin="2s" dur="4s" fill="freeze" />
+    </rect>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="500" height="500"&gt;
+      &lt;rect id="rec" x="300" y="100" width="300" height="100" style="fill:lime"&gt;
+        &lt;animate attributeName="x" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="0" /&gt;
+        &lt;animate attributeName="y" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="0" /&gt;
+        &lt;animate attributeName="width" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="800" /&gt;
+        &lt;animate attributeName="height" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="300" /&gt;
+        &lt;animate attributeName="fill" attributeType="CSS" from="lime" to="red" begin="2s" dur="4s" fill="freeze" /&gt;
+      &lt;/rect&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="500" height="500">
+    <rect x="10" y="20" width="90" height="60">
+      <animate id="a1" attributeName="fill" from="red" to="blue" dur="3s" fill="freeze" />
+    </rect>
+    <rect x="10" y="120" width="90" height="60">
+      <animate id="a2" attributeName="fill" from="blue" to="yellow" begin="a1.end" dur="3s" fill="freeze" />
+    </rect>
+    <rect x="10" y="220" width="90" height="60">
+      <animate id="a3" attributeName="fill" from="yellow" to="green" begin="a2.end" dur="3s" fill="freeze" />
+    </rect>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="500" height="500"&gt;
+      &lt;rect x="10" y="20" width="90" height="60"&gt;
+        &lt;animate id="a1" attributeName="fill" from="red" to="blue" dur="3s" fill="freeze" /&gt;
+      &lt;/rect&gt;
+      &lt;rect x="10" y="120" width="90" height="60"&gt;
+        &lt;animate id="a2" attributeName="fill" from="blue" to="yellow" begin="a1.end" dur="3s" fill="freeze" /&gt;
+      &lt;/rect&gt;
+      &lt;rect x="10" y="220" width="90" height="60"&gt;
+        &lt;animate id="a3" attributeName="fill" from="yellow" to="green" begin="a2.end" dur="3s" fill="freeze" /&gt;
+      &lt;/rect&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="500" height="500">
+    <g transform="translate(100,100)">
+      <text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24"> It's SVG!
+        <animateMotion path="M 0 0 L 100 100" dur="5s" fill="freeze" />
+      </text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="500" height="500"&gt;
+      &lt;g transform="translate(100,100)"&gt;
+        &lt;text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24"&gt; It's SVG!
+          &lt;animateMotion path="M 0 0 L 100 100" dur="5s" fill="freeze" /&gt;
+        &lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="600" height="600">
+    <g transform="translate(100,100)">
+      <text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24; visibility:hidden"> It's SVG!
+        <set attributeName="visibility" attributeType="CSS" to="visible" begin="1s" dur="5s" fill="freeze" />
+        <animateMotion path="M 0 0 L 100 100" begin="1s" dur="5s" fill="freeze" />
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="-30" to="0" begin="1s" dur="5s" fill="freeze" />
+        <animateTransform attributeName="transform" attributeType="XML" type="scale" from="1" to="3" additive="sum" begin="1s" dur="5s" fill="freeze" />
+      </text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="600" height="600"&gt;
+      &lt;g transform="translate(100,100)"&gt;
+        &lt;text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24; visibility:hidden"&gt; It's SVG!
+          &lt;set attributeName="visibility" attributeType="CSS" to="visible" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateMotion path="M 0 0 L 100 100" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateTransform attributeName="transform" attributeType="XML" type="rotate" from="-30" to="0" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateTransform attributeName="transform" attributeType="XML" type="scale" from="1" to="3" additive="sum" begin="1s" dur="5s" fill="freeze" /&gt;
+        &lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="600" height="600">
+    <rect id="rec" x="300" y="100" width="300" height="100" style="fill:lime">
+      <animate attributeName="x" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="0" />
+      <animate attributeName="y" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="0" />
+      <animate attributeName="width" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="800" />
+      <animate attributeName="height" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="300" />
+      <animate attributeName="fill" attributeType="CSS" from="lime" to="red" begin="2s" dur="4s" fill="freeze" />
+    </rect>
+    <g transform="translate(100,100)">
+      <text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24; visibility:hidden"> It's SVG!
+        <set attributeName="visibility" attributeType="CSS" to="visible" begin="1s" dur="5s" fill="freeze" />
+        <animateMotion path="M 0 0 L 100 100" begin="1s" dur="5s" fill="freeze" />
+        <animate attributeName="fill" attributeType="CSS" from="red" to="blue" begin="1s" dur="5s" fill="freeze" />
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="-30" to="0" begin="1s" dur="5s" fill="freeze" />
+        <animateTransform attributeName="transform" attributeType="XML" type="scale" from="1" to="3" additive="sum" begin="1s" dur="5s" fill="freeze" />
+      </text>
+    </g>
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="600" height="600"&gt;
+      &lt;rect id="rec" x="300" y="100" width="300" height="100" style="fill:lime"&gt;
+        &lt;animate attributeName="x" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="0" /&gt;
+        &lt;animate attributeName="y" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="0" /&gt;
+        &lt;animate attributeName="width" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="300" to="800" /&gt;
+        &lt;animate attributeName="height" attributeType="XML" begin="0s" dur="6s" fill="freeze" from="100" to="300" /&gt;
+        &lt;animate attributeName="fill" attributeType="CSS" from="lime" to="red" begin="2s" dur="4s" fill="freeze" /&gt;
+      &lt;/rect&gt;
+      &lt;g transform="translate(100,100)"&gt;
+        &lt;text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24; visibility:hidden"&gt; It's SVG!
+          &lt;set attributeName="visibility" attributeType="CSS" to="visible" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateMotion path="M 0 0 L 100 100" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animate attributeName="fill" attributeType="CSS" from="red" to="blue" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateTransform attributeName="transform" attributeType="XML" type="rotate" from="-30" to="0" begin="1s" dur="5s" fill="freeze" /&gt;
+          &lt;animateTransform attributeName="transform" attributeType="XML" type="scale" from="1" to="3" additive="sum" begin="1s" dur="5s" fill="freeze" /&gt;
+        &lt;/text&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+  <svg width="100%" height="300px">
+    <g id="R1" transform="translate(250 250)">
+      <ellipse rx="100" ry="0" opacity=".3">
+      <animateTransform attributeName="transform" type="rotate" dur="7s" from="0" to="360" repeatCount="indefinite" />
+      <animate attributeName="cx" dur="8s" values="-20; 220; -20" repeatCount="indefinite" />
+      <animate attributeName="ry" dur="3s" values="10; 60; 10" repeatCount="indefinite" />
+      </ellipse>
+    </g>
+    <use xlink:href="#R1" transform="rotate(72 390 150)" />
+    <use xlink:href="#R1" transform="rotate(144 390 150)" />
+    <use xlink:href="#R1" transform="rotate(216 390 150)" />
+    <use xlink:href="#R1" transform="rotate(288 390 150)" />
+  </svg>
+  <pre><code class="html">
+    &lt;svg width="100%" height="300px"&gt;
+    &lt;g id="R1" transform="translate(250 250)"&gt;
+      &lt;ellipse rx="100" ry="0" opacity=".3"&gt;
+      &lt;animateTransform attributeName="transform" type="rotate" dur="7s" from="0" to="360" repeatCount="indefinite" /&gt;
+      &lt;animate attributeName="cx" dur="8s" values="-20; 220; -20" repeatCount="indefinite" /&gt;
+      &lt;animate attributeName="ry" dur="3s" values="10; 60; 10" repeatCount="indefinite" /&gt;
+      &lt;/ellipse&gt;
+    &lt;/g&gt;
+    &lt;use xlink:href="#R1" transform="rotate(72 390 150)" /&gt;
+    &lt;use xlink:href="#R1" transform="rotate(144 390 150)" /&gt;
+    &lt;use xlink:href="#R1" transform="rotate(216 390 150)" /&gt;
+    &lt;use xlink:href="#R1" transform="rotate(288 390 150)" /&gt;
+    &lt;/svg&gt;
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

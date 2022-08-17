@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Typescript advanced tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="typescript, ts, js, advanced, tsconfig, jsdoc, compiler, options, webpack, gulp, grunt, types, class, function, enum, module, jsx, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Typescript advanced tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="tcjs">Typecheck/Compile JS</h2>
+
+  <ul>
+    <li>type-checking and reporting errors in .js files with <strong>--checkJs</strong></li>
+    <li>skip checking some files by adding <strong>// @ts-nocheck</strong> comment to them (JS and TS)</li>
+    <li>check only a few .js files by adding a <strong>// @ts-check</strong> comment to them without setting --checkJs</li>
+    <li>ignore errors on specific lines by adding <strong>// @ts-ignore</strong> on the preceding line</li>
+    <li><strong>// @ts-expect-error</strong> - suppress that error from being reported, and report if was not necessary</li>
+    <li>if you have a tsconfig.json, JS checking will respect strict flags like noImplicitAny, strictNullChecks, etc., because of the relative looseness of JS checking, combining strict flags with it may be surprising</li>
+    <li>JSDoc types are used for type information</li>
+    <li>--noImplicitAny will give you errors on the places that the compiler could not infer a type</li>
+  </ul>
+
+  <pre><code class="ts">
+    // --- PROPERTIES ARE INFERRED FROM ASSIGNMENTS IN CLASS BODIES
+    // just like object literals, no means for declaring properties on classes.
+    // type of properties is the type given in the constructor,
+    // unless its not defined there, or the type in the constructor is undefined or null
+    // in that case, type is the union of the types of all the right-hand values in these assignments.
+    // properties defined in the constructor are always assumed to exist,
+    // defined just in methods, getters, or setters are considered optional
+    class C {
+      constructor() {
+        this.constructorOnly = 0
+        this.constructorUnknown = undefined
+      }
+      method() {
+        this.constructorOnly = false // error, constructorOnly is a number
+        this.constructorUnknown = "plunkbat" // ok, constructorUnknown is string | undefined
+        this.methodOnly = 'ok'  // ok, but y could also be undefined
+      }
+      method2() {
+        this.methodOnly = true  // also, ok, y's type is string | boolean | undefined
+      }
+    }
+    // if properties are never set in the class body, they are considered unknown
+    // properties that are only read from, dd and then annotate with JSDoc
+    // dont even have to give a value if it will be initialised later
+    class C {
+      constructor() {
+        /** @type {number | undefined} */
+        this.prop = undefined;
+        /** @type {number | undefined} */
+        this.count;
+      }
+    }
+    let c = new C();
+    c.prop = 0;          // OK
+    c.count = "string";  // Error: string is not assignable to number|undefined
+
+    // --- CONSTRUCTOR FUNCTIONS ARE EQUIVALENT TO CLASSES
+    // property inference rules described above work exactly the same way
+    function C() {
+      this.constructorOnly = 0
+      this.constructorUnknown = undefined
+    }
+    C.prototype.method = function() {
+      this.constructorOnly = false // error
+      this.constructorUnknown = "plunkbat" // OK, the type is string | undefined
+    }
+
+    // --- CommonJS MODULES ARE SUPPORTED, TS understand them in .js files
+    // assignments to "exports" and "module.exports" are recognized as export declarations
+    // "require" function calls are recognized as module imports. For example
+    // same as - import module "fs":
+    const fs = require("fs");
+    // same as - export function readFile:
+    module.exports.readFile = function(f) { return fs.readFileSync(f); }
+
+    // --- CLASSES, FUNCTIONS, AND OBJECT LITERALS ARE NAMESPACES
+    class C { } // class
+    C.D = class { }
+    function Outer() { this.y = 2 } // function
+    Outer.Inner = function() { this.yy = 2 }
+    var ns = {} // object
+    ns.C = class { }
+    ns.func = function() { }
+    var ns = (function (n) { // IIFE
+      return n || {};
+    })();
+    ns.CONST = 1
+    var assign = assign || function() { /* code */ } // defaulting to global
+    assign.extra = 1
+
+    // --- OBJECT LITERALS ARE OPEN-ENDED
+    // for .ts files an object literal that initializes a variable declaration
+    // gives its type to the declaration, no new members can be added
+    // that were not specified in the original literal.
+    // this rule is relaxed in a .js, object literals have an open-ended type
+    // behave as if they have an index signature "[x:string]: any"
+    var obj = { a: 1 };
+    obj.b = 2;  // Allowed
+    // behavior can be changed by specifying a JSDoc type for the variable
+    /** @type {{a: number}} */
+    var obj = { a: 1 };
+    obj.b = 2;  // Error, type {a: number} does not have property b
+
+    // --- NULL, UNDEFINED, EMPTY ARRAY INITIALIZERS ARE OF TYPE any OR any[]
+    // any variable/parameter/property initialized with null/undefined will have type any
+    // even if strict null checks is turned on
+    // only exception is for properties that have multiple initializers as described above
+    function Foo(i = null) {
+      if (!i) i = 1;
+      var j = undefined;
+      j = 2;
+      this.l = [];
+    }
+    var foo = new Foo();
+    foo.l.push(foo.i);
+    foo.l.push("end");
+
+    // --- FUNCTION PARAMETERS ARE OPTIONAL BY DEFAULT
+    // calls with fewer arguments than the declared number of parameters are allowed
+    // it is an error to call a function with too many arguments
+    function bar(a, b) { console.log(a + " " + b); }
+    bar(1);       // OK, second argument considered optional
+    bar(1, 2);
+    bar(1, 2, 3); // Error, too many arguments
+    // JSDoc annotated functions are excluded from this rule, use optional parameter syntax
+    /**
+    * @param {string} [somebody] - Somebody's name.
+    */
+    function sayHello(somebody) {
+      if (!somebody) { somebody = 'John Doe'; }
+      console.log('Hello ' + somebody);
+    }
+    sayHello();
+
+    // --- VAR-ARGS PARAMETER DECLARATION INFERRED FROM USE OF arguments
+    // function whose body has a reference to the arguments reference is implicitly
+    // considered to have a var-arg parameter (i.e. (...arg: any[]) => any)
+    /** @param {...number} args */
+    function sum(/* numbers */) {
+      var total = 0
+      for (var i = 0; i < arguments.length; i++) {
+        total += arguments[i]
+      }
+      return total
+    }
+
+    // --- UNSPECIFIED TYPE PARAMETERS DEFAULT TO any
+    // since there is no natural syntax for specifying generic type parameters in JS
+    import { Component } from "react";
+    /**
+      * @augments {Component<{a: number}, State>}
+      */
+    class MyComponent extends Component {
+      render() {
+        this.props.b; // Error: b does not exist on {a:number}
+        // this.props.b; // would be allowed without JSDoc, since this.props is of type any
+      }
+    }
+    // unspecified type argument in JSDoc defaults to any
+    /** @type{Array} */
+    var x = [];
+    x.push(1);        // OK
+    x.push("string"); // OK, x is of type Array&lt;any&gt;
+    /** @type{Array.&lt;number&gt;} */
+    var y = [];
+    y.push(1);        // OK
+    y.push("string"); // Error, string is not assignable to number
+  </code></pre>
+
+  <h3>migrating from JS</h3>
+  <pre><code class="ts">
+    /*
+      projectRoot
+      ├── src
+      │   ├── file1.js
+      │   └── file2.js
+      ├── built
+      └── tsconfig.json
+    */
+    // tsconfig.json
+    {
+      "compilerOptions": {
+        "outDir": "./built", // emit all of the output files in built
+        "allowJs": true, // accept JavaScript files as inputs
+        "target": "es5" // translate newer JS constructs down to an older version like ES5
+        // noImplicitReturns - prevents from forgetting to return at the end of a function
+        // noFallthroughCasesInSwitch - to not forget a break statement between cases in a switch block
+        // allowUnreachableCode|allowUnusedLabels - warn about unreachable code and labels
+      },
+      "include": [
+        "./src/**/*" // read any files it understands in the src directory, repeating structure
+      ]
+    }
+    // use "tsc" to compile
+
+    // if you see errors for a module, try find its declaration files:
+    // npm install -S @types/lodash
+
+    // Importing from Modules
+    import foo = require("foo");
+    foo.doStuff();
+    // Exporting from Modules
+    function foo() { /*...*/ }
+    export = foo;
+    // Sequentially Added Properties
+    let options = {
+      color: "red",
+      volume: 11
+    };
+    interface Options { color: string; volume: number }
+    let options = {} as Options;
+    options.color = "red";
+    options.volume = 11;
+  </code></pre>
+
+
+<h2 id="jsdoc">Supported JSDoc</h2>
+
+  <ul>
+    <li>@public, @private, @protected and @readonly</li>
+    <li>@type</li>
+    <li>@param (or @arg or @argument)</li>
+    <li>@returns (or @return)</li>
+    <li>@typedef</li>
+    <li>@callback</li>
+    <li>@template</li>
+    <li>@class (or @constructor)</li>
+    <li>@this</li>
+    <li>@extends (or @augments)</li>
+    <li>@enum</li>
+    <li>@deprecated</li>
+    <li>@link, @see - go-to-definition</li>
+  </ul>
+
+  <h3>@type</h3>
+  <pre><code class="ts">
+    // reference a type name, use any TS type, and most JSDoc types
+    /** @type {string} */
+    var s;
+    /** @type {Window} */
+    var win;
+    /** @type {PromiseLike&lt;string&gt;} */
+    var promisedString;
+    // you can specify an HTML Element with DOM properties
+    /** @type {HTMLElement} */
+    var myElement = document.querySelector(selector);
+    element.dataset.myData = '';
+    // --- UNION, parentheses are optional for union types
+    /** @type {(string | boolean)} */
+    var sb;
+    /** @type {string | boolean} */
+    var sb;
+    // --- ARRAY
+    /** @type {number[]} */
+    var ns;
+    /** @type {Array.&lt;number&gt;} */
+    var nds;
+    /** @type {Array&lt;number&gt;} */
+    var nas;
+    // --- OBJECT LITERAL TYPES
+    /** @type {{ a: string, b: number }} */
+    var var9;
+    // --- MAP-LIKE and ARRAY-LIKE OBJECTS using string and number index signatures
+    // using either standard JSDoc syntax or TS syntax.
+    // equivalence to the TS types {[x:string]:number} and {[x:number]:any},
+    // map-like object that maps arbitrary "string" properties to "number"s:
+    /** @type {Object.&lt;string, number&gt;} */
+    var stringToNumber;
+    /** @type {Object.&lt;number, object&gt;} */
+    var arrayLike;
+    // --- FUNCTION types using either TS or Closure syntax:
+    /** @type {function(string, boolean): number} Closure syntax */
+    var sbn;
+    /** @type {(s: string, b: boolean) => number} TS syntax */
+    var sbn2;
+    /** @type {Function} */
+    var fn7;
+    /** @type {function} */
+    var fn6;
+    // --- other types from Closure also work:
+    /** @type {*} - can be 'any' type */
+    var star;
+    /** @type {?} - unknown type (same as 'any') */
+    var question;
+    // cast types to other types, add @type tag before any parenthesized expression:
+    /** @type {number | string} */
+    var numberOrString = Math.random() < 0.5 ? "hello" : 100;
+    var typeAssertedNumber = /** @type {number} */ (numberOrString)
+    // --- IMPORT TYPES
+    /** @param p { import("./a").Pet } */
+    function walk(p) { console.log(`Walking ${p.name}...`); }
+    // used in type alias declarations:
+    /** @typedef Pet { import("./a").Pet } */
+    /** @type {Pet} */
+    var myPet;
+    myPet.name;
+    // used to get the type of a value from a module:
+    /** @type {typeof import("./a").x } */
+    var x = require("./a").x;
+  </code></pre>
+
+  <h3>@param and @returns</h3>
+  <pre><code class="ts">
+    // uses the same type syntax as @type, but adds a parameter name
+    // parameter may also be declared optional by surrounding the name with square brackets
+    // in a variety of syntactic forms
+    /**
+      * @param {string}  p1 - A string param.
+      * @param {string=} p2 - An optional param (Closure syntax)
+      * @param {string} [p3] - Another optional param (JSDoc syntax).
+      * @param {string} [p4="test"] - An optional param with a default value
+      * @return {string} This is the result
+      */
+    function stringsStringStrings(p1, p2, p3, p4){ /*...*/}
+    // return type of a function
+    /** @return {PromiseLike&lt;string&gt;} */
+    function ps(){}
+    /**
+    * @returns {{ a: string, b: number }} - May use '@returns' as well as '@return'
+    */
+    function ab(){}
+  </code></pre>
+
+  <h3>@typedef, @callback, and @param</h3>
+  <pre><code class="ts">
+    // --- @typedef may be used to define complex types, similar syntax works with @param
+    /**
+    * @typedef {Object} SpecialType - creates a new type named 'SpecialType'
+    * @property {string} prop1 - a string property of SpecialType
+    * @property {number} prop2 - a number property of SpecialType
+    * @property {number=} prop3 - an optional number property of SpecialType
+    * @prop {number} [prop4] - an optional number property of SpecialType
+    * @prop {number} [prop5=42] - an optional number property of SpecialType with default
+    */
+    /** @type {SpecialType} */
+    var specialTypeObject;
+    // you can use either object or Object on the first line
+    /**
+    * @typedef {object} SpecialType1 - creates a new type named 'SpecialType'
+    * @property {string} prop1 - a string property of SpecialType
+    * @property {number} prop2 - a number property of SpecialType
+    * @property {number=} prop3 - an optional number property of SpecialType
+    */
+    /** @type {SpecialType1} */
+    var specialTypeObject1;
+    // --- @param allows a similar syntax for one-off type specifications
+    // nested property names must be prefixed with the name of the parameter
+    /**
+    * @param {Object} options - The shape is the same as SpecialType above
+    * @param {string} options.prop1
+    * @param {number} options.prop2
+    * @param {number=} options.prop3
+    * @param {number} [options.prop4]
+    * @param {number} [options.prop5=42]
+    */
+    function special(options) {
+      return (options.prop4 || 1001) + options.prop5;
+    }
+    // --- @callback is similar to @typedef
+    // but specifies a function type instead of an object type:
+    /**
+    * @callback Predicate
+    * @param {string} data
+    * @param {number} [index]
+    * @returns {boolean}
+    */
+    /** @type {Predicate} */
+    const ok = s => !(s.length % 2);
+    // using TS syntax in a single-line @typedef
+    /** @typedef {{ prop1: string, prop2: string, prop3?: number }} SpecialType */
+    /** @typedef {(data: string, index?: number) => boolean} Predicate */
+  </code></pre>
+
+  <h3>@template</h3>
+  <pre><code class="ts">
+    // declare generic types
+    /**
+    * @template T
+    * @param {T} p1 - A generic parameter that flows through to the return type
+    * @return {T}
+    */
+    function id(x){ return x }
+    // use comma or multiple tags to declare multiple type parameters
+    /**
+    * @template T,U,V
+    * @template W,X
+    */
+    // specify a type constraint before the type parameter name
+    // only the first type parameter in a list is constrained
+    /**
+    * @template {string} K - K must be a string or string literal
+    * @template {{ serious(): string }} Seriousalizable - must have a serious method
+    * @param {K} key
+    * @param {Seriousalizable} object
+    */
+    function seriousalize(key, object) { /*...*/ }
+  </code></pre>
+
+  <h3>@constructor</h3>
+  <pre><code class="ts">
+    // make checking stricter and suggestions better
+    /**
+    * @constructor
+    * @param {number} data
+    */
+    function C(data) {
+      this.size = 0;
+      this.initialize(data); // Should error, initializer expects a string
+    }
+    /**
+    * @param {string} s
+    */
+    C.prototype.initialize = function (s) {
+      this.size = s.length
+    }
+    var c = new C(0);
+    var result = C(1); // C should only be called with new
+  </code></pre>
+
+  <h3>@this</h3>
+  <pre><code class="ts">
+    // explicitly specify the type of "this", when compiler is unable
+    /**
+    * @this {HTMLElement}
+    * @param {*} e
+    */
+    function callbackForLater(e) {
+      this.clientHeight = parseInt(e) // should be fine!
+    }
+  </code></pre>
+
+  <h3>@extends</h3>
+  <pre><code class="ts">
+    // specify what the type parameter should be
+    // when JS classes extend a generic base class
+    // only works with classes
+    /**
+    * @template T
+    * @extends {Set&lt;T&gt;}
+    */
+    class SortableSet extends Set { /*...*/ }
+  </code></pre>
+
+  <h3>@enum</h3>
+  <pre><code class="ts">
+    // create an object literal whose members are all of a specified type
+    // does not allow other members, unlike most JS object literals
+    /** @enum {number} */
+    const JSDocState = {
+      BeginningOfLine: 0,
+      SawAsterisk: 1,
+      SavingComments: 2,
+    }
+    // can have any type, unlike TS
+    /** @enum {function(number): number} */
+    const Math = {
+      add1: n => n + 1,
+      id: n => -n,
+      sub1: n => n - 1,
+    }
+  </code></pre>
+
+  <h3>more examples</h3>
+  <pre><code class="ts">
+    var someObj = {
+      /**
+      * @param {string} param1 - Docs on property assignments work
+      */
+      x: function(param1){}
+    };
+    /**
+    * As do docs on variable assignments
+    * @return {Window}
+    */
+    let someFunc = function(){};
+    /**
+    * And class methods
+    * @param {string} greeting The greeting to use
+    */
+    Foo.prototype.sayHi = (greeting) => console.log("Hi!");
+    /**
+    * And arrow functions expressions
+    * @param {number} x - A multiplier
+    */
+    let myArrow = x => x * x;
+    /**
+    * Which means it works for stateless function components in JSX too
+    * @param {{a: string, b: number}} test - Some param
+    */
+    var sfc = (test) => &lt;div&gt;{test.a.charAt(0)}&lt;div&gt;;
+    /**
+    * A parameter can be a class constructor, using Closure syntax.
+    *
+    * @param {{new(...args: any[]): object}} C - The class to register
+    */
+    function registerClass(C) {}
+    /**
+    * @param {...string} p1 - A 'rest' arg (array) of strings. (treated as 'any')
+    */
+    function fn10(p1){}
+    /**
+    * @param {...string} p1 - A 'rest' arg (array) of strings. (treated as 'any')
+    */
+    function fn9(p1) { return p1.join(); }
+  </code></pre>
+
+  <h3>patterns that are known NOT to be supported</h3>
+  <pre><code class="ts">
+    // referring to objects in the value space as types doesnt work
+    // unless the object also creates a type, like a constructor function
+    function aNormalFunction() { }
+    /** @type {aNormalFunction} */
+    var wrong;
+    /**
+    * Use 'typeof' instead:
+    * @type {typeof aNormalFunction}
+    */
+    var right;
+    // postfix equals on a property type in an object literal type
+    // doesnt specify an optional property
+    /** @type {{ a: string, b: number= }} */
+    var wrong;
+    /**
+    * Use postfix question on the property name instead:
+    * @type {{ a: string, b?: number }}
+    */
+    var right;
+    // nullable types only have meaning if strictNullChecks is on:
+    /**
+    * @type {?number}
+    * With strictNullChecks: true -- number | null
+    * With strictNullChecks: off  -- number
+    */
+    var nullable;
+    // non-nullable types have no meaning and are treated just as their original type:
+    /**
+    * @type {!number}
+    * Just has type number
+    */
+    var normal;
+    // unlike JSDoc type system, TS only allows you to mark types as containing null or not
+    // here is no explicit non-nullability -
+    // if strictNullChecks is on, then number is not nullable, if off, then number is nullable
+  </code></pre>
+
+
+
+<h2 id="df">Declaration File</h2>
+
+  <ul>
+    <li>TS uses declaration files to understand the types and function signatures of a module</li>
+    <li><strong>global libraries</strong> - accesible from global scope (like jQuery - $, from window.*): global.d.ts template file defines an example library myLib</li>
+    <li><strong>modular libraries</strong> - imported, have some export/import statements, <strong>require</strong> or <strong>define</strong>, assignments to <strong>exports</strong> or <strong>module.exports</strong>, rarely assignments to properties of <strong>window</strong> or <strong>global</strong></li>
+    <li><strong>UMD</strong> - universal module definition, workable across browser and server side, can either be used as module (through an import), or as a global (when run in an environment without a module loader): checks for the existence of a module loader environment, tests for <strong>typeof define</strong>, <strong>typeof window</strong>, or <strong>typeof module</strong> in the code of a library, especially at the top of the file</li>
+    <li><strong>AMD</strong> - asynchronous module definition, module and its dependencies can be asynchronously loaded</li>
+    <li><strong>global plugin</strong> is global code that changes the shape of some global: use the global-plugin.d.ts template for definition</li>
+    <li><strong>global-modifying module</strong> alters existing values in the global scope when they are imported, in general, they are similar to global plugins, but need a <strong>require</strong> call to activate their effects: use the global-modifying-module.d.ts template</li>
+    <li>global plugin is global code that changes the shape of some global, as with global-modifying modules, these raise the possibility of runtime conflict</li>
+    <li>consuming dependencies, several kinds of dependencies you might have:
+      <ul>
+        <li>dependencies on Global Libraries: use a /// &lt;reference types="..." /&gt;</li>
+        <li>dependencies on Modules: use an <strong>import</strong> statement</li>
+        <li>dependencies on UMD libraries: </li>
+        <li>if your global library depends on a UMD module, use a /// &lt;reference types="..." /&gt;</li>
+        <li>if your module or UMD library depends on a UMD library, use an <strong>import</strong> statement</li>
+        <li>do not use a /// &lt;reference types="..." /&gt; directive to declare a dependency to a UMD library!</li>
+      </ul>
+    </li>
+    <li>wrap into namespaces to avoid name conflicts</li>
+    <li>define a default export for a callable/constructable object</li>
+    <li>some plugins add or modify top-level exports on existing modules</li>
+    <li>Do's and Don'ts
+      <ul>
+        <li>use the types number, string, boolean, object (avoid: Number, String, Boolean, or Object)</li>
+        <li>dont ever have a generic type which doesnt use its type parameter</li>
+        <li>use the return type <strong></strong>void, dont use the return type <strong>any</strong> for callbacks whose value will be ignored, is safer because it prevents you from accidently using the return value of x in an unchecked way</li>
+        <li>write callback parameters as non-optional, dont use optional parameters in callbacks unless you really mean it</li>
+        <li>write a single overload using the maximum arity, dont write separate overloads that differ only on callback arity</li>
+        <li>sort overloads by putting the more general signatures after more specific signatures, TS chooses the first matching overload when resolving function calls</li>
+        <li>use optional parameters whenever possible, dont write several overloads that differ only in trailing parameters</li>
+        <li>use union types whenever possible, dont write overloads that differ by type in only one argument position, important for people who are "passing through" a value to your function</li>
+      </ul>
+    </li>
+    <li>publishing your declaration files to npm:
+      <ul>
+        <li>bundling with your npm package, OR</li>
+        <li>publishing to the @types organization on npm</li>
+        <li></li>
+        <li>describe <strong>package.json</strong></li>
+        <li><pre>
+          {
+            "name": "browserify-TS-extension",
+            "author": "Vandelay Industries",
+            "version": "1.0.0",
+            "main": "./lib/main.js",
+            "types": "./lib/main.d.ts",
+            "dependencies": {
+              "browserify": "latest",
+              "@types/browserify": "latest",
+              "TS": "next"
+            }
+          }
+        </pre></li>
+        <li>use <strong>/// &lt;reference types="..." /&gt;</strong>, dont use <strong>/// &lt;reference path="..." /&gt;</strong></li>
+        <li>dont combine another package with yours, keep each in their own file</li>
+        <li>dont copy the declarations in your package either</li>
+        <li>do depend on the npm type declaration package if it doesn't package its declaration files</li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="ts">
+    // --- GLOBAL LIBRARIES
+    function createGreeting(s) { return "Hello, " + s; }
+    // or like this:
+    window.createGreeting = function(s) { return "Hello, " + s; }
+
+    // --- MODULAR LIBRARIES
+    var fs = require("fs"); // nodejs
+    import fs = require("fs"); // TS, ES6
+    // they typicallyincludes one of these lines in their documentation
+    var someLib = require('someLib');
+    // or
+    define(..., ['someLib'], function(someLib) { /*...*/ });
+
+    // --- UMD
+    import moment = require("moment"); // as a module
+    console.log(moment.format());
+    // vanilla browser environment version
+    console.log(moment.format());
+    // templates available for modules:
+    // 1 - use module-function.d.ts if your module can be called like a function:
+    var x = require("foo");
+    var y = x(42); // calling 'x' as a function
+    // 2 - use module-class.d.ts if your module can be constructed using new:
+    var x = require("bar");
+    var y = new x("hello"); // using 'new' operator on the imported variable
+    // 3 - use the module.d.ts - if your module is not callable or constructable
+  </code></pre>
+
+  <h3>CONSUMPTION DECLARATION</h3>
+  <pre><code class="javascript">
+    // add a declaration file for a popular npm module
+    npm install --save-dev &#64;types/module
+    // for example:
+    npm install --save lodash
+    npm install --save-dev &#64;types/lodash
+    // npm will create node_modules/&#64;types with subdirectories for each module with an index.d.ts file
+    // file doesnt contain any code, only describes the module interface, such as classes and types
+    // you still need to import the actual module:
+    import * as _ from "lodash";
+    _.padStart("Hello TS!", 20, " ");
+    // or if you are not using modules, you can just use the global variable (_)
+    _.padStart("Hello TS!", 20, " ");
+
+    // type declaration packages should always have the same name as the package name on npm
+    // but prefixed with @types/
+    // check out https://aka.ms/types to find the package for your favorite library
+  </code></pre>
+
+  <h3>WRITING DECLARATIONS EXAMPLES</h3>
+  <pre><code class="ts">
+    // --- GLOBAL VARIABLES
+    // use declare var to declare variables
+    // if the variable is read-only, you can use declare const
+    // use declare let if the variable is block-scoped
+    // DOCS: global variable foo contains the number of widgets present
+    declare var foo: number; // number of widgets present
+    //
+    console.log("Half the number of widgets is " + (foo / 2));
+
+    // --- GLOBAL FUNCTIONS
+    // DOCS: call the function greet with a string to show a greeting to the user
+    declare function greet(greeting: string): void;
+    //
+    greet("hello, world");
+
+    // --- OBJECTS WITH PROPERTIES
+    // use declare namespace to describe types or values accessed by dotted notation
+    // DOCS: global variable myLib has a function makeGreeting for creating greetings,
+    // and a property numberOfGreetings indicating the number of greetings made so far
+    declare namespace myLib {
+      function makeGreeting(s: string): string;
+      let numberOfGreetings: number;
+    }
+    //
+    let result = myLib.makeGreeting("hello, world");
+    console.log("The computed greeting is:" + result);
+    let count = myLib.numberOfGreetings;
+
+    // --- OVERLOADED FUNCTIONS
+    // DOCS: getWidget function accepts a number and returns a Widget,
+    // or accepts a string and returns a Widget array
+    let x: Widget = getWidget(43);
+    let arr: Widget[] = getWidget("all of them");
+    //
+    declare function getWidget(n: number): Widget;
+    declare function getWidget(s: string): Widget[];
+
+    // --- REUSABLE TYPES (INTERFACES)
+    // DOCS: when specifying a greeting, you must pass a GreetingSettings object,
+    // this object has the following properties:
+    // 1 - greeting: Mandatory string
+    // 2 - duration: Optional length of time (in milliseconds)
+    // 3 - color: Optional string, e.g. "#ff00ff"
+    interface GreetingSettings {
+      greeting: string;
+      duration?: number;
+      color?: string;
+    }
+    declare function greet(setting: GreetingSettings): void;
+    //
+    greet({
+      greeting: "hello world",
+      duration: 4000
+    });
+
+    // --- REUSABLE TYPES (TYPE ALIASES)
+    // DOCS: nywhere a greeting is expected, you can provide a string,
+    // a function returning a string, or a Greeter instance
+    // type GreetingLike = string | (() => string) | MyGreeter;
+    // declare function greet(g: GreetingLike): void;
+    //
+    function getGreeting() { return "howdy"; }
+    class MyGreeter extends Greeter { }
+    greet("hello");
+    greet(getGreeting);
+    greet(new MyGreeter());
+
+    // --- ORGANIZING TYPES, use namespace
+    // DOCS: greeter object can log to a file or display an alert
+    // you can provide LogOptions to .log(...) and alert options to .alert(...)
+    declare namespace GreetingLib {
+      interface LogOptions {
+          verbose?: boolean;
+      }
+      interface AlertOptions {
+        modal: boolean;
+        title?: string;
+        color?: string;
+      }
+    }
+    //
+    const g = new Greeter("Hello");
+    g.log({ verbose: true });
+    g.alert({ modal: false, title: "Current Greeting" });
+    // nested namespaces in one declaration:
+    declare namespace GreetingLib.Options {
+      // Refer to via GreetingLib.Options.Log
+      interface Log {
+        verbose?: boolean;
+      }
+      interface Alert {
+        modal: boolean;
+        title?: string;
+        color?: string;
+      }
+    }
+
+    // --- CLASSES
+    // DOCS: you can create a greeter by instantiating the Greeter object,
+    // or create a customized greeter by extending from it
+    declare class Greeter {
+      constructor(greeting: string);
+      greeting: string;
+      showGreeting(): void;
+    }
+    //
+    const myGreeter = new Greeter("hello, world");
+    myGreeter.greeting = "howdy";
+    myGreeter.showGreeting();
+    class SpecialGreeter extends Greeter {
+      constructor() {
+        super("Very special greetings");
+      }
+    }
+  </code></pre>
+
+  <h3>COMPLEX DEFINITION FILES</h3>
+  <pre><code class="ts">
+    // --- CREATING TYPES
+    // type alias declaration (type sn = number | string;)
+    // interface declaration (interface I { x: number[]; })
+    // class declaration (class C { })
+    // enum declaration (enum E { A, B, C })
+    // import declaration which refers to a type
+    // --- CREATE VALUE
+    // let, const, and var declarations
+    // namespace or module declaration which contains a value
+    // enum declaration
+    // class declaration
+    // import declaration which refers to a value
+    // function declaration
+
+    // types can exist in namespaces
+
+    // simple Combinations: one name, multiple meanings
+    let m: A.A = A;
+    // A is used first as a namespace, then as a type name, then as a value
+    // these meanings might end up referring to entirely different declarations!
+
+    // module file foo.d.ts
+    export var SomeVar: { a: SomeType };
+    export interface SomeType { count: number; }
+    // consumed it:
+    import * as foo from './foo';
+    let x: foo.SomeType = foo.SomeVar.a;
+    console.log(x.count);
+
+    // use COMBINING to present two different objects
+    // (the value and the type) under the same name Bar
+    export var Bar: { a: Bar };
+    export interface Bar { count: number; }
+    // consuming code:
+    import { Bar } from './foo';
+    let x: Bar = Bar.a;
+    console.log(x.count);
+    // we didnt have to declare the Bar value as being of the Bar type - theyre independent
+
+    // some kinds of declarations can be combined across multiple declarations
+    // class C { } and interface C { } can co-exist
+    // and both contribute properties to the C types.
+    // legal as does not create a conflict
+
+    // ADD ADDITIONAL MEMBERS TO AN INTERFACE with another interface declaration:
+    interface Foo { x: number; }
+    // ... elsewhere ...
+    interface Foo { y: number; }
+    let a: Foo = ...;
+    console.log(a.x + a.y); // OK
+    // with classes:
+    class Foo { x: number; }
+    // ... elsewhere ...
+    interface Foo { y: number; }
+    let a: Foo = ...;
+    console.log(a.x + a.y); // OK
+
+    // NAMESPACE DECLARATION can be used to add new types, values, and namespaces
+    // add a static member to a class:
+    class C { }
+    // ... elsewhere ...
+    namespace C { export let x: number; }
+    let y = C.x; // OK
+    // add a namespaced type to a class:
+    class C { }
+    // ... elsewhere ...
+    namespace C { export interface D { } }
+    let y: C.D; // OK
+
+    // PERFORM MANY DIFFERENT MERGES USING NAMESPACE DECLARATIONS:
+    // value X (because the namespace declaration contains a value, Z);
+    // namespace X (because the namespace declaration contains a type, Y);
+    namespace X {
+      // type Y in the X namespace;
+      export interface Y { }
+      // type Z in the X namespace (the instance shape of the class);
+      // value Z - a property of the X value (the constructor function of the class);
+      export class Z { }
+    }
+    // ... elsewhere ...
+    namespace X {
+      // value Y (of type number) that is a property of the X value;
+      export var Y: number;
+      // namespace Z;
+      // value Z that is a property of the X value;
+      export namespace Z {
+        // type C in the X.Z namespace;
+        // value C that is a property of the X.Z value;
+        export class C { }
+      }
+    }
+    // type X;
+    type X = string;
+  </code></pre>
+
+  <h3>TEMPLATE - module.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] &lt;[~A URL FOR YOU~]>
+
+    /* This is the module template file. You should rename it to index.d.ts
+      * and place it in a folder with the same name as the module.
+      * For example, if you were writing a file for "super-greeter", this
+      * file should be 'super-greeter/index.d.ts'
+      */
+
+    /* If this module is a UMD module that exposes a global variable 'myLib' when
+      * loaded outside a module loader environment, declare that global here.
+      * Otherwise, delete this declaration.
+      */
+    export as namespace myLib;
+
+    /* If this module has methods, declare them as functions like so.
+      */
+    export function myMethod(a: string): string;
+    export function myOtherMethod(a: number): number;
+
+    /* You can declare types that are available via importing the module */
+    export interface someType {
+        name: string;
+        length: number;
+        extras?: string[];
+    }
+
+    /* You can declare properties of the module using const, let, or var */
+    export const myField: number;
+
+    /* If there are types, properties, or methods inside dotted names
+      * of the module, declare them inside a 'namespace'.
+      */
+    export namespace subProp {
+        /* For example, given this definition, someone could write:
+          *   import { subProp } from 'yourModule';
+          *   subProp.foo();
+          * or
+          *   import * as yourMod from 'yourModule';
+          *   yourMod.subProp.foo();
+          */
+        export function foo(): void;
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - module-plugin.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] <[~A URL FOR YOU~]>
+
+    /* This is the module plugin template file. You should rename it to index.d.ts
+      * and place it in a folder with the same name as the module.
+      * For example, if you were writing a file for "super-greeter", this
+      * file should be 'super-greeter/index.d.ts'
+      */
+
+    /* On this line, import the module which this module adds to */
+    import * as m from 'someModule';
+
+    /* You can also import other modules if needed */
+    import * as other from 'anotherModule';
+
+    /* Here, declare the same module as the one you imported above */
+    declare module 'someModule' {
+        /* Inside, add new function, classes, or variables. You can use
+          * unexported types from the original module if needed. */
+        export function theNewMethod(x: m.foo): other.bar;
+
+        /* You can also add new properties to existing interfaces from
+          * the original module by writing interface augmentations */
+        export interface SomeModuleOptions {
+            someModuleSetting?: string;
+        }
+
+        /* New types can also be declared and will appear as if they
+          * are in the original module */
+        export interface MyModulePluginOptions {
+            size: number;
+        }
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - module-function.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] <[~A URL FOR YOU~]>
+
+    /* This is the module template file for function modules.
+      * You should rename it to index.d.ts and place it in a folder with the same name as the module.
+      * For example, if you were writing a file for "super-greeter", this
+      * file should be 'super-greeter/index.d.ts'
+      */
+
+    /* Note that ES6 modules cannot directly export callable functions.
+      * This file should be imported using the CommonJS-style:
+      *   import x = require('someLibrary');
+      *
+      * Refer to the documentation to understand common
+      * workarounds for this limitation of ES6 modules.
+      */
+
+    /* If this module is a UMD module that exposes a global variable 'myFuncLib' when
+      * loaded outside a module loader environment, declare that global here.
+      * Otherwise, delete this declaration.
+      */
+    export as namespace myFuncLib;
+
+    /* This declaration specifies that the function
+      * is the exported object from the file
+      */
+    export = MyFunction;
+
+    /* This example shows how to have multiple overloads for your function */
+    declare function MyFunction(name: string): MyFunction.NamedReturnType;
+    declare function MyFunction(length: number): MyFunction.LengthReturnType;
+
+    /* If you want to expose types from your module as well, you can
+      * place them in this block. Often you will want to describe the
+      * shape of the return type of the function; that type should
+      * be declared in here, as this example shows.
+      */
+    declare namespace MyFunction {
+        export interface LengthReturnType {
+            width: number;
+            height: number;
+        }
+        export interface NamedReturnType {
+            firstName: string;
+            lastName: string;
+        }
+
+        /* If the module also has properties, declare them here. For example,
+          * this declaration says that this code is legal:
+          *   import f = require('myFuncLibrary');
+          *   console.log(f.defaultName);
+          */
+        export const defaultName: string;
+        export let defaultLength: number;
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - module-class.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] <[~A URL FOR YOU~]>
+
+    /* This is the module template file for class modules.
+      * You should rename it to index.d.ts and place it in a folder with the same name as the module.
+      * For example, if you were writing a file for "super-greeter", this
+      * file should be 'super-greeter/index.d.ts'
+      */
+
+    /* Note that ES6 modules cannot directly export class objects.
+      * This file should be imported using the CommonJS-style:
+      *   import x = require('someLibrary');
+      *
+      * Refer to the documentation to understand common
+      * workarounds for this limitation of ES6 modules.
+      */
+
+    /* If this module is a UMD module that exposes a global variable 'myClassLib' when
+      * loaded outside a module loader environment, declare that global here.
+      * Otherwise, delete this declaration.
+      */
+    export as namespace myClassLib;
+
+    /* This declaration specifies that the class constructor function
+      * is the exported object from the file
+      */
+    export = MyClass;
+
+    /* Write your module's methods and properties in this class */
+    declare class MyClass {
+        constructor(someParam?: string);
+
+        someProperty: string[];
+
+        myMethod(opts: MyClass.MyClassMethodOptions): number;
+    }
+
+    /* If you want to expose types from your module as well, you can
+      * place them in this block.
+      */
+    declare namespace MyClass {
+        export interface MyClassMethodOptions {
+            width?: number;
+            height?: number;
+        }
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - global.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] <[~A URL FOR YOU~]>
+
+    /* If this library is callable (e.g. can be invoked as myLib(3)),
+      * include those call signatures here.
+      * Otherwise, delete this section.
+      */
+    declare function myLib(a: string): string;
+    declare function myLib(a: number): number;
+
+    /* If you want the name of this library to be a valid type name,
+      * you can do so here.
+      *
+      * For example, this allows us to write 'var x: myLib';
+      * Be sure this actually makes sense! If it doesn't, just
+      * delete this declaration and add types inside the namespace below.
+      */
+    interface myLib {
+        name: string;
+        length: number;
+        extras?: string[];
+    }
+
+    /* If your library has properties exposed on a global variable,
+      * place them here.
+      * You should also place types (interfaces and type alias) here.
+      */
+    declare namespace myLib {
+        //~ We can write 'myLib.timeout = 50;'
+        let timeout: number;
+
+        //~ We can access 'myLib.version', but not change it
+        const version: string;
+
+        //~ There's some class we can create via 'let c = new myLib.Cat(42)'
+        //~ Or reference e.g. 'function f(c: myLib.Cat) { ... }
+        class Cat {
+            constructor(n: number);
+
+            //~ We can read 'c.age' from a 'Cat' instance
+            readonly age: number;
+
+            //~ We can invoke 'c.purr()' from a 'Cat' instance
+            purr(): void;
+        }
+
+        //~ We can declare a variable as
+        //~   'var s: myLib.CatSettings = { weight: 5, name: "Maru" };'
+        interface CatSettings {
+            weight: number;
+            name: string;
+            tailLength?: number;
+        }
+
+        //~ We can write 'const v: myLib.VetID = 42;'
+        //~  or 'const v: myLib.VetID = "bob";'
+        type VetID = string | number;
+
+        //~ We can invoke 'myLib.checkCat(c)' or 'myLib.checkCat(c, v);'
+        function checkCat(c: Cat, s?: VetID);
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - global-plugin.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] <[~A URL FOR YOU~]>
+
+    /* This template shows how to write a global plugin. */
+
+    /* Write a declaration for the original type and add new members.
+      * For example, this adds a 'toBinaryString' method with to overloads to
+      * the built-in number type.
+      */
+    interface Number {
+        toBinaryString(opts?: MyLibrary.BinaryFormatOptions): string;
+        toBinaryString(callback: MyLibrary.BinaryFormatCallback, opts?: MyLibrary.BinaryFormatOptions): string;
+    }
+
+    /* If you need to declare several types, place them inside a namespace
+      * to avoid adding too many things to the global namespace.
+      */
+    declare namespace MyLibrary {
+        type BinaryFormatCallback = (n: number) => string;
+        interface BinaryFormatOptions {
+            prefix?: string;
+            padding: number;
+        }
+    }
+  </code></pre>
+
+  <h3>TEMPLATE - global-modifying-module.d.ts</h3>
+  <pre><code class="ts">
+    // Type definitions for [~THE LIBRARY NAME~] [~OPTIONAL VERSION NUMBER~]
+    // Project: [~THE PROJECT NAME~]
+    // Definitions by: [~YOUR NAME~] &lt;[~A URL FOR YOU~]>
+
+    /* This is the global-modifying module template file. You should rename it to index.d.ts
+      * and place it in a folder with the same name as the module.
+      * For example, if you were writing a file for "super-greeter", this
+      * file should be 'super-greeter/index.d.ts'
+      */
+
+    /* Note: If your global-modifying module is callable or constructable, you'll
+      * need to combine the patterns here with those in the module-class or module-function
+      * template files
+      */
+    declare global {
+        /* Here, declare things that go in the global namespace, or augment
+          * existing declarations in the global namespace
+          */
+        interface String {
+            fancyFormat(opts: StringFormatOptions): string;
+        }
+    }
+
+    /* If your module exports types or values, write them as usual */
+    export interface StringFormatOptions {
+        fancinessLevel: number;
+    }
+
+    /* For example, declaring a method on the module (in addition to its global side effects) */
+    export function doSomething(): void;
+
+    /* If your module exports nothing, you'll need this line. Otherwise, delete it */
+    export { };
+  </code></pre>
+
+
+
+<h2 id="tsconfig">tsconfig.json</h2>
+
+  <ul>
+    <li>presence of a tsconfig.json file in a directory indicates that the directory is the root of a TS project</li>
+    <li>file specifies the root files and the compiler options required to compile the project</li>
+    <li>project is compiled in one of the following ways:
+      <ul>
+        <li>by invoking tsc with no input files, in which case the compiler searches for the tsconfig.json file starting in the current directory and continuing up the parent directory chain</li>
+        <li>by invoking tsc with no input files and a --project (or just -p) command line option that specifies the path of a directory containing a tsconfig.json file, or a path to a valid .json file containing the configurations</li>
+      </ul>
+    </li>
+    <li>when input files are specified on the command line, tsconfig.json files are ignored</li>
+    <li>"files" property takes a list of relative or absolute file paths</li>
+    <li>"include" and "exclude" properties take a list of glob-like file patterns</li>
+    <li>supported glob wildcards are:
+      <li>* - matches zero or more characters (excluding directory separators)</li>
+      <li>? - matches any one character (excluding directory separators)</li>
+      <li>**/ - recursively matches any subdirectory</li>
+    </li>
+    <li>if a segment of a glob pattern includes only * or .*, then only files with supported extensions are included (e.g. .ts, .tsx, and .d.ts by default with .js and .jsx if allowJs is set to true)</li>
+    <li>if the "files" and "include" are both left unspecified, the compiler defaults to including all TS (.ts, .d.ts and .tsx) files in the containing directory and subdirectories except those excluded using the "exclude" property. JS files (.js and .jsx) are also included if allowJs is set to true. If the "files" or "include" properties are specified, the compiler will instead include the union of the files included by those two properties. Files in the directory specified using the "outDir" compiler option are excluded as long as "exclude" property is not specified</li>
+    <li>files included using "include" can be filtered using the "exclude" property, files included explicitly using the "files" property are always included regardless of "exclude" (defaults to excluding the node_modules, bower_components, jspm_packages and "outDir" directories when not specified)</li>
+    <li>any files that are referenced by files included via the "files" or "include" properties are also included, if a file B.ts is referenced by another file A.ts, then B.ts cannot be excluded unless the referencing file A.ts is also specified in the "exclude" list</li>
+    <li>compiler does not include files that can be possible outputs; e.g. if the input includes index.ts, then index.d.ts and index.js are excluded, having files that differ only in extension next to each other is not recommended</li>
+    <li>tsconfig.json file is permitted to be completely empty, which compiles all files included by default (as described above) with the default compiler options</li>
+    <li>compiler options specified on the command line override those specified in the tsconfig.json file</li>
+    <li></li>
+    <li>by default all visible "@types" packages are included in your compilation. Packages in node_modules/@types of any enclosing folder are considered visible; specifically, that means packages within ./node_modules/@types/, ../node_modules/@types/, ../../node_modules/@types/, and so on</li>
+    <li></li>
+    <li>types package is a folder with a file called index.d.ts or a folder with a package.json that has a types field</li>
+    <li>specify "types": [] to disable automatic inclusion of @types packages</li>
+    <li>automatic inclusion is only important if you are using files with global declarations (as opposed to files declared as modules), if you use an import "foo" statement, for instance, TS may still look through node_modules & node_modules/@types folders to find the foo package</li>
+    <li></li>
+    <li>tsconfig.json file can inherit configurations from another file using the <strong>extends</strong> property (top-level property in tsconfig.json)</li>
+    <li>configuration from the base file are loaded first, then overridden by those in the inheriting config file, if a circularity is encountered, we report an error</li>
+    <li>files, include and exclude from the inheriting config file overwrite those from the base config file</li>
+    <li></li>
+    <li>all relative paths found in the configuration file will be resolved relative to the configuration file they originated in</li>
+  </ul>
+
+  <h3>tsconfig.json: using the "files" property</h3>
+  <pre><code class="json">
+    {
+      "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true
+      },
+      "files": [
+        "core.ts",
+        "sys.ts",
+        "types.ts",
+        "scanner.ts",
+        "parser.ts",
+        "utilities.ts",
+        "binder.ts",
+        "checker.ts",
+        "emitter.ts",
+        "program.ts",
+        "commandLineParser.ts",
+        "tsc.ts",
+        "diagnosticInformationMap.generated.ts"
+      ]
+    }
+  </code></pre>
+
+  <h3>tsconfig.json: using the "include" and "exclude" properties</h3>
+  <pre><code class="json">
+    {
+      "compilerOptions": {
+        "module": "system",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "../../built/local/tsc.js",
+        "sourceMap": true
+      },
+      "include": [
+        "src/**/*"
+      ],
+      "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+      ]
+    }
+  </code></pre>
+
+  <h3>override a specific built-in lib</h3>
+  <pre><code class="json">
+    // when deciding which lib files TS should include,
+    // it will first look for a scoped @typescript/lib-* package in node_modules
+    // when including 'dom' as an option in lib,
+    // TS will use the types in node_modules/@typescript/lib-dom if available
+    // install a specific package to take over for a given lib,
+    // lock project to a specific version of the DOM APIs:
+    {
+      "dependencies": {
+        "@typescript/lib-dom": "npm:@types/web"
+      }
+    }
+  </code></pre>
+
+  <pre><code class="ts">
+    // if typeRoots is specified, only packages under typeRoots will be included.
+    // this example includes all packages under ./typings,
+    // and no packages from ./node_modules/@types :
+    {
+      "compilerOptions": {
+        "typeRoots" : ["./typings"]
+      }
+    }
+
+    // if types is specified, only packages listed will be included.
+    // only include ./node_modules/@types/node,
+    // ./node_modules/@types/lodash and ./node_modules/@types/express
+    // other packages under node_modules/@types/* will not be included :
+    {
+      "compilerOptions": {
+          "types" : ["node", "lodash", "express"]
+      }
+    }
+  </code></pre>
+
+  <pre><code class="ts">
+    // --- React jsx and jsxs factory functions
+
+    // --- production builds might look like the following
+    // ./src/tsconfig.json
+    {
+      "compilerOptions": {
+        "module": "esnext",
+        "target": "es2015",
+        "jsx": "react-jsx",
+        "strict": true
+      },
+      "include": ["./**/*"]
+    }
+
+    // --- development builds might look like the following
+    // ./src/tsconfig.dev.json
+    {
+      "extends": "./tsconfig.json",
+      "compilerOptions": {
+        "jsx": "react-jsxdev"
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="options">Compiller Options</h2>
+
+  <table style="margin-left:1em;">
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>--allowJs</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Allow JavaScript files to be compiled</td>
+      </tr>
+      <tr>
+        <td><code>--allowSyntheticDefaultImports</code></td>
+        <td><code>boolean</code></td>
+        <td><code>module === "system"</code> or <code>--esModuleInterop</code> is set and <code>module</code> is not <code>es2015</code>/<code>esnext</code></td>
+        <td>Allow default imports from modules with no default export. This does not affect code emit, just typechecking</td>
+      </tr>
+      <tr>
+        <td><code>--allowUnreachableCode</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not report errors on unreachable code</td>
+      </tr>
+      <tr>
+        <td><code>--allowUmdGlobalAccess</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>access UMD exports as globals from inside module files, without this flag, using an export from a UMD module requires an import declaration</td>
+      </tr>
+      <tr>
+        <td><code>--allowUnusedLabels</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not report errors on unused labels</td>
+      </tr>
+      <tr>
+        <td><code>--alwaysStrict</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Parse in strict mode and emit <code>"use strict"</code> for each source file</td>
+      </tr>
+      <tr>
+        <td><code>--assumeChangesOnlyAffectDirectDependencies</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>When enabled, TS will avoid rechecking/rebuilding all truly possibly-affected files, and only recheck/rebuild files that have changed as well as files that directly import them, can be considered a fast&loose implementation of the watching algorithm, which can drastically reduce incremental rebuild times at the expense of having to run the full build occasionally to get all compiler error messages</td>
+      </tr>
+      <tr>
+        <td><code>--baseUrl</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Base directory to resolve non-relative module names. See <a href="./module-resolution.html#base-url">Module Resolution documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--build</code><br><code>-b</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Builds this project and all of its dependencies specified by <a href="./project-references.html">Project References</a>. Note that this flag is not compatible with others on this page. See more <a href="./project-references.html">here</a></td>
+      </tr>
+      <tr>
+        <td><code>--charset</code></td>
+        <td><code>string</code></td>
+        <td><code>"utf8"</code></td>
+        <td>The character set of the input files</td>
+      </tr>
+      <tr>
+        <td><code>--checkJs</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report errors in <code>.js</code> files</td>
+      </tr>
+      <tr>
+        <td><code>--declaration</code><br><code>-d</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Generates corresponding <code>.d.ts</code> file</td>
+      </tr>
+      <tr>
+        <td><code>--declarationDir</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Output directory for generated declaration files</td>
+      </tr>
+      <tr>
+        <td><code>--declarationMap</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Generates a sourcemap for each corresponding .d.ts file</td>
+      </tr>
+      <tr>
+        <td><code>--diagnostics</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Show diagnostic information</td>
+      </tr>
+      <tr>
+        <td><code>--disableSizeLimit</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Disable size limitation on JavaScript project</td>
+      </tr>
+      <tr>
+        <td><code>--downlevelIteration</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Provide full support for iterables in <code>for..of</code>, spread and destructuring when targeting ES5 or ES3</td>
+      </tr>
+      <tr>
+        <td><code>--emitBOM</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files</td>
+      </tr>
+      <tr>
+        <td><code>--emitDeclarationOnly</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Only emit .d.ts declaration files</td>
+      </tr>
+      <tr>
+        <td><code>--emitDecoratorMetadata</code><sup>[1]</sup></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Emit design-type metadata for decorated declarations in source. See <a href="https://github.com/Microsoft/TS/issues/2577">issue #2577</a> for details</td>
+      </tr>
+      <tr>
+        <td><code>--esModuleInterop</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Emit <code>__importStar</code> and <code>__importDefault</code> helpers for runtime babel ecosystem compatibility and enable <code>--allowSyntheticDefaultImports</code> for typesystem compatibility</td>
+      </tr>
+      <tr>
+        <td><code>--exactOptionalPropertyTypes</code><sup>[1]</sup></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>apply stricter rules around how it handles properties on type or interfaces which have a ? prefix, enforce the definition provided as an optional property, no undefined assignment possible: <code>colorThemeOverride?: "dark" | "light";</code></td>
+      </tr>
+      <tr>
+        <td><code>--experimentalDecorators</code><sup>[1]</sup></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Enables experimental support for ES decorators</td>
+      </tr>
+      <tr>
+        <td><code>--explainFiles</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Print names of files which TS sees as a part of your project and the reason they are part of the compilation</td>
+      </tr>
+      <tr>
+        <td><code>--extendedDiagnostics</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Show verbose diagnostic information</td>
+      </tr>
+      <tr>
+        <td><code>--forceConsistentCasingInFileNames</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Disallow inconsistently-cased references to the same file</td>
+      </tr>
+      <tr>
+        <td><code>--help</code><br><code>-h</code></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Print help message</td>
+      </tr>
+      <tr>
+        <td><code>--importHelpers</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Import emit helpers (e.g. <code>__extends</code>, <code>__rest</code>, etc..) from <a href="https://www.npmjs.com/package/tslib"><code>tslib</code></a></td>
+      </tr>
+      <tr>
+        <td><code>--importsNotUsedAsValues</code></td>
+        <td><code>remove|preserve|error</code></td>
+        <td><code>remove</code></td>
+        <td>controls how import works: remove - dropping import statements which only reference types; preserve - preserves all import statements whose values or types are never used,  can cause imports/side-effects to be preserved; error - preserves all imports (the same as the preserve option), but will error when a value import is only used as a type, might be useful to ensure no values are being accidentally imported, but still make side-effect imports explicit</td>
+      </tr>
+      <tr>
+        <td><code>--incremental</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code> if <code>composite</code> is on, <code>false</code> otherwise</td>
+        <td>Enable incremental compilation by reading/writing information from prior compilations to a file on disk. This file is controlled by the <code>--tsBuildInfoFile</code> flag.</td>
+      </tr>
+      <tr>
+        <td><code>--inlineSourceMap</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Emit a single file with source maps instead of having a separate file</td>
+      </tr>
+      <tr>
+        <td><code>--inlineSources</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Emit the source alongside the sourcemaps within a single file; requires <code>--inlineSourceMap</code> or <code>--sourceMap</code> to be set</td>
+      </tr>
+      <tr>
+        <td><code>--init</code></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Initializes a TS project and creates a <code>tsconfig.json</code> file</td>
+      </tr>
+      <tr>
+        <td><code>--isolatedModules</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Transpile each file as a separate module (similar to "ts.transpileModule")</td>
+      </tr>
+      <tr>
+        <td><code>--jsx</code></td>
+        <td><code>string</code></td>
+        <td><code>"Preserve"</code></td>
+        <td>Support JSX in <code>.tsx</code> files: <code>"React"</code> or <code>"Preserve"</code>. See <a href="./jsx.html">JSX</a></td>
+      </tr>
+      <tr>
+        <td><code>--jsxFactory</code></td>
+        <td><code>string</code></td>
+        <td><code>"React.createElement"</code></td>
+        <td>Specify the JSX factory function to use when targeting react JSX emit, e.g. <code>React.createElement</code> or <code>h</code></td>
+      </tr>
+      <tr>
+        <td><code>--keyofStringsOnly</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Resolve <code>keyof</code> to string valued property names only (no numbers or symbols)</td>
+      </tr>
+      <tr>
+        <td><code>--lib</code></td>
+        <td><code>string[]</code></td>
+        <td>&nbsp;</td>
+        <td>List of library files to be included in the compilation<br>Possible values are:  <br><code>ES5</code> <br><code>ES6</code> <br><code>ES2015</code> <br><code>ES7</code> <br><code>ES2016</code> <br><code>ES2017</code>  <br><code>ES2018</code> <br><code>ESNext</code> <br><code>DOM</code> <br><code>DOM.Iterable</code> <br><code>WebWorker</code> <br><code>ScriptHost</code> <br><code>ES2015.Core</code> <br><code>ES2015.Collection</code> <br><code>ES2015.Generator</code> <br><code>ES2015.Iterable</code> <br><code>ES2015.Promise</code> <br><code>ES2015.Proxy</code> <br><code>ES2015.Reflect</code> <br><code>ES2015.Symbol</code> <br><code>ES2015.Symbol.WellKnown</code> <br><code>ES2016.Array.Include</code> <br><code>ES2017.object</code> <br><code>ES2017.Intl</code> <br><code>ES2017.SharedMemory</code> <br><code>ES2017.String</code> <br><code>ES2017.TypedArrays</code> <br><code>ES2018.Intl</code> <br><code>ES2018.Promise</code> <br><code>ES2018.RegExp</code><br><code>ES2020</code> <br><code>ESNext.AsyncIterable</code> <br><code>ESNext.Array</code> <br><code>ESNext.Intl</code> <br><code>ESNext.Symbol</code> <br><br> Note: If <code>--lib</code> is not specified a default list of libraries are injected. The default libraries injected are:  <br> For <code>--target ES5</code>: <code>DOM,ES5,ScriptHost</code><br>  For <code>--target ES6</code>: <code>DOM,ES6,DOM.Iterable,ScriptHost</code></td>
+      </tr>
+      <tr>
+        <td><code>--listEmittedFiles</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Print names of generated files part of the compilation</td>
+      </tr>
+      <tr>
+        <td><code>--listFiles</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Print names of files part of the compilation</td>
+      </tr>
+      <tr>
+        <td><code>--locale</code></td>
+        <td><code>string</code></td>
+        <td><em>(platform specific)</em></td>
+        <td>The locale to use to show error messages, e.g. en-us. <br>Possible values are:  <br>English (US): <code>en</code> <br>Czech: <code>cs</code> <br>German: <code>de</code> <br>Spanish: <code>es</code> <br>French: <code>fr</code> <br>Italian: <code>it</code> <br>Japanese: <code>ja</code> <br>Korean: <code>ko</code> <br>Polish: <code>pl</code> <br>Portuguese(Brazil): <code>pt-BR</code> <br>Russian: <code>ru</code> <br>Turkish: <code>tr</code> <br>Simplified Chinese: <code>zh-CN</code>  <br>Traditional Chinese: <code>zh-TW</code></td>
+      </tr>
+      <tr>
+        <td><code>--mapRoot</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Specifies the location where debugger should locate map files instead of generated locations. Use this flag if the .map files will be located at run-time in a different location than the .js files. The location specified will be embedded in the sourceMap to direct the debugger where the map files will be located</td>
+      </tr>
+      <tr>
+        <td><code>--maxNodeModuleJsDepth</code></td>
+        <td><code>number</code></td>
+        <td><code>0</code></td>
+        <td>The maximum dependency depth to search under node_modules and load JavaScript files. Only applicable with <code>--allowJs</code></td>
+      </tr>
+      <tr>
+        <td><code>--module</code><br><code>-m</code></td>
+        <td><code>string</code></td>
+        <td><code>target === "ES3" or "ES5" ? "CommonJS" : "ES6"</code></td>
+        <td>Specify module code generation: <code>"None"</code>, <code>"CommonJS"</code>, <code>"AMD"</code>, <code>"System"</code>, <code>"UMD"</code>, <code>"ES6"</code>, <code>"ES2015"</code>, <code>"ES2020"</code> or <code>"ESNext"</code><br>Only <code>"AMD"</code> and <code>"System"</code> can be used in conjunction with <code>--outFile</code><br><code>"ES6"</code> and <code>"ES2015"</code> values may be used when targeting <code>"ES5"</code> or lower</td>
+      </tr>
+      <tr>
+        <td><code>--moduleResolution</code></td>
+        <td><code>string</code></td>
+        <td><code>module === "AMD" or "System" or "ES6" ?  "Classic" : "Node"</code></td>
+        <td>Determine how modules get resolved. Either <code>"Node"</code> for Node.js/io.js style resolution, or <code>"Classic"</code>. See <a href="./module-resolution.html">Module Resolution documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--newLine</code></td>
+        <td><code>string</code></td>
+        <td><em>(platform specific)</em></td>
+        <td>Use the specified end of line sequence to be used when emitting files: <code>"crlf"</code> (windows) or <code>"lf"</code> (unix)."</td>
+      </tr>
+      <tr>
+        <td><code>--noEmit</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not emit outputs</td>
+      </tr>
+      <tr>
+        <td><code>--noEmitHelpers</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not generate custom helper functions like <code>__extends</code> in compiled output</td>
+      </tr>
+      <tr>
+        <td><code>--noEmitOnError</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not emit outputs if any errors were reported</td>
+      </tr>
+      <tr>
+        <td><code>--noErrorTruncation</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not truncate error messages</td>
+      </tr>
+      <tr>
+        <td><code>--noFallthroughCasesInSwitch</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report errors for fallthrough cases in switch statement</td>
+      </tr>
+      <tr>
+        <td><code>--noImplicitAny</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Raise error on expressions and declarations with an implied <code>any</code> type</td>
+      </tr>
+      <tr>
+        <td><code>--noImplicitOverride</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>ensure that the sub-classes never go out of sync, by ensuring that functions which override include the keyword 'override'</td>
+      </tr>
+      <tr>
+        <td><code>--noImplicitReturns</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report error when not all code paths in function return a value</td>
+      </tr>
+      <tr>
+        <td><code>--noImplicitThis</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Raise error on <code>this</code> expressions with an implied <code>any</code> type</td>
+      </tr>
+      <tr>
+        <td><code>--noImplicitUseStrict</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not emit <code>"use strict"</code> directives in module output</td>
+      </tr>
+      <tr>
+        <td><code>--noLib</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not include the default library file (<code>lib.d.ts</code>)</td>
+      </tr>
+      <tr>
+        <td><code>--noPropertyAccessFromIndexSignature</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>signal intent in your calling syntax about how certain you are this property exists, true - aise an error because the unknown field uses dot syntax instead of indexed syntax, false - allow to use the dot syntax to access fields which are not defined</td>
+      </tr>
+      <tr>
+        <td><code>--noResolve</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not add triple-slash references or module import targets to the list of compiled files</td>
+      </tr>
+      <tr>
+        <td><code>--noStrictGenericChecks</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Disable strict checking of generic signatures in function types</td>
+      </tr>
+      <tr>
+        <td><code>--noUncheckedIndexedAccess</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>add undefined to any un-declared field in the type</td>
+      </tr>
+      <tr>
+        <td><code>--noUnusedLocals</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report errors on unused locals</td>
+      </tr>
+      <tr>
+        <td><code>--noUnusedParameters</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report errors on unused parameters</td>
+      </tr>
+      <tr>
+        <td><del><code>--out</code></del></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>DEPRECATED. Use <code>--outFile</code> instead</td>
+      </tr>
+      <tr>
+        <td><code>--outDir</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Redirect output structure to the directory</td>
+      </tr>
+      <tr>
+        <td><code>--outFile</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Concatenate and emit output to single file. The order of concatenation is determined by the list of files passed to the compiler on the command line along with triple-slash references and imports. See output file order documentation for more details</td>
+      </tr>
+      <tr>
+        <td><code>paths</code><sup>[2]</sup></td>
+        <td><code>Object</code></td>
+        <td>&nbsp;</td>
+        <td>List of path mapping entries for module names to locations relative to the <code>baseUrl</code>. Can be used without baseUrl. See <a href="./module-resolution.html#path-mapping">Module Resolution documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--preserveConstEnums</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not erase const enum declarations in generated code. See <a href="https://github.com/Microsoft/TS/blob/master/doc/spec.md#94-constant-enum-declarations">const enums documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--preserveSymlinks</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not resolve symlinks to their real path; treat a symlinked file like a real one</td>
+      </tr>
+      <tr>
+        <td><code>--preserveValueImports</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If TS cant detect import or code using 'Compiles to HTML' languages like Svelte or Vue, combined with --isolatedModules imported types must be marked as type-only: <code>import { someFunc, type BaseType } from "./some-module.js";</code> here BaseType is always guaranteed to be erased and someFunc will be preserved</td>
+      </tr>
+      <tr>
+        <td><code>--preserveWatchOutput</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Keep outdated console output in watch mode instead of clearing the screen</td>
+      </tr>
+      <tr>
+        <td><code>--pretty</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code> unless piping to another program or redirecting output to a file</td>
+        <td>Stylize errors and messages using color and context</td>
+      </tr>
+      <tr>
+        <td><code>--project</code><br><code>-p</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Compile a project given a valid configuration file<br>The argument can be a file path to a valid JSON configuration file, or a directory path to a directory containing a <code>tsconfig.json</code> file<br>See <a href="./tsconfig-json.html">tsconfig.json</a> documentation for more details</td>
+      </tr>
+      <tr>
+        <td><code>--reactNamespace</code></td>
+        <td><code>string</code></td>
+        <td><code>"React"</code></td>
+        <td>DEPRECATED. Use <code>--jsxFactory</code> instead<br>Specifies the object invoked for <code>createElement</code> and <code>__spread</code> when targeting <code>"react"</code> JSX emit</td>
+      </tr>
+      <tr>
+        <td><code>--removeComments</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Remove all comments except copy-right header comments beginning with <code>/*!</code></td>
+      </tr>
+      <tr>
+        <td><code>--resolveJsonModule</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Include modules imported with <code>.json</code> extension</td>
+      </tr>
+      <tr>
+        <td><code>--rootDir</code></td>
+        <td><code>string</code></td>
+        <td><em>(common root directory is computed from the list of input files)</em></td>
+        <td>Specifies the root directory of input files. Only use to control the output directory structure with <code>--outDir</code></td>
+      </tr>
+      <tr>
+        <td><code>rootDirs</code><sup>[2]</sup></td>
+        <td><code>string[]</code></td>
+        <td>&nbsp;</td>
+        <td>List of <i>root</i> folders whose combined content represent the structure of the project at runtime. See <a href="./module-resolution.html#virtual-directories-with-rootdirs">Module Resolution documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--showConfig</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Rather than actually execute a build with the other input options and config files, show the final implied config file in the output</td>
+      </tr>
+      <tr>
+        <td><code>--skipDefaultLibCheck</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>DEPRECATED. Use <code>--skipLibCheck</code> instead<br>Skip type checking of <a href="./triple-slash-directives.html#-reference-no-default-libtrue">default library declaration files</a></td>
+      </tr>
+      <tr>
+        <td><code>--skipLibCheck</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Skip type checking of all declaration files (<code>*.d.ts</code>)</td>
+      </tr>
+      <tr>
+        <td><code>--sourceMap</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Generates corresponding <code>.map</code> file</td>
+      </tr>
+      <tr>
+        <td><code>--sourceRoot</code></td>
+        <td><code>string</code></td>
+        <td>&nbsp;</td>
+        <td>Specifies the location where debugger should locate TS files instead of source locations. Use this flag if the sources will be located at run-time in a different location than that at design-time. The location specified will be embedded in the sourceMap to direct the debugger where the source files will be located</td>
+      </tr>
+      <tr>
+        <td><code>--strict</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Enable all strict type checking options. <br>Enabling <code>--strict</code> enables <code>--noImplicitAny</code>, <code>--noImplicitThis</code>, <code>--alwaysStrict</code>, <code>--strictBindCallApply</code>, <code>--strictNullChecks</code>, <code>--strictFunctionTypes</code> and <code>--strictPropertyInitialization</code></td>
+      </tr>
+      <tr>
+        <td><code>--strictBindCallApply</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Enable stricter checking of of the <code>bind</code>, <code>call</code>, and <code>apply</code> methods on functions</td>
+      </tr>
+      <tr>
+        <td><code>--strictFunctionTypes</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Disable bivariant parameter checking for function types</td>
+      </tr>
+      <tr>
+        <td><code>--strictPropertyInitialization</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Ensure non-undefined class properties are initialized in the constructor. This option requires <code>--strictNullChecks</code> be enabled in order to take effect</td>
+      </tr>
+      <tr>
+        <td><code>--strictNullChecks</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>In strict null checking mode, the <code>null</code> and <code>undefined</code> values are not in the domain of every type and are only assignable to themselves and <code>any</code> (the one exception being that <code>undefined</code> is also assignable to <code>void</code>)</td>
+      </tr>
+      <tr>
+        <td><code>--stripInternal</code><sup>[1]</sup></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Do not emit declarations for code that has an <code>/** @internal */</code> JSDoc annotation</td>
+      </tr>
+      <tr>
+        <td><code>--suppressExcessPropertyErrors</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Suppress excess property checks for object literals</td>
+      </tr>
+      <tr>
+        <td><code>--suppressImplicitAnyIndexErrors</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Suppress <code>--noImplicitAny</code> errors for indexing objects lacking index signatures. See <a href="https://github.com/Microsoft/TS/issues/1232#issuecomment-64510362">issue #1232</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--target</code><br><code>-t</code></td>
+        <td><code>string</code></td>
+        <td><code>"ES3"</code></td>
+        <td>Specify ECMAScript target version: <code>"ES3"</code> (default), <code>"ES5"</code>, <code>"ES6"</code>/<code>"ES2015"</code>, <code>"ES2016"</code>, <code>"ES2017"..."ES2020"</code> or <code>"ESNext"</code>. <br><br> Note: <code>"ESNext"</code> targets latest supported <a href="https://github.com/tc39/proposals">ES proposed features</a></td>
+      </tr>
+      <tr>
+        <td><code>--traceResolution</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Report module resolution log messages</td>
+      </tr>
+      <tr>
+        <td><code>--tsBuildInfoFile</code></td>
+        <td><code>string</code></td>
+        <td><code>.tsbuildinfo</code></td>
+        <td>Specify what file to store incremental build information in. Files can be safely deleted and don't have any impact on our code at runtime - they're purely used to make compilations faste</td>
+      </tr>
+      <tr>
+        <td><code>--types</code></td>
+        <td><code>string[]</code></td>
+        <td>&nbsp;</td>
+        <td>List of names of type definitions to include. See <a href="./tsconfig-json.html#types-typeroots-and-types">@types, -typeRoots and -types</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--typeRoots</code></td>
+        <td><code>string[]</code></td>
+        <td>&nbsp;</td>
+        <td>List of folders to include type definitions from. See <a href="./tsconfig-json.html#types-typeroots-and-types">@types, -typeRoots and -types</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--useDefineForClassFields</code></td>
+        <td><code>boolean</code></td>
+        <td>&nbsp;</td>
+        <td>switch to the upcoming ECMA class fields runtime behavior</td>
+      </tr>
+      <tr>
+        <td><code>--useUnknownInCatchVariables</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>changing the type of the variable in a catch clause from any to unknown</td>
+      </tr>
+      <tr>
+        <td><code>--version</code><br><code>-v</code></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Print the compiler's version</td>
+      </tr>
+      <tr>
+        <td><code>--watch</code><br><code>-w</code></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Run the compiler in watch mode. Watch input files and trigger recompilation on changes. The implementation of watching files and directories can be configured using environment variable. See <a href="./configuring-watch.html">configuring watch</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--watchDirectory</code><br><code>-w</code></td>
+        <td>fixedPollingInterval | dynamicPriorityPolling | useFsEvents </td>
+        <td>useFsEvents</td>
+        <td>strategy for how entire directory trees are watched under systems that lack recursive file-watching functionality: fixedPollingInterval - check every directory for changes several times a second at a fixed interval; dynamicPriorityPolling - use a dynamic queue where less-frequently modified directories will be checked less often; useFsEvents - attempt to use the operating system/file system's native events for directory changes</td>
+      </tr>
+      <tr>
+        <td><code>--watchFile</code><br><code>-w</code></td>
+        <td>fixedPollingInterval | priorityPollingInterval | dynamicPriorityPolling | useFsEvents | useFsEventsOnParentDirectory </td>
+        <td>useFsEvents</td>
+        <td>strategy for how individual files are watched: fixedPollingInterval - check every file for changes several times a second at a fixed interval; priorityPollingInterval - check every file for changes several times a second, but use heuristics to check certain types of files less frequently than others; dynamicPriorityPolling - use a dynamic queue where less-frequently modified files will be checked less often; useFsEvents - attempt to use the operating system/file system native events for file changes; useFsEventsOnParentDirectory - attempt to use the operating system/file system native events to listen for changes on a file parent directory</td>
+      </tr>
+      <tr>
+        <td><code>--fallbackPolling</code><br><code>-w</code></td>
+        <td>fixedPollingInterval | dynamicPriorityPolling | synchronousWatchDirectory</td>
+        <td>useFsEvents</td>
+        <td>polling strategy that gets used when the system runs out of native file watchers and/or doesnt support native file watchers: fixedPollingInterval - check every file for changes several times a second at a fixed interval; priorityPollingInterval - check every file for changes several times a second, but use heuristics to check certain types of files less frequently than others; dynamicPriorityPolling - use a dynamic queue where less-frequently modified files will be checked less often; synchronousWatchDirectory - disable deferred watching on directories. Deferred watching is useful when lots of file changes might occur at once (e.g. a change in node_modules from running npm install), but you might want to disable it with this flag for some less-common setups</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+<h2 id="refs">Project References</h2>
+
+  <ul>
+    <li>new feature in TS 3.0 that allow you to structure your TS programs into smaller pieces</li>
+    <li>improve build times, enforce logical separation between components, and organize your code in new and better ways, improve the speed of typechecking and compiling, reduce memory usage when using an editor, and improve enforcement of the logical groupings of your program</li>
+    <li>new mode for tsc, the <strong>--build</strong>(-b for short) flag, that works hand in hand with project references
+    <ul>
+      <li>1 - find all referenced projects</li>
+      <li>2 - detect if they are up-to-date</li>
+      <li>3 - build out-of-date projects in the correct order</li>
+    </ul></li>
+    <li>tsc will re-order them if needed so that dependencies are always built first</li>
+    <li>flags specific to tsc -b
+    <ul>
+      <li>--verbose: Prints out verbose logging to explain what's going on (may be combined with any other flag)</li>
+      <li>--dry: Shows what would be done but doesn't actually build anything</li>
+      <li>--clean: Deletes the outputs of the specified projects (may be combined with --dry)</li>
+      <li>--force: Act as if all projects are out of date</li>
+      <li>--watch: Watch mode (may not be combined with any flag except --verbose)</li>
+    </ul></li>
+
+    <li>tsc will produce outputs (.js and .d.ts) in the presence of syntax or type errors, unless noEmitOnError is on, doing this in an incremental build system would be very bad - if one of your out-of-date dependencies had a new error, youd only see it once because a subsequent build would skip building the now up-to-date project, for this reason, tsc -b effectively acts as if noEmitOnError is enabled for all all projects, if you check in any build outputs (.js, .d.ts, .d.ts.map, etc.), you may need to run a --force build after certain source control operations depending on whether your source control tool preserves timestamps between the local copy and the remote copy</li>
+    <li></li>
+    <li>to transition a repo using relative modules, place a tsconfig.json file in each subdirectory of a given parent folder, and add references to these config files to match the intended layering of the program, you will need to either set the outDir to an explicit subfolder of the output folder, or set the rootDir to the common root of all project folders</li>
+    <li></li>
+    <li>layout for compilations using outFile is more flexible because relative paths dont matter as much, youll generally want to not use prepend until the "last" project - this will improve build times and reduce the amount of I/O needed in any given build, TS repo itself is a good reference here - we have some "library" projects and some "endpoint" projects; "endpoint" projects are kept as small as possible and pull in only the libraries they need</li>
+    <li></li>
+    <li>tsconfig.json files have a new top-level property, references: "path" property of each reference can point to a directory containing a tsconfig.json file, or to the config file itself (which may have any name)</li>
+    <li>when you reference a project, new things happen
+    <ul>
+      <li>importing modules from a referenced project will instead load its output declaration file (.d.ts)</li>
+      <li>if the referenced project produces an outFile, the output file .d.ts file's declarations will be visible in this project</li>
+      <li>build mode (see below) will automatically build the referenced project if needed</li>
+    </ul></li>
+    <li>referenced projects must have the new <strong>composite</strong> setting enabled (to ensure TS can quickly determine where to find the outputs of the referenced project), flag changes a few things:
+    <ul>
+      <li>rootDir setting, if not explicitly set, defaults to the directory containing the tsconfig file</li>
+      <li>all implementation files must be matched by an <strong>include</strong> pattern or listed in the <strong>files</strong> array, if this constraint is violated, tsc will inform you which files werent specified</li>
+      <li><strong>declaration</strong> must be turned on</li>
+    </ul></li>
+    <li>if you enable --declarationMap, with declaration source maps youll be able to use editor features like "Go to Definition" and Rename to transparently navigate and edit code across project boundaries in supported editors</li>
+    <li></li>
+    <li>check in certain build outputs or build a project after cloning it before you can navigate the project in an editor without seeing spurious errors</li>
+  </ul>
+
+  <pre><code class="javascript">
+    {
+      "compilerOptions": {
+        // The usual
+      },
+      "references": [
+        { "path": "../src" }
+      ]
+    }
+
+    // prepending the output of a dependency using the prepend option in a reference
+    // include the project output above the output of the current project
+    // works for both .js files and .d.ts
+    "references": [
+      { "path": "../utils", "prepend": true }
+    ]
+  </code></pre>
+
+
+
+<h2 id="browserify"> + Browserify</h2>
+
+  <pre><code class="javascript">
+    // install
+    npm install browserify
+    npm install TS
+    npm install tsify
+    // using Command Line Interface
+    browserify main.ts -p [ tsify --noImplicitAny ] > bundle.js
+
+    // using API
+    var browserify = require("browserify");
+    var tsify = require("tsify");
+    browserify()
+      .add("main.ts")
+      .plugin("tsify", { noImplicitAny: true })
+      .bundle()
+      .on('error', function (error) { console.error(error.toString()); })
+      .pipe(process.stdout);
+  </code></pre>
+
+
+
+<h2 id="grunt"> + Grunt</h2>
+
+  <pre><code class="javascript">
+    // install
+    npm install grunt-ts
+
+    // basic Gruntfile.js
+    module.exports = function(grunt) {
+      grunt.initConfig({
+        ts: {
+          default : {
+            src: ["**/*.ts", "!node_modules/**/*.ts"]
+            // tsconfig: './tsconfig.json'
+          }
+        }
+      });
+      grunt.loadNpmTasks("grunt-ts");
+      grunt.registerTask("default", ["ts"]);
+    };
+  </code></pre>
+
+
+
+<h2 id="gulp"> + Gulp</h2>
+
+  <pre><code class="javascript">
+    // install gulp CLI
+    npm install --global gulp-cli
+    // install gulp in the project dependency
+    npm install gulp@4
+    // Install gulp-TS & TS
+    npm install gulp-TS TS
+    npm install gulp-TS
+
+    // basic gulpfile.js default task
+    var gulp = require("gulp");
+    var ts = require("gulp-TS");
+    gulp.task("default", function () {
+      var tsResult = gulp.src("src/*.ts")
+        .pipe(ts({
+          noImplicitAny: true,
+          out: "output.js"
+        }));
+      return tsResult.js.pipe(gulp.dest("built/local"));
+    });
+
+    // file specifies custom named task
+    var gulp = require('gulp');
+    var ts = require('gulp-TS');
+    var merge = require('merge2');  // Requires separate installation
+    gulp.task('scripts', function() {
+      var tsResult = gulp.src('lib/**/*.ts')
+      .pipe(ts({
+          declaration: true
+      }));
+      return merge([
+        tsResult.dts.pipe(gulp.dest('release/definitions')),
+        tsResult.js.pipe(gulp.dest('release/js'))
+      ]);
+    });
+
+    // incremental compilation
+    var gulp = require('gulp');
+    var ts = require('gulp-TS');
+    var merge = require('merge2');
+    var tsProject = ts.createProject({
+      declaration: true
+    });
+    gulp.task('scripts', function() {
+      return gulp.src('lib/*.ts')
+        .pipe(tsProject())
+        .pipe(gulp.dest('dist'));
+    });
+    gulp.task('watch', ['scripts'], function() {
+      gulp.watch('lib/*.ts', ['scripts']);
+    });
+
+    // using tsconfig.json
+    var tsProject = ts.createProject('tsconfig.json');
+    // if you want to add/overwrite certain settings in the tsconfig.json file, you can use:
+    var tsProject = ts.createProject('tsconfig.json', { noImplicitAny: true });
+    // task will look like:
+    gulp.task('scripts', function() {
+      var tsResult = gulp.src("lib/**/*.ts") // or tsProject.src()
+        .pipe(tsProject());
+      return tsResult.js.pipe(gulp.dest('release'));
+    });
+    // you can replace gulp.src(...) with tsProject.src()
+    // to load files based on the tsconfig file (based on files, excludes and includes)
+
+    // source maps
+    var gulp = require('gulp')
+    var ts = require('gulp-TS');
+    var sourcemaps = require('gulp-sourcemaps');
+    gulp.task('scripts', function() {
+      return gulp.src('lib/*.ts')
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(ts({
+            // ...
+        }))
+        .pipe( ... ) // You can use other plugins that also support gulp-sourcemaps
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(gulp.dest('dist'));
+    });
+  </code></pre>
+
+
+
+<h2 id="webpack"> + Webpack</h2>
+
+  <pre><code class="javascript">
+    // install
+    npm install ts-loader --save-dev
+    // basic webpack.config.js
+    // for easier debug:
+    // npm install awesome-TS-loader source-map-loader
+    module.exports = {
+      entry: "./src/index.tsx",
+      output: {
+        filename: "bundle.js"
+      },
+      // Enable sourcemaps for debugging webpack output:
+      // devtool: "source-map",
+      resolve: {
+        // Add '.ts' and '.tsx' as a resolvable extension.
+        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+      },
+      module: {
+        loaders: [
+          // all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
+          { test: /\.tsx?$/, loader: "ts-loader" }
+          // { test: /\.tsx?$/, loader: "awesome-TS-loader" }
+        ],
+        preLoaders: [
+          // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+          { test: /\.js$/, loader: "source-map-loader" }
+        ]
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="gulpproj">Gulp project</h2>
+
+  <pre><code class="python">
+    mkdir proj
+    cd proj
+    mkdir src
+    mkdir dist
+
+    npm init # turn this folder into an npm package
+    # will ask for settings
+    # you can use the defaults except for your entry point
+    # for your entry point, use ./dist/main.js
+
+    # generated, working directory
+    proj/
+    +-- src/
+    |   +-- main.ts
+    |   +-- greet.ts
+    |   +-- index.html
+    +-- dist/
+    +-- node_modules/...
+    +-- tsconfig.json # create
+    +-- gulpfile.js # create
+    +-- package.json
+    +-- package-lock.json
+
+    #
+    npm install -g gulp-cli
+    npm install --save-dev TS gulp gulp-TS
+    # test after creating/changing files
+    gulp
+    node dist/main.js
+    # open: dist/index.html in browser
+  </code></pre>
+
+  <h3>tsconfig.json</h3>
+  <pre><code class="javascript">
+    {
+      "files": [
+        "src/main.ts",
+        "src/greet.ts"
+      ],
+      "compilerOptions": {
+        "noImplicitAny": true,
+        "target": "es5" // target TS to ES6, for Babel also
+      }
+    }
+  </code></pre>
+
+  <h3>gulpfile.js</h3>
+  <pre><code class="javascript">
+    // npm install --save-dev browserify tsify vinyl-source-stream
+    var gulp = require("gulp");
+    var browserify = require("browserify"); // bundle all our modules into one JS file
+    // transforms Browserify format back gulps (called vinyl)
+    var source = require('vinyl-source-stream');
+    var tsify = require("tsify"); // plugin for compiling TS
+    // npm install --save-dev watchify gulp-util
+    var watchify = require("watchify");
+    var gutil = require("gulp-util");
+    // npm install --save-dev gulp-uglify vinyl-buffer gulp-sourcemaps
+    var uglify = require('gulp-uglify');
+    var sourcemaps = require('gulp-sourcemaps');
+    var buffer = require('vinyl-buffer');
+    var paths = {
+      pages: ['src/*.html']
+    };
+
+    // --- WATCH FOR CHANGES AND REGENERATE BUNDLE
+    var watchedBrowserify = watchify(browserify({
+      basedir: '.',
+
+      // to debug original TS in the browser instead of bundled JS
+      // emit source maps inside the bundled JS file
+      debug: true,
+
+      entries: ['src/main.ts'],
+      cache: {},
+      packageCache: {}
+    }).plugin(tsify));
+    gulp.task("copy-html", function () {
+        return gulp.src(paths.pages)
+            .pipe(gulp.dest("dist"));
+    });
+    function bundle() {
+        return watchedBrowserify
+        // --- babelify
+        // npm install --save-dev babelify babel-core babel-preset-es2015
+        .transform('babelify', {
+          presets: ['es2015'],
+          extensions: ['.ts'] // allow TS in Babel (defaults: .js, .es, .es6 and .jsx)
+          // install other babelify version if required: sudo npm install babelify@8
+        })
+        // --- --- ---
+        .bundle()
+        .pipe(source('bundle.js')) // bundled JS
+        // --- uglify
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
+        // --- --- ---
+        .pipe(gulp.dest("dist"));
+    }
+    gulp.task("default", gulp.series('copy-html', bundle));
+    // gulp.task("default", ["copy-html"], bundle); // gulp 3
+    watchedBrowserify.on("update", bundle);
+    watchedBrowserify.on("log", gutil.log);
+
+    // --- ONE-TIME COMPILATION
+    // gulp.task("copy-html", function () {
+    //     return gulp.src(paths.pages)
+    //         .pipe(gulp.dest("dist"));
+    // });
+    // gulp.task("default", gulp.series('copy-html', function(){
+    // // gulp.task("default", ["copy-html"], function () { // gulp 3
+    //     return browserify({
+    //         basedir: '.',
+    //         debug: true,
+    //         entries: ['src/main.ts'],
+    //         cache: {},
+    //         packageCache: {}
+    //     })
+    //     .plugin(tsify)
+    //     .bundle()
+    //     .pipe(source('bundle.js'))
+    //     .pipe(gulp.dest("dist"));
+    // }));
+  </code></pre>
+
+  <h3>src/greet.ts</h3>
+  <pre><code class="ts">
+    export function sayHello(name: string) {
+      return `Hello from ${name}`;
+    }
+  </code></pre>
+
+  <h3>src/main.ts</h3>
+  <pre><code class="ts">
+    import { sayHello } from "./greet";
+    function showHello(divName: string, name: string) {
+      const elt = document.getElementById(divName);
+      elt.innerText = sayHello(name);
+    }
+    showHello("greeting", "TS");
+  </code></pre>
+
+  <h3>src/index.html</h3>
+  <pre><code class="html">
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;meta charset="UTF-8" /&gt;
+        &lt;title&gt;Hello World!&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;p id="greeting"&gt;Loading ...&lt;/p&gt;
+        &lt;script src="bundle.js"&gt;&lt;/script&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  </code></pre>
+
+  <h3>autogenerated package.json</h3>
+  <pre><code class="javascript">
+    {
+      "name": "proj",
+      "version": "1.0.0",
+      "main": "./dist/main.js",
+      "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+      },
+      "author": "",
+      "license": "ISC",
+      "description": "",
+      "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-preset-es2015": "^6.24.1",
+        "babelify": "^8.0.0",
+        "browserify": "^16.2.3",
+        "gulp": "^4.0.0",
+        "gulp-sourcemaps": "^2.6.4",
+        "gulp-TS": "^5.0.0",
+        "gulp-uglify": "^3.0.1",
+        "gulp-util": "^3.0.8",
+        "tsify": "^4.0.1",
+        "TS": "^3.2.4",
+        "vinyl-buffer": "^1.0.1",
+        "vinyl-source-stream": "^2.0.0",
+        "watchify": "^3.11.0"
+      }
+    }
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

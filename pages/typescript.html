@@ -1,0 +1,3717 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Typescript tutorials and examples, Web Engineer Book">
+  <meta name="keywords" content="typescript, ts, js, types, class, function, enum, module, jsx, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Typescript tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h2 id="initial">Initial</h2>
+
+  <pre><code class="javascript">
+    // install ts from npm
+    npm install -g typescript
+
+    // symlink to node for special cases
+    ln -s /usr/bin/nodejs /usr/bin/node
+
+    // compile ts file to js
+    tsc intro.ts
+  </code></pre>
+
+
+
+<h2 id="basic">Basic Types</h2>
+
+  <pre><code class="ts">
+    // use 'let' instead of 'var' whenever possible
+
+    // --- BOOLEAN
+    let isDone: boolean = false;
+
+    // --- NUMBER
+    let decimal: number = 6;
+    let hex: number = 0xf00d;
+    let binary: number = 0b1010;
+    let octal: number = 0o744;
+
+    // --- STRING
+    let color: string = "blue";
+    color = 'red';
+
+    // --- TEMPLATE STRINGS
+    let fullName: string = `Bob Bobbington`;
+    let age: number = 37;
+    let sentence: string = `Hello, my name is ${ fullName }.
+    I'll be ${ age + 1 } years old next month.`;
+    export interface Success {
+      type: `${string}Success`;
+      body: string;
+    }
+    export interface Error {
+      type: `${string}Error`;
+      message: string
+    }
+    export function handler(r: Success | Error) {
+      if (r.type === "HttpSuccess") {
+        const token = r.body; // (parameter) r: Success
+      }
+    }
+
+    // --- ARRAY
+    let list: number[] = [1, 2, 3];
+    let list: Array&lt;number&gt; = [1, 2, 3];
+    // ReadonlyArray - when no mutation is intended
+    function foo(arr: ReadonlyArray&lt;string&gt;) {
+      arr.slice();        // okay
+      arr.push("hello!"); // error!
+    }
+    // new syntax
+    function foo(arr: readonly string[]) {
+      arr.slice();        // okay
+      arr.push("hello!"); // error!
+    }
+    type Arr = readonly any[];
+    function concat&lt;T extends Arr, U extends Arr&gt;(arr1: T, arr2: U): [...T, ...U] {
+      return [...arr1, ...arr2];
+    }
+
+    // --- TUPLE
+    let x: [string, number];
+    x = ["hello", 10]; // OK
+    x = [10, "hello"]; // Error
+    x[0].substr(1); // OK
+    x[1].substr(1); // Error, 'number' does not have 'substr'
+    // tuple items out of range, uses defined types
+    x[3] = "world"; // OK, 'string' can be assigned to 'string | number'
+    x[5].toString() // OK, 'string' and 'number' both have 'toString'
+    x[6] = true; // Error, 'boolean' isn't 'string | number'
+    // spreads in tuple type syntax can be generic
+    function tail&lt;T extends any[]&gt;(arr: readonly [any, ...T]) {
+      const [_ignored, ...rest] = arr;
+      return rest;
+    }
+    const myTuple = [1, 2, 3, 4] as const;
+    const myArray = ["hello", "world"];
+    const r1 = tail(myTuple);
+    const r1: [2, 3, 4]
+    const r2 = tail([...myTuple, ...myArray] as const);
+    const r2: [2, 3, 4, ...string[]]
+    // rest elements can occur anywhere in a tuple
+    // so long as it iss not followed by another optional element or rest element.
+    // only one rest element per tuple, and no optional elements after rest elements
+    let e: [string, string, ...boolean[]];
+    e = ["hello", "world"];
+    e = ["hello", "world", false];
+    e = ["hello", "world", true, false, true];
+    let foo: [...string[], number];
+    foo = [123];
+    foo = ["hello", 123];
+    foo = ["hello!", "hello!", "hello!", 123];
+    let bar: [boolean, ...string[], boolean];
+    bar = [true, false];
+    bar = [true, "some text", false];
+    bar = [true, "some", "separated", "text", false];
+    declare function doStuff(...args: [...names: string[], shouldCapitalize: boolean]): void;
+    doStuff(/*shouldCapitalize:*/ false)
+    doStuff("fee", "fi", "fo", "fum", /*shouldCapitalize:*/ true);
+    // tuple labels, all elements in the tuple must also be labeled
+    type Range = [start: number, end: number];
+    type Foo = [first: number, second?: string, ...rest: any[]];
+    function foo(x: [first: string, second: number]) {
+        // ...
+        // no need to name these 'first' and 'second'
+        const [a, b] = x;
+        a // const a: string
+        b // const b: number
+    }
+
+    // --- ENUM
+    enum Color {Red, Green, Blue} // start members numbering with 0
+    // enum Color {Red = 1, Green, Blue}
+    // enum Color {Red = 1, Green = 2, Blue = 4}
+    let c: Color = Color.Green;// c == 0
+
+    // --- OBJECT - represents the non-primitive type:
+    // NOT A number, string, boolean, symbol, null, or undefined
+    // APIs like Object.create can be better represented:
+    declare function create(o: object | null): void;
+    create({ prop: 0 }); // OK
+    create(null); // OK
+    create(42); // Error
+    create("string"); // Error
+    create(false); // Error
+    create(undefined); // Error
+
+    // --- ANY - allows calling arbitrary methods (:Object - not)
+    let notSure: any = 4;
+    notSure = "maybe a string instead";
+    notSure = false; // okay, definitely a boolean
+    let list: any[] = [1, true, "free"];
+    list[1] = 100;
+    let prettySure: Object = 4;
+    prettySure.toFixed(); // Error: Property 'toFixed' doesn't exist on type 'Object'
+
+    // --- VOID - no type at all
+    function warnUser(): void {
+      console.log("This is my warning message");
+    }
+    let unusable: void = undefined; // or assing null, as second type allowed
+
+    // --- NULL and UNDEFINED - subtypes of all other types.
+    let u: undefined = undefined;
+    let n: null = null;
+
+    // --- NEVER - values that never occur, subtype of all, but not assignable by other
+    // in function - when it throws error or has no return
+    // in variables - when narrowed by any type guards that can never be true
+    function error(message: string): never { // must have unreachable end point
+      throw new Error(message);
+    }
+  </code></pre>
+
+  <h3>ASSERTION</h3>
+
+  <pre><code class="ts">
+    // --- TYPE ASSERTION - when you know more about a value than TS does
+    // angle bracked syntax:
+    let someValue: any = "this is a string";
+    let strLength: number = (&lt;string&gt;someValue).length;
+    // as - syntax:
+    let someValue: any = "this is a string";
+    let strLength: number = (someValue as string).length;
+
+    // --- CONST ASSERTIONS
+    //  - no literal types in that expression should be widened (e.g. no going from "hello" to string)
+    //  - object literals get readonly properties
+    //  - array literals become readonly tuples
+    let x = "hello" as const; // type '"hello"'
+    let y = [10, 20] as const; // type 'readonly [10, 20]'
+    let z = { text: "hello" } as const; // type '{ readonly text: "hello" }'
+    // outside of .tsx files, the angle bracket assertion syntax can also be used
+    let x = &lt;const&gt;"hello"; // type '"hello"'
+    let y = &lt;const&gt;[10, 20]; // type 'readonly [10, 20]'
+    let z = &lt;const&gt;{ text: "hello" }; // type '{ readonly text: "hello" }'
+    // can only be applied immediately on simple literal expressions
+    let a = (Math.random() &lt; 0.5 ? 0 : 1) as const; // error
+    let b = Math.random() &lt; 0.5 ?
+      0 as const :
+      1 as const; // works
+    // types that would otherwise be used just to hint immutability to the compiler can often be omitted
+    function getShapes() {
+      let result = [
+        { kind: "circle", radius: 100, },
+        { kind: "square", sideLength: 50, },
+      ] as const; // no types referenced or declared, only single const assertion
+      return result;
+    }
+    for (const shape of getShapes()) {
+      // Narrows perfectly!
+      if (shape.kind === "circle") {
+        console.log("Circle radius", shape.radius);
+      }
+      else {
+        console.log("Square side length", shape.sideLength);
+      }
+    }
+    // enum-like patterns in plain JavaScript
+    export const Colors = {
+      red: "RED",
+      blue: "BLUE",
+      green: "GREEN",
+    } as const;
+    export default {
+      red: "RED",
+      blue: "BLUE",
+      green: "GREEN",
+    } as const;
+
+    // --- ASSERTION FUNCTIONS
+    // whatever gets passed into the 'condition' parameter must be true
+    // if the assert returns (because otherwise it would throw an error).
+    // for the rest of the scope, that condition must be truthy
+    function assert(condition: any, msg?: string): asserts condition {
+      if (!condition) {
+        throw new AssertionError(msg);
+      }
+    }
+    // catch original yell example
+    function yell(str) {
+      assert(typeof str === "string");
+      return str.toUppercase(); // Err: property 'toUppercase' does not exist on type 'string', did you mean 'toUpperCase'?
+    }
+
+    // tells TS that a specific variable or property has a different type
+    function assertIsString(val: any): asserts val is string {
+      if (typeof val !== "string") {
+        throw new AssertionError("Not a string!");
+      }
+    }
+    function yell(str: any) {
+      assertIsString(str); // TS knows that 'str' is a 'string'
+      return str.toUppercase(); // Err...
+    }
+    function isString(val: any): val is string {
+      return typeof val === "string";
+    }
+    function yell(str: any) {
+      if (isString(str)) {
+        return str.toUppercase();
+      }
+      throw "Oops!";
+    }
+    function assertIsDefined&lt;T&gt;(val: T): asserts val is NonNullable&lt;T&gt; {
+      if (val === undefined || val === null) {
+        throw new AssertionError(
+          `Expected 'val' to be defined, but received ${val}`
+        );
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="vars">Variables</h2>
+
+  <pre><code class="ts">
+    // --- SCOPING
+    function f(input: boolean) {
+      let a = 100;
+      if (input) {
+        let b = a + 1; // Still okay to reference 'a'
+        return b;
+      }
+      return b; // Error: 'b' doesn't exist here
+    }
+
+    // --- SHADOWING
+    function sumMatrix(matrix: number[][]) {
+      let sum = 0;
+      for (let i = 0; i &lt; matrix.length; i++) {
+        var currentRow = matrix[i];
+        for (let i = 0; i &lt; currentRow.length; i++) {
+          sum += currentRow[i];
+        }
+      }
+      return sum;
+    }
+
+    // --- DESTRUCTURING
+    let input = [1, 2];
+    let [first, second] = input;
+    console.log(first); // outputs 1
+    console.log(second); // outputs 2
+    // swap variables
+    [first, second] = [second, first];
+
+    function f([first, second]: [number, number]) {
+      console.log(first);
+      console.log(second);
+    }
+    f([1, 2]);
+
+    let [first, ...rest] = [1, 2, 3, 4];
+    console.log(first); // outputs 1
+    console.log(rest); // outputs [ 2, 3, 4 ]
+
+    let [first] = [1, 2, 3, 4];
+    console.log(first); // outputs 1
+
+    let [, second, , fourth] = [1, 2, 3, 4];
+    // mark destructured variables as unused by prefixing them with an underscore _
+    let [_first, second] = getValues();
+
+    let o = {
+      a: "foo",
+      b: 12,
+      c: "bar"
+    };
+    let { a, b } = o; // a=foo, b=12
+    let { a: newName1, b: newName2 } = o; // property renaming and assigning: newName1=foo
+    let { a, b }: { a: string, b: number } = o;
+
+    let { a, ...passthrough } = o;
+    let total = passthrough.b + passthrough.c.length;
+
+    ({ a, b } = { a: "baz", b: 101 }); // assignment without declaration
+
+    function keepWholeObject(
+      wholeObject: { a: string, b?: number }
+    ) {
+      let { a, b = 1001 } = wholeObject; // default value
+    }
+
+    // function declarations
+    type C = { a: string, b?: number }
+    function f({ a, b }: C): void { /*...*/ }
+    function f({ a="", b=0 } = {}): void { /*...*/ }
+    function f({ a, b = 0 } = { a: "" }): void { /*...*/ }
+    f({ a: "yes" }); // ok, default b = 0
+    f(); // ok, default to { a: "" }, which then defaults b = 0
+    f({}); // error, 'a' is required if you supply an argument
+
+    class Thing {
+      someProperty = 42;
+      someMethod() {
+      }
+    }
+    function foo&lt;T extends Thing&gt;(x: T) {
+      let { someProperty, ...rest } = x;
+      // error: Property 'someMethod' does not exist on type 'Omit&lt;T, "someProperty" | "someMethod"&gt;'
+      // unspreadable and non-public members are dropped
+      rest.someMethod();
+    }
+
+    // --- SPREAD
+    let first = [1, 2];
+    let second = [3, 4];
+    let bothPlus = [0, ...first, ...second, 5]; // [0,1,2,3,4,5]
+
+    let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
+    let search = { ...defaults, food: "rich" };
+    // { food: "rich", price: "$$", ambiance: "noisy" }
+    let search = {  food: "rich", ...defaults };
+    // { food: "spicy", price: "$$", ambiance: "noisy" }
+
+    class C {
+      p = 12;
+      m() {
+      }
+    }
+    let c = new C();
+    let clone = { ...c };
+    clone.p; // ok
+    clone.m(); // error! , not enumerable property - function
+
+    // "let" - create scope per iteration !
+    for (let i = 0; i &lt; 10 ; i++) {
+      setTimeout(function() { console.log(i); }, 100 * i);
+    }
+    // instead of ...
+    for (var i = 0; i &lt; 10; i++) {
+      // capture the current state of 'i'
+      // by invoking a function with its current value
+      (function(i) {
+        setTimeout(function() { console.log(i); }, 100 * i);
+      })(i);
+    }
+  </code></pre>
+
+
+
+<h2 id="interface">Interface</h2>
+
+  <ul>
+    <li>when an interface type extends a class type it inherits the members of the class (private and protected members of a base class) but not their implementations: as if the interface had declared all of the members of the class without providing an implementation</li>
+    <li>when you create an interface that extends a class with private or protected members, that interface type can only be implemented by that class or a subclass of it</li>
+    <li>useful when you have a large inheritance hierarchy, but want to specify that your code works with only subclasses that have certain properties, subclasses dont have to be related besides inheriting from the base class</li>
+    <li>"implements" - treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation</li>
+  </ul>
+
+  <pre><code class="ts">
+    // --- PROPERTIES type interface
+    interface SquareConfig {
+      id: number; // required
+      // readonly id: number; // required, modifiable when an object is first created
+      // <strong>const</strong> for variable, <strong>readonly</strong> for properties
+      color?: string; // optional
+      width?: number; // optional
+      [propName: string]: any; // any number of other properties
+    }
+    function createSquare(config: SquareConfig): {color: string; area: number} {
+      let newSquare = {color: "white", area: 100};
+      if (config.color) {
+        newSquare.color = config.color;
+      }
+      if (config.width) {
+        newSquare.area = config.width * config.width;
+      }
+      return newSquare;
+    }
+    let mySquare = createSquare({id: 1, color: "black"});
+    // avoid errors for undefined properties, and create
+    let mySquare = createSquare({ width: 100, opacity: 0.5 } as SquareConfig);
+    // same with precreated config object
+    let squareOptions = { clr: "red", width: 100 };
+    let mySquare = createSquare(squareOptions);
+
+    let mySquare: SquareConfig = {id: 1, color: "black"};
+    p1.id = 5; // error! if id was set to readonly
+
+    let a: number[] = [1, 2, 3, 4];
+    let ro: ReadonlyArray&lt;number&gt; = a;
+    ro[0] = 12; // error!
+    ro.push(5); // error!
+    ro.length = 100; // error!
+    a = ro; // error!
+    a = ro as number[]; // OK, using type assertion
+
+    interface Thing {
+      get size(): number
+      set size(value: number | string | boolean);
+    }
+
+    // --- FUNCTION type interface
+    interface SearchFunc {
+      (source: string, subString: string): boolean;
+    }
+    let mySearch: SearchFunc;
+    mySearch = function(source: string, subString: string) {
+    // names of the parameters do not need to match
+    // mySearch = function(src: string, sub: string): boolean {
+    // OR
+    // mySearch = function(src, sub) {
+      let result = source.search(subString);
+      return result > -1;
+    }
+
+    // --- INDEXing, type index and value
+    interface StringArray {
+      // when a StringArray is indexed with a number, it will return a string
+      [index: number]: string;
+    }
+    let myArray: StringArray;
+    myArray = ["Bob", "Fred"];
+    let myStr: string = myArray[0];
+
+    class Animal { name: string; }
+    class Dog extends Animal { breed: string; }
+    // Error: indexing with a numeric string might get completely separate type of Animal!
+    interface NotOkay {
+      [x: number]: Animal;
+      [x: string]: Dog;
+    }
+
+    interface NumberDictionary {
+      [index: string]: number;
+      length: number;    // ok, length is a number
+      name: string;      // error, the type of 'name' is not a subtype of the indexer
+    }
+
+    interface ReadonlyStringArray {
+      readonly [index: number]: string;
+    }
+    let myArray: ReadonlyStringArray = ["Alice", "Bob"];
+    myArray[2] = "Mallory"; // error! readonly index
+
+    // --- CLASS intefaces, describe only public side of the class
+    // when a class implements an interface, only the instance side of the class is checked
+    // since the constructor sits in the static side, it is not included in this check
+    // separate cnstructor and static sides:
+    interface ClockConstructor {
+      new (hour: number, minute: number): ClockInterface;
+    }
+    interface ClockInterface { tick(); }
+    function createClock(
+      ctor: ClockConstructor, hour: number, minute: number
+    ): ClockInterface {
+      return new ctor(hour, minute);
+    }
+    class DigitalClock implements ClockInterface {
+      constructor(h: number, m: number) { }
+      tick() { console.log("beep beep"); }
+    }
+    class AnalogClock implements ClockInterface {
+      constructor(h: number, m: number) { }
+      tick() { console.log("tick tock"); }
+    }
+    let digital = createClock(DigitalClock, 12, 17);
+    let analog = createClock(AnalogClock, 7, 32);
+
+    // EXTEND one or more interfaces
+    interface Shape { color: string; }
+    interface PenStroke { penWidth: number; }
+    interface Square extends Shape, PenStroke {
+      sideLength: number;
+    }
+    let square = &lt;Square&gt;{};
+    square.color = "blue";
+    square.sideLength = 10;
+    square.penWidth = 5.0;
+
+    // --- HYBRID acts as object, function, props
+    interface Counter {
+      (start: number): string;
+      interval: number;
+      reset(): void;
+    }
+    function getCounter(): Counter {
+      let counter = &lt;Counter&gt;function (start: number) { };
+      counter.interval = 123;
+      counter.reset = function () { };
+      return counter;
+    }
+    let c = getCounter();
+    c(10);
+    c.reset();
+    c.interval = 5.0;
+
+    // --- EXTEND CLASS
+    class Control { private state: any; }
+    // within Control class it is possible to access state instance of SelectableControl
+    interface SelectableControl extends Control { // contains all of the members of Control
+      select(): void;
+    }
+    class Button extends Control implements SelectableControl {
+      select() { }
+    }
+    class TextBox extends Control {
+      select() { }
+    }
+    // Error: Property 'state' is missing in type 'Image'.
+    class Image implements SelectableControl {
+      select() { }
+    }
+    class Location { }
+  </code></pre>
+
+
+
+<h2 id="classes">Classes</h2>
+
+  <ul>
+    <li>"implements" - treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation</li>
+  </ul>
+
+  <pre><code class="ts">
+    // superclass
+    class Animal {
+      name: string;
+
+      // public name: string; // is as default
+      // protected name: string; // same, can also be accessed within deriving classes
+      // private name: string; // unavailable outside class, unique to the containing class
+      // #name: string; // ES private fields
+      // constructor(name: string) { this.#name = name; }
+      // greet() { console.log(`Hello, my name is ${this.#name}!`); }
+
+      // readonly name: string; // not modifiable after definition
+      // readonly numberOfLegs: number = 8; // initialized or in constructor
+
+      constructor(theName: string) { this.name = theName; }
+      // create class parameter while constructing: public|private|protected|readonly
+      // constructor(readonly name: string) {...}
+      // protected constructor() {...} - class cant be instantiated, but can be extended
+
+      move(distanceInMeters: number = 0) {
+        console.log(`${this.name} moved ${distanceInMeters}m.`);
+      }
+
+      // private methods and accessors
+      #someMethod() { }
+      get #someValue() { return 100; }
+      publicMethod() {
+        this.#someMethod();
+        return this.#someValue;
+      }
+      static #someMethod() { }
+      equals(other: unknown) {
+        return other &&
+            typeof other === "object" &&
+            #name in other && // narrow the type of other as Person
+            this.#name === other.#name;
+      }
+    }
+    // constructors in derived classes must call super()
+    // before any references to 'this'
+    class Snake extends Animal {
+      constructor(name: string) { super(name); }
+      move(distanceInMeters = 5) {
+        console.log("Slithering...");
+        super.move(distanceInMeters);
+      }
+    }
+    class Horse extends Animal {
+      constructor(name: string) { super(name); }
+      move(distanceInMeters = 45) {
+        console.log("Galloping...");
+        super.move(distanceInMeters);
+      }
+    }
+    let sam = new Snake("Sammy the Python");
+    let tom: Animal = new Horse("Tommy the Palomino");
+    sam.move();
+    tom.move(34);
+
+    // --- ACCESSORS (getters/setters) - set the compiler to output ES5 or higher
+    let passcode = "secret passcode";
+    class Employee {
+      private _fullName: string;
+      get fullName(): string { return this._fullName; }
+      set fullName(newName: string) {
+        if (passcode && passcode == "secret passcode") {
+          this._fullName = newName;
+        }
+        else {
+          console.log("Error: Unauthorized update of employee!");
+        }
+      }
+    }
+    let employee = new Employee();
+    employee.fullName = "Bob Smith";
+    if (employee.fullName) {
+      console.log(employee.fullName);
+    }
+    class Thing {
+      #size = 0;
+      get size(): number { return this.#size; }
+      set size(value: string | number | boolean) {
+        let num = Number(value);
+        // Don't allow NaN and stuff.
+        if (!Number.isFinite(num)) {
+          this.#size = 0; return;
+        }
+        this.#size = num;
+      }
+    }
+    let thing = new Thing();
+    thing.size = "hello";
+    thing.size = true;
+    thing.size = 42;
+    let mySize: number = thing.size; // reading 'thing.size' always produces a number!
+
+    // --- STATIC properties
+    class Grid {
+      static origin = {x: 0, y: 0}; // instead of this.
+      calculateDistanceFromOrigin(point: {x: number; y: number;}) {
+        let xDist = (point.x - Grid.origin.x);
+        let yDist = (point.y - Grid.origin.y);
+        return Math.sqrt(xDist * xDist + yDist * yDist) / this.scale;
+      }
+      constructor (public scale: number) { }
+    }
+    let grid1 = new Grid(1.0);  // 1x scale
+    let grid2 = new Grid(5.0);  // 5x scale
+    console.log(grid1.calculateDistanceFromOrigin({x: 10, y: 10}));
+    console.log(grid2.calculateDistanceFromOrigin({x: 10, y: 10}));
+
+    // --- STATIC blocks
+    class Foo {
+      static #count = 0;
+      static prop = 1
+      get count() { return Foo.#count; }
+      static {
+          try {
+              const lastInstances = loadLastInstances();
+              Foo.#count += lastInstances.length;
+          }
+          catch {}
+      }
+      // runs in the same order in which they are written
+      static { console.log(Foo.prop++); }
+    }
+
+    // --- ABSTRACT classes, defines implementation details
+    abstract class Department {
+      constructor(public name: string) { }
+      printName(): void {
+        console.log("Department name: " + this.name);
+      }
+      abstract printMeeting(): void; // must be implemented in derived classes
+      abstract prop: number; // no initializer, just type
+    }
+    class AccountingDepartment extends Department {
+      constructor() {
+        super("Accounting and Auditing");
+      }
+      printMeeting(): void {
+        console.log("The Accounting Department meets each Monday at 10am.");
+      }
+      generateReports(): void {
+        console.log("Generating accounting reports...");
+      }
+    }
+    let department: Department; // ok to create a reference to an abstract type
+    department = new Department(); // error: cannot create an instance of an abstract class
+    department = new AccountingDepartment(); // ok to create and assign a non-abstract subclass
+    department.printName();
+    department.printMeeting();
+    department.generateReports(); // error: method doesn't exist on declared abstract type
+
+    // --- ADVANCED
+    class Greeter {
+      static standardGreeting = "Hello, there";
+      greeting: string;
+      greet() {
+        if (this.greeting) {
+          return "Hello, " + this.greeting;
+        }
+        else {
+          return Greeter.standardGreeting;
+        }
+      }
+    }
+    let greeter1: Greeter; // using class type
+    greeter1 = new Greeter(); // using class constructor
+    console.log(greeter1.greet()); // ...
+    let greeterMaker: typeof Greeter = Greeter; // obtain and override class
+    greeterMaker.standardGreeting = "Hey there!";
+    let greeter2: Greeter = new greeterMaker();
+    console.log(greeter2.greet());
+    // class as interface
+    class Point {
+      x: number;
+      y: number;
+    }
+    interface Point3d extends Point {
+      z: number;
+    }
+    let point3d: Point3d = {x: 1, y: 2, z: 3};
+    // - override, TS will always make sure that a method with the same name exists in a the base class
+    class SomeComponent {
+      // show() { }
+      // hide() { }
+      setVisible(value: boolean) { }
+    }
+    class SpecializedComponent extends SomeComponent {
+      // Err: member cannot have an 'override' modifier because it is not declared in the base class 'SomeComponent'
+      override show() { }
+    }
+  </code></pre>
+
+
+
+<h2 id="functions">Functions</h2>
+
+  <pre><code class="ts">
+    function myAdd(x: number, y: number): number {
+      return x + y;
+    }
+    let myAdd = function(x: number, y: number): number { return x + y; };
+    let myAdd: (baseValue: number, increment: number) => number =
+      function(x: number, y: number): number { return x + y; };
+
+    function makeThing(): Thing {
+      let size = 0;
+      return {
+        get size(): number { return size; },
+        set size(value: string | number | boolean) {
+          let num = Number(value);
+          if (!Number.isFinite(num)) { // dont allow NaN and stuff
+            size = 0;
+            return;
+          }
+          size = num;
+        },
+      };
+    }
+
+    // --- OPTIONAL parameter
+    function buildName(firstName: string, lastName?: string) {
+      if (lastName) { return firstName + " " + lastName; }
+      else { return firstName; }
+    }
+
+    // --- DEFAULT-INITIALIZED parameter, pass undefined to use it if is in middle
+    function buildName(firstName: string, lastName = "Smith") {
+      return firstName + " " + lastName;
+    }
+
+    // --- REST parameters
+    function buildName(firstName: string, ...restOfName: string[]) {
+      return firstName + " " + restOfName.join(" ");
+    }
+    let employeeName = buildName("Joseph", "Samuel", "Lucas", "MacKinzie");
+    let buildNameFun: (fname: string, ...rest: string[]) => string = buildName;
+
+    // arrow functions captures "this" where the function is created
+    // rather than where it is invoked
+    interface Card {
+      suit: string;
+      card: number;
+    }
+    interface Deck {
+      suits: string[];
+      cards: number[];
+      createCardPicker(this: Deck): () => Card;
+    }
+    let deck: Deck = {
+      suits: ["hearts", "spades", "clubs", "diamonds"],
+      cards: Array(52),
+      // // line below is now an arrow function, allowing us to capture 'this' right here
+      // return () => {
+      // function now explicitly specifies that its callee must be of type Deck
+      createCardPicker: function(this: Deck) {
+        return () => {
+          let pickedCard = Math.floor(Math.random() * 52);
+          let pickedSuit = Math.floor(pickedCard / 13);
+          return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+        }
+      }
+    }
+    let cardPicker = deck.createCardPicker();
+    let pickedCard = cardPicker();
+    alert("card: " + pickedCard.card + " of " + pickedCard.suit);
+
+    // --- OVERLOAD, defining return types for multipurpose function
+    let suits = ["hearts", "spades", "clubs", "diamonds"];
+    function pickCard(x: {suit: string; card: number; }[]): number;
+    function pickCard(x: number): {suit: string; card: number; };
+    function pickCard(x): any {
+      // Check to see if we're working with an object/array
+      // if so, they gave us the deck and we'll pick the card
+      if (typeof x == "object") {
+        let pickedCard = Math.floor(Math.random() * x.length);
+        return pickedCard;
+      }
+      // Otherwise just let them pick the card
+      else if (typeof x == "number") {
+        let pickedSuit = Math.floor(x / 13);
+        return { suit: suits[pickedSuit], card: x % 13 };
+      }
+    }
+    let myDeck = [
+      { suit: "diamonds", card: 2 },
+      { suit: "spades", card: 10 },
+      { suit: "hearts", card: 4 }
+    ];
+    let pickedCard1 = myDeck[pickCard(myDeck)];
+    alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+    let pickedCard2 = pickCard(15);
+    alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
+    // calling pickCard with any other parameter types would cause an error
+  </code></pre>
+
+
+
+<h2 id="generics">Generics</h2>
+
+  <ul>
+    <li>component that can work over a variety of types rather than a single one, allows users to consume these components and use their own types</li>
+  </ul>
+
+  <pre><code class="ts">
+    // uses and returns array of any type provided
+    function loggingIdentity&lt;T&gt;(arg: T[]): T[] {
+      console.log(arg.length);  // array has .length, so no error
+      return arg;
+    }
+    function loggingIdentity&lt;T&gt;(arg: Array&lt;T&gt;): Array&lt;T&gt; {
+      console.log(arg.length);  // Array has a .length, so no more error
+      return arg;
+    }
+
+    // --- TYPES
+    function identity&lt;T&gt;(arg: T): T { return arg; }
+    let myIdentity: &lt;T&gt;(arg: T) => T = identity;
+    let myIdentity: &lt;U&gt;(arg: U) => U = identity;
+    let myIdentity: {&lt;T&gt;(arg: T): T} = identity;
+
+    // --- INTERFACE
+    interface GenericIdentityFn { &lt;T&gt;(arg: T): T; }
+    function identity&lt;T&gt;(arg: T): T { return arg; }
+    let myIdentity: GenericIdentityFn = identity;
+
+    // --- CLASSES, one time type definition assigns that type to specific memebers
+    class GenericNumber&lt;T&gt; {
+      zeroValue: T;
+      add: (x: T, y: T) => T;
+    }
+    let myGenericNumber = new GenericNumber&lt;number&gt;();
+    myGenericNumber.zeroValue = 0;
+    myGenericNumber.add = function(x, y) { return x + y; };
+    let stringNumeric = new GenericNumber&lt;string&gt;();
+    stringNumeric.zeroValue = "";
+    stringNumeric.add = function(x, y) { return x + y; };
+    stringNumeric.add(stringNumeric.zeroValue, "test");
+    // factory
+    function create&lt;T&gt;(c: {new(): T; }): T { return new c(); }
+    // factory advanced
+    class BeeKeeper { hasMask: boolean; }
+    class ZooKeeper { nametag: string; }
+    class Animal { numLegs: number; }
+    class Bee extends Animal { keeper: BeeKeeper; }
+    class Lion extends Animal { keeper: ZooKeeper; }
+    function createInstance&lt;A extends Animal&gt;(c: new () => A): A {
+      return new c();
+    }
+    createInstance(Lion).keeper.nametag;  // typechecks!
+    createInstance(Bee).keeper.hasMask;   // typechecks!
+
+    // --- CONSTRAINTS
+    interface Lengthwise { length: number; }
+    function loggingIdentity&lt;T extends Lengthwise&gt;(arg: T): T {
+      console.log(arg.length);  // we know we have a .length property, no more error
+      return arg;
+    }
+    loggingIdentity({length: 10, value: 3});
+    // with type parameters
+    function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K) {
+      return obj[key];
+    }
+    let x = { a: 1, b: 2, c: 3, d: 4 };
+    getProperty(x, "a"); // okay
+    getProperty(x, "m"); // error: 'm' isn't assignable to 'a' | 'b' | 'c' | 'd'
+
+    // ... it is not possible to create generic enums and namespaces
+  </code></pre>
+
+
+
+<h2 id="enums">Enums</h2>
+
+  <pre><code class="ts">
+    enum Direction_nr {
+      Up = 1, // default would be 0 if not initialized
+      Down,
+      Left,
+      Right,
+    }
+    Direction_nr.Up; // 1
+    enum Direction_str { // adviced to be all strings definition
+      Up = "UP",
+      Down = "DOWN",
+      Left = "LEFT",
+      Right = "RIGHT",
+    }
+    Direction_str.Up; // "UP"
+
+    // --- CONSTANTS, evaluated at start time :
+    enum E { X } // first member and not initialized (=1)
+    enum E1 { X, Y, Z }
+    enum E2 { A = 5, B, C } // previous member is a numeric constant
+    // 1) string or numeric literal
+    // 2) reference to previous constant
+    // 3) parenthesized constant enum expression
+    // 4) +, -, ~ unary operators applied to constant enum expression
+    // 5) +, -, *, /, %, &lt;&lt;, >>, >>>, &, |, ^ binary operators with constant enum expressions as operands
+    // 6) evaluated to NaN or Infinity = compile time error
+    // in all other cases = computed
+    enum FileAccess {
+      // constant members
+      None,
+      Read    = 1 &lt;&lt; 1,
+      Write   = 1 &lt;&lt; 2,
+      ReadWrite  = Read | Write,
+      // computed member
+      G = "123".length
+    }
+    // enums without initializers either need to be first
+    // or have to come after numeric enums initialized
+    // with numeric constants or other constant enum members
+
+    // --- LITERAL enum members: "foo","bar",... ; 1,100,... ; -1,-100,...
+    // enum members become types:
+    enum ShapeKind { Circle, Square }
+    interface Circle {
+      kind: ShapeKind.Circle;
+      radius: number;
+    }
+    interface Square {
+      kind: ShapeKind.Square;
+      sideLength: number;
+    }
+    let c: Circle = {
+      kind: ShapeKind.Square, // error
+      radius: 100,
+    }
+    // and union (knowing of all members) of each member:
+    enum E { Foo, Bar }
+    function f(x: E) {
+      if (x !== E.Foo || x !== E.Bar) { // E. is anum, no sense to check both members
+        // error! '!==' cannot be applied to types 'E.Foo' and 'E.Bar'.
+      }
+    }
+    // enums are real object at runtime
+    function f(obj: { X: number }) { return obj.X; }
+    f(E);// ok, E has property X
+    // reverse mapping (for numeric only!)
+    enum Enum { A }
+    let a = Enum.A;
+    let nameOfA = Enum[a]; // "A"
+
+    // --- CONST enums, no computed values, removed during compilation
+    const enum Directions { Up, Down, Left, Right }
+    let directions = [Directions.Up, Directions.Down, Directions.Left, Directions.Right]
+
+    // --- AMBIENT enums
+    declare enum Enum {
+      A = 1,
+      B,
+      C = 2
+    }
+  </code></pre>
+
+
+
+<h2 id="itgen">Iterators, Generators</h2>
+
+  <pre><code class="ts">
+    // Iterator type allows to specify the yielded type, the returned type, and the type that next can accept
+    interface Iterator&lt;T, TReturn = any, TNext = undefined&gt; {
+      // Takes either 0 or 1 arguments - doesn't accept 'undefined'
+      next(...args: [] | [TNext]): IteratorResult&lt;T, TReturn&gt;;
+      return?(value?: TReturn): IteratorResult&lt;T, TReturn&gt;;
+      throw?(e?: any): IteratorResult&lt;T, TReturn&gt;;
+    }
+
+    // ---iterable interface
+    function toArray&lt;X&gt;(xs: Iterable&lt;X&gt;): X[] {
+      return [...xs]
+    }
+
+    // --- for..of - loops over an iterable object
+    let someArray = [1, "string", false];
+    for (let entry of someArray) {
+      console.log(entry); // 1, "string", false
+    }
+
+    // --- for..of vs. for..in
+    // both iterate over lists
+    // for..in returns a list of keys on the object being iterated
+    //         operates on any object, serves to inspect properties on this object
+    // for..of returns a list of values of the numeric properties of the object being iterated
+    //         is mainly interested in values of iterable objects
+    let list = [4, 5, 6];
+    for (let i in list) { console.log(i) } // "0", "1", "2"
+    for (let i of list) { console.log(i) } // 4, 5, 6
+    let pets = new Set(["Cat", "Dog", "Hamster"]);
+    pets["species"] = "mammals";
+    for (let pet in pets) { console.log(pet) } // "species"
+    for (let pet of pets) { console.log(pet) } // "Cat", "Dog", "Hamster"
+
+
+    // Generator type is an Iterator that always has both the return and throw methods present, and is also iterable
+    interface Generator&lt;T = unknown, TReturn = any, TNext = unknown&gt;
+      extends Iterator&lt;T, TReturn, TNext&gt; {
+      next(...args: [] | [TNext]): IteratorResult&lt;T, TReturn&gt;;
+      return(value: TReturn): IteratorResult&lt;T, TReturn&gt;;
+      throw(e: any): IteratorResult&lt;T, TReturn&gt;;
+      [Symbol.iterator](): Generator&lt;T, TReturn, TNext&gt;;
+    }
+
+    // yields numbers, returns strings, can be passed in booleans
+    function* counter(): Generator&lt;number, string, boolean&gt; {
+      let i = 0;
+      while (true) {
+        if (yield i++) {
+          break;
+        }
+      }
+      return "done!";
+    }
+    var iter = counter();
+    var curr = iter.next();
+    while (!curr.done) {
+      console.log(curr.value);
+      curr = iter.next(curr.value === 5);
+    }
+    console.log(curr.value.toUpperCase()); // prints: 0 1 2 3 4 5 DONE!
+
+  </code></pre>
+
+
+
+<h2 id="inference">Type Inference</h2>
+
+  <pre><code class="ts">
+    let zoo = [new Rhino(), new Elephant(), new Snake()];
+    // -> set a super-type for all inner items
+    let zoo: Animal[] = [new Rhino(), new Elephant(), new Snake()];
+    // when no best common type is found, resulting inference is the union array type
+    // (Rhino | Elephant | Snake)[]
+    function createZoo(): Animal[] {
+      return [new Rhino(), new Elephant(), new Snake()];
+    }
+    // avoid error because of unfound property of current context
+    window.onmousedown = function(mouseEvent: any) {
+      console.log(mouseEvent.clickTime);  // now, no error is given
+    };
+
+    // higher order type inference from generic functions
+    // compose takes two other functions:
+    //    f which takes some argument (of type A) and returns a value of type B
+    //    g which takes an argument of type B (the type f returned),
+    //    and returns a value of type C
+    // compose then returns a function which feeds its argument through f and then g
+    function compose&lt;A, B, C&gt;(f: ((x: A) => B, g: (y: B) => C): ((x: A) => C {
+      return x => g(f(x));
+    }
+    function arrayify&lt;T&gt;(x: T): T[] {
+      return [x];
+    }
+    type Box&lt;U&gt; = { value: U };
+    function boxify&lt;U&gt;(y: U): Box&lt;U&gt; {
+      return { value: y };
+    }
+    let newFn = compose(arrayify, boxify);
+    // inference allows newFn to be generic, its new type is &lt;T&gt;(x: T) =&gt; Box&lt;T[]&gt;
+    // work on constructor functions as well
+    class Box&lt;T&gt; {
+      kind: "box";
+      value: T;
+      constructor(value: T) { this.value = value; }
+    }
+    class Bag&lt;U&gt; {
+      kind: "bag";
+      value: U;
+      constructor(value: U) { this.value = value; }
+    }
+    function composeCtor&lt;T, U, V&gt;(
+      F: new (x: T) =&gt; U,
+      G: new (y: U) =&gt; V
+    ): (x: T) =&gt; V {
+      return x =&gt; new G(new F(x));
+    }
+    let f = composeCtor(Box, Bag); // type '&lt;T&gt;(x: T) =&gt; Bag&lt;Box&lt;T&gt;&gt;'
+    let a = f(1024); // type 'Bag&lt;Box&lt;number&gt;&gt;'
+    // functions that operate on class components in certain UI libraries like React can more correctly operate on generic class components
+    type ComponentClass&lt;P&gt; = new (props: P) =&gt; Component&lt;P&gt;;
+    declare class Component&lt;P&gt; {
+      props: P;
+      constructor(props: P);
+    }
+    declare function myHoc&lt;P&gt;(C: ComponentClass&lt;P&gt;): ComponentClass&lt;P&gt;;
+    type NestedProps&lt;T&gt; = { foo: number; stuff: T };
+    declare class GenericComponent&lt;T&gt; extends Component&lt;NestedProps&lt;T&gt;&gt; {}
+    // type is 'new &lt;T&gt;(props: NestedProps&lt;T&gt;) =&gt; Component&lt;NestedProps&lt;T&gt;&gt;'
+    const GenericComponent2 = myHoc(GenericComponent);
+  </code></pre>
+
+
+
+<h2 id="compat">Type Compatibility</h2>
+
+  <ul>
+    <li>based on structural subtyping, basic rule: x is compatible with y if y has at least the same members as x
+  </li>
+  </ul>
+
+  <pre><code class="ts">
+    interface Named { name: string; }
+    class Person { name: string; }
+    let x: Named;
+    p = new Person(); // OK, because of structural typing
+
+    let y = { name: "Alice", location: "Seattle" };
+    x = y; // OK, y has "name" property
+
+    function greet(n: Named) { console.log("Hello, " + n.name); }
+    greet(y); // OK, members of the target type were checked
+
+    // --- FUNCTIONS
+    // assignment succeeds if the source parameter is assignable to the target parameter
+    // or vice versa
+    // when comparing functions for compatibility:
+    // - optional and required parameters are interchangeable
+    // not an error:
+    // - extra optional parameters of the source type
+    // - optional parameters of the target type without corresponding parameters in the source type
+    let x = (a: number) => 0;
+    let y = (b: number, s: string) => 0;
+    y = x; // OK
+    x = y; // Error
+    let x = () => ({name: "Alice"});
+    let y = () => ({name: "Alice", location: "Seattle"});
+    x = y; // OK
+    y = x; // Error, because x() lacks a location property
+    // - rest parameter - treated as if it were an infinite series of optional parameters;
+    // - overload in the source type must be matched by a compatible signature on the target type;
+
+    // --- ENUMS, compatible with numbers, and numbers are compatible with enums
+    // values from different enum types are considered incompatible
+    enum Status { Ready, Waiting };
+    enum Color { Red, Blue, Green };
+    let status = Status.Ready;
+    status = Color.Green;  // Error
+
+    // --- CLASSES
+    // only members of the instance are compared
+    // static members and constructors do not affect compatibility
+    class Animal {
+      feet: number;
+      constructor(name: string, numFeet: number) { }
+    }
+    class Size {
+      feet: number;
+      constructor(numFeet: number) { }
+    }
+    let a: Animal;
+    let s: Size;
+    a = s;  // OK
+    s = a;  // OK
+    // private and protected members:
+    // if the target type contains a private/protected member,
+    // source type must also contain private/protected member originated from the same class
+    // this allows a class to be assignment compatible with its super class,
+    // but not with classes from a different inheritance hierarchy
+
+    // --- GENERICS
+    interface Empty&lt;T&gt; { }
+    let x: Empty&lt;number&gt;;
+    let y: Empty&lt;string&gt;;
+    x = y;  // OK, because y matches structure of x
+    interface NotEmpty&lt;T&gt; { data: T; }
+    let x: Empty&lt;number&gt;;
+    let y: Empty&lt;string&gt;;
+    x = y;  // Error, because x and y are not compatible
+
+    let identity = function&lt;T&gt;(x: T): T { ... }
+    let reverse = function&lt;U&gt;(y: U): U { ... }
+    identity = reverse;  // OK, because (x: any) => any matches (y: any) => any
+  </code></pre>
+
+
+
+<h2 id="mixunion">Type Mixins/Union</h2>
+
+  <pre><code class="ts">
+    // --- MIXIN, intersection types - &
+    function extend&lt;T, U&gt;(first: T, second: U): T & U {
+      let result = &lt;T & U&gt;{};
+      for (let id in first) {
+        (&lt;any&gt;result)[id] = (&lt;any&gt;first)[id];
+      }
+      for (let id in second) {
+        if (!result.hasOwnProperty(id)) {
+          (&lt;any&gt;result)[id] = (&lt;any&gt;second)[id];
+        }
+      }
+      return result;
+    }
+    class Person { constructor(public name: string) { } }
+    interface Loggable { log(): void; }
+    class ConsoleLogger implements Loggable { log() { ... } }
+    var jim = extend(new Person("Jim"), new ConsoleLogger());
+    var n = jim.name;
+    jim.log();
+
+    // --- UNION - |
+    function padLeft(value: string, padding: string | number) {
+      if (typeof padding === "number") { return Array(padding + 1).join(" ") + value; }
+      if (typeof padding === "string") { return padding + value; }
+      throw new Error(`Expected string or number, got '${padding}'.`);
+    }
+    let indentedString = padLeft("Hello world", true); // errors during compilation
+
+    interface Bird { fly(); layEggs(); }
+    interface Fish { swim(); layEggs(); }
+    function getSmallPet(): Fish | Bird { ... }
+    let pet = getSmallPet();
+    pet.layEggs(); // okay
+    pet.swim();    // errors, not a common member for all union types
+
+    // narrow the union with code
+    // narrowing occurs when TypeScript can deduce a more specific type for a value based on the structure of the code
+    function printId(id: number | string) {
+      if (typeof id === "string") { console.log(id.toUpperCase()) } // only a string value will have a typeof value 'string'
+      else { console.log(id) }
+    }
+    // use a function like Array.isArray
+    function welcomePeople(x: string[] | string) {
+      if (Array.isArray(x)) { // 'x' is 'string[]'
+        console.log("Hello, " + x.join(" and "));
+      } else { // 'x' is 'string'
+        console.log("Welcome lone traveler " + x);
+      }
+    }
+
+    // --- DISCRIMINATED UNIONS (also known as tagged unions or algebraic data types)
+    // combination of singleton types, union types, type guards, and type aliases
+    // 1 - types that have a common, singleton type property — the discriminant
+    // 2 - type alias that takes the union of those types — the union
+    // 3 - type guards on the common property
+    interface Square { kind: "square"; size: number; }
+    interface Rectangle { kind: "rectangle"; width: number; height: number; }
+    interface Circle { kind: "circle"; radius: number; }
+    // kind property - discriminant or tag
+    type Shape = Square | Rectangle | Circle;
+    function area(s: Shape) {
+      switch (s.kind) {
+        case "square": return s.size * s.size;
+        case "rectangle": return s.height * s.width;
+        case "circle": return Math.PI * s.radius ** 2;
+        // exhaustiveness checking
+        default: return assertNever(s); // error here if there are missing cases
+      }
+    }
+    type Action =
+      | { kind: "NumberContents"; payload: number }
+      | { kind: "StringContents"; payload: string };
+    function processAction(action: Action) {
+      if (action.kind === "NumberContents") { // 'action.payload' is a number
+        let num = action.payload * 2;
+      } else if (action.kind === "StringContents") { // 'action.payload' is a string
+        const str = action.payload.trim();
+      }
+    }
+    function assertNever(x: never): never {
+      throw new Error("Unexpected object: " + x);
+    }
+  </code></pre>
+
+
+
+<h2 id="tguards">Type Guards</h2>
+
+  <pre><code class="ts">
+    // --- TYPE GUARDS - check that guarantees the type in some scope
+    if (pet.swim) { pet.swim(); } // error
+    else if (pet.fly) { pet.fly(); } // error
+    // using type assertion
+    if ((&lt;Fish&gt;pet).swim) { (&lt;Fish&gt;pet).swim(); } // OK
+    else { (&lt;Bird&gt;pet).fly(); } // OK
+    // just define a function whose return type is a type predicate
+    // predicate - takes the form: parameterName is Type,
+    // narrowing variable to specific type
+    function isFish(pet: Fish | Bird): pet is Fish {
+      return (&lt;Fish&gt;pet).swim !== undefined;
+    }
+    if (isFish(pet)) { pet.swim(); }
+    else { pet.fly(); }
+
+    // --- typeof
+    // typeof v === "typename" AND typeof v !== "typename"
+    // "typename" must be "number", "string", "boolean", or "symbol"
+    // as known expression strings
+    //
+    // instead of:
+    // ...
+    // function isNumber(x: any): x is number {
+    //   return typeof x === "number";
+    // }
+    // if (isNumber(padding)) {
+    //   return Array(padding + 1).join(" ") + value;
+    // }
+    // ...
+    function padLeft(value: string, padding: string | number) {
+      if (typeof padding === "number") {
+        return Array(padding + 1).join(" ") + value;
+      }
+      if (typeof padding === "string") {
+        return padding + value;
+      }
+      throw new Error(`Expected string or number, got '${padding}'.`);
+    }
+    function foo(arg: unknown) {
+      const argIsString = typeof arg === "string";
+      if (argIsString) {
+        console.log(arg.toUpperCase());
+      }
+    }
+
+    // --- instanceof
+    // right side of the "instanceof" needs to be a constructor function,
+    // and TypeScript will narrow down to:
+    // 1) the type of the function "prototype" property if its type is not "any"
+    // 2) the union of types returned by that type construct signatures
+    interface Padder {
+      getPaddingString(): string
+    }
+    class SpaceRepeatingPadder implements Padder {
+      constructor(private numSpaces: number) { }
+      getPaddingString() {
+          return Array(this.numSpaces + 1).join(" ");
+      }
+    }
+    class StringPadder implements Padder {
+      constructor(private value: string) { }
+      getPaddingString() {
+          return this.value;
+      }
+    }
+    function getRandomPadder() {
+      return Math.random() &lt; 0.5 ?
+          new SpaceRepeatingPadder(4) :
+          new StringPadder("  ");
+    }
+    // Type is 'SpaceRepeatingPadder | StringPadder'
+    let padder: Padder = getRandomPadder();
+    if (padder instanceof SpaceRepeatingPadder) {
+      padder; // type narrowed to 'SpaceRepeatingPadder'
+    }
+    if (padder instanceof StringPadder) {
+      padder; // type narrowed to 'StringPadder'
+    }
+  </code></pre>
+
+
+
+<h2 id="nullundefined">null, undefined</h2>
+
+  <pre><code class="ts">
+    // --- NULLable, null and undefined are seen differently
+
+    // flag --strictNullChecks avoids assigning of null to variables, unless explicitly
+    let s = "foo";
+    s = null; // error, 'null' is not assignable to 'string'
+    let sn: string | null = "bar";
+    sn = null; // ok
+    sn = undefined; // error, 'undefined' is not assignable to 'string | null'
+
+    // and adds |undefined to optional parameters/properties
+    function f(x: number, y?: number) { return x + (y || 0); }
+    f(1, 2);
+    f(1);
+    f(1, undefined);
+    f(1, null); // error, 'null' is not assignable to 'number | undefined'
+
+    class C { a: number; b?: number; }
+    let c = new C();
+    c.a = 12;
+    c.a = undefined; // error, 'undefined' is not assignable to 'number'
+    c.b = 13;
+    c.b = undefined; // ok
+    c.b = null; // error, 'null' is not assignable to 'number | undefined'
+
+    // --- type assertion
+    function f(sn: string | null): string {
+      return sn || "default";
+      // instead of:
+      // if (sn == null) { return "default"; }
+      // else { return sn; }
+    }
+    // postfix "!" - removes null/undefined from type without doing any explicit checking
+    function fixed(name: string | null): string {
+      function postfix(epithet: string) {
+        return name!.charAt(0) + '.  the ' + epithet; // ok
+      }
+      name = name || "Bob";
+      return postfix("great");
+    }
+    function liveDangerously(x?: number | null) {
+      console.log(x!.toFixed()); // no error
+    }
+  </code></pre>
+
+
+
+<h2 id="aliases">Aliases</h2>
+
+  <pre><code class="ts">
+    // --- ALIASES, new name to refer to a type
+    export type BasicPrimitive = number | string | boolean;
+    export function doStuff(value: BasicPrimitive) {
+      let x = value;
+      return x;
+    }
+    type Name = string;
+    type NameResolver = () =&gt; string;
+    type NameOrResolver = Name | NameResolver;
+    function getName(n: NameOrResolver): Name {
+      if (typeof n === "string") {
+        return n;
+      }
+      else {
+        return n();
+      }
+    }
+    // generic, type parameters defined
+    type Container&lt;T&gt; = { value: T };
+    // type alias refers to itself in a property
+    type Tree&lt;T&gt; = {
+      value: T;
+      left: Tree&lt;T&gt;;
+      right: Tree&lt;T&gt;;
+    }
+    // with intersection types
+    type LinkedList&lt;T&gt; = T & { next: LinkedList&lt;T&gt; };
+    interface Person { name: string; }
+    var people: LinkedList&lt;Person&gt;;
+    var s = people.name;
+    var s = people.next.name;
+    var s = people.next.next.name;
+    var s = people.next.next.next.name;
+    // its not possible for a type alias to appear anywhere else on the right side
+    type Yikes = Array&lt;Yikes&gt;; // error
+
+    // type aliases as. interfaces:
+    // 1) interfaces create a new name that is used everywhere
+    //    alias - object literal type
+    type Alias = { num: number }
+    interface Interface { num: number; }
+    declare function aliased(arg: Alias): Alias;
+    declare function interfaced(arg: Interface): Interface;
+    // 2) cannot be extended/implemented from (nor can extend/implement other types)
+
+    // --- RECURSIVE, reference type aliases
+    type Json =
+      | string
+      | number
+      | boolean
+      | null
+      | { [property: string]: Json }
+      | Json[];
+    type VirtualNode = string | [string, { [key: string]: any }, ...VirtualNode[]];
+    const myNode: VirtualNode = [
+      "div",
+      { id: "parent" },
+      ["div", { id: "first-child" }, "I'm the first child"],
+      ["div", { id: "second-child" }, "I'm the second child"],
+    ];
+  </code></pre>
+
+
+
+<h2 id="literalt">Template|Literal Types</h2>
+
+  <h3>LITERAL TYPES - specify exact value a string must have</h3>
+  <pre><code class="ts">
+    type Easing = "ease-in" | "ease-out" | "ease-in-out"; // string literal type
+    class UIElement {
+      animate(dx: number, dy: number, easing: Easing) {
+        if (easing === "ease-in") { ... }
+        else if (easing === "ease-out") { ... }
+        else if (easing === "ease-in-out") { ... }
+        else {
+          // error! should not pass null or undefined.
+        }
+      }
+    }
+    let button = new UIElement();
+    button.animate(0, 0, "ease-in");
+    button.animate(0, 0, "uneasy"); // error: "uneasy" is not allowed here
+
+    function rollDice(): 1 | 2 | 3 | 4 | 5 | 6 { // numeric literal type
+      // ...
+    }
+
+    // combine with non-literal types:
+    interface Options {
+      width: number;
+    }
+    function configure(x: Options | "auto") {
+      // ...
+    }
+    configure({ width: 100 });
+    configure("auto");
+    configure("automatic"); // Err: argument of type 'automatic' is not assignable to parameter of type 'Options | "auto"'
+
+    // --- INFERENCE
+    declare function handleRequest(url: string, method: "GET" | "POST"): void;
+    const req = { url: "https://example.com", method: "GET" };
+    handleRequest(req.url, req.method); // Err: argument of type 'string' is not assignable to '"GET" | "POST"'
+    // solution 1
+    const req = { url: "https://example.com", method: "GET" as "GET" };
+    // solution 2
+    handleRequest(req.url, req.method as "GET");
+    // solution 3
+    const req = { url: "https://example.com", method: "GET" } as const;
+    handleRequest(req.url, req.method);
+  </code></pre>
+
+  <h3>TEMPLATE LITERAL(STRING) TYPES</h3>
+  <pre><code class="ts">
+    // concrete literal types - new string literal type by concatenating the contents
+    type World = "world";
+    type Greeting = `hello ${World}`; // type Greeting = "hello world"
+
+    // interpolated position - every possible string literal that could be represented by each union member
+    type EmailLocaleIDs = "welcome_email" | "email_heading";
+    type FooterLocaleIDs = "footer_title" | "footer_sendoff";
+    type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`;
+    // type AllLocaleIDs = "welcome_email_id" | "email_heading_id" | "footer_title_id" | "footer_sendoff_id"
+    // for each interpolated position unions are cross multiplied:
+    type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`;
+    type Lang = "en" | "ja" | "pt";
+    type LocaleMessageIDs = `${Lang}_${AllLocaleIDs}`;
+    // type LocaleMessageIDs = "en_welcome_email_id" | "en_email_heading_id" | ... | "ja_welcome_email_id" | ... | "pt_footer_sendoff_id"Try
+    declare let s1: `${number}-${number}-${number}`;
+    declare let s2: `1-2-3`;
+    declare let s3: `${number}-2-3`;
+    declare let s4: `1-${number}-3`;
+    declare let s5: `1-2-${number}`;
+    declare let s6: `${number}-2-${number}`;
+    s1 = s2;
+    s1 = s3;
+    s1 = s4;
+    s1 = s5;
+    s1 = s6;
+    function bar(s: string): `hello ${string}` {
+      return `hello ${s}`;
+    }
+    declare function foo&lt;V extends string&gt;(arg: `*${V}*`): V;
+      function test&lt;T extends string&gt;(s: string, n: number, b: boolean, t: T) {
+          let x1 = foo("*hello*");            // "hello"
+          let x2 = foo("**hello**");          // "*hello*"
+          let x3 = foo(`*${s}*` as const);    // string
+          let x4 = foo(`*${n}*` as const);    // `${number}`
+          let x5 = foo(`*${b}*` as const);    // "true" | "false"
+          let x6 = foo(`*${t}*` as const);    // `${T}`
+          let x7 = foo(`**${s}**` as const);  // `*${string}*`
+      }
+
+    // --- string unions in types
+    type PropEventSource&lt;Type&gt; = {
+      on(eventName: `${string & keyof Type}Changed`, callback: (newValue: any) => void): void;
+    };
+    // create a "watched object" with an 'on' method
+    // so that you can watch for changes to properties.
+    declare function makeWatchedObject&lt;Type&gt;(obj: Type): Type & PropEventSource&lt;Type&gt;;
+    const person = makeWatchedObject({
+      firstName: "Saoirse",
+      lastName: "Ronan",
+      age: 26
+    });
+    person.on("firstNameChanged", () =&gt; {});
+    // it is typo-resistent
+    person.on("firstName", () =&gt; {});
+    // Err: argument of type 'firstName' is not assignable to parameter of type firstNameChanged|lastNameChanged|ageChanged
+    person.on("frstNameChanged", () =&gt; {});
+    // Err: argument of type 'frstNameChanged' is not assignable to parameter of type firstNameChanged|lastNameChanged|ageChanged
+
+    // --- inference with template literals
+    // make last example generic
+    type PropEventSource&lt;Type&gt; = {
+      on&lt;Key extends string & keyof Type&gt;
+        (eventName: `${Key}Changed`, callback: (newValue: Type[Key]) =&gt; void ): void;
+    };
+    declare function makeWatchedObject&lt;Type&gt;(obj: Type): Type & PropEventSource&lt;Type&gt;;
+    const person = makeWatchedObject({
+      firstName: "Saoirse",
+      lastName: "Ronan",
+      age: 26
+    });
+    person.on("firstNameChanged", newName =&gt; { // (parameter) newName: string
+      console.log(`new name is ${newName.toUpperCase()}`);
+    });
+    person.on("ageChanged", newAge =&gt; { // (parameter) newAge: number
+      if (newAge &lt; 0) {
+        console.warn("warning! negative age");
+      }
+    })
+    // inference can be combined in different ways, often to deconstruct|reconstruct strings in different ways
+  </code></pre>
+
+  <h3>Intrinsic String Manipulation Types</h3>
+  <pre><code class="ts">
+    // --- Uppercase&lt;StringType&gt;
+    type Greeting = "Hello, world"
+    type ShoutyGreeting = Uppercase&lt;Greeting&gt; // type ShoutyGreeting = "HELLO, WORLD"
+    type ASCIICacheKey&lt;Str extends string&gt; = `ID-${Uppercase&lt;Str&gt;}`
+    type MainID = ASCIICacheKey&lt;"my_app"&gt; // type MainID = "ID-MY_APP"
+
+    // --- Lowercase&lt;StringType&gt;
+    type Greeting = "Hello, world"
+    type QuietGreeting = Lowercase&lt;Greeting&gt; // type QuietGreeting = "hello, world"
+    type ASCIICacheKey&lt;Str extends string&gt; = `id-${Lowercase&lt;Str&gt;}`
+    type MainID = ASCIICacheKey&lt;"MY_APP"&gt; // type MainID = "id-my_app"
+
+    // --- Capitalize&lt;StringType&gt;
+    type LowercaseGreeting = "hello, world";
+    type Greeting = Capitalize&lt;LowercaseGreeting&gt;; // type Greeting = "Hello, world"
+
+    // --- Uncapitalize&lt;StringType&gt;
+    type UppercaseGreeting = "HELLO WORLD";
+    type UncomfortableGreeting = Uncapitalize&lt;UppercaseGreeting&gt;; // type UncomfortableGreeting = "hELLO WORLD"
+
+    // technical details on the intrinsic string manipulation types
+    // not locale aware
+    function applyStringMapping(symbol: Symbol, str: string) {
+      switch (intrinsicTypeKinds.get(symbol.escapedName as string)) {
+        case IntrinsicTypeKind.Uppercase: return str.toUpperCase();
+        case IntrinsicTypeKind.Lowercase: return str.toLowerCase();
+        case IntrinsicTypeKind.Capitalize: return str.charAt(0).toUpperCase() + str.slice(1);
+        case IntrinsicTypeKind.Uncapitalize: return str.charAt(0).toLowerCase() + str.slice(1);
+      }
+      return str;
+    }
+  </code></pre>
+
+
+
+<h2 id="indext">Index Types</h2>
+
+  <pre><code class="ts">
+    // --- INDEX TYPES, check code that uses dynamic property name
+    function pluck&lt;T, K extends keyof T&gt;(o: T, names: K[]): T[K][] {
+      return names.map(n =&gt; o[n]); // o[name] is of type T[K]
+    }
+    // "keyof T" - index type query operator, union of known, public property names of T
+    // "T[K]" - indexed access operator
+    interface Person { name: string; age: number; }
+    let person: Person = { name: 'Jarid', age: 35 };
+    let strings: string[] = pluck(person, ['name']); // ok, string[]
+    pluck(person, ['age', 'unknown']); // error, 'unknown' is not in 'name' | 'age'
+    let personProps: keyof Person; // 'name' | 'age'
+    // keyof and T[K] interact with string index signatures
+    // if you have a type with a string index signature, keyof T will just be string
+    // and T[string] is just the type of the index signature
+    interface Map&lt;T&gt; { [key: string]: T; }
+    let keys: keyof Map&lt;number&gt;; // string
+    let value: Map&lt;number&gt;['foo']; // number
+    // index signatures allow more properties on a value than a type explicitly declares
+    class Foo {
+      hello = "hello";
+      world = 1234;
+      static prop = true; // Err: boolean not assignable to string|number|undefined
+      [propName: string]: string | number | undefined; // index signature
+      static [propName: string]: string | number | undefined;
+    }
+    let instance = new Foo();
+    instance["whatever"] = 42;
+    let x = instance["something"]; // type 'string | number | undefined'
+    // declare a type that can be keyed on arbitrary symbol
+    interface Colors {
+      [sym: symbol]: number;
+    }
+    const red = Symbol("red");
+    const green = Symbol("green");
+    const blue = Symbol("blue");
+    let colors: Colors = {};
+    // Assignment of a number is allowed
+    colors[red] = 255;
+    let redVal = colors[red];
+    let redVal: number
+    colors[blue] = "da ba dee"; // Type 'string' is not assignable to type 'number'
+    // index signature with template string pattern type
+    interface Options {
+      width?: number;
+      height?: number;
+    }
+    let a: Options = {
+        width: 100,
+        height: 100,
+        "data-blah": true,
+    };
+    interface OptionsWithDataProps extends Options {
+        [optName: `data-${string}`]: unknown; // Permit any property starting with 'data-'
+    }
+    let b: OptionsWithDataProps = {
+        width: 100,
+        height: 100,
+        "data-blah": true,
+        // Fails for a property which is not known, nor starts with 'data-'
+        "unknown-property": true,
+    };
+    // index signature whose argument is a union of these types will de-sugar
+    interface Data {
+      [optName: string | symbol]: any;
+    }
+    // Equivalent to
+    interface Data {
+      [optName: string]: any;
+      [optName: symbol]: any;
+    }
+  </code></pre>
+
+
+
+<h2 id="mappedt">Mapped Types</h2>
+
+  <pre><code class="ts">
+    // new types based on old types
+    type Keys = 'option1' | 'option2';
+    type Flags = { [K in Keys]: boolean };
+    // same as:
+    type Flags = {
+      option1: boolean;
+      option2: boolean;
+    }
+
+    // based on some existing type, and transform the properties in some way
+
+    // --- homomorphic
+    type Readonly&lt;T&gt; = { readonly [P in keyof T]: T[P]; }
+    type A = Readonly&lt;{ a: string, b: number }&gt;; // { readonly a: string, readonly b: number }
+    type B = Readonly&lt;number[]&gt;; // readonly number[]
+    type C = Readonly&lt;[string, boolean]&gt;; // readonly [string, boolean]
+    type Writable&lt;T&gt; = { -readonly [K in keyof T]: T[K] } // strips away readonly
+    type A = Writable&lt;{ // { a: string, b: number }
+      readonly a: string;
+      readonly b: number
+    }&gt;;
+    type B = Writable&lt;readonly number[]&gt;; // number[]
+    type C = Writable&lt;readonly [string, boolean]&gt;; // [string, boolean]
+    type Partial&lt;T&gt; = { [P in keyof T]?: T[P]; }
+    type Nullable&lt;T&gt; = { [P in keyof T]: T[P] | null }
+    type Pick&lt;T, K extends keyof T&gt; = { [P in K]: T[P]; }
+    type PersonPartial = Partial&lt;Person&gt;;
+    type ReadonlyPerson = Readonly&lt;Person&gt;;
+    type NullablePerson = Nullable&lt;Person&gt;;
+
+    // --- not homomorphic - creates new properties, cant copy property modifiers from anywhere
+    type Record&lt;K extends string, T&gt; = { [P in K]: T; }
+    type ThreeStringProps = Record&lt;'prop1' | 'prop2' | 'prop3', string&gt;
+    // T[P] wrapped in a Proxy&lt;T&gt; class
+    type Proxy&lt;T&gt; = {
+      get(): T;
+      set(value: T): void;
+    }
+    type Proxify&lt;T&gt; = {
+      [P in keyof T]: Proxy&lt;T[P]&gt;;
+    }
+    function proxify&lt;T&gt;(o: T): Proxify&lt;T&gt; {
+      // ... wrap proxies ...
+    }
+    let proxyProps = proxify(props);
+
+    // --- unwrap properties of a type, works on homomorphic mapped types
+    function unproxify&lt;T&gt;(t: Proxify&lt;T&gt;): T {
+        let result = {} as T;
+        for (const k in t) {
+          result[k] = t[k].get();
+        }
+        return result;
+    }
+    let originalProps = unproxify(proxyProps);
+    // if the mapped type is not homomorphic, give an explicit type parameter to your unwrapping function
+
+    // --- new object types based on arbitrary keys
+    type Options = {
+      [K in "noImplicitAny" | "strictNullChecks" | "strictFunctionTypes"]?: boolean;
+    };
+    // same as
+    //   type Options = {
+    //       noImplicitAny?: boolean,
+    //       strictNullChecks?: boolean,
+    //       strictFunctionTypes?: boolean
+    //   };
+    // or new object types based on other object types
+    // 'Partial&lt;T&gt;' is the same as 'T', but with each property marked optional.
+    type Partial&lt;T&gt; = {
+      [K in keyof T]?: T[K];
+    };
+
+    // --- re-map keys in mapped types with a 'as' clause
+    type MappedTypeWithNewKeys&lt;T&gt; = {
+      [K in keyof T as NewKeyType]: T[K]
+    }
+
+    // with template literal types property names based off of old ones
+    type Getters&lt;T&gt; = {
+      [K in keyof T as `get${Capitalize&lt;string & K&gt;}`]: () =&gt; T[K]
+    };
+    interface Person {
+      name: string;
+      age: number;
+      location: string;
+    }
+    type LazyPerson = Getters&lt;Person&gt;;
+    // type LazyPerson = {
+    //   getName: () =&gt; string;
+    //   getAge: () =&gt; number;
+    //   getLocation: () =&gt; string;
+    // }
+  </code></pre>
+
+
+
+<h2 id="condt">Conditional Types</h2>
+
+  <pre><code class="ts">
+    // --- CONDITIONAL TYPES, express non-uniform type mappings
+    // based on a condition expressed as a type relationship test, example:
+    // when T is assignable to U the type is X, otherwise the type is Y, or deferred
+    // T extends U ? X : Y
+    declare function f&lt;T extends boolean&gt;(x: T): T extends true ? string : number;
+    let x = f(Math.random() &lt; 0.5) // type is 'string | number
+    // with nested conditions
+    type TypeName&lt;T&gt; =
+      T extends string ? "string" :
+      T extends number ? "number" :
+      T extends boolean ? "boolean" :
+      T extends undefined ? "undefined" :
+      T extends Function ? "function" :
+      "object";
+    type T0 = TypeName&lt;string&gt;;  // "string"
+    type T1 = TypeName&lt;"a"&gt;;  // "string"
+    type T2 = TypeName&lt;true&gt;;  // "boolean"
+    type T3 = TypeName&lt;() =&gt; void&gt;;  // "function"
+    type T4 = TypeName&lt;string[]&gt;;  // "object"
+    // deffered
+    interface Foo { propA: boolean; propB: boolean; }
+    declare function f&lt;T&gt;(x: T): T extends Foo ? string : number;
+    function foo&lt;U&gt;(x: U) {
+      let a = f(x); // has type 'U extends Foo ? string : number' - deffered
+      let b: string | number = a; // this assignment is allowed - picked
+    }
+    // distributive conditional types -
+    // automatically distributed over union types during instantiation.
+    // "T extends U ? X : Y" with the type argument "A|B|C" for T, is resolved as
+    // "(A extends U ? X : Y) | (B extends U ? X : Y) | (C extends U ? X : Y)"
+    type T10 = TypeName&lt;string | (() => void)>;  // "string"|"function"
+    type T12 = TypeName&lt;string | string[] | undefined&gt;;  // "string"|"object"|"undefined"
+    type T11 = TypeName&lt;string[] | number[]&gt;;  // "object"
+    type BoxedValue&lt;T&gt; = { value: T };
+    type BoxedArray&lt;T&gt; = { array: T[] };
+    type Boxed&lt;T&gt; = T extends any[] ? BoxedArray&lt;T[number]&gt; : BoxedValue&lt;T&gt;;
+    // BoxedValue&lt;string&gt;;
+    type T20 = Boxed&lt;string&gt;;
+    // BoxedArray&lt;number&gt;;
+    type T21 = Boxed&lt;number[]&gt;;
+    // BoxedValue&lt;string&gt; | BoxedArray&lt;number&gt;;
+    type T22 = Boxed&lt;string | number[]&gt;;
+    // distributive property of conditional types can be used to filter union types
+    // Remove types from T that are assignable to U
+    type Diff&lt;T, U&gt; = T extends U ? never : T;
+    // Remove types from T that are not assignable to U
+    type Filter&lt;T, U&gt; = T extends U ? T : never;
+    type T30 = Diff&lt;"a" | "b" | "c" | "d", "a" | "c" | "f"&gt;;  // "b" | "d"
+    type T31 = Filter&lt;"a" | "b" | "c" | "d", "a" | "c" | "f"&gt;;  // "a" | "c"
+    type T32 = Diff&lt;string|number | (() =&gt; void), Function&gt;;  // string | number
+    type T33 = Filter&lt;string|number | (() =&gt; void), Function&gt;;  // () =&gt; void
+    type NonNullable&lt;T&gt; = Diff&lt;T, null|undefined&gt;;  // Remove null and undefined from T
+    type T34 = NonNullable&lt;string|number|undefined&gt;;  // string | number
+    type T35 = NonNullable&lt;string|string[]|null|undefined&gt;;  // string | string[]
+    function f1&lt;T&gt;(x: T, y: NonNullable&lt;T&gt;) {
+      x = y;  // Ok
+      y = x;  // Error
+    }
+    function f2&lt;T extends string | undefined&gt;(x: T, y: NonNullable&lt;T&gt;) {
+      x = y;  // Ok
+      y = x;  // Error
+      let s1: string = x;  // Error
+      let s2: string = y;  // Ok
+    }
+    // combined with mapped types
+    type FunctionPropertyNames&lt;T&gt; =
+      { [K in keyof T]: T[K] extends Function ? K : never }[keyof T];
+    type FunctionProperties&lt;T&gt; = Pick&lt;T, FunctionPropertyNames&lt;T&gt;&gt;;
+    type NonFunctionPropertyNames&lt;T&gt; =
+      { [K in keyof T]: T[K] extends Function ? never : K }[keyof T];
+    type NonFunctionProperties&lt;T&gt; = Pick&lt;T, NonFunctionPropertyNames&lt;T&gt;&gt;;
+    interface Part {
+      id: number;
+      name: string;
+      subparts: Part[];
+      updatePart(newName: string): void;
+    }
+    type T40 = FunctionPropertyNames&lt;Part&gt;;  // "updatePart"
+    type T41 = NonFunctionPropertyNames&lt;Part&gt;;  // "id" | "name" | "subparts"
+    type T42 = FunctionProperties&lt;Part&gt;;  // { updatePart(newName: string): void }
+    type T43 = NonFunctionProperties&lt;Part&gt;;  // { id: number, name: string, subparts: Part[]
+    // not permitted to reference themselves recursively
+    type ElementType&lt;T&gt; = T extends any[] ? ElementType&lt;T[number]&gt; : T;  // Error
+
+    // "infer" declarations introduce a type variable to be inferred, in the true branch
+    // is possible to have multiple infer locations for the same type variable.
+    // extract the return type of a function type:
+    type ReturnType&lt;T&gt; = T extends (...args: any[]) =&gt; infer R ? R : any;
+    // nested to form a sequence of pattern matches that are evaluated in order:
+    type Unpacked&lt;T&gt; =
+      T extends (infer U)[] ? U :
+      T extends (...args: any[]) =&gt; infer U ? U :
+      T extends Promise&lt;infer U&gt; ? U :
+      T;
+    type T0 = Unpacked&lt;string&gt;;  // string
+    type T1 = Unpacked&lt;string[]&gt;;  // string
+    type T2 = Unpacked&lt;() =&gt; string&gt;;  // string
+    type T3 = Unpacked&lt;Promise&lt;string&gt;&gt;;  // string
+    type T4 = Unpacked&lt;Promise&lt;string&gt;[]&gt;;  // Promise&lt;string&gt;
+    type T5 = Unpacked&lt;Unpacked&lt;Promise&lt;string&gt;[]&gt;&gt;;  // string
+    // union type inferred
+    // for multiple candidates of same type variable in co-variant positions
+    type Foo&lt;T&gt; = T extends { a: infer U, b: infer U } ? U : never;
+    type T10 = Foo&lt;{ a: string, b: string }&gt;;  // string
+    type T11 = Foo&lt;{ a: string, b: number }&gt;;  // string | number
+    // intersection type inferred
+    // for multiple candidates for the same type variable in contra-variant positions
+    type Bar&lt;T&gt; = T extends { a: (x: infer U) =&gt; void, b: (x: infer U) =&gt; void } ? U : never;
+    type T20 = Bar&lt;{ a: (x: string) =&gt; void, b: (x: string) =&gt; void }&gt;; // string
+    type T21 = Bar&lt;{ a: (x: string) =&gt; void, b: (x: number) =&gt; void }&gt;; // string & number
+    // inferring from a type with multiple call signatures (overload,...)
+    // inferences are made from the last signature (catch-all case)
+    declare function foo(x: string): number;
+    declare function foo(x: number): string;
+    declare function foo(x: string | number): string | number;
+    type T30 = ReturnType&lt;typeof foo&gt;;  // string | number
+    // is not possible
+    // to use infer declarations in constraint clauses for regular type parameters
+    type ReturnType&lt;T extends (...args: any[]) =&gt; infer R&gt; = R;  // Error, not supported
+    // use:
+    type AnyFunction = (...args: any[]) =&gt; any;
+    type ReturnType&lt;T extends AnyFunction&gt; = T extends (...args: any[]) =&gt; infer R ? R : any;
+
+    // --- recursive conditional types
+    type ElementType&lt;T&gt; = T extends ReadonlyArray&lt;infer U&gt; ? ElementType&lt;U&gt; : T;
+    function deepFlatten&lt;T extends readonly unknown[]&gt;(x: T): ElementType&lt;T&gt;[] {
+      throw "not implemented";
+    }
+    // All of these return the type 'number[]':
+    deepFlatten([1, 2, 3]);
+    deepFlatten([[1], [2, 3]]);
+    deepFlatten([[1], [[2]], [[[3]]]]);
+    // Awaited type to deeply unwrap Promises
+    type Awaited&lt;T&gt; = T extends PromiseLike&lt;infer U&gt; ? Awaited&lt;U&gt; : T;
+    /// Like `promise.then(...)`, but more accurate in types.
+    declare function customThen&lt;T, U&gt;(
+      p: Promise&lt;T&gt;,
+      onFulfilled: (value: Awaited&lt;T&gt;) =&gt; U
+    ): Promise&lt;Awaited&lt;U&gt;&gt;;
+
+    // --- predefined conditional types (lib.d.ts)
+    // Exclude&lt;T, U&gt; - Exclude from T those types that are assignable to U
+    // Extract&lt;T, U&gt; - Extract from T those types that are assignable to U
+    // NonNullable&lt;T&gt; - Exclude null and undefined from T
+    // ReturnType&lt;T&gt; - Obtain the return type of a function type
+    // InstanceType&lt;T&gt; - Obtain the instance type of a constructor function type
+    type T00 = Exclude&lt;"a" | "b" | "c" | "d", "a" | "c" | "f"&gt;;  // "b" | "d"
+    type T01 = Extract&lt;"a" | "b" | "c" | "d", "a" | "c" | "f"&gt;;  // "a" | "c"
+    type T02 = Exclude&lt;string | number | (() =&gt; void), Function&gt;;  // string | number
+    type T03 = Extract&lt;string | number | (() =&gt; void), Function&gt;;  // () =&gt; void
+    type T04 = NonNullable&lt;string | number | undefined&gt;;  // string | number
+    type T05 = NonNullable&lt;(() =&gt; string) | string[] | null | undefined&gt;;  // (() =&gt; string) | string[]
+    function f1(s: string) { return { a: 1, b: s }; }
+    class C { x = 0; y = 0; }
+    type T10 = ReturnType&lt;() =&gt; string&gt;;  // string
+    type T11 = ReturnType&lt;(s: string) =&gt; void&gt;;  // void
+    type T12 = ReturnType&lt;(&lt;T&gt;() =&gt; T)&gt;;  // {}
+    type T13 = ReturnType&lt;(&lt;T extends U, U extends number[]&gt;() =&gt; T)&gt;;  // number[]
+    type T14 = ReturnType&lt;typeof f1&gt;;  // { a: number, b: string }
+    type T15 = ReturnType&lt;any&gt;;  // any
+    type T16 = ReturnType&lt;never&gt;;  // any
+    type T17 = ReturnType&lt;string&gt;;  // Error
+    type T18 = ReturnType&lt;Function&gt;;  // Error
+    type T20 = InstanceType&lt;typeof C&gt;;  // C
+    type T21 = InstanceType&lt;any&gt;;  // any
+    type T22 = InstanceType&lt;never&gt;;  // any
+    type T23 = InstanceType&lt;string&gt;;  // Error
+    type T24 = InstanceType&lt;Function&gt;;  // Error
+    // Omit&lt;T, K&gt; type because it is trivially written as Pick&lt;T, Exclude&lt;keyof T, K&gt;&gt;
+  </code></pre>
+
+
+
+<h2 id="util">Utility Types</h2>
+
+  <pre><code class="ts">
+    // --- Partial&lt;Type&gt; - all properties set to optional
+    // returns a type that represents all subsets of a given type
+    interface Todo {
+      title: string;
+      description: string;
+    }
+    function updateTodo(todo: Todo, fieldsToUpdate: Partial&lt;Todo&gt;) {
+      return { ...todo, ...fieldsToUpdate };
+    }
+    const todo1 = {
+      title: "organize desk",
+      description: "clear clutter",
+    };
+    const todo2 = updateTodo(todo1, {
+      description: "throw out trash",
+    });
+
+    // --- Required&lt;Type&gt; - all properties set to required
+    // opposite of Partial
+    interface Props {
+      a?: number;
+      b?: string;
+    }
+    const obj: Props = { a: 5 };
+    const obj2: Required&lt;Props&gt; = { a: 5 }; // Err: roperty 'b' is missing ...
+
+    // --- Readonly&lt;Type&gt; - all properties set to readonly
+    // meaning the properties of the constructed type cannot be reassigned
+    interface Todo {
+      title: string;
+    }
+    const todo: Readonly&lt;Todo&gt; = {
+      title: "Delete inactive users",
+    };
+    todo.title = "Hello"; // Err: cannot assign to 'title' because it is a read-only
+    // useful for representing assignment expressions that will fail at runtime
+    // (i.e. when attempting to reassign properties of a frozen object)
+    Object.freeze
+    function freeze&lt;Type&gt;(obj: Type): Readonly&lt;Type&gt;;
+
+    // --- Record&lt;Keys,Type&gt;
+    // constructs an object type whose property keys are Keys and whose property values are Type
+    // can be used to map the properties of a type to another type
+    interface CatInfo {
+      age: number;
+      breed: string;
+    }
+    type CatName = "miffy" | "boris" | "mordred";
+    const cats: Record&lt;CatName, CatInfo&gt; = {
+      miffy: { age: 10, breed: "Persian" },
+      boris: { age: 5, breed: "Maine Coon" },
+      mordred: { age: 16, breed: "British Shorthair" },
+    };
+    cats.boris; // const cats: Record&lt;CatName, CatInfo&gt;
+
+    // --- Pick&lt;Type, Keys&gt;
+    // picking the set of properties Keys (string literal or union of string literals) from Type
+    interface Todo {
+      title: string;
+      description: string;
+      completed: boolean;
+    }
+    type TodoPreview = Pick&lt;Todo, "title" | "completed"&gt;;
+    const todo: TodoPreview = {
+      title: "Clean room",
+      completed: false,
+    };
+    todo; // const todo: TodoPreview
+
+    // --- Omit&lt;Type, Keys&gt;
+    // picking all properties from Type and then removing Keys (string literal or union of string literals)
+    interface Todo {
+      title: string;
+      description: string;
+      completed: boolean;
+      createdAt: number;
+    }
+    type TodoPreview = Omit&lt;Todo, "description"&gt;;
+    const todo: TodoPreview = {
+      title: "Clean room",
+      completed: false,
+      createdAt: 1615544252770,
+    };
+    todo; // const todo: TodoPreview
+    type TodoInfo = Omit&lt;Todo, "completed" | "createdAt"&gt;;
+    const todoInfo: TodoInfo = {
+      title: "Pick up kids",
+      description: "Kindergarten closes at 5pm",
+    };
+    todoInfo; // const todoInfo: TodoInfo
+
+    // --- Exclude&lt;Type, ExcludedUnion&gt;
+    // excluding from Type all union members that are assignable to ExcludedUnion
+    type T0 = Exclude&lt;"a" | "b" | "c", "a"&gt;; // type T0 = "b" | "c"
+    type T1 = Exclude&lt;"a" | "b" | "c", "a" | "b"&gt;; // type T1 = "c"
+    type T2 = Exclude&lt;string | number | (() =&gt; void), Function&gt;; // type T2 = string | number
+
+    // --- Extract&lt;Type, Union&gt;
+    // extracting from Type all union members that are assignable to Union
+    type T0 = Extract&lt;"a" | "b" | "c", "a" | "f"&gt;; // type T0 = "a"
+    type T1 = Extract&lt;string | number | (() =&gt; void), Function&gt;; // type T1 = () =&gt; void
+
+    // --- NonNullable&lt;Type&gt; - excluding null and undefined from Type
+    type T0 = NonNullable&lt;string | number | undefined&gt;; // type T0 = string | number
+    type T1 = NonNullable&lt;string[] | null | undefined&gt;; // type T1 = string[]
+
+    // --- Parameters&lt;Type&gt;
+    // constructs a tuple type from the types used in the parameters of a function type Type
+    declare function f1(arg: { a: number; b: string }): void;
+    type T0 = Parameters&lt;() =&gt; string&gt;; // type T0 = []
+    type T1 = Parameters&lt;(s: string) =&gt; void&gt;; // type T1 = [s: string]
+    type T2 = Parameters&lt;&lt;T&gt;(arg: T) =&gt; T&gt;; // type T2 = [arg: unknown]
+    type T3 = Parameters&lt;typeof f1&gt;; // type T3 = [arg: { a: number; b: string; }]
+    type T4 = Parameters&lt;any&gt;; // type T4 = unknown[]
+    type T5 = Parameters&lt;never&gt;; // type T5 = never
+    type T6 = Parameters&lt;string&gt;; // type T6 = never // Err: Type 'string' does not satisfy the constraint
+    type T7 = Parameters&lt;Function&gt;; // type T7 = never
+    // Err: Type 'Function' does not satisfy the constraint
+    // Err: Type 'Function' provides no match for the signature '(...args: any): any'
+
+    // --- ConstructorParameters&lt;Type&gt;
+    // constructs a tuple or array type from the types of a constructor function type
+    // produces a tuple type with all the parameter types (or the type 'never' if Type is not a function)
+    type T0 = ConstructorParameters&lt;ErrorConstructor&gt;; // type T0 = [message?: string]
+    type T1 = ConstructorParameters&lt;FunctionConstructor&gt;; // type T1 = string[]
+    type T2 = ConstructorParameters&lt;RegExpConstructor&gt;; // type T2 = [pattern: string | RegExp, flags?: string]
+    type T3 = ConstructorParameters&lt;any&gt;; // type T3 = unknown[]
+    type T4 = ConstructorParameters&lt;Function&gt;; //  type T4 = never
+    // Err: Type 'Function' does not satisfy the constraint 'abstract new (...args: any) =&gt; any'
+    // Err: Type 'Function' provides no match for the signature 'new (...args: any): any'
+    // works on abstract classes
+    abstract class C {
+      constructor(a: string, b: number) { }
+    }
+    type CParams = ConstructorParameters&lt;typeof C&gt;; // type '[a: string, b: number]'
+
+    // --- ReturnType&lt;Type&gt; - type consisting of the return type of function Type
+    declare function f1(): { a: number; b: string };
+    type T0 = ReturnType&lt;() =&gt; string&gt;; // type T0 = string
+    type T1 = ReturnType&lt;(s: string) =&gt; void&gt;; // type T1 = void
+    type T2 = ReturnType&lt;&lt;T&gt;() =&gt; T&gt;; // type T2 = unknown
+    type T3 = ReturnType&lt;&lt;T extends U, U extends number[]&gt;() =&gt; T&gt;; // type T3 = number[]
+    type T4 = ReturnType&lt;typeof f1&gt;; // type T4 = { a: number; b: string; }
+    type T5 = ReturnType&lt;any&gt;; // type T5 = any
+    type T6 = ReturnType&lt;never&gt;; // type T6 = never
+    type T7 = ReturnType&lt;string&gt;; // type T7 = any
+    // Err: Type 'string' does not satisfy the constraint '(...args: any) =&gt; any'
+    type T8 = ReturnType&lt;Function&gt;; // type T8 = any
+    // Err: Type 'Function' does not satisfy the constraint '(...args: any) =&gt; any'
+    // Err: Type 'Function' provides no match for the signature '(...args: any): any'
+
+    // --- InstanceType&lt;Type&gt;
+    // constructs a type consisting of the instance type of a constructor function in Type
+    class C {
+      x = 0;
+      y = 0;
+    }
+    type T0 = InstanceType&lt;typeof C&gt;; // type T0 = C
+    type T1 = InstanceType&lt;any&gt;; // type T1 = any
+    type T2 = InstanceType&lt;never&gt;; // type T2 = never
+    type T3 = InstanceType&lt;string&gt;; // type T3 = any
+    // Err: Type 'string' does not satisfy the constraint 'abstract new (...args: any) =&gt; any'
+    type T4 = InstanceType&lt;Function&gt;; // type T4 = any
+    // Err: Type 'Function' does not satisfy the constraint 'abstract new (...args: any) =&gt; any'
+    // Err: Type 'Function' provides no match for the signature 'new (...args: any): any'
+
+    // --- ThisParameterType&lt;Type&gt;
+    // extracts the type of the 'this' parameter for a function type,
+    // or 'unknown' if the function type has no 'this' parameter
+    function toHex(this: Number) {
+      return this.toString(16);
+    }
+    function numberToString(n: ThisParameterType&lt;typeof toHex&gt;) {
+      return toHex.apply(n);
+    }
+
+    // --- OmitThisParameter&lt;Type&gt; - removes the 'this' parameter from Type
+    // if Type has no explicitly declared this parameter, the result is simply Type
+    // otherwise, a new function type with no this parameter is created from Type
+    // generics are erased and only the last overload signature is propagated into the new function type
+    function toHex(this: Number) {
+      return this.toString(16);
+    }
+    const fiveToHex: OmitThisParameter&lt;typeof toHex&gt; = toHex.bind(5);
+
+    // --- ThisType&lt;Type&gt;
+    // does not return a transformed type, serves as a marker for a contextual 'this' type
+    // the --noImplicitThis flag must be enabled to use this utility
+    type ObjectDescriptor&lt;D, M&gt; = {
+      data?: D;
+      methods?: M & ThisType&lt;D & M&gt;; // Type of 'this' in methods is D & M
+    };
+    function makeObject&lt;D, M&gt;(desc: ObjectDescriptor&lt;D, M&gt;): D & M {
+      let data: object = desc.data || {};
+      let methods: object = desc.methods || {};
+      return { ...data, ...methods } as D & M;
+    }
+    let obj = makeObject({
+      data: { x: 0, y: 0 },
+      methods: {
+        moveBy(dx: number, dy: number) {
+          this.x += dx; // Strongly typed this
+          this.y += dy; // Strongly typed this
+        },
+      },
+    });
+    obj.x = 10;
+    obj.y = 20;
+    obj.moveBy(5, 5);
+    // 'methods' object in the argument to makeObject has a contextual type that includes ThisType&lt;D & M&gt;
+    // therefore the type of 'this' in methods within the 'methods' object is
+    // { x: number, y: number } & { moveBy(dx: number, dy: number): number }
+    // Notice how the type of the 'methods property' simultaneously is an inference target
+    // and a source for the 'this' type in methods.
+    // ThisType&lt;T&gt; marker interface is simply an empty interface declared in lib.d.ts
+    // Beyond being recognized in the contextual type of an object literal,
+    // the interface acts like any empty interface
+
+
+    // --- Awaited&lt;Type&gt;
+    // model operations like await in async functions, or the .then() method on Promises
+    // specifically, the way that they recursively unwrap Promise
+    // A = string
+    type A = Awaited&lt;Promise&lt;string&gt;&gt;;
+    // B = number
+    type B = Awaited&lt;Promise&lt;Promise&lt;number&gt;&gt;&gt;;
+    // C = boolean | number
+    type C = Awaited&lt;boolean | Promise&lt;number&gt;&gt;;
+    declare function MaybePromise&lt;T&gt;(value: T): T | Promise&lt;T&gt; | PromiseLike&lt;T&gt;;
+    async function doSomething(): Promise&lt;[number, number]&gt; {
+      const result = await Promise.all([MaybePromise(100), MaybePromise(200)]);
+      return result;
+    }
+  </code></pre>
+
+
+
+<h2 id="polythis">Polymorphic "this"</h2>
+
+  <pre><code class="ts">
+    // --- POLYMORPHIC "this" TYPES, subtype of the containing class or interface
+    // usage of parent class "this" in sub-class - fluent interface
+    class BasicCalculator {
+      public constructor(protected value: number = 0) { }
+      public currentValue(): number { return this.value; }
+      public add(operand: number): this {
+        this.value += operand;
+        return this;
+      }
+      // ... other operations go here ...
+    }
+    let v = new BasicCalculator(2)
+      .add(1)
+      .currentValue();
+    class ScientificCalculator extends BasicCalculator {
+      public sin() {
+          this.value = Math.sin(this.value);
+          return this;
+      }
+      // ... other operations go here ...
+    }
+    let v = new ScientificCalculator(2)
+      .sin()
+      .add(1)
+      .currentValue();
+  </code></pre>
+
+
+
+<h2 id="globalthis">globalThis</h2>
+
+  <pre><code class="ts">
+    // variable that refers to the global scope
+    // provides a standard way for accessing the global scope
+    // can be used across different environments
+    var abc = 100; // in a global file
+    globalThis.abc = 200; // Refers to 'abc' from above
+    // global variables declared with let and const dont show up on globalThis
+    let answer = 42;
+    globalThis.answer = 333333; // 'answer' does not exist on 'typeof globalThis'
+  </code></pre>
+
+
+
+<h2 id="mns">Modules/Namespaces</h2>
+
+  <ul>
+    <li><strong>namespaces</strong> - objects in the global namespace, can span multiple files, and can be concatenated using --outFile, good way to structure your code, with all dependencies included as script-tags in your HTML page, it can be hard to identify component dependencies, especially in a large application</li>
+    <li><strong>modules</strong> - like namespaces, can contain both code and declarations</li>
+    <li>main difference is that modules declare their dependencies, modules also have a dependency on a module loader (such as CommonJs/Require.js), for a small JS application this might not be optimal, but for larger applications, the cost comes with long term modularity and maintainability benefits</li>
+    <li>modules provide for better code reuse, stronger isolation and better tooling support for bundling</li>
+    <li>modules are the default and the recommended approach to structure your code</li>
+    <li>pitfalls:</li>
+    <li>"import" for modules, "/// &lt;reference ... /&gt;" for namespaces</li>
+    <li>because the module file itself is already a logical grouping, and its top-level name is defined by the code that imports it, its unnecessary to use an additional module layer for exported objects</li>
+  </ul>
+
+  <h3>Modules</h3>
+
+  <pre><code class="ts">
+    // TypeScript supports "export=" to model CommonJS and AMD workflow
+    // import module = require("module") must be used to import the module
+    // - ZipCodeValidator.ts
+    let numberRegexp = /^[0-9]+$/;
+    class ZipCodeValidator {
+        isAcceptable(s: string) {
+            return s.length === 5 && numberRegexp.test(s);
+        }
+    }
+    export = ZipCodeValidator;
+    // - Test.ts
+    import zip = require("./ZipCodeValidator");
+    let strings = ["Hello", "98052", "101"]; // Some samples to try
+    let validator = new zip(); // Validators to use
+    strings.forEach(s => { // Show whether each string passed each validator
+      console.log(`"${ s }" - ${ validator.isAcceptable(s) ? "matches" : "does not match" }`);
+    });
+    // depending on the module target specified, compiler will generate appropriate code
+    // for Node.js:     tsc --module commonjs Test.ts
+    // for require.js:  tsc --module amd Test.ts
+
+    // --- TYPE-ONLY IMPORTS AND EXPORTS
+    import type { SomeThing } from "./some-module.js";
+    export type { SomeThing };
+    import { someFunc, type BaseType } from "./some-module.js";
+
+    // --- DYNAMIC module loading in node.js
+    // module loader is invoked (through "require") dynamically
+    declare function require(moduleName: string): any;
+    import { ZipCodeValidator as Zip } from "./ZipCodeValidator";
+    if (needZipValidation) {
+      // typeof - produces in this case the type of the module
+      let ZipCodeValidator: typeof Zip = require("./ZipCodeValidator");
+      let validator = new ZipCodeValidator();
+      if (validator.isAcceptable("...")) { /* ... */ }
+    }
+
+    // --- AMBIENT modules (declarations that dont define an implementation) - .d.ts files
+    // use "module" keyword and quoted name of the module imported later
+    // - node.d.ts (simplified excerpt)
+    declare module "url" {
+      export interface Url {
+        protocol?: string;
+        hostname?: string;
+        pathname?: string;
+      }
+      export function parse(urlStr: string, parseQueryString?, slashesDenoteHost?): Url;
+    }
+    declare module "path" {
+      export function normalize(p: string): string;
+      export function join(...paths: any[]): string;
+      export var sep: string;
+    }
+    // using:
+    /// &lt;reference path="node.d.ts"/&gt;
+    import * as URL from "url";
+    let myUrl = URL.parse("http://www.typescriptlang.org");
+    // short version:
+    // declarations.d.ts
+    declare module "hot-new-module";
+    // using (all imports from a shorthand module will have the "any" type):
+    import x, {y} from "hot-new-module";
+    x(y);
+
+    // --- WILDCARD module declarations
+    // SystemJS and AMD allow non-JavaScript content to be imported
+    declare module "*!text" {
+      const content: string;
+      export default content;
+    }
+    declare module "json!*" { // some do it the other way around
+      const value: any;
+      export default value;
+    }
+    // then:
+    import fileContent from "./xyz.txt!text";
+    import data from "json!http://example.com/data.json";
+    console.log(data, fileContent);
+
+    // --- UMD modules
+    // used in many module loaders, or with no module loading (global variables)
+    // - math-lib.d.ts
+    export function isPrime(x: number): boolean;
+    export as namespace mathLib;
+    // import
+    import { isPrime } from "math-lib";
+    isPrime(2);
+    mathLib.isPrime(2); // ERROR: can't use the global definition from inside a module
+    // as a global variable, only inside of a script(no imports or exports)
+    mathLib.isPrime(2);
+
+    // --- Import Assertions
+    // make sure that an import has an expected format
+    import obj from "./something.json" assert { type: "json" };
+    const obj = await import("./something.json", {
+      assert: { type: "json" },
+    });
+  </code></pre>
+
+  <h4>structuring modules</h4>
+
+  <pre><code class="ts">
+    // 1 - functions, rather then classes or namespaces
+    // - if you are only exporting a single class or function, use export default
+    // MyClass.ts
+    export default class SomeType { constructor() { ... } }
+    // MyFunc.ts
+    export default function getThing() { return "thing"; }
+    // Consumer.ts
+    import t from "./MyClass";
+    import f from "./MyFunc";
+    let x = new t();
+    console.log(f());
+    // - if you are exporting multiple objects, put them all at top-level
+    // MyThings.ts
+    export class SomeType { /* ... */ }
+    export function someFunc() { /* ... */ }
+    // explicitly list imported names
+    // Consumer.ts
+    import { SomeType, someFunc } from "./MyThings";
+    let x = new SomeType();
+    let y = someFunc();
+    // - use the namespace import pattern if you are importing a large number of things
+    // MyLargeModule.ts
+    export class Dog { ... }
+    export class Cat { ... }
+    export class Tree { ... }
+    export class Flower { ... }
+    // Consumer.ts
+    import * as myLargeModule from "./MyLargeModule.ts";
+    let x = new myLargeModule.Dog();
+
+    // 2 - re-export to extend
+    // dont mutate the original object, export a new entity that provides the new functionality
+    // Calculator.ts
+    export class Calculator { ... }
+    export function test(c: Calculator, input: string) { ... }
+    // TestCalculator.ts - running tests apart:
+    import { Calculator, test } from "./Calculator";
+    let c = new Calculator();
+    test(c, "1+2*33/11="); // prints 9
+    // ProgrammerCalculator.ts - extending functionality, and re-export:
+    import { Calculator } from "./Calculator";
+    class ProgrammerCalculator extends Calculator { ... }
+    export { ProgrammerCalculator as Calculator };
+    export { test } from "./Calculator";
+
+    // 3 - do not use namespaces in module
+
+    // 4 - check that you are not trying to namespace your external modules:
+    // - file whose only top-level declaration is "export namespace Foo { ... }"
+    // remove Foo and move everything ‘up' a level
+    // - file that has a single "export class" or "export function"
+    // consider using "export default"
+    // - multiple files that have the same "export namespace Foo {" at top-level
+    // dont think that these are going to combine into one Foo!
+  </code></pre>
+
+  <h3>Namespaces</h3>
+  <pre><code class="ts">
+    // instead of putting lots of different names into the global namespace
+
+    // --- one file example
+
+    namespace Validation {
+      // variables, unexported implementation details
+      const lettersRegexp = /^[A-Za-z]+$/;
+      const numberRegexp = /^[0-9]+$/;
+      // exported are visble outside
+      export interface StringValidator { isAcceptable(s: string): boolean; }
+      export class LettersOnlyValidator implements StringValidator {
+        isAcceptable(s: string) { return lettersRegexp.test(s); }
+      }
+      export class ZipCodeValidator implements StringValidator {
+        isAcceptable(s: string) {
+          return s.length === 5 && numberRegexp.test(s);
+        }
+      }
+    }
+    let strings = ["Hello", "98052", "101"]; // samples
+    // validators to use
+    let validators: { [s: string]: Validation.StringValidator; } = {};
+    validators["ZIP code"] = new Validation.ZipCodeValidator();
+    validators["Letters only"] = new Validation.LettersOnlyValidator();
+    // whether each string passed each validator
+    for (let s of strings) {
+      for (let name in validators) {
+        console.log(`"${ s }" - ${ validators[name].isAcceptable(s) ? "OK" : "NO" } ${ name }`);
+      }
+    }
+
+    // --- splitting across files
+
+    // - Validation.ts
+    namespace Validation {
+        export interface StringValidator {
+            isAcceptable(s: string): boolean;
+        }
+    }
+    // - LettersOnlyValidator.ts
+    /// &lt;reference path="Validation.ts" /&gt;
+    namespace Validation {
+      const lettersRegexp = /^[A-Za-z]+$/;
+      export class LettersOnlyValidator implements StringValidator {
+        isAcceptable(s: string) {
+          return lettersRegexp.test(s);
+        }
+      }
+    }
+    // - ZipCodeValidator.ts
+    /// &lt;reference path="Validation.ts" /&gt;
+    namespace Validation {
+      const numberRegexp = /^[0-9]+$/;
+      export class ZipCodeValidator implements StringValidator {
+        isAcceptable(s: string) {
+          return s.length === 5 && numberRegexp.test(s);
+        }
+      }
+    }
+    // - Test.ts
+    /// &lt;reference path="Validation.ts" /&gt;
+    /// &lt;reference path="LettersOnlyValidator.ts" /&gt;
+    /// &lt;reference path="ZipCodeValidator.ts" /&gt;
+    let strings = ["Hello", "98052", "101"]; // samples to try
+    // validators ...
+
+    // concatenated output using the --outFile flag - compile into a single file
+    tsc --outFile sample.js Test.ts
+    tsc --outFile sample.js Validation.ts LettersOnlyValidator.ts ZipCodeValidator.ts Test.ts
+
+    // per-file compilation (the default) to emit one JavaScript file for each input file
+    &lt;script src="Validation.js" type="text/javascript" /&gt;
+    &lt;script src="LettersOnlyValidator.js" type="text/javascript" /&gt;
+    &lt;script src="ZipCodeValidator.js" type="text/javascript" /&gt;
+    &lt;script src="Test.js" type="text/javascript" /&gt;
+
+    // aliases
+    namespace Shapes {
+      export namespace Polygons {
+        export class Triangle { }
+        export class Square { }
+      }
+    }
+    import polygons = Shapes.Polygons; // import q = x.y.z
+    let sq = new polygons.Square(); // Same as 'new Shapes.Polygons.Square()'
+    // not to be confused with the import x = require("name") syntax used to load modules !
+
+    // ambient namespace (declarations that dont define an implementation) - .d.ts files
+
+    // D3 library defines its functionality in a global object called d3
+    // loaded through a script-tag (instead of a module loader)
+    // its declaration uses namespaces to define its shape
+    // we use an ambient namespace declaration TypeScript compiler to see this shape:
+    declare namespace D3 {
+      export interface Selectors {
+        select: {
+          (selector: string): Selection;
+          (element: EventTarget): Selection;
+        };
+      }
+      export interface Event { x: number; y: number; }
+      export interface Base extends Selectors { event: Event; }
+    }
+    declare var d3: D3.Base;
+  </code></pre>
+
+  <h3>Pitfalls</h3>
+
+  <pre><code class="ts">
+    // compiler looks for .ts, .tsx, and then a .d.ts with the appropriate path
+    // if a specific file not found - compiler looks for ambient module declaration
+    // declared in a .d.ts file
+    // - myModules.d.ts (.d.ts file or .ts file that is not a module)
+    declare module "SomeModule" { export function fn(): string; }
+    // - myOtherModule.ts
+    /// &lt;reference path="myModules.d.ts" /&gt;
+    import * as m from "SomeModule";
+
+    // dont add extra layers !
+    // export namespace Shapes {
+    //   export class Triangle { /* ... */ }
+    //   export class Square { /* ... */ }
+    // }
+    // VS.
+    export class Triangle { /* ... */ }
+    export class Square { /* ... */ }
+    // using:
+    import * as shapes from "./shapes";
+    let t = new shapes.Triangle();
+  </code></pre>
+
+
+
+<h2 id="modres">Module Resolution</h2>
+
+  <ul>
+    <li>to look for moduleA compiler follows one of two different strategies <strong>Classic</strong> (default) or <strong>Node</strong>:
+    <ul>
+      <li>use the <strong>--moduleResolution</strong> flag to specify the module resolution strategy, if not specified, the default is <strong>Classic</strong> for <strong>--module AMD|System|ES2015</strong> or <strong>Node</strong> otherwise</li>
+    </ul>
+    </li>
+    <li>if that didnt work and if the module name is non-relative (and in the case of "moduleA", it is), then the compiler will attempt to locate an ambient module declaration</li>
+    <li></li>
+    <li>/*** - absolute path</li>
+    <li>./*** - look in current folder</li>
+    <li>../ - one tree branch back</li>
+    <li></li>
+    <li><strong>tsc --traceResolution</strong> - show how compiler will solve path</li>
+    <li><strong>tsc app.ts moduleA.ts --noResolve</strong> - avoid resolving unspecified in command line modules</li>
+    <li></li>
+    <li>tsconfig.json - turns a folder into a "project", all files in the folder and all its sub-directories are included in your compilation
+    <ul>
+      <li>exclude - exclude some of the files</li>
+      <li>files - specify all the files instead of letting the compiler look them up</li>
+      <li>to exclude a file from the compilation, you need to exclude it and all files that have an import or /// &lt;reference path="..." /&gt; directive to it.</li>
+    </ul>
+    </li>
+  </ul>
+
+  <pre><code class="ts">
+    // lookup for moduleA is in .ts/.tsx files, or in .d.ts that your code depends on
+    import { a } from "moduleA"
+
+    // RELATIVE module imports - starts with /, ./ or ../
+    // resolved relative to the importing file
+    // cannot resolve to an ambient module declaration
+    // use for own modules that are guaranteed on relative location at runtime
+    import Entry from "./components/Entry";
+    import { DefaultHeaders } from "../constants/http";
+    import "/mod";
+
+    // NON-RELATIVE module imports
+    // can be resolved relative to baseUrl, or through path mapping
+    // can also resolve to ambient module declarations
+    // use when importing any of your external dependencies
+    import * as $ from "jquery";
+    import { Component } from "@angular/core";
+  </code></pre>
+
+  <details><summary>CLASSIC resolution strategy</summary>
+  <pre><code class="ts">
+    // for relative import:
+    import { b } from "./moduleB"
+    // in source file
+    /root/src/folder/A.ts
+    // would result in the following lookups:
+    /root/src/folder/moduleB.ts
+    /root/src/folder/moduleB.d.ts
+
+    // for non-relative module imports
+    // compiler walks up the directory tree
+    // starting with the directory containing the importing file
+    // trying to locate a matching definition file:
+    import { b } from "moduleB"
+    // in a source file
+    /root/src/folder/A.ts
+    // would result in attempting the following locations for locating "moduleB":
+    /root/src/folder/moduleB.ts
+    /root/src/folder/moduleB.d.ts
+    /root/src/moduleB.ts
+    /root/src/moduleB.d.ts
+    /root/moduleB.ts
+    /root/moduleB.d.ts
+    /moduleB.ts
+    /moduleB.d.ts
+  </code></pre>
+
+  <details><summary>NODE resolution strategy</summary>
+  <pre><code class="ts">
+    // how NODEJS solves:
+    // relative path:
+    // file located at
+    /root/src/moduleA.js
+    // contains
+    import var x = require("./moduleB");
+    // Node.js resolves that import in the following order:
+    // 1 - ask the file named /root/src/moduleB.js, if it exists
+    // 2 - ask the folder /root/src/moduleB if it contains a file named package.json
+    // that specifies a "main" module
+    // if /root/src/moduleB/package.json containing { "main": "lib/mainModule.js" }
+    // then Node.js will refer to /root/src/moduleB/lib/mainModule.js.
+    // 3 - ask the folder /root/src/moduleB if it contains a file named index.js
+    // implicitly considered that folder "main" module
+    // non-relative path:
+    // node_modules folder on the same level or higher up in the directory chain
+    /root/src/node_modules/moduleB.js
+    /root/src/node_modules/moduleB/package.json (if it specifies a "main" property)
+    /root/src/node_modules/moduleB/index.js
+    /root/node_modules/moduleB.js
+    /root/node_modules/moduleB/package.json (if it specifies a "main" property)
+    /root/node_modules/moduleB/index.js
+    /node_modules/moduleB.js
+    /node_modules/moduleB/package.json (if it specifies a "main" property)
+    /node_modules/moduleB/index.js
+
+    // how TS solves:
+    // overlays the TypeScript source file extensions (.ts, .tsx, and .d.ts)
+    // over the Node resolution logic
+    // will also use a field in package.json named "types" to mirror the purpose of "main"
+    // the compiler will use it to find the “main” definition file to consult
+    import { b } from "./moduleB"
+    // in
+    /root/src/moduleA.ts
+    // would result in attempting the following locations for locating "./moduleB"
+    /root/src/moduleB.ts
+    /root/src/moduleB.tsx
+    /root/src/moduleB.d.ts
+    /root/src/moduleB/package.json (if it specifies a "types" property)
+    /root/src/moduleB/index.ts
+    /root/src/moduleB/index.tsx
+    /root/src/moduleB/index.d.ts
+    // non-relative import:
+    import { b } from "moduleB"
+    // in source file
+    /root/src/moduleA.ts
+    // would result in the following lookups:
+    /root/src/node_modules/moduleB.ts
+    /root/src/node_modules/moduleB.tsx
+    /root/src/node_modules/moduleB.d.ts
+    /root/src/node_modules/moduleB/package.json (if it specifies a "types" property)
+    /root/src/node_modules/@types/moduleB.d.ts
+    /root/src/node_modules/moduleB/index.ts
+    /root/src/node_modules/moduleB/index.tsx
+    /root/src/node_modules/moduleB/index.d.ts
+
+    /root/node_modules/moduleB.ts
+    /root/node_modules/moduleB.tsx
+    /root/node_modules/moduleB.d.ts
+    /root/node_modules/moduleB/package.json (if it specifies a "types" property)
+    /root/node_modules/@types/moduleB.d.ts
+    /root/node_modules/moduleB/index.ts
+    /root/node_modules/moduleB/index.tsx
+    /root/node_modules/moduleB/index.d.ts
+
+    /node_modules/moduleB.ts
+    /node_modules/moduleB.tsx
+    /node_modules/moduleB.d.ts
+    /node_modules/moduleB/package.json (if it specifies a "types" property)
+    /node_modules/@types/moduleB.d.ts
+    /node_modules/moduleB/index.ts
+    /node_modules/moduleB/index.tsx
+    /node_modules/moduleB/index.d.ts
+  </code></pre>
+
+  <h3>additional module resolution flags</h3>
+  <pre><code class="ts">
+    // --- baseUrl - informs the compiler where to find modules
+    // taken from value of baseUrl command line argument OR property in "tsconfig.json"
+
+    // --- paths - path mapping, property in tsconfig.json
+    { "compilerOptions": {
+      "baseUrl": ".", // This must be specified if "paths" is.
+      "paths": {
+        "jquery": ["node_modules/jquery/dist/jquery"] // mapping is relative to "baseUrl"
+    }}}
+    // allows more sophisticated mappings like multiple fall back locations
+    { "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "*": [
+          // same name unchanged, so map moduleName => baseUrl/moduleName
+          "*",
+          // module name with an appended prefix "generated" baseUrl/generated/moduleName
+          "generated/*"
+    ]}}}
+    // works for this project structure
+    projectRoot
+    ├── folder1
+    │   ├── file1.ts (imports 'folder1/file2' and 'folder2/file3')
+    │   └── file2.ts
+    ├── generated
+    │   ├── folder1
+    │   └── folder2
+    │       └── file3.ts
+    └── tsconfig.json
+
+    // --- rootDirs - virtual directories
+    // roots whose contents are expected to merge at run-time like from one directory
+    { "compilerOptions": {
+      "rootDirs": [
+        "src/views",
+        "generated/templates/views"
+    ]}}
+    // for:
+    src
+    └── views
+        └── view1.ts (imports './template1')
+        └── view2.ts
+    generated
+    └── templates
+        └── views
+            └── template1.ts (imports './view2')
+  </code></pre>
+
+
+
+<h2 id="dm">Declaration Merging</h2>
+
+  <ul>
+    <li>compiler merges two(or more) separate declarations declared with the same name into a single definition, it has the features of both of the original declarations</li>
+    <li>declaration creates entities in at least one of three groups: namespace, type, or value</li>
+  </ul>
+
+  <br/>
+  <table>
+    <thead>
+      <tr>
+        <th>Declaration Type</th>
+        <th>Namespace</th>
+        <th>Type</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Namespace</td>
+        <td>X</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+      </tr>
+      <tr>
+        <td>Class</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+        <td>X</td>
+      </tr>
+      <tr>
+        <td>Enum</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+        <td>X</td>
+      </tr>
+      <tr>
+        <td>Interface</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Type Alias</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Function</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+      </tr>
+      <tr>
+        <td>Variable</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>X</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre><code class="ts">
+    // --- MERGING INTERFACES
+    // joins the members of both declarations into a single interface with the same name
+    // non-function members of the interfaces should be unique OR of the same type
+    interface Box { height: number; width: number; }
+    interface Box { scale: number; }
+    let box: Box = {height: 5, width: 6, scale: 10};
+    // function member of the same name is treated as describing an overload
+    interface Cloner { clone(animal: Animal): Animal; }
+    interface Cloner { clone(animal: Sheep): Sheep; }
+    interface Cloner { clone(animal: Dog): Dog; clone(animal: Cat): Cat; }
+    // ->
+    interface Cloner {
+      clone(animal: Dog): Dog; // later overload sets ordered first
+      clone(animal: Cat): Cat;
+      clone(animal: Sheep): Sheep;
+      clone(animal: Animal): Animal;
+    }
+    // single string literal type (e.g. not a union of string literals)
+    // will be bubbled toward the top of its merged overload list
+    interface Document {
+      createElement(tagName: "canvas"): HTMLCanvasElement;
+      createElement(tagName: "div"): HTMLDivElement;
+      createElement(tagName: "span"): HTMLSpanElement;
+      createElement(tagName: string): HTMLElement;
+      createElement(tagName: any): Element;
+    }
+
+    // --- MERGING NAMESPACES
+    // merged forming a single namespace with merged interface definitions inside
+    // non-exported members are only visible in the original (un-merged) namespace
+
+    // --- MERGING NAMESPACES WITH CLASSES, FUNCTIONS, AND ENUMS
+    // creates class inside other class, or function inside function in JS
+    class Album { label: Album.AlbumLabel; }
+    namespace Album { export class AlbumLabel { } }
+    // extend function with properties
+    function buildLabel(name: string): string {
+      return buildLabel.prefix + name + buildLabel.suffix;
+    }
+    namespace buildLabel {
+      export let suffix = "";
+      export let prefix = "Hello, ";
+    }
+    console.log(buildLabel("Sam Smith"));
+    // extend enums with static members
+    enum C { red = 1, green = 2, blue = 4 }
+    namespace C {
+      export function mixColor(colorName: string) {
+        if (colorName == "yellow") { return C.red + C.green; }
+        else if (colorName == "white") { return C.red + C.green + C.blue; }
+        else if (colorName == "magenta") { return C.red + C.blue; }
+        else if (colorName == "cyan") { return C.green + C.blue; }
+    }}
+    // classes can not merge with other classes or with variables, only in ambient context
+    export declare function Point2D(x: number, y: number): Point2D;
+    export declare class Point2D {
+      x: number;
+      y: number;
+      constructor(x: number, y: number);
+    }
+
+    // --- AUGUMENT MODULE - patch to existing declarations
+    // tell compiler about Observable.prototype.map
+    // observable.js
+    export class Observable&lt;T&gt; { /*...*/ }
+    // map.ts
+    import { Observable } from "./observable";
+    declare module "./observable" {
+      interface Observable&lt;T&gt; {
+        map&lt;U&gt;(f: (x: T) => U): Observable&lt;U&gt;;
+    }}
+    Observable.prototype.map = function (f) { /*...*/ }
+    // consumer.ts
+    import { Observable } from "./observable";
+    import "./map";
+    let o: Observable&lt;number&gt;;
+    o.map(x => x.toFixed());
+
+    // --- GLOBAL AUGMENTATION
+    // observable.ts
+    export class Observable&lt;T&gt; { /*...*/ }
+    declare global {
+      interface Array&lt;T&gt; {
+        toObservable(): Observable&lt;T&gt;;
+    }}
+    Array.prototype.toObservable = function () { /*...*/ }
+  </code></pre>
+
+
+
+<h2 id="jsx">JSX</h2>
+
+  <ul>
+    <li>embeddable XML-like syntax, transformed into valid JavaScript, TS supports embedding, type checking, and compiling JSX directly to JavaScript</li>
+    <li>1 - name your files with a .tsx extension</li>
+    <li>2 - enable the jsx option</li>
+    <li><strong>tsc -- jsx [MODE] file.tsx</strong></li>
+    <li>TS ships with three JSX modes, only affect the emit stage (type checking is unaffected) : preserve, react, and react-native</li>
+    <li>preserve - keep the JSX as part of the output to be further consumed by another transform step (e.g. Babel) = .jsx file</li>
+    <li>react - emit React.createElement, does not need to go through a JSX transformation before use = .js file</li>
+    <li>react-native - equivalent of preserve in that it keeps all JSX, but the output will instead have a .js file</li>
+    <li>specify this mode using <strong>--jsx</strong> command line flag or the corresponding option in your <strong>tsconfig.json</strong> file</li>
+    <li>identifier React is hard-coded, so you must make React available with an uppercase R</li>
+    <li>by default the result of a JSX expression is typed as any, you can customize the type by specifying the JSX.Element interface, however, it is not possible to retrieve type information about the element, attributes or children of the JSX from this interface</li>
+  </ul>
+
+  <br/>
+  <table>
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Output File Extension</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>preserve</code></td>
+        <td><code>&lt;div /&gt;</code></td>
+        <td><code>&lt;div /&gt;</code></td>
+        <td><code>.jsx</code></td>
+      </tr>
+      <tr>
+        <td><code>react</code></td>
+        <td><code>&lt;div /&gt;</code></td>
+        <td><code>React.createElement("div")</code></td>
+        <td><code>.js</code></td>
+      </tr>
+      <tr>
+        <td><code>react-native</code></td>
+        <td><code>&lt;div /&gt;</code></td>
+        <td><code>&lt;div /&gt;</code></td>
+        <td><code>.js</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre><code class="ts">
+    // --- as (operator)
+    var foo = &lt;foo&gt;bar;
+    // ->
+    var foo = bar as foo; // available in both .ts and .tsx files
+
+    // --- TYPE CHECKING
+
+    // --- INTRINSIC ELEMENT (environmental: DOM element,...) - begins with a lowercase letter
+    // looked up on the special interface JSX.IntrinsicElements,
+    // if interface is not specified, then anything goes and elements will not be type checked
+    // if interface is present, then the name of the intrinsic element is looked up
+    // as a property on the JSX.IntrinsicElements interface
+    declare namespace JSX {
+      interface IntrinsicElements {
+        foo: any
+    }}
+    &lt;foo /&gt;; // ok
+    &lt;bar /&gt;; // error
+    // catch-all string indexer on JSX.IntrinsicElements
+    declare namespace JSX {
+      interface IntrinsicElements {
+        [elemName: string]: any;
+    }}
+
+    // --- VALUE-BASED ELEMENT (component) - begins with an uppercase letter
+    // looked up by identifiers that are in scope
+    import MyComponent from "./myComponent";
+    &lt;MyComponent /&gt;; // ok
+    &lt;SomeOtherComponent /&gt;; // error
+    // ways to define a value-based element:
+
+    // 1 - stateless functional component (SFC)
+    // component is defined as JavaScript function where its first argument is a props object
+    // TS enforces that its return type must be assignable to JSX.Element
+    interface FooProp { name: string; X: number; Y: number; }
+    declare function AnotherComponent(prop: {name: string});
+    function ComponentFoo(prop: FooProp) { return &lt;AnotherComponent name={prop.name} /&gt;; }
+    const Button = (prop: {value: string}, context: { color: string }) => &lt;button&gt;
+    // function overloads may be used here as well:
+    interface ClickableProps { children: JSX.Element[] | JSX.Element }
+    interface HomeProps extends ClickableProps { home: JSX.Element; }
+    interface SideProps extends ClickableProps { side: JSX.Element | string; }
+    function MainButton(prop: HomeProps): JSX.Element;
+    function MainButton(prop: SideProps): JSX.Element { /*...*/ }
+
+    // 2 - class component
+    // element class type
+    // element instance type (must be assignable to JSX.ElementClass, {} - is its default)
+    class MyComponent { render() {} }
+    var myComponent = new MyComponent(); // use a construct signature
+    // element class type => MyComponent
+    // element instance type => { render: () => void }
+    function MyFactoryFunction() { return { render: () => { } } }
+    var myComponent = MyFactoryFunction(); // use a call signature
+    // element class type => FactoryFunction
+    // element instance type => { render: () => void }
+
+    // augmenting JSX.ElementClass
+    // to limit the use of JSX to types that conform to the proper interface
+    declare namespace JSX { interface ElementClass { render: any; } }
+    &lt;MyComponent /&gt;; // ok
+    &lt;MyFactoryFunction /&gt;; // ok
+    class NotAValidComponent {}
+    function NotAValidFactoryFunction() { return {}; }
+    &lt;NotAValidComponent /&gt;; // error
+    &lt;NotAValidFactoryFunction /&gt;; // error
+
+    // --- ATTRIBUTE TYPE CHECKING
+    // first step is to determine the element attributes type
+
+    // for intrinsic elements - type of the property on JSX.IntrinsicElements
+    declare namespace JSX {
+      interface IntrinsicElements {
+        foo: { bar?: boolean }
+      }
+    }
+    &lt;foo bar /&gt;; // element attributes type for 'foo' is '{bar?: boolean}'
+
+    // for value-based elements
+    // determined by the type of a property on the element instance type
+    // that was previously determined.
+    // which property to use is determined by JSX.ElementAttributesProperty
+    // it should be declared with a single property
+    // the name of that property is then used.
+    // as of TS 2.8, if JSX.ElementAttributesProperty is not provided
+    // the type of first parameter of the class element constructor
+    // or SFC call will be used instead
+    declare namespace JSX {
+      interface ElementAttributesProperty {
+        props; // specify the property name to use
+      }
+    }
+    class MyComponent {
+      // specify the property on the element instance type
+      props: { foo?: string; }
+    }
+    // element attributes type for 'MyComponent' is '{foo?: string}'
+    &lt;MyComponent foo="bar" /&gt;
+    // element attribute type is used to type check the attributes in the JSX
+    declare namespace JSX {
+      interface IntrinsicElements {
+        foo: { requiredProp: string; optionalProp?: number }
+      }
+    }
+    &lt;foo requiredProp="bar" /&gt;; // ok
+    &lt;foo requiredProp="bar" optionalProp={0} /&gt;; // ok
+    &lt;foo /&gt;; // error, requiredProp is missing
+    &lt;foo requiredProp={0} /&gt;; // error, requiredProp should be a string
+    &lt;foo requiredProp="bar" unknownProp /&gt;; // error, unknownProp does not exist
+    // ok, because 'some-unknown-prop' is not a valid identifier
+    &lt;foo requiredProp="bar" some-unknown-prop /&gt;;
+    // spread operator also works:
+    var props = { requiredProp: "bar" };
+    &lt;foo {...props} /&gt;; // ok
+    var badProps = {};
+    &lt;foo {...badProps} /&gt;; // error
+    // if an attribute name is not a valid JS identifier (like a data-* attribute)
+    // it is not considered to be an error if it is not found in the element attributes type
+
+    // --- CHILDREN TYPE CHECKING (as of TS 2.3)
+    // children - special property in an element attributes type,
+    // where child JSXExpressions are taken to be inserted into the attributes.
+    // JSX.ElementChildrenAttribute (declared with a single property) -
+    // determines the name of children within those props
+    declare namespace JSX {
+      interface ElementChildrenAttribute {
+        children: {};  // specify children name to use
+      }
+    }
+    // --->
+    // &lt;div&gt;
+    //   &lt;h1&gt;Hello&lt;/h1&gt;
+    // &lt;/div&gt;;
+    // &lt;div&gt;
+    //   &lt;h1&gt;Hello&lt;/h1&gt;
+    //   World
+    // &lt;/div&gt;;
+    // const CustomComp = (props) => &lt;div&gt;props.children&lt;/div&gt;
+    // &lt;CustomComp&gt;
+    //   &lt;div&gt;Hello World&lt;/div&gt;
+    //   {"This is just a JS expression..." + 1000}
+    // &lt;/CustomComp&gt;
+
+    // specify the type of children like any other attribute
+    // will override the default type from, eg the "React typings" if you use them
+    interface PropsType { children: JSX.Element, name: string }
+    class Component extends React.Component&lt;PropsType, {}&gt; {
+      render() {
+        return (
+          &lt;h2&gt; {this.props.children} &lt;/h2&gt;
+    )}}
+    // --->
+    // // OK
+    // &lt;Component&gt;
+    //   &lt;h1&gt;Hello World&lt;/h1&gt;
+    // &lt;/Component&gt;
+    // // Error: children is of type JSX.Element not array of JSX.Element
+    // &lt;Component&gt;
+    //   &lt;h1&gt;Hello World&lt;/h1&gt;
+    //   &lt;h2&gt;Hello World&lt;/h2&gt;
+    // &lt;/Component&gt;
+    // // Error: children is of type JSX.Element not array of JSX.Element or string.
+    // &lt;Component&gt;
+    //   &lt;h1&gt;Hello&lt;/h1&gt;
+    //   World
+    // &lt;/Component&gt;
+
+    // --- EMBEDDING EXPRESSIONS
+    // surrounding the expressions with curly braces - {}
+    // tsc -- jsx preserve file.tsx
+    var a = &lt;div&gt;
+      {[5, 9, 15].map(i => &lt;span&gt;{i / 2}&lt;/span&gt;)}
+    &lt;/div&gt;
+
+    // --- REACT INTEGRATION, use with the "React typings"
+    // these typings define the JSX namespace appropriately for use with React
+  </code></pre>
+
+
+
+<h2 id="decorators">@decorators</h2>
+
+  <ul>
+    <li>special kind of declaration that can be attached to a class declaration, method, accessor, property, or parameter</li>
+    <li>use the form <strong>@expression</strong>, where expression must evaluate to a function that will be called at runtime with information about the decorated declaration</li>
+    <li>decorator evaluation, well defined order to how decorators applied to various declarations inside of a class are applied:
+    <ul>
+      <li><strong>for each instance member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
+      <li><strong>for each static member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
+      <li><strong>for the constructor</strong>: Parameter Decorators are applied</li>
+      <li><strong>for the class</strong>: Class Decorators are applied</li>
+    </ul>
+    </li>
+    <li>with the introduction of Classes in TypeScript and ES6, there now exist certain scenarios that require additional features to support annotating or modifying classes and class members, decorators provide a way to add both annotations and a meta-programming syntax for class declarations and members</li>
+    <li><strong>proposal for JavaScript and are available as an experimental feature of TypeScript</strong></li>
+    <li>enable the <strong>experimentalDecorators</strong> compiler option either on the command line or in your tsconfig.json</li>
+  </ul>
+
+  <pre><code class="ts">
+    // --- ENABLING
+    // Command Line:
+    tsc --target ES5 --experimentalDecorators
+    // OR, tsconfig.json:
+    {
+      "compilerOptions": {
+        "target": "ES5",
+        "experimentalDecorators": true
+      }
+    }
+
+    // --- DECORATOR FACTORIES
+    // function that returns expression called by the decorator at runtime
+    function color(value: string) { // this is the decorator factory
+      return function (target) { // this is the decorator
+        // do something with 'target' and 'value'...
+      }
+    }
+
+    // --- DECORATOR COMPOSITION
+    // multiple decorators can be applied to a declaration, f(g(x)):
+    @f @g x // on a single line, or multiple lines:
+    @f
+    @g
+    x
+    // expressions for each decorator are evaluated top-to-bottom
+    // results are then called as functions from bottom-to-top
+    function f() {
+      console.log("f(): evaluated");
+      return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
+        console.log("f(): called");
+      }
+    }
+    function g() {
+      console.log("g(): evaluated");
+      return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
+        console.log("g(): called");
+      }
+    }
+    class C {
+      @f()
+      @g()
+      method() {}
+    }
+    // --- >
+    f(): evaluated
+    g(): evaluated
+    g(): called
+    f(): called
+
+    // --- CLASS DECORATORS
+    // declared just before a class declaration, will be called as a function at runtime
+    // applied to the constructor of the class
+    // can be used to observe, modify, or replace a class definition
+    // cannot be used in a declaration file,
+    // or in any other ambient context (such as on a declare class).
+    // if the class decorator returns a value,
+    // it will replace the class declaration with the provided constructor function.
+    // you should return a new constructor function,
+    // maintain the original prototype,
+    // logic that applies decorators at runtime will not do this for you.
+    // class decorator (@sealed) applied to the Greeter:
+    @sealed
+    class Greeter {
+      greeting: string;
+      constructor(message: string) { this.greeting = message; }
+      greet() { return "Hello, " + this.greeting; }
+    }
+    function sealed(constructor: Function) { // define the @sealed decorator
+      Object.seal(constructor);
+      Object.seal(constructor.prototype);
+    }
+    // how to override the constructor:
+    function classDecorator&lt;T extends {new(...args:any[]):{}}&gt;(constructor:T) {
+      return class extends constructor {
+        newProperty = "new property";
+        hello = "override";
+      }
+    }
+    @classDecorator
+    class Greeter {
+      property = "property";
+      hello: string;
+      constructor(m: string) { this.hello = m; }
+    }
+    console.log(new Greeter("world"));
+
+    // --- METHOD DECORATORS
+    // declared just before a method declaration, will be called as a function at runtime,
+    // with following argument:
+    // 1 - either the constructor function of the class for a static member,
+    // or the prototype of the class for an instance member
+    // 2 - the name of the member
+    // 3 - the Property Descriptor for the member (undefined, when less than ES5)
+    // applied to the Property Descriptor for the method
+    // can be used to observe, modify, or replace a method definition
+    // cannot be used in a declaration file, on an overload,
+    // or in any other ambient context (such as in a declare class).
+    // if the method decorator returns a value,
+    // it will be used as the Property Descriptor for the method (ignored, when less than ES5).
+    // method decorator (@enumerable) applied to a method on the Greeter class:
+    class Greeter {
+      greeting: string;
+      constructor(message: string) { this.greeting = message; }
+
+      // here, is a decorator factory
+      // when called modifies the enumerable property of the property descriptor
+      @enumerable(false)
+
+      greet() { return "Hello, " + this.greeting; }
+    }
+    function enumerable(value: boolean) { // define the @enumerable decorator
+      return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.enumerable = value;
+      };
+    }
+
+    // --- ACCESSOR DECORATORS
+    // declared just before an accessor declaration, called as a function at runtime
+    // with the following three arguments:
+    // 1 - either the constructor function of the class for a static member,
+    // or the prototype of the class for an instance member
+    // 2 - the name of the member
+    // 3 - the Property Descriptor for the member (undefined if less than ES5)
+    // applied to the Property Descriptor for the accessor
+    // can be used to observe, modify, or replace an accessor definitions
+    // cannot be used in a declaration file
+    // or in any other ambient context (such as in a declare class).
+    // if the method decorator returns a value,
+    // it will be used as the Property Descriptor for the method (ignored, when less than ES5).
+    // accessor decorator (@configurable) applied to a member of the Point class:
+    class Point {
+      private _x: number;
+      private _y: number;
+      constructor(x: number, y: number) { this._x = x; this._y = y; }
+      @configurable(false)
+      get x() { return this._x; }
+      @configurable(false)
+      get y() { return this._y; }
+    }
+    function configurable(value: boolean) { // define the @configurable decorator
+      return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.configurable = value;
+      };
+    }
+    // TS disallows decorating both the get and set accessor for a single member
+    // instead, all decorators for the member must be applied
+    // to the first accessor specified in document order.
+    // because decorators apply to a Property Descriptor,
+    // which combines both the get and set accessor, not each declaration separately
+
+    // --- PROPERTY DECORATORS
+    // declared just before a property declaration, called as a function at runtime
+    // with the following two arguments:
+    // 1 - either the constructor function of the class for a static member,
+    // or the prototype of the class for an instance member.
+    // 2 - the name of the member
+    // can ONLY be used to observe that a property of a specific name has been declared for a class
+    // cannot be used in a declaration file,
+    // or in any other ambient context (such as in a declare class)
+    // record metadata about the property (requires the reflect-metadata library):
+    class Greeter {
+
+      // here, is a decorator factory
+      // adds a metadata entry for the property using the Reflect.metadata function
+      // from the reflect-metadata library
+      @format("Hello, %s")
+
+      greeting: string;
+      constructor(message: string) { this.greeting = message; }
+      greet() {
+        // read the metadata value for the format
+        let formatString = getFormat(this, "greeting");
+        return formatString.replace("%s", this.greeting);
+      }
+    }
+    // define the @format decorator and getFormat functions
+    import "reflect-metadata";
+    const formatMetadataKey = Symbol("format");
+    function format(formatString: string) {
+      return Reflect.metadata(formatMetadataKey, formatString);
+    }
+    function getFormat(target: any, propertyKey: string) {
+      return Reflect.getMetadata(formatMetadataKey, target, propertyKey);
+    }
+
+    // --- PARAMETER DECORATORS
+    // declared just before a parameter declaration
+    // applied to the function for a class constructor or method declaration
+    // called as a function at runtime, with the following three arguments:
+    // 1 - either the constructor function of the class for a static member,
+    // or the prototype of the class for an instance member
+    // 2 - the name of the member
+    // 3 - the ordinal index of the parameter in the function parameter list
+    // can only be used to observe that a parameter has been declared on a method
+    // return value of the parameter decorator is ignored
+    // cannot be used in a declaration file, an overload,
+    // or in any other ambient context (such as in a declare class).
+    // parameter decorator (@required) applied to parameter of a member of the Greeter class
+    // (requires the reflect-metadata library):
+    class Greeter {
+      greeting: string;
+      constructor(message: string) { this.greeting = message; }
+      // wrap existing greet method in a function
+      // that validates the arguments before invoking the original method
+      @validate
+      // add a metadata entry that marks the parameter as required
+      greet(@required name: string) { return "Hello " + name + ", " + this.greeting; }
+    }
+    // define the @required and @validate decorators
+    import "reflect-metadata";
+    const requiredMetadataKey = Symbol("required");
+    function required(
+      target: Object,
+      propertyKey: string | symbol,
+      parameterIndex: number
+    ) {
+      let existingRequiredParameters: number[] =
+        Reflect.getOwnMetadata(requiredMetadataKey, target, propertyKey) || [];
+      existingRequiredParameters.push(parameterIndex);
+      Reflect.defineMetadata(
+        requiredMetadataKey,
+        existingRequiredParameters,
+        target,
+        propertyKey
+      );
+    }
+    function validate(
+      target: any,
+      propertyName: string,
+      descriptor: TypedPropertyDescriptor&lt;Function&gt;
+    ) {
+      let method = descriptor.value;
+      descriptor.value = function () {
+        let requiredParameters: number[] =
+          Reflect.getOwnMetadata(requiredMetadataKey, target, propertyName);
+        if (requiredParameters) {
+          for (let parameterIndex of requiredParameters) {
+            if (
+              parameterIndex >= arguments.length ||
+              arguments[parameterIndex] === undefined
+            ) {
+              throw new Error("Missing required argument.");
+            }
+          }
+        }
+        return method.apply(this, arguments);
+      }
+    }
+
+    // --- METADATA
+    // polyfill for an experimental metadata API: npm i reflect-metadata --save
+    // enabling:
+    // Command Line:
+    tsc --target ES5 --experimentalDecorators --emitDecoratorMetadata
+    // tsconfig.json:
+    {
+      "compilerOptions": {
+        "target": "ES5",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+      }
+    }
+    // additional design-time type information will be exposed at runtime.
+    import "reflect-metadata";
+    class Point { x: number; y: number; }
+    class Line {
+        private _p0: Point;
+        private _p1: Point;
+
+        @validate
+        set p0(value: Point) { this._p0 = value; }
+        get p0() { return this._p0; }
+
+        @validate
+        set p1(value: Point) { this._p1 = value; }
+        get p1() { return this._p1; }
+    }
+    function validate&lt;T&gt;(
+      target: any,
+      propertyKey: string,
+      descriptor: TypedPropertyDescriptor&lt;T&gt;
+    ) {
+      let set = descriptor.set;
+      descriptor.set = function (value: T) {
+        let type = Reflect.getMetadata("design:type", target, propertyKey);
+        if (!(value instanceof type)) { throw new TypeError("Invalid type.");
+        set(value);
+      }
+    }
+    // TS compiler will inject design-time type information
+    // using the @Reflect.metadata decorator
+    // you could consider it the equivalent of the following TypeScript:
+    class Line {
+      private _p0: Point;
+      private _p1: Point;
+
+      @validate
+      @Reflect.metadata("design:type", Point)
+      set p0(value: Point) { this._p0 = value; }
+      get p0() { return this._p0; }
+
+      @validate
+      @Reflect.metadata("design:type", Point)
+      set p1(value: Point) { this._p1 = value; }
+      get p1() { return this._p1; }
+    }
+  </code></pre>
+
+
+
+<h2 id="mixins">Mixins</h2>
+
+  <ul>
+    <li>popular way of building up classes from reusable components is to build them by combining simpler partial classes</li>
+  </ul>
+
+  <pre><code class="ts">
+    // Disposable Mixin
+    class Disposable {
+      isDisposed: boolean;
+      dispose() { this.isDisposed = true; }
+    }
+    // Activatable Mixin
+    class Activatable {
+      isActive: boolean;
+      activate() { this.isActive = true; }
+      deactivate() { this.isActive = false; }
+    }
+    // treat the classes as interfaces - only use the types behind Disposable and Activatable
+    class SmartObject implements Disposable, Activatable {
+      constructor() {
+        setInterval(() => console.log(this.isActive + " : " + this.isDisposed), 500);
+      }
+      interact() { this.activate(); }
+      // Disposable
+      isDisposed: boolean = false;
+      dispose: () => void;
+      // Activatable
+      isActive: boolean = false;
+      activate: () => void;
+      deactivate: () => void;
+    }
+    applyMixins(SmartObject, [Disposable, Activatable]);
+    let smartObj = new SmartObject();
+    setTimeout(() => smartObj.interact(), 1000);
+    ////////////////////////////////////////
+    // In your runtime library somewhere
+    ////////////////////////////////////////
+    function applyMixins(derivedCtor: any, baseCtors: any[]) {
+      // run through the properties of each of the mixins
+      // and copy them over to the target of the mixins
+      // filling out the stand-in properties with their implementations
+      baseCtors.forEach(baseCtor => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+          derivedCtor.prototype[name] = baseCtor.prototype[name];
+        });
+      });
+    }
+  </code></pre>
+
+
+
+<h2 id="tslash">/// &lt;directive /&gt;</h2>
+
+  <ul>
+    <li>single-line comments containing a single XML tag, contents of the comment are used as compiler directives</li>
+    <li><strong>only</strong> valid at the top of their containing file</li>
+    <li>can only be preceded by single or multi-line comments, including other triple-slash directives</li>
+    <li>/// &lt;reference path="..." /&gt;
+    <ul>
+      <li>declaration of dependency between files, instruct the compiler to include additional files in the compilation process</li>
+      <li>also serve as a method to order the output when using --out or --outFile, files are emitted to the output file location in the same order as the input after preprocessing pass</li>
+      <li>preprocessing input files: starts with a set of root files, resolved in a depth first manner, in the order they have been seen in the file, path is resolved relative to the containing file, if unrooted</li>
+      <li>--noResolve compiler flag - triple-slash references are ignored, they neither result in adding new files, nor change the order of the files provided</li>
+    </ul>
+    </li>
+    <li>/// &lt;reference types="..." /&gt;
+    <ul>
+      <li>declares a dependency on a package</li>
+      <li>process of resolving these package names is similar to the process of resolving module names in an "import" statement, are as an import for declaration packages</li>
+      <li>use these directives only when you're authoring a d.ts file by hand</li>
+      <li>in a generated declaration file is added if and only if the resulting file uses any declarations from the referenced package</li>
+      <li>for declaring a dependency on an @types package in a .ts file, use --types on the command line or in your tsconfig.json instead (see using @types, typeRoots and types in tsconfig.json files for more details)</li>
+    </ul>
+    </li>
+    <li>/// &lt;reference lib="..." /&gt;
+    <ul>
+      <li>allows a file to explicitly include an existing built-in lib file (referenced in the same fashion as the "lib" compiler option in tsconfig.json (e.g. use lib="es2015" and not lib="lib.es2015.d.ts", etc.))</li>
+      <li>recomended for declaration file authors who relay on built-in types, e.g. DOM APIs or built-in JS run-time constructors like Symbol or Iterable</li>
+    </ul>
+    <li>/// &lt;reference no-default-lib="true"/&gt;
+    <ul>
+      <li>marks a file as a default library (is at the top of lib.d.ts and its different variants)</li>
+      <li>instructs the compiler to not include the default library (i.e. lib.d.ts) in the compilation, impact here is similar to passing --noLib on the command line</li>
+      <li>when passing --skipDefaultLibCheck, the compiler will only skip checking such files</li>
+    </ul>
+    </li>
+    <li>/// &lt;amd-module /&gt;
+    <ul>
+      <li>by default AMD modules are generated anonymous, this can lead to problems when other tools are used to process the resulting modules, such as bundlers (e.g. r.js)</li>
+      <li>directive allows passing an optional module name to the compiler</li>
+    </ul>
+    </li>
+  </ul>
+
+  <pre><code class="ts">
+    // amdModule.ts
+    ///&lt;amd-module name="NamedModule"/&gt;
+    export class C { }
+    // result in assigning the name NamedModule to the module as part of calling the AMD define:
+    // amdModule.js
+    define("NamedModule", ["require", "exports"], function (require, exports) {
+      var C = (function () {
+        function C() { }
+        return C;
+      })();
+      exports.C = C;
+    });
+  </code></pre>
+
+
+
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

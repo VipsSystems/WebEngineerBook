@@ -1,6 +1,8 @@
-![Web Engineer Book logo](logo512.png=256x256)
+![Web Engineer Book logo](logo192.png)
 
 Web Engineer Book
+
+https://book.vipsprojects.com/
 
 - This book is a compilation of guides, examples, cheet sheets and recipes in area of web programming and related technologies
 - It is a giveaway and give back to Open Source Community, feel free to contribute and share.

@@ -30,7 +30,7 @@ function runAppSetting () {
   const resize = storageGet('resize');
   // console.log(left.getBoundingClientRect().width)
   if (resize) {
-    left.style.width = resize + "px";
+    left&&(left.style.width = resize + "px");
     setResize(resize);
   }
   const zoom = storageGet('zoom');

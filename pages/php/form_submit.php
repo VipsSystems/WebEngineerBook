@@ -11,7 +11,7 @@ echo "\n\n:: Data received as \"raw\" (text/plain encoding) ::\n\n";
 if (isset($HTTP_RAW_POST_DATA)) { echo $HTTP_RAW_POST_DATA; }
 
 echo "\n\n:: Files received ::\n\n";
-print_r($_FILES);
+print_r(array_keys($_FILES));
 
 exit();
 ?>

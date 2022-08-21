@@ -5,5 +5,5 @@ error_reporting(0);
 
 set_time_limit(1);
 sleep(2);
-dasdgd
+
 ?>

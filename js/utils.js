@@ -22,7 +22,10 @@ function setResize (x) {
 }
 function setZoom (x) {
   doc.style.fontSize = `${x}px`;
-  document.getElementById('menu_target').contentWindow.document.querySelector('body').style.fontSize = `${x}px`;
+  const target = document.getElementById('menu_target');
+  if (target) {
+    target.contentWindow.document.querySelector('body').style.fontSize = `${x}px`;
+  }
   storageSet('zoom', x);
 }
 

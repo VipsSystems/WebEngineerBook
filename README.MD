@@ -1,6 +1,4 @@
-<p align="center">
 ![Web Engineer Book logo](logo-highlight.png)
-</p>
 
 Web Engineer Book
 

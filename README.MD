@@ -14,3 +14,21 @@ https://book.vipsprojects.com/
 - All credits go to Open Source Community, respective authors and Andrei T. ( andreivinyl@gmail.com ). See LICENSE file for extended information.
 
 This project is part of VipsProjects.com , please visit to support and explore.
+
+
+
+![Intro screenshot](screens/book-intro-2.png)
+
+
+
+![Screenshot 1](screens/book-screen-1.png)
+
+
+
+![Screenshot 2](screens/book-screen-2.png)
+
+
+
+![Screenshot 3](screens/book-screen-3.png)
+
+

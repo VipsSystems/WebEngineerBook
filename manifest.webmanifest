@@ -21,7 +21,7 @@
     ],
     "start_url": ".",
     "display": "fullscreen",
-    "theme_color": "#333333",
-    "background_color": "#333333",
+    "theme_color": "#111111",
+    "background_color": "#111111",
     "lang": "en-US"
 }

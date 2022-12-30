@@ -243,7 +243,7 @@
     // bridge/named.mjs
     import named from '../commonjs/named.js'
     export const sayHello = named.sayHello
-    Import it as named import
+    // Import it as named import
     // index.mjs (with bridged modules)
     // named without changing the name
     import { sayHello } from './bridge/named.mjs'
@@ -2774,6 +2774,62 @@
   </table>
   </details>
 
+
+
+<h2 id="package">package.json</h2>
+
+  <ul>
+    <li>package is a folder tree described by a package.json file</li>
+    <li>consists of the folder containing the package.json file and all subfolders until the next folder containing another package.json file, or a folder named node_modules</li>
+    <li>other tools (such as npm) use additional fields which are ignored by Node.js</li>
+  </ul>
+
+
+  <pre><code class="js">
+    {
+      // --- package name
+      "name": "package-name",
+      // --- entry point of a package when imported by name via a node_modules lookup, value is a path
+      // "exports" field will take precedence over the "main" field when importing the package by name
+      // also defines the script that is used when the package directory is loaded via require()
+      // require('./path/to/directory') resolves to ./path/to/directory/index.js:
+      "main": "./index.js",
+      // --- which package manager is expected to be used when working on the current project
+      "packageManager": "&lt;package manager name&gt;@&lt;version&gt;",
+      // --- module format that Node.js uses for all .js files that have that package.json file as their nearest parent
+      // .mjs files are always treated as ES modules and .cjs files are always treated as CommonJS
+      // nearest parent package.json is defined as the first package.json found when searching in the current folder,
+      // that folder parent, and so on up until a node_modules folder or the volume root is reached
+      "type": "module",
+      "type": "commonjs", // default in all scenarios
+      // --- entry points of a package when imported by name loaded either via a node_modules lookup or a self-reference to its own name
+      // alternative to the "main" that can support defining subpath exports and conditional exports while encapsulating internal unexported modules
+      // all paths defined must be relative file URLs starting with ./
+      "exports": "./index.js"
+      // Conditional Exports within "exports" define different package entry points per environment
+      "exports": {
+        "import": "./index-module.js", // matches when the package is loaded via import or import()
+        "require": "./index-require.cjs", // matches when the package is loaded via require()
+        ".": {
+          "import": "./esm/index.js",
+          "require": "./commonjs/index.cjs",
+        },
+        default": "./commonjs/index.cjs", // generic fallback that always matches, CommonJS or ES module file, should always come last
+      },
+      "type": "module",
+      // --- imports permit mapping to external packages, defines subpath imports for the current package
+      // entries in the imports field must be strings starting with #
+      "imports": {
+        "#dep": {
+          "node": "dep-node-native",
+          "default": "./dep-polyfill.js"
+        }
+      },
+      "dependencies": {
+        "dep-node-native": "^1.0.0"
+      }
+    }
+  </code></pre>
 
 
 <h2 id="streams">Streams</h2>

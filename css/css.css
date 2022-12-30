@@ -16,6 +16,14 @@ body {
 	word-break: break-word;
 }
 
+.menu-logo {
+	border: 0.0625rem solid #f41749;
+    border-radius: .5rem;
+    box-shadow: 0 0 1.5rem #f41749;
+    height: 2rem;
+    width: 2rem;
+}
+
 h1, h2, h3, h4, h5, h6 {
 	background-color: black;
 	color:white;
@@ -31,6 +39,10 @@ a, a:link, a:visited, a:hover, a:active {
 	color:black;
 	cursor: pointer;
 	border-bottom: .125rem dashed gray;
+}
+
+input {
+	accent-color: #f41749;
 }
 
 ul {
@@ -169,6 +181,9 @@ svg {
 .t-left { text-align:left }
 .t-right { text-align:right }
 .t-center { text-align:center }
+
+.m-05 { margin: .5rem }
+.m-1 { margin: 1rem }
 
 .p-05 { padding: .5rem }
 .p-1 { padding: 1rem }

@@ -157,7 +157,7 @@
     /** @param {...number} args */
     function sum(/* numbers */) {
       var total = 0
-      for (var i = 0; i < arguments.length; i++) {
+      for (var i = 0; i &lt; arguments.length; i++) {
         total += arguments[i]
       }
       return total
@@ -167,7 +167,7 @@
     // since there is no natural syntax for specifying generic type parameters in JS
     import { Component } from "react";
     /**
-      * @augments {Component<{a: number}, State>}
+      * @augments {Component&lt;{a: number}, State>}
       */
     class MyComponent extends Component {
       render() {
@@ -303,7 +303,7 @@
     var question;
     // cast types to other types, add @type tag before any parenthesized expression:
     /** @type {number | string} */
-    var numberOrString = Math.random() < 0.5 ? "hello" : 100;
+    var numberOrString = Math.random() &lt; 0.5 ? "hello" : 100;
     var typeAssertedNumber = /** @type {number} */ (numberOrString)
     // --- IMPORT TYPES
     /** @param p { import("./a").Pet } */
@@ -1261,6 +1261,29 @@
     <li>files, include and exclude from the inheriting config file overwrite those from the base config file</li>
     <li></li>
     <li>all relative paths found in the configuration file will be resolved relative to the configuration file they originated in</li>
+    <li></li>
+    <li>ECMAScript Module Support (ESM) in Node.js</li>
+    <li>
+      <ul>
+        <li>when a file is considered an ES module, a few different rules come into play compared to CommonJS
+          <ul>
+            <li>import/export statements can be used</li>
+            <li>top-level await can be used</li>
+            <li>relative import paths need full extensions (we have to write import "./foo.js" instead of import "./foo")</li>
+            <li>imports might resolve differently from dependencies in node_modules</li>
+            <li>certain global-like values like require and module cannot be used directly</li>
+            <li>CommonJS modules get imported under certain special rules</li>
+          </ul>
+        </li>
+        <li>new file extensions
+          <ul>
+            <li><code>.mjs</code> files are always ES modules, and <code>.cjs</code> files are always CommonJS modules</li>
+            <li>new source file extensions: <code>.mts</code> and <code>.cts</code> - TS emits these to .mjs and .cjs respectively</li>
+            <li>declaration file extensions: <code>.d.mts</code> and <code>.d.cts</code> - TS generates declaration files for .mts and .cts, their corresponding extensions will be .d.mts and .d.cts</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
   </ul>
 
   <h3>tsconfig.json: using the "files" property</h3>
@@ -1324,6 +1347,89 @@
       "dependencies": {
         "@typescript/lib-dom": "npm:@types/web"
       }
+    }
+  </code></pre>
+
+  <h3>ECMAScript Module Support (ESM) in Node.js</h3>
+  <pre><code class="ts">
+    // tsconfig.json
+    {
+      "compilerOptions": {
+        "module": "node16",
+        "module": "nodenext",
+      }
+    }
+    // "type" in package.json
+    // whether .js files are interpreted as ES modules or CommonJS modules, and defaults to CommonJS when not set
+    {
+        "name": "my-package",
+        "type": "module",
+        "type": "commonjs",
+        "//": "...",
+        "dependencies": {
+        }
+    }
+
+    // ./foo.ts
+    export function helper() {
+      // ...
+    }
+    // ./bar.ts
+    import { helper } from "./foo"; // only works in CJS only !
+    import { helper } from "./foo.js"; // works in ESM & CJS
+    helper();
+
+    // - Node.js allows ES modules to import CommonJS modules as if they were ES modules with a default export
+    // ./foo.cts
+    export function helper() {
+      console.log("hello world!");
+    }
+    // ./bar.mts
+    import foo from "./foo.cjs";
+    foo.helper(); // prints "hello world!"
+    // - in some cases, Node.js also synthesizes named exports from CommonJS modules
+    // ES modules can use a “namespace-style” import (i.e. import * as foo from "..."), or named imports (i.e. import { helper } from "...")
+    // ./bar.mts
+    import { helper } from "./foo.cjs";
+    helper(); // prints "hello world!"
+
+    // --- package.json - exports, imports, and self-referencing (read NodeJS/package.json section)
+    // separate entry-points for CommonJS and ESM
+    {
+      "name": "my-package",
+      "type": "module",
+      "exports": {
+        ".": {
+          "import": "./esm/index.js", // Entry-point for `import "my-package"` in ESM
+          "require": "./commonjs/index.cjs", // Entry-point for `require("my-package") in CJS
+        },
+      },
+      "main": "./commonjs/index.cjs", // CJS fall-back for older versions of Node.js
+    }
+    // if "main" pointed to ./lib/index.js, TS would look for a file called ./lib/index.d.ts
+    // package author could override this by specifying a separate field called "types" (e.g. "types": "./types/index.d.ts")
+    // works similarly with "import" conditions.
+    // TS overlays the same rules with import conditions - if you write an "import" from an ES module, it will look up the import field
+    // and from a CommonJS module, it will look at the "require" field
+    // then look for a corresponding declaration file.
+    // add a "types" import condition to point to a different location for your type declarations
+    {
+      "name": "my-package",
+      "type": "module",
+      "exports": {
+        ".": {
+          "import": { // Entry-point for `import "my-package"` in ESM
+            "types": "./types/esm/index.d.ts", // Where TS will look
+            "default": "./esm/index.js" // Where Node.js will look
+          },
+          "require": { // Entry-point for `require("my-package") in CJS
+            "types": "./types/commonjs/index.d.cts", // Where TS will look
+            "default": "./commonjs/index.cjs" // Where Node.js will look
+          },
+        }
+      },
+      "types": "./types/index.d.ts", // Fall-back for older versions of TS
+      "main": "./commonjs/index.cjs" // CJS fall-back for older versions of Node.js
     }
   </code></pre>
 
@@ -1652,10 +1758,22 @@
         <td>Specify module code generation: <code>"None"</code>, <code>"CommonJS"</code>, <code>"AMD"</code>, <code>"System"</code>, <code>"UMD"</code>, <code>"ES6"</code>, <code>"ES2015"</code>, <code>"ES2020"</code> or <code>"ESNext"</code><br>Only <code>"AMD"</code> and <code>"System"</code> can be used in conjunction with <code>--outFile</code><br><code>"ES6"</code> and <code>"ES2015"</code> values may be used when targeting <code>"ES5"</code> or lower</td>
       </tr>
       <tr>
+        <td><code>--moduleDetection</code></td>
+        <td><code>string</code></td>
+        <td>auto</td>
+        <td>"auto" - TS will not only look for import and export statements, but it will also check whether the "type" field in a package.json is set to "module" when running with module: nodenext or node16, and check whether the current file is a JSX file when running under jsx: react-jsx. "legacy" - The same behavior as 4.6 and prior, usings import and export statements to determine whether a file is a module. "force" - Ensures that every non-declaration file is treated as a module</td>
+      </tr>
+      <tr>
         <td><code>--moduleResolution</code></td>
         <td><code>string</code></td>
         <td><code>module === "AMD" or "System" or "ES6" ?  "Classic" : "Node"</code></td>
         <td>Determine how modules get resolved. Either <code>"Node"</code> for Node.js/io.js style resolution, or <code>"Classic"</code>. See <a href="./module-resolution.html">Module Resolution documentation</a> for more details</td>
+      </tr>
+      <tr>
+        <td><code>--moduleSuffixes</code></td>
+        <td><code>list</code></td>
+        <td>""</td>
+        <td>Default list of file name suffixes to search when resolving a module. <code>moduleSuffixes": [".ios", ".native", ""]</code> for <code>import * as foo from "./foo";</code> will look for the relative files ./foo.ios.ts, ./foo.native.ts, and finally ./foo.ts . Empty string "" in is necessary for TS to also look-up .ts . Can be useful for React Native projects where each target platform can use a separate tsconfig.json with differing moduleSuffixes.</td>
       </tr>
       <tr>
         <td><code>--newLine</code></td>
@@ -1985,7 +2103,7 @@
         <td><code>--watch</code><br><code>-w</code></td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
-        <td>Run the compiler in watch mode. Watch input files and trigger recompilation on changes. The implementation of watching files and directories can be configured using environment variable. See <a href="./configuring-watch.html">configuring watch</a> for more details</td>
+        <td>Run the compiler in watch mode. Watch input files and trigger recompilation on changes. The implementation of watching files and directories can be configured using environment variable. See <a href="#watch">configuring watch</a> for more details</td>
       </tr>
       <tr>
         <td><code>--watchDirectory</code><br><code>-w</code></td>
@@ -2008,6 +2126,55 @@
     </tbody>
   </table>
 
+<h2 id="watch">Configuring --watch</h2>
+
+  <ul>
+    <li>Configuring how to watch files and directories using compiler flags in TypeScript 3.8+, and environment variables before that</li>
+    <li>Using environment variable <code>TSC_WATCHFILE</code>
+      <ul>
+        <li><code>PriorityPollingInterval</code> - Use fs.watchFile but use different polling intervals for source files, config files and missing files</li>
+        <li><code>DynamicPriorityPolling</code> - Use a dynamic queue where in the frequently modified files will be polled at shorter interval and the files unchanged will be polled less frequently</li>
+        <li><code>UseFsEvents</code> - Use fs.watch which uses file system events (but might not be accurate on different OS) to get the notifications for the file changes/creation/deletion. Note that few OS e.g. linux has limit on number of watches and failing to create watcher using fs.watch will result it in creating using fs.watchFile</li>
+        <li><code>UseFsEventsWithFallbackDynamicPolling</code> - This option is similar to UseFsEvents except on failing to create watch using fs.watch, the fallback watching happens through dynamic polling queues (as explained in DynamicPriorityPolling)</li>
+        <li><code>UseFsEventsOnParentDirectory</code> - This option watches parent directory of the file with fs.watch (using file system events) thus being low on CPU but can compromise accuracy.</li>
+        <li><strong>default (no value specified)</strong> - If environment variable TSC_NONPOLLING_WATCHER is set to true, watches parent directory of files (just like UseFsEventsOnParentDirectory). Otherwise watch files using fs.watchFile with 250ms as the timeout for any file</li>
+      </ul>
+    </li>
+    <li>Uuing environment variable <code>TSC_WATCHDIRECTORY</code>, on platforms that dont support recursive directory watching natively in NodeJS, is supported through recursively creating directory watcher for the child directories using different options. Ignored on platforms that support native recursive directory watching (e.g windows).
+      <ul>
+        <li><code>RecursiveDirectoryUsingFsWatchFile</code> - Use fs.watchFile to watch the directories and child directories which is a polling watch (consuming CPU cycles)</li>
+        <li><code>RecursiveDirectoryUsingDynamicPriorityPolling</code> - Use dynamic polling queue to poll changes to the directory and child directories.</li>
+        <li><strong>default (no value specified)</strong> - Use fs.watch to watch directories and child directories</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>with tsconfig.json</h3>
+  <pre><code class="javascript">
+    {
+      // Some typical compiler options
+      "compilerOptions": {
+        "target": "es2020",
+        "moduleResolution": "node"
+        // ...
+      },
+      // NEW: Options for file/directory watching
+      "watchOptions": {
+        // Use native file system events for files and directories
+        "watchFile": "useFsEvents",
+        "watchDirectory": "useFsEvents",
+        // Poll files for updates more frequently
+        // when they're updated a lot.
+        "fallbackPolling": "dynamicPriority",
+        // Don't coalesce watch notification
+        "synchronousWatchDirectory": true,
+        // Finally, two additional settings for reducing the amount of possible
+        // files to track  work from these directories
+        "excludeDirectories": ["**/node_modules", "_build"],
+        "excludeFiles": ["build/fileWhichChangesOften.ts"]
+      }
+    }
+  </code></pre>
 
 
 <h2 id="refs">Project References</h2>

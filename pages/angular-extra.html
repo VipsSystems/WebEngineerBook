@@ -2301,7 +2301,6 @@
     </li>
     <li><strong>Angular template compiler options</strong>, members of the "angularCompilerOptions" object in the tsconfig.json
       <ul>
-        <li><strong>enableIvy</strong> - enables the Ivy compilation and rendering pipeline, true by default, as of version 9, in version 9, you can opt out of Ivy to continue using the previous compiler, View Engine. for library projects generated with the CLI, the production configuration default is false in version 9</li>
         <li><strong>compilationMode</strong> - 'full' - generates fully AOT-compiled code (default), 'partial' - generates code in a stable, but intermediate form suitable for a published library</li>
         <li><strong>fullTemplateTypeCheck</strong> - when true (recommended), enables the binding expression validation phase of the template compiler, which uses TS to validate binding expressions, default is false, but when you use the CLI command <code>ng new --strict</code>, it is set to true in the generated project configuration</li>
         <li><strong>strictTemplates</strong> - enables strict template type checking, only available when using Ivy, additional strictness flags allow you to enable and disable specific types of strict template type checking, when you use the CLI command <code>ng new --strict</code>, it is set to true in the generated project configuration</li>
@@ -4939,7 +4938,7 @@
       router: Router;
       fixture: ComponentFixture&lt;AppComponent&gt;;
       constructor() {
-        const links = fixture.debugElement.queryAll(By.directive(RouterLinkWithHref));
+        const links = fixture.debugElement.queryAll(By.directive(RouterLink));
         this.aboutLinkDe     = links[2];
         this.dashboardLinkDe = links[0];
         this.heroesLinkDe    = links[1];

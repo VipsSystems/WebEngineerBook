@@ -301,6 +301,21 @@
         <td>root</td>
         <td>Selects the document's root (html) element</td>
       </tr>
+      <tr>
+        <td>:has</td>
+        <td>.header-group:has(h2):has(.subtitle)</td>
+        <td>Select elements that contain elements that match the selector passed</td>
+      </tr>
+      <tr>
+        <td>:is</td>
+        <td>:is(.main, .sidebar, .site-footer) a:hover</td>
+        <td>Selects any element that can be selected by one of the selectors in that list, counts towards the specificity of the overall selector (it takes the specificity of its most specific argument)</td>
+      </tr>
+      <tr>
+        <td>:where</td>
+        <td>:where(.main, .sidebar, .site-footer) a:hover</td>
+        <td>Selects any element that can be selected by one of the selectors in that list, always has 0 specificity</td>
+      </tr>
 
       <tr>
         <td colspan="3"><strong>Links state (in correct order)</strong></td>
@@ -714,7 +729,12 @@
 
   <style>
     .gr {
-      height:100px;width:100%;
+      height:5rem;width:100%;
+    }
+    .gr-c {
+      height:10rem;
+      width:10rem;
+      border-radius: 50%;
     }
   </style>
 
@@ -789,6 +809,30 @@
   </div>
   <pre><code class="html">
     &lt;div style="background:repeating-radial-gradient(red, yellow 10%, green 15%);"&gt;&lt;/div&gt;
+  </code></pre>
+
+  <h3>conical-gradient</h3>
+  <div class="example flex-center">
+    <div class="gr-c m-1" style="background: conic-gradient(yellow, lime, blue, violet, red, yellow)"></div>
+    <div class="gr-c m-1" style="background: conic-gradient(#444 0 25%, gold 0 70%, #00aaff 0 100%)"></div>
+    <div class="gr-c m-1" style="background: conic-gradient(white, black)"></div>
+    <div class="gr-c m-1" style="background: conic-gradient(from -45deg, white, black, white)"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div style="background: conic-gradient(yellow, lime, blue, violet, red, yellow)"&gt;&lt;/div&gt;
+    &lt;div style="background: conic-gradient(#444 0 25%, gold 0 70%, #00aaff 0 100%)"&gt;&lt;/div&gt;
+    &lt;div style="background: conic-gradient(white, black)"&gt;&lt;/div&gt;
+    &lt;div style="background: conic-gradient(from -45deg, white, black, white)"&gt;&lt;/div&gt;
+  </code></pre>
+
+  <h3>repeating-conic-gradient</h3>
+  <div class="example flex-center">
+    <div class="gr-c m-1" style="background: repeating-conic-gradient(from 7.5deg at 50% 0, transparent 0 15deg, gold 0 30deg)"></div>
+    <div class="gr-c m-1" style="background: repeating-conic-gradient(red 0 15deg,darkred 0 30deg)"></div>
+  </div>
+  <pre><code class="html">
+    &lt;div style="background: repeating-conic-gradient(from 7.5deg at 50% 0, transparent 0 15deg, gold 0 30deg)"&gt;&lt;/div&gt;
+    &lt;div style="background: repeating-conic-gradient(red 0 15deg,darkred 0 30deg)"&gt;&lt;/div&gt;
   </code></pre>
 
 
@@ -1722,6 +1766,38 @@
 
 
 
+<h2 id="accent-color">accent-color</h2>
+
+  <ul>
+    <li><code>accent-color: red;</code> - checkboxes and radio buttons color</li>
+  </ul>
+
+  <style>
+    #accent-color-form {
+      accent-color: red;
+    }
+  </style>
+
+  <div class="example">
+    <form id="accent-color-form" action="/foo.bar">
+      <input type="radio" id="mountain" name="type" value="mountain">
+      <label for="mountain">Mountain</label><br>
+      <input type="radio" id="ocean" name="type" value="ocean">
+      <label for="ocean">Ocean</label><br>
+      <input type="radio" id="desert" name="type" value="desert">
+      <label for="desert">Desert</label>
+      <hr />
+      <input type="checkbox" id="achk1" value="achk1">
+      <label for="achk1">Check #1</label>
+      <input type="checkbox" id="achk2" value="achk2" checked>
+      <label for="achk2">Check #2</label>
+      <input type="checkbox" id="achk3" value="achk3">
+      <label for="achk3">Check #3</label>
+    </form>
+  </div>
+
+
+
 <h2 id="obj_fit">object-fit</h2>
 
   <ul>
@@ -1811,6 +1887,18 @@
 
 <h2 id="aspect-ratio">aspect-ratio</h2>
 
+  <ul>
+    <li>proportional relationship between width and height</li>
+    <li>won't work if both width and height are set</li>
+    <li>usage example
+      <ul>
+        <li>creating placeholder containers for content that will be loaded</li>
+        <li>creating consistent, uniform-sized components such as cards</li>
+        <li>creating responsive iframes</li>
+      </ul>
+    </li>
+  </ul>
+
   <pre><code class="css">
     .container {
       width: 100%;
@@ -1830,6 +1918,16 @@
       aspect-ratio: 1 / 1;
       width: 100%;
       object-fit: contain;
+    }
+
+    .standard {
+      aspect-ratio: 4 / 3;
+    }
+    @supports not (aspect-ratio: 4 / 3) {
+      .standard {
+        width: 16rem;
+        height: 9rem;
+      }
     }
   </code></pre>
 
@@ -1929,6 +2027,7 @@
   <ul>
     <li>element becomes a grid container by setting the <em>display</em> property set to <em>grid</em> or <em>inline-grid</em></li>
     <li>all direct children of the grid container automatically become grid items</li>
+    <li><code>grid-template-rows: subgrid</code>, <code>grid-template-columns: subgrid</code> - grid items with track sizing from the parent</li>
   </ul>
 
   <style>
@@ -2371,6 +2470,7 @@
     <li>justify-content - align the flex items</li>
     <li>align-items - align the flex items vertically</li>
     <li>align-content - align the flex lines</li>
+    <li>gap|row-gap|column-gap - gaps between rows and columns</li>
   </ul>
 
   <h3>Flex items properties</h3>
@@ -2721,6 +2821,144 @@
       font-size: clamp(1.5rem, 5vw, 3rem);
     }
   </code></pre>
+
+
+
+<h2 id="cont">contain</h2>
+
+  <ul>
+    <li>indicate that an element and its contents are, as much as possible, independent from the rest of the document tree</li>
+    <li>enables isolating a subsection of the DOM, providing performance benefits by limiting calculations of layout, style, paint, size, or any combination to a DOM subtree rather than the entire page</li>
+    <li>can be used to scope CSS counters and quotes</li>
+  </ul>
+
+  <pre><code class="css">
+    /*
+      size containment is applied to the element in both the inline and block directions
+      size of the element can be computed in isolation, ignoring the child elements
+      this value cannot be combined with inline-size
+    */
+    contain: size;
+
+    /*
+      inline size containment is applied to the element
+      can be computed in isolation, ignoring the child elements
+      this value cannot be combined with size
+    */
+    contain: inline-size;
+
+    /*
+      internal layout of the element is isolated from the rest of the page
+      nothing outside the element affects its internal layout, and vice versa
+    */
+    contain: layout;
+
+    /*
+      for properties that can affect more than just an element and its descendants,
+      the effects don't escape the containing element
+    */
+    contain: style;
+
+    /*
+      descendants of the element dont display outside its bounds
+      descendant overflos are clipped to the containing element border-box
+    */
+    contain: paint;
+
+    contain: strict;    /* same as: contain: size layout paint style */
+
+    contain: content;   /* same as: contain: layout paint style */
+
+    /*
+      COUNTERS
+    */
+    body {
+      counter-reset: list-items;
+    }
+    li::before {
+      counter-increment: list-items;
+      content: counter(list-items) ": ";
+    }
+    .container {
+      contain: style; /* scopes counter */
+    }
+
+    /*
+      QUOTES
+    */
+    body {
+      quotes: "[" "]" "&lt;" "&gt;";
+    }
+    .open-quote:before {
+      content: open-quote;
+    }
+    .close-quote:after {
+      content: close-quote;
+    }
+  </code></pre>
+
+
+
+<h2 id="contv">content-visibility</h2>
+
+  <ul>
+    <li>skip an element rendering work until it is needed (when an element is in view)</li>
+    <li>consider which content must be loaded initially, and which content could potentially be deferred</li>
+    <li><code>content-visibility: auto</code> - let the browser decide if it can skip the rendering of an element</li>
+    <li>important considerations
+      <ul>
+        <li><strong>height of the page</strong> - <code>content-visibility: auto</code> and <code>content-visibility: hidden</code> will become invisible with <code>height</code> zero until it is rendered, this changes the page height and scrolling, try use the <code>contain-intrinsic-size</code> property to give an any explicit height for the element to compensate for this</li>
+        <li><code>impact on accessibility</code> - if <code>content-visibility</code> is used on a section that has headings and landmarks, screen readers won't be able to access these when the page loads, this degrades the accessibility of your content</li>
+      </ul>
+    </li>
+    <li>check support: <a href="https://caniuse.com/css-content-visibility">https://caniuse.com/css-content-visibility</a></li>
+  </ul>
+
+
+
+<h2 id="feature-queries-supports">Feature queries - @supports</h2>
+
+  <ul>
+    <li>test to see if a browser has support for a certain feature, and then provide CSS that will only run based on the result of that test</li>
+    <li>if the property and value pair is understood by the browser it returns a positive response</li>
+    <li>cannot be used to check if a browser supports a thing properly, and without bugs</li>
+  </ul>
+
+  <pre><code class="css">
+    .box {
+      border: 4px solid blue;
+      color: blue;
+    }
+    @supports (row-gap: 10px) {
+      .box {
+        border: 4px solid red;
+        color: red;
+      }
+    }
+
+    .box {
+      border: 4px solid blue;
+      color: blue;
+    }
+    @supports not (row-gap: 10px) {
+      .box {
+        border: 4px solid red;
+        color: red;
+      }
+    }
+
+    .box {
+      border: 4px solid blue;
+      color: blue;
+    }
+    @supports (display: grid) and (shape-outside: circle()) {
+      .box {
+        border: 4px solid red;
+        color: red;
+      }
+    }
+  </code></pre>
+
 
 
 <h2 id="mq">Media Queries - @media</h2>

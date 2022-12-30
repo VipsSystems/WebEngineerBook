@@ -75,6 +75,8 @@
         const token = r.body; // (parameter) r: Success
       }
     }
+    // Symbol value is not allowed in a template string, use String()
+    let str = `hello ${Symbol()}`; // TypeError: Cannot convert a Symbol value to a string
 
     // --- ARRAY
     let list: number[] = [1, 2, 3];
@@ -284,6 +286,13 @@
           `Expected 'val' to be defined, but received ${val}`
         );
       }
+    }
+    // also can be defined as:
+    function throwIfNullable&lt;T&gt;(value: T): NonNullable&lt;T&gt; {
+      if (value === undefined || value === null) {
+        throw Error("Nullable value!");
+      }
+      return value;
     }
   </code></pre>
 
@@ -581,6 +590,14 @@
       select() { }
     }
     class Location { }
+
+    // --- type parameter variance, good for libraries authors, accuracy and type-checking speed
+    type Getter&lt;out T&gt; = () => T; // Getter is covariant on T - "out" modifier
+    type Setter&lt;in T&gt; = (value: T) => void; // Setter is contravariant on T - "in" modifier
+    interface State&lt;in out T&gt; { // T is used in both an output and input position - invariant
+      get: () => T;
+      set: (value: T) => void;
+    }
   </code></pre>
 
 
@@ -687,6 +704,13 @@
     thing.size = true;
     thing.size = 42;
     let mySize: number = thing.size; // reading 'thing.size' always produces a number!
+    // ECMAScript auto-accessors, "de-sugared" to a get and set accessor with an unreachable private property: #__name: string;
+    class Person {
+      accessor name: string;
+      constructor(name: string) {
+        this.name = name;
+      }
+    }
 
     // --- STATIC properties
     class Grid {
@@ -798,6 +822,9 @@
     let myAdd = function(x: number, y: number): number { return x + y; };
     let myAdd: (baseValue: number, increment: number) => number =
       function(x: number, y: number): number { return x + y; };
+    // to avoid error, if property is not references later in the signature:
+    declare function makePerson(options: { name: string, age: number }): Person;
+    declare function makePerson({ name, age }: { name: string, age: number }): Person;
 
     function makeThing(): Thing {
       let size = 0;
@@ -945,6 +972,22 @@
     }
     createInstance(Lion).keeper.nametag;  // typechecks!
     createInstance(Bee).keeper.hasMask;   // typechecks!
+
+    // --- INSTANTIATION EXPRESSIONS
+    interface Box&lt;T&gt; {
+      value: T;
+    }
+    function makeBox&lt;T&gt;(value: T) {
+      return { value };
+    }
+    // take functions and constructors and feed them type arguments directly
+    const makeHammerBox = makeBox&lt;Hammer&gt;;
+    const makeWrenchBox = makeBox&lt;Wrench&gt;;
+    // instead of wrapping
+    function makeHammerBox(hammer: Hammer) {
+      return makeBox(hammer);
+    }
+    const makeWrenchBox: (wrench: Wrench) => Box&lt;Wrench&gt; = makeBox;
 
     // --- CONSTRAINTS
     interface Lengthwise { length: number; }
@@ -1115,7 +1158,6 @@
       curr = iter.next(curr.value === 5);
     }
     console.log(curr.value.toUpperCase()); // prints: 0 1 2 3 4 5 DONE!
-
   </code></pre>
 
 
@@ -1135,6 +1177,37 @@
     window.onmousedown = function(mouseEvent: any) {
       console.log(mouseEvent.clickTime);  // now, no error is given
     };
+
+    // --- "satisfies" operator
+    // validate that the type of an expression matches some type, without changing the resulting type of that expression.
+    // validate that all the properties of palette are compatible with string | number[] :
+    type Colors = "red" | "green" | "blue";
+    type RGB = [red: number, green: number, blue: number];
+    const palette = {
+      red: [255, 0, 0],
+      green: "#00ff00",
+      bleu: [0, 0, 255] // error, typo !
+    } satisfies Record&lt;Colors, string | RGB&gt;;
+    // both methods are accessible
+    const redComponent = palette.red.at(0);
+    const greenNormalized = palette.green.toUpperCase();
+    // ensure that an object has all the keys of some type, but no more:
+    const favoriteColors = {
+      "red": "yes",
+      "green": false,
+      "blue": "kinda",
+      "platypus": false // error - "platypus" was never listed in 'Colors'
+    } satisfies Record&lt;Colors, unknown&gt;;
+    const g: boolean = favoriteColors.green; // information about the 'red', 'green', and 'blue' properties are retained
+    // ensure that all of an object property values conform to some type:
+    type RGB = [red: number, green: number, blue: number];
+    const palette = {
+      red: [255, 0, 0],
+      green: "#00ff00",
+      blue: [0, 0] // error !
+    } satisfies Record&lt;string, string | RGB&gt;;
+    const redComponent = palette.red.at(0);
+    const greenNormalized = palette.green.toUpperCase();
 
     // higher order type inference from generic functions
     // compose takes two other functions:
@@ -1419,19 +1492,19 @@
     class SpaceRepeatingPadder implements Padder {
       constructor(private numSpaces: number) { }
       getPaddingString() {
-          return Array(this.numSpaces + 1).join(" ");
+        return Array(this.numSpaces + 1).join(" ");
       }
     }
     class StringPadder implements Padder {
       constructor(private value: string) { }
       getPaddingString() {
-          return this.value;
+        return this.value;
       }
     }
     function getRandomPadder() {
       return Math.random() &lt; 0.5 ?
-          new SpaceRepeatingPadder(4) :
-          new StringPadder("  ");
+        new SpaceRepeatingPadder(4) :
+        new StringPadder("  ");
     }
     // Type is 'SpaceRepeatingPadder | StringPadder'
     let padder: Padder = getRandomPadder();
@@ -2030,6 +2103,19 @@
     // use:
     type AnyFunction = (...args: any[]) =&gt; any;
     type ReturnType&lt;T extends AnyFunction&gt; = T extends (...args: any[]) =&gt; infer R ? R : any;
+    // constraint on any infer type
+    type FirstIfString&lt;T&gt; =
+      T extends [infer S extends string, ...unknown[]]
+        ? S
+        : never;
+    type A = FirstIfString&lt;[string, number, number]>;// string
+    type C = FirstIfString&lt;["hello" | "world", boolean]>; // "hello" | "world"
+    type D = FirstIfString&lt;[boolean, number, string]>; // never
+    type TryGetNumberIfFirst&lt;T&gt; =
+      T extends [infer U extends number, ...unknown[]] ? U : never;
+    type SomeNum = "100" extends `${infer U extends number}` ? U : never; // 100
+    type SomeBigInt = "100" extends `${infer U extends bigint}` ? U : never; // 100n
+    type SomeBool = "true" extends `${infer U extends boolean}` ? U : never; // true
 
     // --- recursive conditional types
     type ElementType&lt;T&gt; = T extends ReadonlyArray&lt;infer U&gt; ? ElementType&lt;U&gt; : T;
@@ -2420,6 +2506,20 @@
       let validator = new ZipCodeValidator();
       if (validator.isAcceptable("...")) { /* ... */ }
     }
+    // to reference a type from another module, you can instead directly qualify the import
+    import { someValue } from "some-module";
+    /**
+     * @type {import("some-module").SomeType}
+     */
+    export const myValue = someValue;
+    // export a type - use a /** @typedef */ comment in JSDoc
+    // @typedef comments already automatically export types from their containing modules
+    /**
+      * @typedef {string | number} MyType
+      */
+    /**
+      * @typedef {MyType} MyExportedType
+      */
 
     // --- AMBIENT modules (declarations that dont define an implementation) - .d.ts files
     // use "module" keyword and quoted name of the module imported later
@@ -2535,7 +2635,7 @@
 
     // 4 - check that you are not trying to namespace your external modules:
     // - file whose only top-level declaration is "export namespace Foo { ... }"
-    // remove Foo and move everything ‘up' a level
+    // remove Foo and move everything 'up' a level
     // - file that has a single "export class" or "export function"
     // consider using "export default"
     // - multiple files that have the same "export namespace Foo {" at top-level
@@ -3282,8 +3382,7 @@
   </ul>
 
   <pre><code class="ts">
-    // --- ENABLING
-    // Command Line:
+    // --- ENABLING , Command Line:
     tsc --target ES5 --experimentalDecorators
     // OR, tsconfig.json:
     {
@@ -3666,6 +3765,13 @@
       <li>use these directives only when you're authoring a d.ts file by hand</li>
       <li>in a generated declaration file is added if and only if the resulting file uses any declarations from the referenced package</li>
       <li>for declaring a dependency on an @types package in a .ts file, use --types on the command line or in your tsconfig.json instead (see using @types, typeRoots and types in tsconfig.json files for more details)</li>
+      <li>how imports are resolved, reference the types of a CommonJS module from an ECMAScript module
+        <ul>
+          <li>/// &lt;reference types="pkg" resolution-mode="require" /&gt;</li>
+          <li>/// &lt;reference types="pkg" resolution-mode="import" /&gt;</li>
+          <li>"import type" and "import()" can specify an import assertion to achieve something similar in TS nightly builds</li>
+        </ul>
+      </li>
     </ul>
     </li>
     <li>/// &lt;reference lib="..." /&gt;
@@ -3701,6 +3807,25 @@
       })();
       exports.C = C;
     });
+  </code></pre>
+
+  <pre><code class="ts">
+    // --- import type
+    // Resolve `pkg` as if we were importing with a `require()`
+    import type { TypeFromRequire } from "pkg" assert {
+        "resolution-mode": "require"
+    };
+    // Resolve `pkg` as if we were importing with an `import`
+    import type { TypeFromImport } from "pkg" assert {
+        "resolution-mode": "import"
+    };
+    export interface MergedType extends TypeFromRequire, TypeFromImport {}
+    // --- import()
+    export type TypeFromRequire =
+        import("pkg", { assert: { "resolution-mode": "require" } }).TypeFromRequire;
+    export type TypeFromImport =
+        import("pkg", { assert: { "resolution-mode": "import" } }).TypeFromImport;
+    export interface MergedType extends TypeFromRequire, TypeFromImport {}
   </code></pre>
 
 

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="JavaScript browser APIs tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="javascript, js, browser, api, storage, worker, pwa, observer, media, animations, streams, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="javascript, js, browser, api, storage, worker, pwa, observer, media, animations, streams, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -37,6 +37,8 @@
 </head>
 
 <body>
+
+<h1>JS APIs</h1>
 
 <h2 id="storage">Storage</h2>
 
@@ -1607,7 +1609,7 @@
     Base Url:<br>
     <input type="text" value="http://web-engineer-book" style="width:15em" id="sw_base"/><br><br>
     Service Worker:<br>
-    <input type="text" value="js-service-worker.js" style="width:15em" id="sw_link"/><br><br>
+    <input type="text" value="../files/js-service-worker.js" style="width:15em" id="sw_link"/><br><br>
     <button onclick="installServiceWorker()">Install and Activate</button><br>
     <button onclick="msgServiceWorker()">msgServiceWorker()</button><br>
     <button onclick="listCache()">listCache()</button><br>
@@ -2400,7 +2402,7 @@
             resolve(event.data);
           }
         };
-        client.postMessage("serviceWorker message: >>>"+msg+"<<<", [msg_channel.port2]);
+        client.postMessage("serviceWorker message: >>>"+msg+"&lt;&lt;&lt;", [msg_channel.port2]);
       });
     }
     self.addEventListener('message', event => {
@@ -2442,7 +2444,7 @@
         clients.matchAll({
           type: "window"
         }).then(function(clientList) {
-          for (var i = 0; i < clientList.length; i++) {
+          for (var i = 0; i &lt; clientList.length; i++) {
             var client = clientList[i];
             if (
               client.url == 'https://www.google.com/' &&

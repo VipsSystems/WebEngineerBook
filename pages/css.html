@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CSS and CSS3 tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="css, css3, selectors, filter, gradients, grid, flex, media queries, rwd, responsive, design, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="css, css3, selectors, filter, gradients, grid, flex, media queries, rwd, responsive, design, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -24,10 +24,11 @@
 
 <body>
 
-<h2 id="general">General</h2>
+<h1>CSS</h1>
+
+<h2 id="intro">Intro</h2>
 
   <ul>
-    <li><a href="https://www.w3schools.com/howto/default.asp">HTML and CSS "HOW TO" examples</a></li>
     <li><strong>selectors</strong>
       <ul>
         <li>element - <code>div | span | p | button</code></li>
@@ -54,6 +55,8 @@
       </ul>
     </li>
     <li><code>auto</code>, <code>initial</code>, <code>inherit</code>, <code>none</code> as common definition for most styles</li>
+    <li></li>
+    <li><a href="https://www.w3schools.com/howto/default.asp">HTML and CSS "HOW TO" examples</a></li>
   </ul>
 
 
@@ -314,7 +317,7 @@
       <tr>
         <td>:where</td>
         <td>:where(.main, .sidebar, .site-footer) a:hover</td>
-        <td>Selects any element that can be selected by one of the selectors in that list, always has 0 specificity</td>
+        <td>Selects any element that can be selected by one of the selectors in that list, always has 0 specificity. <code>main :where(h1, h2, h3)</code> is same as <code>main h1, main h2, main h3</code></td>
       </tr>
 
       <tr>
@@ -2969,6 +2972,7 @@
     <li>width and height of the device</li>
     <li>orientation (is the tablet/phone in landscape or portrait mode?)</li>
     <li>resolution</li>
+    <li>use media queries with features that have a "range" type (like width or height), with ordinary mathematical comparison operators: > , &lt; , >= or &lt;= </li>
   </ul>
 
   <pre><code class="css">
@@ -3115,6 +3119,19 @@
         border: 5px solid black;
       }
     }
+  </code></pre>
+
+  <pre><code class="html">
+    @media (min-width: 500px) { /* ... */ }
+    /* equivalent to: */
+    @media (width >= 500px) { /* ... */ }
+
+    @media (max-width: 800px) { /* ... */ }
+    /* equivalent to: */
+    @media (width &lt;= 800px) { /* ... */ }
+
+    /* test between two widths: */
+    @media (500px &lt;= width &lt;= 800px) { /* ... */ }
   </code></pre>
 
   <h3>Media Types</h3>

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="React tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="react, 16.8, 17, 18, js, hooks, usestate, useeffect, useref, usereducer, usecallback, usememo, memo, custom hook, use, jsx, component, render, state, props, forms, reactive, context, hoc, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="react, 16.8, 17, 18, js, hooks, usestate, useeffect, useref, usereducer, usecallback, usememo, memo, custom hook, use, jsx, component, render, state, props, forms, reactive, context, hoc, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -29,6 +29,8 @@
 </head>
 
 <body>
+
+<h1>ReactJS</h1>
 
 <h2 id="intro">Intro</h2>
 
@@ -118,17 +120,26 @@
     <li><strong>syntactic sugar for the React.createElement(component, props, ...children)</strong></li>
     <li>use JSX
       <ul>
-        <li>Development method:</li>
-        <li>&lt;script src="../js/babel.min.js" crossorigin&gt;&lt;/script&gt;</li>
-        <li>use JSX in any script-tag by adding <strong>type="text/babel"</strong> attribute</li>
-        <li>Adding to project:</li>
-        <li>go to project folder</li>
-        <li><code>npm init -y</code></li>
-        <li><code>npm install babel-cli@6 babel-preset-react-app@3</code></li>
-        <li>create "src" folder</li>
-        <li>start an automated watcher for JSX:<br>
-          <code>npx babel --watch src --out-dir . --presets react-app/prod</code></li>
-        <li>work inside "src" folder and preprocessor will re-run automatically</li>
+        <li>Development method:
+          <ul>
+            <li>&lt;script src="../js/babel.min.js" crossorigin&gt;&lt;/script&gt;</li>
+            <li>use JSX in any script-tag by adding <strong>type="text/babel"</strong> attribute</li>
+          </ul>
+        </li>
+        <li>Adding to project:
+          <ul>
+            <li>go to project folder</li>
+            <li><code>npm init -y</code></li>
+            <li><code>npm install babel-cli@6 babel-preset-react-app@3</code></li>
+            <li>create "src" folder</li>
+          </ul>
+        </li>
+        <li>Start an automated watcher for JSX:
+          <ul>
+            <li><code>npx babel --watch src --out-dir . --presets react-app/prod</code></li>
+            <li>work inside "src" folder and preprocessor will re-run automatically</li>
+          </ul>
+        </li>
       </ul>
     </li>
     <li>React DOM uses camelCase property naming convention instead of HTML attribute names: class becomes className in JSX, and tabindex becomes tabIndex, exception is aria-* and data-* attributes, which should be lowercased</li>

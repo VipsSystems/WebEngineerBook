@@ -1,18 +1,30 @@
-Copyright (c) 2022 Open Source Community, respective authors and Andrei T. (andreivinyl@gmail.com)
+"Web Engineer Book"
 
-See licenses at provided websites for general and extended information about most content:
-https://www.w3schools.com/
-https://developer.mozilla.org/
-https://github.com/
-https://reactjs.org/
+https://book.vips.systems/
+
+- - - - - - - - - -
+
+Copyright (c) Open Source Community, the respective authors and the author of the book Andrei, andreivinyl@gmail.com
+
+See licenses at provided websites for general and extended information:
+https://www.W3Schools.com
+https://developer.mozilla.org
+https://GitHub.com
+https://ReactJS.org
+https://ViteJS.dev
+https://TailwindCSS.com
+https://www.TypeScriptLang.org
 https://angular.io/
-https://www.typescriptlang.org/
-https://nodejs.org/
-https://expressjs.com
-https://www.php.net/
-https://laravel.com/
+https://NodeJS.org
+https://ExpressJS.com
+https://www.PHP.net
+https://Laravel.com
 
-This book is a giveaway and give back to Open Source Community, feel free to contribute and share.
+- - - - - - - - - -
+
+This book is a compilation of guides, examples, cheat sheets, and recipes in the area of web programming and technologies. It is a giveaway and a giveback to the Open Source Community, feel free to share and contribute on github.com/VipsSystems/WebEngineerBook
+
+- - - - - - - - - -
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

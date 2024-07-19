@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Web Engineer Book: Compact extract of main knowledge. HTML(4/5), CSS(2/3), JavaScript (ES6+, APIs), TypeScript, Angular, React, NodeJS, ExpressJS, NPM, Composer, Lumen & Laravel, Git, NGINX, Security, Programming, SEO, Linux (commands and links)">
-  <meta name="keywords" content="html, css, js, javascript, es6, ecma, dom, react, typescript, angular, pwa, php, laravel, composer, api, nodejs, npm, modules, expressjs, nginx, docker, http, server, linux, os, seo, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="html, css, js, javascript, es6, ecma, dom, react, typescript, angular, pwa, php, laravel, composer, api, nodejs, npm, modules, expressjs, nginx, docker, http, server, linux, os, seo, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -31,7 +31,6 @@
       z-index: 10;
       bottom:0;
       right:0;
-      /* width: 100%; */
     }
     #resize_drag, #resize_left, #resize_right, #zoom_in, #zoom_out, #fs {
       background: black;
@@ -41,21 +40,13 @@
       border: .0625rem solid gray;
       cursor: pointer;
       margin: .25rem;
-      /* position: absolute;
-      z-index: 10; */
-      /* margin: 1rem; */
       font-size: 1.5rem;
       line-height: 1.75rem;
       user-select: none;
       color: gray;
       text-align: center;
       /* box-shadow: .2rem 0 .5rem dimGray; */
-
-      /* left: 9rem; */
     }
-    /* #resize_drag {
-      bottom: 2rem;
-    } */
     #resize_left {
       bottom: 3rem;
     }
@@ -78,7 +69,6 @@
       width:10rem;
       display:block;
       position:relative;
-      /* float:left; */
       border:none;
       overflow:hidden;
       overflow-y:auto;
@@ -94,10 +84,6 @@
     }
     #menu_target {
       flex-grow: 1;
-      /* width:84%;
-      display:block;
-      position:relative;
-      float:left; */
       border:none;
       height:100vh;
       margin:0px;
@@ -144,8 +130,10 @@
     }
   </style>
 
-  <!-- specifies the base URL and base target for all relative URLs in a page -->
-  <!-- <base href="" target="_blank"> -->
+  <!--
+    // specify the base URL and base target for all relative URLs in a page
+    <base href="" target="_blank">
+  -->
 
   <title>Web Engineer Book</title>
 
@@ -231,7 +219,7 @@
 
     <details><summary>CSS</summary><ul>
 
-      <li><a href="pages/css.html#general" target="iframe_a">General</a></li>
+      <li><a href="pages/css.html#intro" target="iframe_a">Intro</a></li>
       <li><a href="pages/css.html#selectorsref" target="iframe_a">Selectors Ref</a></li>
       <li><a href="pages/css.html#boxmodel" target="iframe_a">Box Model</a></li>
       <li><a href="pages/css.html#insert" target="iframe_a">Inserting/Priority</a></li>
@@ -406,90 +394,81 @@
 
     </ul></details>
 
-    <details><summary>TypeScript 4.9</summary><ul>
+    <details><summary>NPM</summary><ul>
 
-      <li><a href="pages/typescript.html#initial" target="iframe_a">Initial</a></li>
-      <li><a href="pages/typescript.html#basic" target="iframe_a">Basic Types</a></li>
-      <li><a href="pages/typescript.html#vars" target="iframe_a">Variables</a></li>
-      <li><a href="pages/typescript.html#interface" target="iframe_a">Interface</a></li>
-      <li><a href="pages/typescript.html#classes" target="iframe_a">Classes</a></li>
-      <li><a href="pages/typescript.html#functions" target="iframe_a">Functions</a></li>
-      <li><a href="pages/typescript.html#generics" target="iframe_a">Generics</a></li>
-      <li><a href="pages/typescript.html#enums" target="iframe_a">Enums</a></li>
-      <li><a href="pages/typescript.html#itgen" target="iframe_a">Iterators, Generators</a></li>
-      <li><a href="pages/typescript.html#inference" target="iframe_a">Type Inference</a></li>
-      <li><a href="pages/typescript.html#compat" target="iframe_a">Type Compatibility</a></li>
-      <li><a href="pages/typescript.html#mixunion" target="iframe_a">Mixins, Union</a></li>
-      <li><a href="pages/typescript.html#tguards" target="iframe_a">Type Guards</a></li>
-      <li><a href="pages/typescript.html#nullundefined" target="iframe_a">null, undefined</a></li>
-      <li><a href="pages/typescript.html#aliases" target="iframe_a">Aliases</a></li>
-      <li><a href="pages/typescript.html#literalt" target="iframe_a">Template|Literal Types</a></li>
-      <li><a href="pages/typescript.html#indext" target="iframe_a">Index Types</a></li>
-      <li><a href="pages/typescript.html#mappedt" target="iframe_a">Mapped Types</a></li>
-      <li><a href="pages/typescript.html#condt" target="iframe_a">Conditional Types</a></li>
-      <li><a href="pages/typescript.html#util" target="iframe_a">Utility Types</a></li>
-      <li><a href="pages/typescript.html#polythis" target="iframe_a">Polymorphic "this"</a></li>
-      <li><a href="pages/typescript.html#globalthis" target="iframe_a">globalThis</a></li>
-      <li><a href="pages/typescript.html#mns" target="iframe_a">Modules/Namespaces</a></li>
-      <li><a href="pages/typescript.html#modres" target="iframe_a">Module Resolution</a></li>
-      <li><a href="pages/typescript.html#dm" target="iframe_a">Declaration Merging</a></li>
-      <li><a href="pages/typescript.html#jsx" target="iframe_a">JSX</a></li>
-      <li><a href="pages/typescript.html#decorators" target="iframe_a">@decorators</a></li>
-      <li><a href="pages/typescript.html#mixins" target="iframe_a">Mixins</a></li>
-      <li><a href="pages/typescript.html#tslash" target="iframe_a">/// &lt;directive /&gt;</a></li>
-
-      <li><a href="pages/typescript-extra.html#tcjs" target="iframe_a">Typecheck/Compile JS</a></li>
-      <li><a href="pages/typescript-extra.html#jsdoc" target="iframe_a">Supported JSDoc</a></li>
-      <li><a href="pages/typescript-extra.html#df" target="iframe_a">Declaration File</a></li>
-      <li><a href="pages/typescript-extra.html#tsconfig" target="iframe_a">tsconfig.json</a></li>
-      <li><a href="pages/typescript-extra.html#options" target="iframe_a">Compiller Options</a></li>
-      <li><a href="pages/typescript-extra.html#watch" target="iframe_a">Configuring --watch</a></li>
-      <li><a href="pages/typescript-extra.html#refs" target="iframe_a">Project References</a></li>
-      <li><a href="pages/typescript-extra.html#browserify" target="iframe_a">+ Browserify</a></li>
-      <li><a href="pages/typescript-extra.html#grunt" target="iframe_a">+ Grunt</a></li>
-      <li><a href="pages/typescript-extra.html#gulp" target="iframe_a">+ Gulp</a></li>
-      <li><a href="pages/typescript-extra.html#webpack" target="iframe_a">+ Webpack</a></li>
-      <li><a href="pages/typescript-extra.html#gulpproj" target="iframe_a">Gulp project</a></li>
-      <li><a href="https://github.com/Microsoft/TypeScriptSamples" target="_blank">TS Samples</a></li>
+      <li><a href="pages/npm.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/npm.html#pnpm" target="iframe_a">pnpm</a></li>
+      <li><a href="pages/npm.html#serve" target="iframe_a">serve</a></li>
+      <li><a href="pages/npm.html#httpserver" target="iframe_a">http-server</a></li>
 
     </ul></details>
 
-    <details><summary>Angular 15.0</summary><ul>
+    <details><summary>Vite 5</summary><ul>
 
-      <li><a href="pages/angular-cli.html#cli" target="iframe_a">CLI</a></li>
-      <li><a href="pages/angular.html#arch" target="iframe_a">Architecture</a></li>
-      <li><a href="pages/angular.html#ngmodule" target="iframe_a">NgModule</a></li>
-      <li><a href="pages/angular.html#componentdirs" target="iframe_a">Component/Directives</a></li>
-      <li><a href="pages/angular.html#inter" target="iframe_a">Interaction</a></li>
-      <li><a href="pages/angular.html#template" target="iframe_a">Template</a></li>
-      <li><a href="pages/angular.html#pipes" target="iframe_a">Pipes</a></li>
-      <li><a href="pages/angular.html#dis" target="iframe_a">DI and services</a></li>
-      <li><a href="pages/angular.html#forms" target="iframe_a">Forms</a></li>
-      <li><a href="pages/angular.html#observables" target="iframe_a">Observables</a></li>
-      <li><a href="pages/angular.html#http" target="iframe_a">Http/requests</a></li>
-      <li><a href="pages/angular.html#routing" target="iframe_a">Routing</a></li>
-      <li><a href="pages/angular.html#animations" target="iframe_a">Animations</a></li>
-      <li><a href="pages/angular-extra.html" target="iframe_a">Security</a></li>
-      <li><a href="pages/angular-extra.html#i18n" target="iframe_a">i18n</a></li>
-      <li><a href="pages/angular-extra.html#sw" target="iframe_a">ServiceWorker</a></li>
-      <li><a href="pages/angular-extra.html#ssr" target="iframe_a">SSR</a></li>
-      <li><a href="pages/angular-extra.html#libs" target="iframe_a">Libraries</a></li>
-      <li><a href="pages/angular-extra.html#wp" target="iframe_a">Workspace/Project</a></li>
-      <li><a href="pages/angular-extra.html#npm" target="iframe_a">npm/packages</a></li>
-      <li><a href="pages/angular-extra.html#compilation" target="iframe_a">Compilation</a></li>
-      <li><a href="pages/angular-extra.html#bs" target="iframe_a">build/serve</a></li>
-      <li><a href="pages/angular-extra.html#testing" target="iframe_a">Testing</a></li>
-      <li><a href="pages/angular-extra.html#deploy" target="iframe_a">Deployment</a></li>
-      <li><a href="pages/angular-extra.html#rxjs" target="iframe_a">RxJS 7.2</a></li>
-      <li><a href="pages/angular-extra.html#tools" target="iframe_a">TOOLS</a></li>
-
-      <li><a href="pages/angular-app/index.html" target="iframe_a">TOUR app (v.8)</a></li>
-      <li><a href="pages/angular-app-files.html" target="iframe_a">TOUR app files</a></li>
-      <li><a href="pages/angular-realworld.html" target="iframe_a">RealWorld app files</a></li>
+      <li><a href="pages/vite.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/vite.html#scaffolding" target="iframe_a">Scaffolding</a></li>
+      <li><a href="pages/vite.html#cli" target="iframe_a">CLI</a></li>
+      <li><a href="pages/vite.html#root" target="iframe_a">Root</a></li>
+      <li><a href="pages/vite.html#deps" target="iframe_a">Dependencies</a></li>
+      <li><a href="pages/vite.html#ts" target="iframe_a">TypeScript</a></li>
+      <li><a href="pages/vite.html#vue" target="iframe_a">Vue</a></li>
+      <li><a href="pages/vite.html#jsx" target="iframe_a">JSX</a></li>
+      <li><a href="pages/vite.html#css" target="iframe_a">CSS</a></li>
+      <li><a href="pages/vite.html#assets" target="iframe_a">Assets</a></li>
+      <li><a href="pages/vite.html#json" target="iframe_a">JSON</a></li>
+      <li><a href="pages/vite.html#import" target="iframe_a">Imports</a></li>
+      <li><a href="pages/vite.html#wasm" target="iframe_a">WebAssembly</a></li>
+      <li><a href="pages/vite.html#workers" target="iframe_a">Web Workers</a></li>
+      <li><a href="pages/vite.html#prod" target="iframe_a">Production</a></li>
+      <li><a href="pages/vite.html#static" target="iframe_a">Static Site</a></li>
+      <li><a href="pages/vite.html#env" target="iframe_a">.env / modes</a></li>
+      <li><a href="pages/vite.html#ssr" target="iframe_a">SSR</a></li>
+      <li><a href="pages/vite.html#be" target="iframe_a">Backend Integration</a></li>
+      <li><a href="pages/vite.html#plugins" target="iframe_a">Plugins</a></li>
+      <li><a href="pages/vite.html#troubles" target="iframe_a">Troubleshooting</a></li>
+      <li><a href="pages/vite.html#perf" target="iframe_a">Performance</a></li>
+      <li><a href="pages/vite.html#conf" target="iframe_a">Config</a></li>
 
     </ul></details>
 
-    <details><summary>React 18.2</summary><ul>
+    <details><summary>TailwindCSS 3.4.4</summary><ul>
+
+      <li><a href="pages/tailwind.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/tailwind.html#pseudo-class" target="iframe_a">Pseudo-class</a></li>
+      <li><a href="pages/tailwind.html#parent" target="iframe_a">Parent|Children</a></li>
+      <li><a href="pages/tailwind.html#pseudo-element" target="iframe_a">Pseudo-elements</a></li>
+      <li><a href="pages/tailwind.html#attr" target="iframe_a">Attributes</a></li>
+      <li><a href="pages/tailwind.html#rd" target="iframe_a">Responsive design</a></li>
+      <li><a href="pages/tailwind.html#dark" target="iframe_a">Dark mode</a></li>
+      <li><a href="pages/tailwind.html#advanced" target="iframe_a">Advanced concepts</a></li>
+      <li><a href="pages/tailwind.html#config" target="iframe_a">Config</a></li>
+      <li><a href="pages/tailwind.html#preflight" target="iframe_a">Preflight</a></li>
+      <li><a href="pages/tailwind.html#layout" target="iframe_a">Layout</a></li>
+      <li><a href="pages/tailwind.html#flex" target="iframe_a">Flex & Grid</a></li>
+      <li><a href="pages/tailwind.html#spacing" target="iframe_a">Spacing</a></li>
+      <li><a href="pages/tailwind.html#sizing" target="iframe_a">Sizing</a></li>
+      <li><a href="pages/tailwind.html#typography" target="iframe_a">Typography</a></li>
+      <li><a href="pages/tailwind.html#bg" target="iframe_a">Background</a></li>
+      <li><a href="pages/tailwind.html#border" target="iframe_a">Borders</a></li>
+      <li><a href="pages/tailwind.html#box-shadow" target="iframe_a">Box Shadow</a></li>
+      <li><a href="pages/tailwind.html#opacity" target="iframe_a">Opacity</a></li>
+      <li><a href="pages/tailwind.html#blend" target="iframe_a">Blend Mode</a></li>
+      <li><a href="pages/tailwind.html#filters" target="iframe_a">Filters</a></li>
+      <li><a href="pages/tailwind.html#tables" target="iframe_a">Tables</a></li>
+      <li><a href="pages/tailwind.html#transition" target="iframe_a">Transition</a></li>
+      <li><a href="pages/tailwind.html#animations" target="iframe_a">Animations</a></li>
+      <li><a href="pages/tailwind.html#transform" target="iframe_a">Transform</a></li>
+      <li><a href="pages/tailwind.html#form" target="iframe_a">Form</a></li>
+      <li><a href="pages/tailwind.html#scroll" target="iframe_a">scroll</a></li>
+      <li><a href="pages/tailwind.html#interactivity" target="iframe_a">Interactivity</a></li>
+      <li><a href="pages/tailwind.html#svg" target="iframe_a">SVG</a></li>
+      <li><a href="pages/tailwind.html#accessibility" target="iframe_a">Accessibility</a></li>
+      <li><a href="pages/tailwind.html#plugins" target="iframe_a">Plugins</a></li>
+      <li><a href="pages/tailwind.html#values" target="iframe_a">VALUES</a></li>
+
+    </ul></details>
+
+    <details><summary>ReactJS 18.2</summary><ul>
 
       <li><a href="pages/react.html#intro" target="iframe_a">Intro</a></li>
       <li><a href="pages/react.html#jsx" target="iframe_a">JSX</a></li>
@@ -579,12 +558,87 @@
 
     </ul></details>
 
-    <details><summary>NPM</summary><ul>
+    <details><summary>TypeScript 5.5</summary><ul>
 
-      <li><a href="pages/npm.html#intro" target="iframe_a">Intro</a></li>
-      <li><a href="pages/npm.html#serve" target="iframe_a">serve</a></li>
-      <li><a href="pages/npm.html#httpserver" target="iframe_a">http-server</a></li>
+      <li><a href="pages/typescript.html#intro" target="iframe_a">Intro</a></li>
+      <li><a href="pages/typescript.html#basic" target="iframe_a">Basic Types</a></li>
+      <li><a href="pages/typescript.html#vars" target="iframe_a">Variables</a></li>
+      <li><a href="pages/typescript.html#interface" target="iframe_a">Interface</a></li>
+      <li><a href="pages/typescript.html#functions" target="iframe_a">Functions</a></li>
+      <li><a href="pages/typescript.html#classes" target="iframe_a">Classes</a></li>
+      <li><a href="pages/typescript.html#using" target="iframe_a">"using" declaration</a></li>
+      <li><a href="pages/typescript.html#generics" target="iframe_a">Generics</a></li>
+      <li><a href="pages/typescript.html#enums" target="iframe_a">Enums</a></li>
+      <li><a href="pages/typescript.html#itgen" target="iframe_a">Iterators, Generators</a></li>
+      <li><a href="pages/typescript.html#inference" target="iframe_a">Type Inference</a></li>
+      <li><a href="pages/typescript.html#compat" target="iframe_a">Type Compatibility</a></li>
+      <li><a href="pages/typescript.html#mixunion" target="iframe_a">Mixins, Union</a></li>
+      <li><a href="pages/typescript.html#tguards" target="iframe_a">Type Guards</a></li>
+      <li><a href="pages/typescript.html#nullundefined" target="iframe_a">null, undefined</a></li>
+      <li><a href="pages/typescript.html#aliases" target="iframe_a">Aliases</a></li>
+      <li><a href="pages/typescript.html#literalt" target="iframe_a">Template|Literal Types</a></li>
+      <li><a href="pages/typescript.html#indext" target="iframe_a">Index Types</a></li>
+      <li><a href="pages/typescript.html#mappedt" target="iframe_a">Mapped Types</a></li>
+      <li><a href="pages/typescript.html#condt" target="iframe_a">Conditional Types</a></li>
+      <li><a href="pages/typescript.html#util" target="iframe_a">Utility Types</a></li>
+      <li><a href="pages/typescript.html#polythis" target="iframe_a">Polymorphic "this"</a></li>
+      <li><a href="pages/typescript.html#globalthis" target="iframe_a">globalThis</a></li>
+      <li><a href="pages/typescript.html#mns" target="iframe_a">Modules/Namespaces</a></li>
+      <li><a href="pages/typescript.html#modres" target="iframe_a">Module Resolution</a></li>
+      <li><a href="pages/typescript.html#dm" target="iframe_a">Declaration Merging</a></li>
+      <li><a href="pages/typescript.html#jsx" target="iframe_a">JSX</a></li>
+      <li><a href="pages/typescript.html#decorators" target="iframe_a">@decorators</a></li>
+      <li><a href="pages/typescript.html#mixins" target="iframe_a">Mixins</a></li>
+      <li><a href="pages/typescript.html#tslash" target="iframe_a">/// &lt;directive /&gt;</a></li>
 
+      <li><a href="pages/typescript-extra.html#tcjs" target="iframe_a">Typecheck/Compile JS</a></li>
+      <li><a href="pages/typescript-extra.html#jsdoc" target="iframe_a">Supported JSDoc</a></li>
+      <li><a href="pages/typescript-extra.html#df" target="iframe_a">Declaration File</a></li>
+      <li><a href="pages/typescript-extra.html#tsconfig" target="iframe_a">tsconfig.json</a></li>
+      <li><a href="pages/typescript-extra.html#options" target="iframe_a">Compiller Options</a></li>
+      <li><a href="pages/typescript-extra.html#watch" target="iframe_a">Configuring --watch</a></li>
+      <li><a href="pages/typescript-extra.html#refs" target="iframe_a">Project References</a></li>
+      <li><a href="pages/typescript-extra.html#browserify" target="iframe_a">+ Browserify</a></li>
+      <li><a href="pages/typescript-extra.html#grunt" target="iframe_a">+ Grunt</a></li>
+      <li><a href="pages/typescript-extra.html#gulp" target="iframe_a">+ Gulp</a></li>
+      <li><a href="pages/typescript-extra.html#webpack" target="iframe_a">+ Webpack</a></li>
+      <li><a href="pages/typescript-extra.html#gulpproj" target="iframe_a">Gulp project</a></li>
+      <li><a href="https://github.com/Microsoft/TypeScriptSamples" target="_blank">TS Samples</a></li>
+
+    </ul></details>
+
+    <details><summary>Angular 15.0</summary><ul>
+
+      <li><a href="pages/angular-cli.html#cli" target="iframe_a">CLI</a></li>
+      <li><a href="pages/angular.html#arch" target="iframe_a">Architecture</a></li>
+      <li><a href="pages/angular.html#ngmodule" target="iframe_a">NgModule</a></li>
+      <li><a href="pages/angular.html#componentdirs" target="iframe_a">Component/Directives</a></li>
+      <li><a href="pages/angular.html#inter" target="iframe_a">Interaction</a></li>
+      <li><a href="pages/angular.html#template" target="iframe_a">Template</a></li>
+      <li><a href="pages/angular.html#pipes" target="iframe_a">Pipes</a></li>
+      <li><a href="pages/angular.html#dis" target="iframe_a">DI and services</a></li>
+      <li><a href="pages/angular.html#forms" target="iframe_a">Forms</a></li>
+      <li><a href="pages/angular.html#observables" target="iframe_a">Observables</a></li>
+      <li><a href="pages/angular.html#http" target="iframe_a">Http/requests</a></li>
+      <li><a href="pages/angular.html#routing" target="iframe_a">Routing</a></li>
+      <li><a href="pages/angular.html#animations" target="iframe_a">Animations</a></li>
+      <li><a href="pages/angular-extra.html" target="iframe_a">Security</a></li>
+      <li><a href="pages/angular-extra.html#i18n" target="iframe_a">i18n</a></li>
+      <li><a href="pages/angular-extra.html#sw" target="iframe_a">ServiceWorker</a></li>
+      <li><a href="pages/angular-extra.html#ssr" target="iframe_a">SSR</a></li>
+      <li><a href="pages/angular-extra.html#libs" target="iframe_a">Libraries</a></li>
+      <li><a href="pages/angular-extra.html#wp" target="iframe_a">Workspace/Project</a></li>
+      <li><a href="pages/angular-extra.html#npm" target="iframe_a">npm/packages</a></li>
+      <li><a href="pages/angular-extra.html#compilation" target="iframe_a">Compilation</a></li>
+      <li><a href="pages/angular-extra.html#bs" target="iframe_a">build/serve</a></li>
+      <li><a href="pages/angular-extra.html#testing" target="iframe_a">Testing</a></li>
+      <li><a href="pages/angular-extra.html#deploy" target="iframe_a">Deployment</a></li>
+      <li><a href="pages/angular-extra.html#rxjs" target="iframe_a">RxJS 7.2</a></li>
+      <li><a href="pages/angular-extra.html#tools" target="iframe_a">TOOLS</a></li>
+
+      <li><a href="pages/angular-app/index.html" target="iframe_a">TOUR app (v.8)</a></li>
+      <li><a href="pages/angular-app-files.html" target="iframe_a">TOUR app files</a></li>
+      <li><a href="pages/angular-realworld.html" target="iframe_a">RealWorld app files</a></li>
     </ul></details>
 
     <details><summary><a href="pages/composer.html" target="iframe_a">Composer</a></summary></details>
@@ -622,12 +676,13 @@
       <li><a href="pages/lumen.html#url" target="iframe_a">URL Generation</a></li>
       <li><a href="pages/lumen.html#perf" target="iframe_a">Performance</a></li>
       <li><a href="pages/lumen.html#tools" target="iframe_a">TOOLS</a></li>
-      <li><a href="pages/lumen.html#php" target="iframe_a">PHP</a></li>
       <li><a href="pages/lumen-realworld.html" target="iframe_a">Lumen APP (v.5.8)</a></li>
       <li><a href="pages/laravel-realworld-1.html" target="iframe_a">Laravel APP 1</a></li>
       <li><a href="pages/laravel-realworld-2.html" target="iframe_a">Laravel APP 2</a></li>
 
     </ul></details>
+
+    <details><summary><a href="pages/php.html" target="iframe_a">PHP 5.6 - 8.2</a></summary></details>
 
     <details><summary><a href="pages/git.html" target="iframe_a">Git</a></summary></details>
 
@@ -664,7 +719,7 @@
 
     <details><summary>Programming</summary><ul>
 
-      <li><a href="pages/pro.html#build" target="iframe_a">Build</a></li>
+      <li><a href="pages/pro.html#build" target="iframe_a">Building</a></li>
       <li><a href="pages/pro.html#patterns" target="iframe_a">Patterns</a></li>
       <li><a href="pages/pro.html#principles" target="iframe_a">Principles</a></li>
       <li><a href="pages/pro.html#solid" target="iframe_a">S.O.L.I.D.</a></li>

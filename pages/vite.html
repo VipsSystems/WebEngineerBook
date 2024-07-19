@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Vite cheatsheet, Web Engineer Book">
+  <meta name="keywords" content="Vite, cheatsheet, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
+  <meta name="author" content="Andrei, andreivinyl@gmail.com">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <link rel="stylesheet" href="../js/highlight/styles/default.css">
+  <link rel="stylesheet" href="../css/css.css">
+
+  <script src="../js/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/utils.js"></script>
+
+  <title>Vite advanced tutorials and examples - Web Engineer Book</title>
+
+</head>
+
+<body>
+
+<h1>Vite</h1>
+
+<h2 id="intro">Intro</h2>
+
+  <ul>
+    <li>Vite - build tool</li>
+    <li>improves the dev server start time by dividing modules in an application into two categories:
+      <ul>
+        <li><strong>dependencies</strong> (unfrequently changing JS: modules, libraries) pre-bundled using <code>esbuild</code>, requests to them are strongly cached via <code>Cache-Control: max-age=31536000,immutable</code> HTTP header</li>
+        <li><strong>source code</strong> (JSX, CSS or components) served over native ESM, requests are made conditional via <code>304 Not Modified</code> HTTP header</li>
+      </ul>
+    </li>
+    <li>Vite dev server only transforms files as requested by the browser, applies transformations only for used files</li>
+    <li>Hot Module Replacement (HMR, replacing a module without affecting the rest of the page) on updates is performed over native ESM, chain between the edited module and its closest HMR boundary (most of the time only the module itself) is invalidated</li>
+    <li>bundle code with a pre-configured <code>build</code> command for tree-shaking, lazy-loading and common chunk splitting (for better caching)</li>
+    <li>during development, Vite sets <code>esnext</code> as the transform target</li>
+    <li>for the production build, by default Vite targets browsers that support <strong>native ES Modules</strong>, <strong>native ESM dynamic import</strong>, and <code>import.meta</code></li>
+    <li><a href="https://github.com/vitejs/awesome-vite">https://github.com/vitejs/awesome-vite</a></li>
+  </ul>
+
+  <pre><code class="jsx">
+    npm install -g vite
+    pnpm install -g vite
+  </code></pre>
+
+
+
+<h2 id="scaffolding">Scaffolding</h2>
+
+  <ul>
+    <li>supported templates:
+      <ul>
+        <li><code>vanilla</code> , <code>vanilla-ts</code></li>
+        <li><code>vue</code> , <code>vue-ts</code></li>
+        <li><code>react</code> , <code>react-ts</code> , <code>react-swc</code> , <code>react-swc-ts</code></li>
+        <li><code>preact</code> , <code>preact-ts</code></li>
+        <li><code>lit</code> , <code>lit-ts</code></li>
+        <li><code>svelte</code> , <code>svelte-ts</code></li>
+        <li><code>solid</code> , <code>solid-ts</code></li>
+        <li><code>qwik</code> , <code>qwik-ts</code></li>
+      </ul>
+    </li>
+    <li><a href="https://github.com/vitejs/awesome-vite#templates">community maintained templates</a>
+      <ul>
+        <li>template at <code>https://github.com/user/project</code> can be tried online using <code>https://github.stackblitz.com/user/project</code> (adding <u>.stackblitz</u> after <u>github</u> to the URL of the project)</li>
+        <li>or using <a href="https://github.com/Rich-Harris/degit">degit</a>, when  project is on GitHub and uses <u>main</u> as the default branch</li>
+      </ul>
+    </li>
+    <li>try Vite online on <a href="https://vite.new/">StackBlitz</a>, navigate to <code>vite.new/{template}</code> to select which framework to use</li>
+  </ul>
+
+  <pre><code class="jsx">
+    npm create vite@latest
+    pnpm create vite
+    yarn create vite
+    bun create vite
+
+
+    // --- specifying name and templates, instead of following prompts
+    npm create vite@latest my-vue-app -- --template vue // npm 7+, extra double-dash is needed
+    pnpm create vite my-vue-app --template vue
+    yarn create vite my-vue-app --template vue
+    bun create vite my-vue-app --template vue
+
+
+    // --- scafold a gihub user/project using degit,
+    // when "main" is used as main branch:
+    npx degit user/project#main my-project
+    cd my-project
+    npm install
+    npm run dev
+  </code></pre>
+
+
+
+<h2 id="cli">CLI</h2>
+
+  <ul>
+    <li>use the <code>vite</code> binary to run projects npm scripts: <code>vite dev</code> , <code>vite serve</code> , <code>vite preview</code></li>
+    <li>run vite without insalling it with <code>npx vite</code></li>
+    <li>specify an alternative root with <code>vite serve some/sub/dir</code>, move config file (i.e. <code>vite.config.js</code>) inside the project root when is changed</li>
+    <li></li>
+    <li>COMMANDS:</li>
+    <li></li>
+    <li><code>vite {root}</code> - start dev server, aliases: <code>vite dev</code> , <code>vite serve</code> , options:
+      <ul>
+        <li><code>--host {string}</code> - specify hostname</li>
+        <li><code>--port {number}</code> - specify port</li>
+        <li><code>--strictPort</code> - exit if specified port is already in use </li>
+        <li><code>--open {boolean|string}</code> - open browser on startup</li>
+        <li><code>--cors</code> - enable CORS</li>
+        <li><code>--force</code> - force the optimizer to ignore the cache and re-bundle</li>
+        <li><code>-c {string}</code> , <code>--config {string}</code> - use specified config file</li>
+        <li><code>--base {string}</code> - public base path (default: <code>/</code>)</li>
+        <li><code>-l {level}</code> , <code>--logLevel {level}</code> - info | warn | error | silent</li>
+        <li><code>--clearScreen</code> - allow/disable clear screen when logging</li>
+        <li><code>--profile</code> - start built-in Node.js inspector</li>
+        <li><code>-d {string|boolean}</code> , <code>--debug {string|boolean}</code> - show debug logs</li>
+        <li><code>-f {string}</code> , <code>--filter {string}</code> - filter debug logs</li>
+        <li><code>-m {string}</code> , <code>--mode {string}</code> - set env mode</li>
+        <li><code>-h</code> , <code>--help</code> - display this message</li>
+        <li><code>-v</code> , <code>--version</code> - display version number</li>
+      </ul>
+    </li>
+    <li><code>vite build {root}</code> - build for production , options:
+      <ul>
+        <li><code>--target {type}</code> - transpile target (default: "modules") </li>
+        <li><code>--outDir {dir}</code> - output directory (default: "dist")</li>
+        <li><code>--assetsDir {sting}</code> - directory under outDir to place assets in (default: "assets")</li>
+        <li><code>--assetsInlineLimit {number}</code> - static asset base64 inline threshold in bytes (default: 4096)</li>
+        <li><code>--ssr {string}</code> - build specified entry for server-side rendering</li>
+        <li><code>--sourcemap {boolean|inline|hidden}</code> - output source maps for build</li>
+        <li><code>--minify {boolean|terser|esbuild}</code> - enable/disable minification, or specify minifier to use (default: "esbuild")</li>
+        <li><code>--manifest {boolean|string}</code> - emit build manifest json</li>
+        <li><code>--ssrManifest {boolean|string}</code> - emit ssr manifest json</li>
+        <li><code>--emptyOutDir </code> - force empty outDir when it is outside of root</li>
+        <li><code>-w</code> , <code>--watch  </code> - rebuilds when modules have changed on disk</li>
+        <li><code>-c</code> , <code>--config</code> - use specified config file</li>
+        <li><code>--base {string}</code> - public base path (default: <code>/</code>)</li>
+        <li><code>-l {level}</code> , <code>--logLevel {level}</code> - info | warn | error | silent</li>
+        <li><code>--clearScreen</code> - allow/disable clear screen when logging</li>
+        <li><code>--profile</code> - start built-in Node.js inspector</li>
+        <li><code>-d {string|boolean}</code> , <code>--debug {string|boolean}</code> - show debug logs</li>
+        <li><code>-f {string}</code> , <code>--filter {string}</code> - filter debug logs</li>
+        <li><code>-m {string}</code> , <code>--mode {string}</code> - set env mode</li>
+        <li><code>-h</code> , <code>--help</code> - display this message</li>
+      </ul>
+    </li>
+    <li><code>vite optimize {root}</code> - pre-bundle dependencies , options:
+      <ul>
+        <li><code>--force</code> - force the optimizer to ignore the cache and re-bundle</li>
+        <li><code>-c</code> , <code>--config</code> - use specified config file</li>
+        <li><code>--base {string}</code> - public base path (default: <code>/</code>)</li>
+        <li><code>-l {level}</code> , <code>--logLevel {level}</code> - info | warn | error | silent</li>
+        <li><code>--clearScreen</code> - allow/disable clear screen when logging</li>
+        <li><code>-d {string|boolean}</code> , <code>--debug {string|boolean}</code> - show debug logs</li>
+        <li><code>-f {string}</code> , <code>--filter {string}</code> - filter debug logs</li>
+        <li><code>-m {string}</code> , <code>--mode {string}</code> - set env mode</li>
+        <li><code>-h</code> , <code>--help</code> - display this message</li>
+      </ul>
+    </li>
+    <li><code>vite preview {root}</code> - locally preview produc - CSStion build, not designed for a production server, options:
+      <ul>
+        <li><code>--host {string}</code> - specify hostname</li>
+        <li><code>--port {number}</code> - specify port</li>
+        <li><code>--strictPort</code> - exit if specified port is already in use </li>
+        <li><code>--open {boolean|string}</code> - open browser on startup</li>
+        <li><code>--outDir {dir}</code> - output directory (default: "dist")</li>
+        <li><code>-c {string}</code> , <code>--config {string}</code> - use specified config file</li>
+        <li><code>--base {string}</code> - public base path (default: <code>/</code>)</li>
+        <li><code>-l {level}</code> , <code>--logLevel {level}</code> - info | warn | error | silent</li>
+        <li><code>--clearScreen</code> - allow/disable clear screen when logging</li>
+        <li><code>-d {string|boolean}</code> , <code>--debug {string|boolean}</code> - show debug logs</li>
+        <li><code>-f {string}</code> , <code>--filter {string}</code> - filter debug logs</li>
+        <li><code>-m {string}</code> , <code>--mode {string}</code> - set env mode</li>
+        <li><code>-h</code> , <code>--help</code> - display this message</li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="root">Root</h2>
+
+  <ul>
+    <li>Vite project "root directory" is referenced as <code>[root]</code> throughout the docs</li>
+    <li><code>index.html</code> is entry point to application and front-and-central (instead of being inside <code>public</code> folder), treated as source code and part of the module graph, <code>&lt;script type="module"></code> and CSS referenced via <code>&lt;link href></code> are covered by Vite-specific features</li>
+    <li>URLs inside <code>index.html</code> are automatically rebased, no need for special <code>%PUBLIC_URL%</code> placeholders</li>
+    <li>absolute URLs in source code will be resolved using the project root as base, write code as with a normal static file server</li>
+    <li>dependencies located out-of-root file system are supported and are usable in a monorepo-based setup</li>
+  </ul>
+
+
+
+<h2 id="deps">Dependencies</h2>
+
+  <ul>
+    <li>Vite detects bare module imports in all served source files, and:</li>
+    <li><strong>PRE-BUNDLES</strong> them in development mode with <strong>esbuild</strong>, in production builds <code>@rollup/plugin-commonjs</code> is used
+      <ul>
+        <li><strong>converts CommonJS/UMD modules to ESM</strong></li>
+        <li><strong>converts ESM dependencies with many internal modules into a single module</strong></li>
+        <li>after server start dependency imports are <strong>automatically discovered</strong> when not found in cache</li>
+        <li><strong>file system cache</strong>, pre-bundled dependencies are cached in <code>node_modules/.vite</code>
+          <ul>
+            <li>pre-bundling step will only need to be re-run when one of the following has changed:
+              <ul>
+                <li>package manager lockfile content, e.g. <code>package-lock.json</code>, <code>yarn.lock</code>, <code>pnpm-lock.yaml</code> or <code>bun.lockb</code></li>
+                <li>patches folder modification time</li>
+                <li>relevant fields in <code>vite.config.js</code>, if present</li>
+                <li><code>NODE_ENV</code> value</li>
+              </ul>
+            </li>
+            <li>force Vite to re-bundle depsby starting start the dev server with the <code>--force</code> command line option, or manually delete the <code>node_modules/.vite</code> cache directory</li>
+          </ul>
+        </li>
+        <li><strong>browser cache</strong>
+          <ul>
+            <li>resolved dependency requests are strongly cached with HTTP headers <code>max-age=31536000,immutable</code>, invalidated by the appended version query </li>
+            <li>disable cache in Dev tools, restart Vite with <code>--force</code> flag or reload page to debuf dependencies</li>
+          </ul>
+        </li>
+        <li><strong>monorepo</strong> setup
+          <ul>
+            <li>dependencies that are not resolved from <code>node_modules</code> are treated as linked dep (required to be exported as ESM), they remain unbundled, dependency list is analyzed instead</li>
+            <li>to explicitly include/exclude dependencies from the list, use the <strong>optimizeDeps</strong> config option:
+              <ul>
+                <li>include large and CommonJS dependencies</li>
+                <li>do not include small and ESM dependencies</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>REWRITES</strong> the imports to valid URLs like <code>/node_modules/.vite/deps/my-dep.js?v=f3sf2e</code> so that the browser can import them properly</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- MONOREPO, linked dep exported as ESM, restart after change
+    export default defineConfig({
+      optimizeDeps: {
+        include: ['linked-dep'],
+      },
+      build: {
+        commonjsOptions: {
+          include: [/linked-dep/, /node_modules/],
+        },
+      },
+    })
+  </code></pre>
+
+
+
+<h2 id="ts">TypeScript</h2>
+
+  <ul>
+    <li><code>.ts</code> files are supported out of the box</li>
+    <li><strong>Vite only performs transpilation on .ts files and does NOT perform type checking</strong>
+      <ul>
+        <li>for production builds run <code>tsc --noEmit</code> in addition to <code>build</code> command</li>
+        <li>for more than IDE hints during development run <code>tsc --noEmit --watch</code> in a separate process, or <code>vite-plugin-checker</code> for type errors directly reported in the browser</li>
+        <li>avoid potential problems like type-only imports being incorrectly bundled Type-Only Imports and Export syntax: <code>import type { T } from 'only/types'</code> , <code>export type { T }</code></li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- tsconfig.json
+    {
+      "compilerOptions": {
+        // not used by default, use "esbuild" > "target" config option in development
+        // and "build" > "target" config option in production
+        "target": "ES2020",
+        "useDefineForClassFields": true, // true, if the TS target is ESNext or ES2022 or newer, and supported by library
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        // temporarily suppress the errors with libraries (e.g. vue) that do not work well with "isolatedModules, until it is fixed upstream
+        "skipLibCheck": true,
+
+        // --- Bundler mode
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true, // should be set to true
+        "noEmit": true,
+        "jsx": "react-jsx",
+
+        // --- Linting
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true
+
+        // --- Other Compiler Options Affecting the Build Result
+        // extends
+        // importsNotUsedAsValues
+        // preserveValueImports
+        // verbatimModuleSyntax
+        // jsx
+        // jsxFactory
+        // jsxFragmentFactory
+        // jsxImportSource
+        // experimentalDecorators
+        // alwaysStrict
+
+        // shim the environment of client side code in a Vite app
+        "types": ["vite/client"]
+        // or add "vite-env.d.ts" file with: /// &lt;reference types="vite/client" />
+        // this provides:
+        // - asset imports (e.g. importing an .svg file)
+        // - types for the Vite-injected env variables on import.meta.env
+        // - types for the HMR API on import.meta.hot
+      },
+      "include": ["src"],
+      "references": [{ "path": "./tsconfig.node.json" }]
+    }
+
+
+    // --- to override default typing
+    // custom typing file, vite-env-override.d.ts
+    declare module '*.svg' {
+      const content: React.FC&lt;React.SVGProps&lt;SVGElement>>
+      export default content
+    }
+    // file with refence vite/client:
+    /// &lt;reference types="./vite-env-override.d.ts" />
+    /// &lt;reference types="vite/client" />
+  </code></pre>
+
+
+
+<h2 id="vue">Vue</h2>
+
+  <ul>
+    <li>Vite provides first-class Vue support:
+      <ul>
+        <li>Vue 3 SFC support via <a href="https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue" target="_blank" rel="noreferrer">@vitejs/plugin-vue</a></li>
+        <li>Vue 3 JSX support via <a href="https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue-jsx" target="_blank" rel="noreferrer">@vitejs/plugin-vue-jsx</a></li>
+        <li>Vue 2.7 SFC support via <a href="https://github.com/vitejs/vite-plugin-vue2" target="_blank" rel="noreferrer">@vitejs/plugin-vue2</a></li>
+        <li>Vue 2.7 JSX support via <a href="https://github.com/vitejs/vite-plugin-vue2-jsx" target="_blank" rel="noreferrer">@vitejs/plugin-vue2-jsx</a></li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="jsx">JSX</h2>
+
+  <ul>
+    <li><code>.jsx</code> and <code>.tsx</code> files are supported out of the box, JSX transpilation is handled via <code>esbuild</code>, Vue users should use the official <code>@vitejs/plugin-vue-jsx</code> plugin</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- vite.config.js
+    import { defineConfig } from 'vite'
+    import react from '@vitejs/plugin-react-swc'
+
+    export default defineConfig({
+      plugins: [...],
+      esbuild: {
+        // use jsxInject to avoid manual imports (which is a Vite-only option)
+        jsxInject: `import React from 'react'`,
+        // configure custom jsxFactory and jsxFragment if not using JSX with React or Vue
+        jsxFactory: 'h',
+        jsxFragment: 'Fragment',
+      },
+    })
+  </code></pre>
+
+
+
+<h2 id="css">CSS</h2>
+
+  <ul>
+    <li><strong>importing <code>.css</code> files will inject its content</strong> to the page via a &lt;style> tag with HMR support</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- CSS @import inlining in CSS files is supported via postcss-import:
+    @import url("foo-2.css");
+
+
+    // --- valid PostCSS config (any format supported by postcss-load-config, e.g. postcss.config.js),
+    // will be automatically applied to all imported CSS,
+    // minification will run after PostCSS and will use "build" > "cssTarget" config option
+    // --- any CSS file ending with .module.css is considered a CSS modules file
+    // mporting such a file will return the corresponding module object, example.module.css :
+    .red {
+      color: red;
+    }
+    // in component:
+    import classes from './example.module.css'
+    document.getElementById('foo').className = classes.red
+    // configured via "css" > "modules" config option
+    // with "css" > "modules" > localsConvention:'camelCaseOnly' also use named imports: .apply-color -> applyColor
+    import { applyColor } from './example.module.css'
+    document.getElementById('foo').className = applyColor
+
+
+    // --- it is recommended to use native CSS variables
+    // with PostCSS plugins that implement CSSWG drafts (e.g. postcss-nesting)
+    // and author plain, future-standards-compliant CSS.
+    // Vite does provide built-in support for .scss, .sass, .less, .styl and .stylus files
+    // corresponding pre-processor itself must be installed
+    npm add -D sass // .scss and .sass
+    npm add -D less // .less
+    npm add -D stylus // .styl and .stylus
+    // use CSS modules combined with pre-processors by prepending .module to the file extension,
+    // for example style.module.scss
+
+
+    // --- turn off automatic injection via the ?inline query parameter
+    // processed CSS string is returned as the module default export as usual
+    import './foo.css' // will be injected into the page
+    import otherStyles from './bar.css?inline' // will not be injected
+    // default and named imports from CSS files (e.g import style from './foo.css')
+    // are removed since Vite 5, use the ?inline query instead
+
+
+    // --- opt in for experimental support for Lightning CSS (instead of PostCSS)
+    // "css" > transformer:'lightningcss' config option
+    // and install the optional lightningcss dependency
+    npm add -D lightningcss
+    // then pass pass config option to the "css" > "lightningcss"
+    // configure CSS Modules with "css" > "lightningcss" > "cssModules"
+    // change minifier "build" > cssMinify:'lightningcss' config option, instead of esbuild.
+    // CSS Pre-processors are not supported when using Lightning CSS.
+  </code></pre>
+
+
+
+<h2 id="assets">Assets</h2>
+
+  <ul>
+    <li><strong>importing a static asset will return the resolved public URL when it is served</strong></li>
+    <li>import can be either using absolute public paths (based on project root during dev) or relative paths</li>
+    <li>common image, media, and font filetypes are detected as assets automatically, extend the internal list using the <code>assetsInclude</code> config option: <code>assetsInclude: ['**/*.gltf']</code></li>
+    <li>assets smaller in bytes than the "build" > "assetsInlineLimit" option will be inlined as base64 data URLs (default: 4096 (4 KiB))</li>
+    <li>TypeScript, by default, does not recognize static asset imports as valid modules, to fix, include <code>vite-env.d.ts</code> file with: <code>/// &lt;reference types="vite/client" /></code></li>
+    <li>Git LFS placeholders are automatically excluded from inlining, they do not contain the content of the file they represent, to get inlining, download the file contents via Git LFS before building</li>
+    <li>use special <code>public</code> directory under project root
+      <ul>
+        <li>files there will be served at root path <code>/</code> during dev, and copied to the root of the <code>dist</code> directory as-is, for files that:
+          <ul>
+            <li>never referenced in source code (e.g. robots.txt)</li>
+            <li>must retain the exact same file name (without hashing)</li>
+            <li>don't want to have to import an asset first just to get its URL</li>
+          </ul>
+        </li>
+        <li>public directory defaults to <code>[root]/public</code>, but can be configured via the "publicDir" config option</li>
+        <li>always reference <code>public</code> assets using root absolute path - for example: <code>public/icon.png</code> should be referenced in source code as <code>/icon.png</code></li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="jsx">
+    import imgUrl from './img.png'
+    document.getElementById('hero-img').src = imgUrl // will become /assets/img.***.png in the production build
+
+
+    // --- explicitly load assets as URL
+    import assetAsURL from './asset.js?url'
+    // also for assets that are not included in the internal list or in "assetsInclude"
+    // for example, to import Houdini Paint Worklets
+
+
+    // --- load assets as strings
+    import assetAsString from './shader.glsl?raw'
+
+
+    // --- importing script as a Worker,
+    // separate chunk in the production build:
+    import Worker from './shader.js?worker'
+    const worker = new Worker()
+    // sharedworker:
+    import SharedWorker from './shader.js?sharedworker'
+    const sharedWorker = new SharedWorker()>
+    // inlined as base64 strings:
+    import InlineWorker from './shader.js?worker&inline'
+
+
+    // --- new URL(url, import.meta>.url)
+    // import.meta.url is a native ESM feature that exposes the current module URL
+    // combine it with the native URL constructor to obtain the full,
+    // resolved URL of a static asset using relative path from a JavaScript module:
+    const imgUrl = new URL('./img.png', import.meta.url).href
+    document.getElementById('hero-img').src = imgUrl
+    // dynamic URLs via template literals:
+    function getImageUrl(name) {
+      return new URL(`./dir/${name}.png`, import.meta.url).href
+    }
+    // URL string must be static so it can be analyzed
+    // Vite will not transform this
+    const imgUrl = new URL(imagePath, import.meta.url).href
+    // does not work with SSR
+  </code></pre>
+
+
+
+<h2 id="json">JSON</h2>
+
+  <pre><code class="jsx">
+    // JSON files can be directly imported, named imports are also supported,
+    // import the entire object
+    import json from './example.json'
+    // import a root field as named exports (helps with tree-shaking)
+    import { field } from './example.json'
+  </code></pre>
+
+
+
+<h2 id="import">Imports</h2>
+
+  <ul>
+    <li><strong>Glob Import</strong> - import multiple modules from the file system via the special <code>import.meta.glob</code> function
+      <ul>
+        <li>treated like import specifiers: must be either relative ( start with <code>./</code> ) or absolute ( start with <code>/</code> , resolved relative to project root) or an alias path (see "resolve" > "alias" config option)</li>
+        <li>arguments must be passed as literals, use of variables or expressions is not possible</li>
+        <li>Vite-only feature and is not a web or ES standard</li>
+      </ul>
+    </li>
+    <li><strong>Dynamic Import</strong> - similar to glob import, imports with variables</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- GLOB IMPORT
+    const modules = import.meta.glob('./dir/*.js')
+        // will produce:
+        const modules = {
+          './dir/foo.js': () => import('./dir/foo.js'),
+          './dir/bar.js': () => import('./dir/bar.js'),
+        }
+
+
+    // --- iterate over the keys of the modules object:
+    for (const path in modules) {
+      modules[path]().then((mod) => {
+        console.log(path, mod)
+      })
+    }
+
+
+    // --- matched files are by default lazy-loaded via dynamic import
+    // and will be split into separate chunks during build
+    // to import all the modules directly (e.g. relying on side-effects in these modules to be applied first),
+    // pass { eager: true } as the second argument:
+    const modules = import.meta.glob('./dir/*.js', { eager: true })
+        // will produce:
+        import * as __glob__0_0 from './dir/foo.js'
+        import * as __glob__0_1 from './dir/bar.js'
+        const modules = {
+          './dir/foo.js': __glob__0_0,
+          './dir/bar.js': __glob__0_1,
+        }
+
+
+    // --- multiple patterns, array of globs
+    const modules = import.meta.glob(['./dir/*.js', './another/*.js'])
+
+
+    // --- negative glob patterns
+    // ignore some files from the result
+    const modules = import.meta.glob(['./dir/*.js', '!**/bar.js'])
+        // will produce:
+        const modules = {
+          './dir/foo.js': () => import('./dir/foo.js'),
+        }
+    // named imports, only import parts of the modules with the import options
+    const modules = import.meta.glob('./dir/*.js', { import: 'setup' })
+        // will produce:
+        const modules = {glob
+          './dir/foo.js': () => import('./dir/foo.js').then((m) => m.setup),
+          './dir/bar.js': () => import('./dir/bar.js').then((m) => m.setup),
+        }
+    // combine with eager to have tree-shaking enabled for those modules
+    const modules = import.meta.glob('./dir/*.js', {
+      import: 'setup',
+      eager: true,
+    })
+        // will produce:
+        import { setup as __glob__0_0 } from './dir/foo.js'
+        import { setup as __glob__0_1 } from './dir/bar.js'
+        const modules = {
+          './dir/foo.js': __glob__0_0,
+          './dir/bar.js': __glob__0_1,
+        }
+    // import the default export
+    const modules = import.meta.glob('./dir/*.js', {
+      import: 'default',
+      eager: true,
+    })
+        // will produce:
+        import __glob__0_0 from './dir/foo.js'
+
+
+    // --- DYNAMIC IMPORT
+    const module = await import(`./dir/${file}.js`)
+    // variables only represent file names one level deep
+    // 'foo/bar' will fail, use glob instead
+  </code></pre>
+
+
+
+<h2 id="wasm">WebAssembly</h2>
+
+  <ul>
+    <li>pre-compiled <code>.wasm</code> files can be imported with <code>?init</code></li>
+    <li>in the production build they treated as a static asset and fetched on-demand, otherwise files smaller than <code>assetInlineLimit</code> will be inlined as base64 string</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- default export will be an initialization function that returns a Promise of the WebAssembly.Instance:
+    import init from './example.wasm?init'
+    init().then((instance) => {
+      instance.exports.test()
+    })
+    // importObject as second argument:
+    init({
+      imports: {
+        someFunc: () => {
+          // ...
+        },
+      },
+    }).then(() => {
+      // ...
+    })
+
+
+    // --- to access to the Module object, e.g. to instantiate it multiple times,
+    // use an explicit URL import (?url) to resolve the asset, and then perform the instantiation:
+    import wasmUrl from 'foo.wasm?url'
+    const main = async () => {
+      const responsePromise = fetch(wasmUrl)
+      const { module, instance } =
+        await WebAssembly.instantiateStreaming(responsePromise)
+      // ...
+    }
+    main()
+  </code></pre>
+
+
+
+<h2 id="workers">Web Workers</h2>
+
+  <pre><code class="jsx">
+    // --- import using new Worker() and new SharedWorker()
+    // compared to the worker suffixes, closer to the standards and is the recommended way to create workers.
+    // will only work if the new URL() constructor is used.
+    // all options parameters must be static values (i.e. string literals).
+    const worker = new Worker(new URL('./worker.js', import.meta.url))
+    // "module" workers options:
+    const worker = new Worker(new URL('./worker.js', import.meta.url), {
+      type: 'module',
+    })
+
+
+    // --- import with query suffixes
+    // direct import by appending ?worker or ?sharedworker to the import request
+    // default export will be a custom worker constructor
+    import MyWorker from './worker?worker'
+    const worker = new MyWorker()
+
+    // by default, the worker script will be emitted as a separate chunk in the production build.
+    // inline the worker as base64 strings, add the inline query
+    import MyWorker from './worker?worker&inline'
+
+    // retrieve the worker as a URL, add the url query:
+    import MyWorker from './worker?worker&url'
+    See Worker Options for details on configuring the bundling of all workers
+
+    // worker script can also use ESM "import" statements instead of importScripts()
+    // during development this relies on browser native support, for the production build it is compiled away
+  </code></pre>
+
+
+
+<h2 id="prod">Production</h2>
+
+  <ul>
+    <li><code>vite build</code>, uses <code>[root]/index.html</code> as the build entry point, produces an application bundle that is suitable to be served over a static hosting service</li>
+    <li>build optimizations automatically applied as part of the build process:
+      <ul>
+        <li><strong>>CSS</strong> used by modules is automatically extracted in an async chunk and a separate file is generated for it, CSS file is automatically loaded via a <code>&lt;link></code> tag when the associated async chunk is loaded, and the async chunk is guaranteed to only be evaluated after the CSS is loaded to avoid FOUC (Flash Of Unstyled Content), to have all the CSS extracted into a single file, disable CSS code splitting: set "build" > "cssCodeSplit" config option to false</li>
+        <li><code>&lt;link rel="modulepreload"></code> directive is generated for entry chunks and their direct imports in the built HTML</li>
+        <li>"common" chunks (code that is shared between two or more other chunks) are fetched in parallel, code-split dynamic import calls are automatically rewritten, additional roundtrips are completely eliminated regardless o--- f import depth</li>
+      </ul>
+    </li>
+    <li>build can be customized via various "build" config options in <code>vite.config.js</code></li>
+    <li>Vite targets modern JS and browsers which support the native ES Modules, native ESM dynamic import, and import.meta, specify custom targets via the "build" > "target" config option, where the lowest target is <code>es2015</code></li>
+    <li>only syntax transforms is handled and polyfills are not covered, check <a href="https://polyfill.io/">https://polyfill.io/</a></li>
+    <li>legacy browsers can be supported via <a href="#plugins">@vitejs/plugin-legacy</a>, will automatically generate legacy chunks and corresponding ES language feature polyfills, legacy chunks are conditionally loaded only in browsers that do not have native ESM support</li>
+    <li>for project under a nested public path specify the "base" config option, also by specifying as a command line flag: <code>vite build --base=/my/public/path/</code>, JS-imported asset URLs, CSS url() references, and asset references in .html files are all automatically adjusted to respect this option during build
+      <ul>
+        <li>to dynamically concatenate URLs on the fly use the globally injected <code>import.meta.env.BASE_URL</code> variable which will be the public base path, this variable is statically replaced during build, it must appear exactly as-is (i.e. import.meta.env['BASE_URL'] won't work)</li>
+      </ul>
+    </li>
+    <li>adjust directly the underlying Rollup options via "build" > "rollupOptions" (<a href="https://rollupjs.org/configuration-options/">https://rollupjs.org/configuration-options/</a>)
+      <ul>
+        <li>configure chunks split strategy using "build" > "rollupOptions" > "output" > "manualChunks"</li>
+        <li>use older Split Vendor Chunk strategy ( "index" and "vendor" chunks, good for some SPA) by adding the splitVendorChunkPlugin in config file</li>
+        <li>enable rollup watcher (changes to the vite.config.js, and any files to be bundled) with <code>vite build --watch</code>, or directly adjust the underlying "WatcherOptions" via "build" > "watch"</li>
+        <li>for <strong>multi-page app</strong> specify multiple .html files as entry points</li>
+        <li><code>__dirname</code> is always the folder of <code>vite.config.js</code> file when resolving the Rollup config input paths, add <code>root</code> entry to the arguments for <code>resolve</code> function</li>
+        <li>for HTML files, Vite ignores the name given to the entry in the "rollupOptions" > "input" object and instead respects the resolved id of the file when generating the HTML asset in the dist folder. This ensures a consistent structure with the way the dev server works</li>
+      </ul>
+    </li>
+    <li>Vite emits <code>vite:preloadError</code> event when it fails to load dynamic <code>imports.code</code> contains the original import error
+      <ul>
+        <li>the error will not be thrown when <code>event.preventDefault()</code> is called</li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- customizing the build, vite.config.js
+    import { splitVendorChunkPlugin } from 'vite'
+
+    export default defineConfig({
+      build: {
+        rollupOptions: {
+          // https://rollupjs.org/configuration-options/
+          // ...
+          // multi-page app - specify multiple .html files as entry points
+          input: {
+            main: resolve(__dirname, 'index.html'),
+            nested: resolve(__dirname, 'nested/index.html'),
+          },
+        },
+        watch: { // directly adjust the underlying Rollup WatcherOptions
+          // https://rollupjs.org/configuration-options/#watch
+        },
+      },
+      // using older split vendor chunk strategy (used in pair with "build" > "rollupOptions" > "output" > "manualChunks" function)
+      plugins: [splitVendorChunkPlugin()],
+    })
+
+
+    // --- avoiding old chuck import, etc. or other error by reloading the page
+    window.addEventListener('vite:preloadError', (event) => {
+      window.reload() // for example, refresh the page
+    })
+    // or call event.preventDefault()
+  </code></pre>
+
+  <details><summary>Library Mode</summary>
+  <pre><code class="jsx">
+    // use index.html browser-oriented libraries development.
+    // use the build.lib config option for bundle library for distribution.
+    // also externalize any dependencies that are not bundled into library, e.g. vue or react.
+    // "vite build" will use Rollup preset that is oriented towards shipping libraries
+    // and produces two bundle formats: es and umd (configurable via build.lib):
+
+    // vite.config.js
+
+    import { resolve } from 'path'
+    import { defineConfig } from 'vite'
+
+    export default defineConfig({
+      build: {
+        lib: {
+          // Could also be a dictionary or array of multiple entry points
+          entry: resolve(__dirname, 'lib/main.js'),
+          name: 'MyLib',
+          // the proper extensions will be added
+          fileName: 'my-lib',
+        },
+        rollupOptions: {
+          // make sure to externalize deps that shouldn't be bundled
+          // into your library
+          external: ['vue'],
+          output: {
+            // Provide global variables to use in the UMD build
+            // for externalized deps
+            globals: {
+              vue: 'Vue',
+            },
+          },import.meta.
+        },
+      },
+    })
+
+    // entry file would contain exports that can be imported by package users
+    // lib/main.js
+    import Foo from './Foo.vue'
+    import Bar from './Bar.vue'
+    export { Foo, Bar }
+
+    // recommended package.json for your lib:
+    {
+      "name": "my-lib",
+      "type": "module",
+      "files": ["dist"],
+      "main": "./dist/my-lib.umd.cjs",
+      "module": "./dist/my-lib.js",
+      "exports": {
+        ".": {
+          "import": "./dist/my-lib.js",
+          "require": "./dist/my-lib.umd.cjs"
+        }
+      }
+    }
+    // OR if exposing multiple entry points:
+    {
+      "name": "my-lib",
+      "type": "module",
+      "files": ["dist"],
+      "main": "./dist/my-lib.cjs",
+      "module": "./dist/my-lib.js",
+      "exports": {
+        ".": {
+          "import": "./dist/my-lib.js",
+          "require": "./dist/my-lib.cjs"
+        },
+        "./secondary": {
+          "import": "./dist/secondary.js",
+          "require": "./dist/secondary.cjs"
+        }
+      }
+    }
+    // without  "type": "module" in package.json Vite will generate different file extensions for Node.js compatibility:
+    // .js will become .mjs and .cjs will become .js .
+    // in library mode, all import.meta.env.* usage are statically replaced when building for production,
+    // process.env.* usage are not, library consumers can dynamically change it,
+    // if this is undesirable, use define: { 'process.env.NODE_ENV': '"production"' }
+    // for example to statically replace them, or use https://github.com/benmccann/esm-env for better compatibility with bundlers and runtimes
+
+    // use Rollup or esbuild directly to build non-browser libraries or for advanced build flows
+  </code></pre></details>
+
+
+
+<h2 id="static">Static Site</h2>
+
+  <ul>
+    <li>deploy static site
+      <ul>
+        <li>the default build output location (dist) is used or defined using "build" > "outDir" config option</li>
+        <li>package manager is used: npm, yarn, pnpm</li>
+        <li>Vite is installed as a local dev dependency in project, and <code>build</code> with <code>preview</code> scripts are setup</li>
+      </ul>
+    </li>
+    <li>1 - <code>npm run build</code> - build the app, output will be placed in defined directory</li>
+    <li>2 - <code>npm run preview</code> - boot up a local static web server that serves the files from build directory at http://localhost:4173
+      <ul>
+        <li>configure the preview port of the server: <code>vite preview --port 8080</code></li>
+      </ul>
+    </li>
+    <li></li>
+    <li>... TODO: deployment locations, Netlify, Vercel, Cloudflare ...</li>
+  </ul>
+
+
+
+<h2 id="env">Env Variables and Modes</h2>
+
+  <ul>
+    <li>special <code>import.meta.env</code> object exposes env variables (also exposed to client source code), some built-in variables are available in all cases
+      <ul>
+        <li><code>import.meta.env.MODE</code> - mode the app is running in</li>
+        <li><code>import.meta.env.BASE_URL</code> - base url the app is being served from, determined by the base config option</li>
+        <li><code>import.meta.env.PROD</code> - whether the app is running in production (running the dev server with <code>NODE_ENV='production'</code> or running an app built with <code>NODE_ENV='production'</code>)</li>
+        <li><code>import.meta.env.DEV</code> - whether the app is running in development (always the opposite of <code>import.meta.env.PROD</code>)</li>
+        <li><code>import.meta.env.SSR</code> - whether the app is running in the server</li>
+      </ul>
+    </li>
+    <li><strong>dotenv</strong> file is used to load additional environment variables from the following files in environment directory ("envDir" config option)</li>
+    <li>env file for a specific mode (e.g. .env.production) will take higher priority than a generic one (e.g. .env)</li>
+    <li>environment variables that already exist when Vite is executed (<code>VITE_SOME_KEY=123 vite build</code>) have the highest priority and will not be overwritten by <strong>.env</strong> files</li>
+    <li><strong>.env</strong> files are loaded at the start of Vite, restart the server after making changes</li>
+    <li>only variables prefixed with <code>VITE_</code> are exposed to Vite-processed client source code as string: <code>import.meta.env.VITE_*</code> , should not contain any sensitive information</li>
+    <li><a href="https://github.com/motdotla/dotenv-expand">dotenv-expand</a> is used to expand variables</li>
+    <li>to get TypeScript IntelliSense for user-defined env variables that are prefixed with <code>VITE_</code> create an <code>vite-env.d.ts</code> in <code>src</code> directory, and augment ImportMetaEnv</li>
+    <li>any properties in <code>import.meta.env</code> can be used in HTML files with a special <code>%ENV_NAME%</code> syntax</li>
+    <li>by default, the dev server ( <code>dev</code> command ) runs in development mode and the <code>build</code> command runs in production mode and loads the env variables from <code>.env.production</code></li>
+    <li>strongoverwrite the default build mode: <code>vite build --mode staging</code> (to use <code>.env.staging file</code>)</li>
+    <li><strong>run a development build by using a different mode</strong> and .env file configuration, set <code>NODE_ENV=development</code> in <code>.env.*</code> file</li>
+    <li><code>NODE_ENV=...</code> can be set in the command line and in <code>.env</code> file
+      <ul>
+        <li>if <code>NODE_ENV</code> is specified in a <code>.env.[mode]</code> file, the mode can be used to control its value, however, both NODE_ENV and modes remain as two different concepts</li>
+        <li>benefit of <code>NODE_ENV=...</code> in the command is that it allows Vite to detect the value early and allows to read <code>process.env.NODE_ENV</code> in Vite config as Vite can only load the env files once the config is evaluated</li>
+      </ul>
+    </li>
+    <li><code>.env.*.local</code> files are local-only and can contain sensitive variables, add <code>*.local</code> to .gitignore to avoid them being checked into git</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- .env files rules
+    .env              // loaded in all cases
+    .env.local        // loaded in all cases, ignored by git
+    .env.[mode]       // only loaded in specified mode (higher priority than a generic one (e.g. .env))
+    .env.[mode].local // only loaded in specified mode, ignored by git(higher priority than a generic one (e.g. .env))
+
+
+    // --- only variables prefixed with VITE_ are exposed to client source code, .env file
+    VITE_SOME_KEY=123
+    DB_PASSWORD=foobar
+    // JS
+    console.log(import.meta.env.VITE_SOME_KEY) // "123" - returned as string, convert
+    console.log(import.meta.env.DB_PASSWORD) // undefined
+
+
+    // --- escape "$" with "\" ( because of dotenv-expand )
+    KEY=123
+    NEW_KEY1=test$foo  // test
+    NEW_KEY2=test\$foo // test$foo
+    NEW_KEY3=test$KEY  // test123
+
+
+    // --- properties in import.meta.env can be used in HTML files with a special %ENV_NAME% syntax:
+    &lt;h1>Vite is running in %MODE%&lt;/h1>
+    &lt;p>Using data from %VITE_API_URL%&lt;/p>
+    // non-existent are ignored and not replaced
+  </code></pre>
+
+
+  <h5>NODE_ENV ( process.env.NODE_ENV ) and modes are two different concepts</h5>
+
+  <table>
+    <thead><tr><th>Command</th><th>NODE_ENV</th><th>Mode</th></tr></thead>
+    <tbody>
+      <tr><td><code>vite build</code></td><td>"production"</td><td>"production"</td></tr>
+      <tr><td><code>vite build --mode development</code></td><td>"production"</td><td>"development"</td></tr>
+      <tr><td><code>NODE_ENV=development vite build</code></td><td>"development"</td><td>"production"</td></tr>
+      <tr><td><code>NODE_ENV=development vite build --mode development</code></td><td>"development"</td><td>"development"</td></tr>
+    </tbody>
+  </table>
+
+  <h5>different values of NODE_ENV and mode also reflect on its corresponding import.meta.env properties</h5>
+
+  <table>
+    <thead><tr><th>Command</th><th>import.meta.env.PROD</th><th>import.meta.env.DEV</th></tr></thead>
+    <tbody>
+      <tr><td><code>NODE_ENV=production</code></td><td><code>true</code></td><td><code>false</code></td></tr>
+      <tr><td><code>NODE_ENV=development</code></td><td><code>false</code></td><td><code>true</code></td></tr>
+      <tr><td><code>NODE_ENV=other</code></td><td><code>false</code></td><td><code>true</code></td></tr></tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Command</th><th>import.meta.env.MODE</th></tr></thead>
+    <tbody>
+      <tr><td><code>--mode production</code></td><td>"production"</td>
+      </tr><tr><td><code>--mode development</code></td><td>"development"</td></tr>
+      <tr><td><code>--mode staging</code></td><td>"staging"</td></tr>
+    </tbody>
+  </table>
+
+
+  <pre><code class="jsx">
+    // --- IntelliSense for TypeScript, augmenting ImportMetaEnv in src/vite-env.d.ts
+    /// &lt;reference types="vite/client" />
+    interface ImportMetaEnv {
+      readonly VITE_APP_TITLE: string
+      // more env variables...
+    }
+    interface ImportMeta {
+      readonly env: ImportMetaEnv
+    }
+    // avoid any import statement if the ImportMetaEnv augmentation does not work.
+    // if code relies on types from browser environments such as DOM and WebWorker,
+    // update the lib field in tsconfig.json
+    {
+      "lib": ["WebWorker"]
+    }
+  </code></pre>
+
+
+
+<h2 id="ssr">Server-Side Rendering</h2>
+
+  <ul>
+    <li>low-level API section meant for library and framework authors, Vite-specific integration details for SSR (running front-end frameworks (React, Preact, Vue, Svelte) application in Node.js, pre-rendering it to HTML, and finally hydrating it on the client)</li>
+    <li>check higher-level SSR plugins and tools at <a href="https://github.com/vitejs/awesome-vite#ssr">Awesome Vite SSR</a> to create an application on top of Vite native low-level API</li>
+    <li>for integration with traditional server-side frameworks, use <a href="#be">Backend Integration</a> guide</li>
+    <li>scaffold example projects with <code>npm create vite@latest</code> > "Others" > "create-vite-extra", references:
+      <ul>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-vanilla" target="_blank" rel="noreferrer">Vanilla</a></li>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-vue" target="_blank" rel="noreferrer">Vue</a></li>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-react" target="_blank" rel="noreferrer">React</a></li>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-preact" target="_blank" rel="noreferrer">Preact</a></li>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-svelte" target="_blank" rel="noreferrer">Svelte</a></li>
+        <li><a href="https://github.com/bluwy/create-vite-extra/tree/master/template-ssr-solid" target="_blank" rel="noreferrer">Solid</a></li>
+      </ul>
+    </li>
+    <li>it is recommended to use Vite in middleware mode, to decouple from the production environment</li>
+    <li><strong>pre-render routes that are known ahead of time into static HTML</strong> using the same logic as production SSR (a form of Static-Site Generation (SSG)), <a href="https://github.com/vitejs/vite-plugin-vue/blob/main/playground/ssr-vue/prerender.js">working example</a></li>
+    <li>dependencies are "externalized" from SSR transform module system by default to speed up both dev and build, to transform dependency by Vite pipeline, (Vite features are used untranspiled in them,...), they can be added to "ssr" > "noExternal". Linked dependencies are not externalized by default to take advantage of HMR, to test dependencies as if they aren't linked, etc.: add it to "ssr" > "external" config option</li>
+    <li>configure the <strong>target for the SSR build</strong> to be Web Worker using the "ssr" > "target" set to 'webworker', default target for the SSR build is a node environment, packages entry resolution is different for each platform</li>
+    <li><strong>bundle SSR build into a single JavaScript file</strong> (cases like webworker runtimes) by setting "ssr" > "noExternal" to "true", will do two things: treat all dependencies as "noExternal" , throw an error if any Node.js built-ins are imported</li>
+    <li>use "ssr" > "resolve" > "conditions" and "ssr" > "resolve" > "externalConditions" config options to <strong>customize package entry resolution for the SSR build</strong> (by default conditions set in "resolve" > "conditions")</li>
+    <li><code>vite dev</code> and <code>vite preview</code> can also be used for SSR apps, add SSR middlewares to the development server with "configureServer" and to the preview server with "configurePreviewServer" plugin hooks, use a post hook so that SSR middleware runs after Vite middlewares</li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- typical SSR application will have the following source file structure:
+    - index.html
+    - server.js // main application server
+    - src/
+      - main.js          // exports env-agnostic (universal) app code
+      - entry-client.js  // mounts the app to a DOM element
+      - entry-server.js  // renders the app using the framework SSR API
+    // --- index.html will need to reference entry-client.js
+    // and include a placeholder where the server-rendered markup should be injected:
+    &lt;div id="app">
+      &lt;!--ssr-outlet--> // any placeholder that can be precisely replaced
+    &lt;/div>
+    &lt;script type="module" src="/src/entry-client.js">&lt;/script>
+    // --- conditional logic, based on SSR vs. client
+    // statically replaced during build, allow tree-shaking of unused branches
+    if (import.meta.env.SSR) {
+      // ... server only logic
+    }
+
+
+    // --- USE VITE IN MIDDLEWARE MODE, decouple from the production environment
+    // with ExpressJS, server.js :
+    import fs from 'fs'
+    import path from 'path'
+    import { fileURLToPath } from 'url'
+    import express from 'express'
+    import { createServer as createViteServer } from 'vite'
+
+    const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+    async function createServer() {
+      const app = express()
+
+      // create Vite server in middleware mode and configure the app type as 'custom',
+      // disabling own HTML serving logic so parent server can take control
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'custom'
+      })
+
+      // using connect instance (https://github.com/senchalabs/connect) as middleware,
+      // can be used in any connect-compatible Node.js framework.
+      // with own express.Router() use router.use .
+      // when the server restarts (for example after the user modifies vite.config.js),
+      // "vite.middlewares" is still going to be the same reference
+      // (with a new internal stack of Vite and plugin-injected middlewares)
+      // following is valid even after restarts
+      app.use(vite.middlewares)
+
+      app.use('*', async (req, res, next) => {
+        const url = req.originalUrl
+
+        try {
+          // 1. Read index.html
+          let template = fs.readFileSync(
+            path.resolve(__dirname, 'index.html'),
+            'utf-8',
+          )
+
+          // 2. Apply Vite HTML transforms.
+          //    inject the Vite HMR client, and apply HTML transforms from Vite plugins,
+          //    e.g. global preambles from @vitejs/plugin-react
+          template = await vite.transformIndexHtml(url, template)
+
+          // 3a. Load the server entry.
+          //    ssrLoadModule automatically transforms ESM source code to be usable in Node.js
+          const { render } = await vite.ssrLoadModule('/src/entry-server.js')
+          // 3b. Since Vite 5.1, use createViteRuntime API instead,
+          //    fully supports HMR and works in a simillar way to ssrLoadModule.
+          //    advanced use cases: runtime in a separate thread or a different machine using ViteRuntime class
+          const runtime = await vite.createViteRuntime(server)
+          const { render } = await runtime.executeEntrypoint('/src/entry-server.js')
+
+          // 4. Render the app HTML.
+          //    assumes entry-server.js exported "render" function calls appropriate framework SSR APIs,
+          //    e.g. ReactDOMServer.renderToString()
+          const appHtml = await render(url)
+
+          // 5. Inject the app-rendered HTML into the template.
+          const html = template.replace(`&lt;!--ssr-outlet-->`, appHtml)
+
+          // 6. Send the rendered HTML back.
+          res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+        } catch (e) {
+          // fix the stack trace on error when caught, maps back to actual source code
+          vite.ssrFixStacktrace(e)
+          next(e)
+        }
+      })
+
+      app.listen(5173)
+    }
+
+    createServer()
+
+
+    // --- building SSR project for production.
+    // refer to the example projects for a working setup.
+    // 1 - produce a client build as normal;
+    // 2 - produce an SSR build, which can be directly loaded via import()
+    //     so that we dont have to go through Vite ssrLoadModule or runtime.executeEntrypoint;
+    // scripts in package.json :
+    {
+      "scripts": {
+        "dev": "node server",
+        "build:client": "vite build --outDir dist/client",
+        "build:server": "vite build --outDir dist/server --ssr src/entry-server.js"
+      }
+    }
+    // in server.js add production specific logic by checking process.env.NODE_ENV:
+    // 1 - instead of reading the root index.html, use the dist/client/index.html as the template,
+    //     it contains the correct asset links to the client build.
+    // 2 - instead of await vite.ssrLoadModule('/src/entry-server.js')
+    //     or await runtime.executeEntrypoint('/src/entry-server.js'),
+    //     use import('./dist/server/entry-server.js') (this file is the result of the SSR build).
+    // 3 - move the creation and all usage of the vite dev server behind dev-only conditional branches,
+    //     then add static file serving middlewares to serve files from dist/client.
+
+
+    // --- generate dist/client/.vite/ssr-manifest.json from the client build,
+    // with mappings of module IDs to their associated client files chunks and assets.
+    // package.json :
+    "build:client": "vite build --outDir dist/client --ssrManifest",
+    // Vue example of collecting the module IDs of the components:
+    // https://github.com/vitejs/vite-plugin-vue/blob/main/playground/ssr-vue/src/entry-server.js
+
+
+    // --- SSR-specific plugin logic
+    // some frameworks such as Vue or Svelte
+    // compile components into different formats based on client vs. SSR
+    // to support conditional transforms,
+    // use "ssr" property in the options object of the following plugin hooks:
+    // - resolveId
+    // - load
+    // - transform
+    export function mySSRPlugin() {
+      return {
+        name: 'my-ssr',
+        transform(code, id, options) {
+          if (options?.ssr) {
+            // perform ssr-specific transform...
+          }
+        },
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="be">Backend Integration</h2>
+
+  <ul>
+    <li>custom backend integration manual configuration</li>
+    <li>to serve the HTML using a traditional backend (e.g. Rails, Laravel) but use Vite for serving assets, check for existing integrations listed in <a href="https://github.com/vitejs/awesome-vite#integrations-with-backends">https://github.com/vitejs/awesome-vite#integrations-with-backends</a></li>
+  </ul>
+
+  <pre><code class="jsx">
+    // 1 - vite.config.js , configure the entry and enable build manifest:
+    export default defineConfig({
+      build: {
+        manifest: true, // generate .vite/manifest.json in outDir
+        rollupOptions: {
+          input: '/path/to/main.js', // overwrite default .html entry
+        },
+      },
+    })
+    // if module preload polyfill is not disabled, add the beginning of app entry
+    import 'vite/modulepreload-polyfill'
+
+    // 2 - for development,
+    // inject the following in server HTML template
+    // (substitute http://localhost:5173 with the local URL Vite is running at):
+    &lt;script type="module" src="http://localhost:5173/@vite/client">&lt;/script>
+    &lt;script type="module" src="http://localhost:5173/main.js">&lt;/script>
+    // to properly serve assets, for assets such as images to load properly
+    // (a) - make sure the server is configured to proxy static assets requests to the Vite server.
+    // (b) - set "server" > "origin" config option so that generated asset URLs
+    //       will be resolved using the back-end server URL instead of a relative path.
+
+    // for React with @vitejs/plugin-react,
+    // since the plugin is not able to modify the HTML served
+    // (substitute http://localhost:5173 with the local URL Vite is running at)
+    // add before the above scripts:
+    &lt;script type="module">
+      import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    &lt;/script>
+
+    // 3 - for production: after running "vite build",
+    // ".vite/manifest.json" file will be generated alongside other asset files
+    // example manifest file looks like this:
+    {
+      "main.js": {
+        "file": "assets/main.4889e940.js",
+        "src": "main.js",
+        "isEntry": true,
+        "dynamicImports": ["views/foo.js"],
+        "css": ["assets/main.b82dbe22.css"],
+        "assets": ["assets/asset.0ab0f9cd.png"]
+      },
+      "views/foo.js": {
+        "file": "assets/foo.869aea0d.js",
+        "src": "views/foo.js",
+        "isDynamicEntry": true,
+        "imports": ["_shared.83069a53.js"]
+      },
+      "_shared.83069a53.js": {
+        "file": "assets/shared.83069a53.js"
+      }
+    }
+    // - manifest has a Record&lt;name, chunk> structure
+    // - for entry or dynamic entry chunks, the key is the relative src path from project root
+    // - for non entry chunks, the key is the base name of the generated file prefixed with _
+    // - chunks will contain information on its static and dynamic imports
+    //   (both are keys that map to the corresponding chunk in the manifest),
+    //   and also its corresponding CSS and asset files (if any)
+
+    // use this file to render links or preload directives with hashed filenames
+    // (note: the syntax here is for explanation only, substitute with server templating language):
+    &lt;link rel="stylesheet" href="/assets/{{ manifest['main.js'].css }}" />
+    &lt;script type="module" src="/assets/{{ manifest['main.js'].file }}">&lt;/script>
+  </code></pre>
+
+
+
+<h2 id="plugins">Plugins</h2>
+
+  <ul>
+    <li>Vite can be extended using Rollup plugins, using interface with a few extra Vite-specific options, extend the dev server and SSR functionality as needed</li>
+    <li><code>plugins</code> array in <code>vite.config.js</code> also accepts presets including several plugins as a single element, useful for complex features (like framework integration) that are implemented using several plugins, array will be flattened internally</li>
+    <li>falsy plugins will be ignored, which can be used to easily activate or deactivate plugins</li>
+    <li><a href="https://github.com/vitejs/awesome-vite#plugins">https://github.com/vitejs/awesome-vite#plugins</a></li>
+    <li><a href="https://vite-rollup-plugins.patak.dev/">https://vite-rollup-plugins.patak.dev/</a></li>
+    <li><a href="https://www.npmjs.com/search?q=rollup-plugin&ranking=popularity">npm search for rollup-plugin</a></li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- ADDING PLUGIN
+    // provide support for legacy browsers using official @vitejs/plugin-legacy.
+    // add to the "devDependencies" of the project
+    npm add -D @vitejs/plugin-legacy
+    // include in the plugins array in "vite.config.js"
+    import legacy from '@vitejs/plugin-legacy'
+    import image from '@rollup/plugin-image'
+    import { defineConfig } from 'vite'
+    export default defineConfig({
+      plugins: [
+        legacy({
+          targets: ['defaults', 'not IE 11'],
+        }),
+        {
+          ...image(),
+          // enforce the order of the plugin, invoke plugin
+          // pre     - before core plugins
+          // default - after core plugins
+          // post    - after build plugins
+          enforce: 'pre',
+          // conditional application, avoid invoking by both serve and build
+          apply: 'build', // or 'serve'
+        },
+      ],
+    })
+  </code></pre>
+
+
+
+<h2 id="troubles">Troubleshooting</h2>
+
+  <ul>
+    <li><a href="https://rollupjs.org/troubleshooting/">Rollup troubleshooting guide</a></li>
+    <li></li>
+    <li><strong>CJS</strong>
+      <ul>
+        <li><strong>Vite CJS Node API deprecated</strong>
+          <ul>
+            <li><code>vite.config.js</code> file content must use the ESM syntax</li>
+            <li>closest <code>package.json</code> file should have <code>"type": "module"</code>, or use the <code>.mjs</code> / <code>.mts</code> extension, e.g. <code>vite.config.mjs</code> or <code>vite.config.mts</code></li>
+            <li><strong>configure ESM as default, opt-in to CJS if needed:</strong> add <code>"type": "module"</code> in the project <code>package.json</code>, all <code>*.js</code> files are now interpreted as ESM and needs to use the ESM syntax, rename a file with the <code>.cjs</code> extension to keep using CJS instead</li>
+            <li><strong>keep CJS as default, opt-in to ESM if needed:</strong> if the project <code>package.json</code> does not have <code>"type": "module"</code>, all <code>*.js</code> files are interpreted as CJS, rename a file with the <code>.mjs</code> extension to use ESM instead</li>
+            <li><strong>dynamically import Vite:</strong>, to need to keep using CJS,  dynamically import Vite using <code>import('vite')</code> instead, this requires code to be written in an <code>async</code> context, but should still be manageable as Vite's API is mostly asynchronous</li>
+            <li>to see where thewarning is coming from, log the stack trace: <code>VITE_CJS_TRACE=true vite dev</code></li>
+            <li>to temporarily ignore the warning: <code>VITE_CJS_IGNORE_WARNING=true vite dev</code></li>
+            <li>postcss config files does not support ESM + TypeScript ( <code>.mts</code> or <code>.ts</code> in <code>"type": "module"</code> ) yet, with postcss configs with <code>.ts</code> and added <code>"type": "module"</code> to package.json,  rename the postcss config to use <code>.cts</code></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>CLI</strong>
+      <ul>
+        <li><code>Error: Cannot find module 'C:\foo\bar&baz\vite\bin\vite.js'</code>
+          <ul>
+            <li>path to project folder must not include <code>&</code>, does not work with <code>npm</code> on Windows ( <a href="https://github.com/npm/cmd-shim/issues/45">npm/cmd-shim#45</a> ), switch to another package manager (e.g. pnpm, yarn), OR remove <code>&</code> from the path to project</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>Config</strong>
+      <ul>
+        <li><code>This package is ESM only</code>, ESM files cannot be loaded by <code>require</code>
+          <ul>
+            <li>adding <code>"type": "module"</code> to the nearest <code>package.json</code></li>
+            <li>renaming <code>vite.config.js</code> / <code>vite.config.ts</code> to <code>vite.config.mjs</code> / <code>vite.config.mts</code></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>Dev Server</strong>
+      <ul>
+        <li><strong>Requests are stalled forever</strong>, file descriptor limits and inotify limits may be causing the issue in Linux environment, Vite does not bundle most of the files, browsers may request many files which require many file descriptors, going over the limit
+          <ul>
+            <li>increase file descriptor limit by <code>ulimit</code>: check current limit - <code>ulimit -Sn</code> , change limit (temporary) - <code>ulimit -Sn 10000</code> , restart browser, try to change the hard limit too</li>
+            <li>increase the following inotify related limits by <code>sysctl</code>: check current limits - <code>sysctl fs.inotify</code> , change limits (temporary) - <code>sudo sysctl fs.inotify.max_queued_events=16384</code> , <code>sudo sysctl fs.inotify.max_user_instances=8192</code> , <code>sudo sysctl fs.inotify.max_user_watches=524288</code></li>
+            <li>try adding <code>DefaultLimitNOFILE=65536</code> as an un-commented config to the following files: <code>/etc/systemd/system.conf</code> , <code>/etc/systemd/user.conf</code> , for Ubuntu Linux, add the line <code>* - nofile 65536</code> to the file <code>/etc/security/limits.conf</code> instead of updating systemd config files</li>
+            <li>these settings persist but a restart is required</li>
+          </ul>
+        </li>Network requests stop loading
+        <li><strong>Network requests stop loading</strong>, when using a self-signed SSL certificate, Chrome ignores all caching directives and reloads the content, Vite relies on these caching directives
+          <ul>
+            <li>use a trusted SSL cert</li>
+            <li>see: <a href="https://helpx.adobe.com/mt/experience-manager/kb/cache-problems-on-chrome-with-SSL-certificate-errors.html" target="_blank" rel="noreferrer">cache problems</a> , <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=110649#c8" target="_blank" rel="noreferrer">Chrome issue</a></li>
+            <li>on macOS, install a trusted cert via the CLI with this command: <code>security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db your-cert.cer</code> , or Network requests stop loadingby importing it into the Keychain Access app and updating the trust of your cert to "Always Trust."</li>
+          </ul>
+        </li>
+        <li><strong>431 Request Header Fields Too Large</strong>, when the server / WebSocket server receives a large HTTP header, because Node.js limits request header size to mitigate <a href="https://www.cve.org/CVERecord?id=CVE-2018-12121">CVE-2018-12121</a>
+          <ul>
+            <li>reduce request header size: if the cookie is long, delete it, etc.</li>
+            <li>use <code>--max-http-header-size</code> to change max header size</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>HMR</strong>
+      <ul>
+        <li><strong>Vite detects a file change but the HMR is not working</strong>
+          <ul>
+            <li>file with a different case is imported: <code>src/foo.js</code> exists and <code>src/bar.js</code> contains: <code>import './Foo.js' // should be './foo.js'</code></li>
+          </ul>
+        </li>
+        <li><strong>Vite does not detect a file change</strong>
+          <ul>
+            <li>when running Vite with WSL2, Vite cannot watch file changes in some conditions, see "server" > "watch" option (file system watcher options to pass on to chokidar)</li>
+          </ul>
+        </li>
+        <li><strong>A full reload happens instead of HMR</strong>, <u>if HMR is not handled</u> by Vite or a plugin, the only way to refresh the state , <u>if HMR is handled</u> but it is within a circular dependency, a full reload will also happen to recover the execution order
+          <ul>
+            <li>run <code>vite --debug hmr</code> to log the circular dependency path if a file change triggered it, break the loop</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>Build</strong>
+      <ul>
+        <li><strong>Built file does not work because of CORS error</strong>: <code>Access to script at 'file:///foo/bar.js' from origin 'null' has been blocked by CORS policy,...</code> - if the HTML file output was opened with <code>file:///</code> protocol
+          <ul>
+            <li>access the file with <code>http</code> protocol, run <code>npx vite preview</code></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>Optimized Dependencies</strong>
+      <ul>
+        <li><strong>Outdated pre-bundled deps when linking to a local package</strong>, hash key used to invalidate optimized dependencies depend on the package lock contents, the patches applied to dependencies, and the options in the Vite config file that affects the bundling of node modules, Vite will detect when a dependency is overridden using a feature as <a href="https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides">npm overrides</a> , and re-bundle dependencies on the next server start, Vite wont invalidate the dependencies when feature like <a href="https://docs.npmjs.com/cli/v9/commands/npm-link">npm link</a> are used
+          <ul>
+            <li>when dependencies are linked or unlinked, force re-optimization on the next server start by using <code>vite --force</code></li>
+            <li>use overrides insteyourad, which are supported now by every package manager (<a href="https://pnpm.io/package_json#pnpmoverrides">pnpm overrides</a> , <a href="https://yarnpkg.com/configuration/manifest/#resolutions">yarn resolutions</a>)</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><strong>Performance bottlenecks</strong>
+      <ul>
+        <li><a href="https://rollupjs.org/troubleshooting/">Rollup troubleshooting guide</a></li>
+        <li>start the built-in Node.js inspector <code>vite --profile --open</code> (in dev) OR <code>vite build --profile</code> (for build) to catch performance bottlenecks, in browser, press <kbd>p</kbd> in terminal (will stop the Node.js inspector) then press <kbd>q</kbd> key to stop the dev server, Node.js inspector will generate <code>vite-profile-0.cpuprofile</code> in the root folder, upload the CPU profile using the BROWSE button to inspect the result at <a href="https://www.speedscope.app/">https://www.speedscope.app/</a></li>
+        <li>install <a href="https://github.com/antfu/vite-plugin-inspect">vite-plugin-inspect</a></li>
+      </ul>
+    </li>
+    <li><strong>Others</strong>
+      <ul>
+        <li><code>Module "fs" has been externalized for browser compatibility. Cannot access "fs.readFile" in client code</code>, when a Node.js module is used in the browser
+          <ul>
+            <li>because Vite does not automatically polyfill Node.js modules</li>
+            <li>avoid Node.js modules for browser code to reduce the bundle size</li>
+            <li>add polyfills manually</li>
+          </ul>
+        </li>
+        <li><strong>Syntax Error / Type Error happens</strong>, <code>...strict mode...</code>, Vite cannot handle and does not support code that only runs on non-strict mode (sloppy mode), only ESM in permanent strict mode
+          <ul>
+            <li>for code used inside dependencies, use <a href="https://github.com/ds300/patch-package">patch-package</a> (or <a href="https://yarnpkg.com/cli/patch">yarn patch</a> or <a href="https://pnpm.io/cli/patch">pnpm patch</a></li>
+          </ul>
+        </li>
+        <li><strong>Browser extensions</strong> (like ad-blockers) may prevent the Vite client from sending requests to the Vite dev server(white screen without logged errors in this case)
+          <ul>
+            <li>disable extensions</li>
+          </ul>
+        </li>
+        <li><strong>Cross drive links on Windows</strong>, with cross drive links in project on Windows (virtual drive linked to a folder by <code>virtual drive linked to a folder by subst command</code> command, symlink/junction to a different drive by mklink command (e.g. Yarn global cache)), Vite may not work
+          <ul>
+            <li><a href="https://github.com/vitejs/vite/issues/10802">https://github.com/vitejs/vite/issues/10802</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="perf">Performance</h2>
+
+  <ul>
+    <li><strong>Avoid Browser Extensions</strong> - may interfere with requests and slow down startup and reload times for large apps, especially when using browser dev tools, create a dev-only profile without extensions, or switch to incognito mode, while using dev server</li>
+    <li><strong>Audit Configured Vite Plugins</strong>
+      <ul>
+        <li>large dependencies that are only used in certain cases should be dynamically imported to reduce the Node.js startup time, example refactors: <a href="https://github.com/vitejs/vite-plugin-react/pull/212" target="_blank" rel="noreferrer">vite-plugin-react#212</a> and <a href="https://github.com/vite-pwa/vite-plugin-pwa/pull/244" target="_blank" rel="noreferrer">vite-plugin-pwa#224</a></li>
+        <li><code>buildStart</code>, <code>config</code>, and <code>configResolved</code> hooks should not run long and extensive operations, they are awaited during dev server startup, which delays accessing the site in the browser</li>
+        <li><code>resolveId</code>, <code>load</code>, and <code>transform</code> hooks may cause some files to load slower than others, sometimes unavoidable, it is still worth checking for possible areas to optimize, checking if the <code>code</code> contains a specific keyword, or the <code>id</code> matches a specific extension, before doing the full transformationThe longer it takes to transform a file, the more significant the request waterfall will be when loading the site in the browser, inspect the duration it takes to transform a file using <code>DEBUG="vite:plugin-transform" vite</code> or <a href="https://github.com/antfu/vite-plugin-inspect" target="_blank" rel="noreferrer">vite-plugin-inspect</a>, as asynchronous operations tend to provide inaccurate timings, treat the numbers as a rough estimate, but it should still reveal the more expensive operations</li>
+        <li>run <code>vite --profile</code>, visit the site, and press <kbd>p + enter</kbd> in terminal to record a <code>.cpuprofile</code>, tool like <a href="https://www.speedscope.app" target="_blank" rel="noreferrer">speedscope</a> can then be used to inspect the profile and identify the bottlenecks, also <a href="https://chat.vitejs.dev" target="_blank" rel="noreferrer">share the profiles</a> with the Vite team</li>
+      </ul>
+    </li>
+    <li><strong>Reduce Resolve Operations</strong> - reduce "guessing" import paths with the "resolve" > "extensions" config option, which defaults to <code>['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']</code>, make sure it works for files in <strong>node_modules</strong> too, for TypeScript enable <code>"moduleResolution": "bundler"</code> and <code>"allowImportingTsExtensions": true</code> in <code>tsconfig.json</code> <code>compilerOptions</code> to use <code>.ts</code> and <code>.tsx</code> extensions directly in code</li>
+    <li><strong>Avoid Barrel Files</strong> (files that re-export the APIs of other files in the same directory: <code>src/*/index.js</code> exports), they need to be fetched and transformed: slash API and side-effects that run on initialization, import the individual APIs directly, e.g. <code>import { slash } from './utils/slash.js'</code></li>
+    <li><strong>Warm Up Frequently Used Files</strong> with "server" > "warmup" > "clientFiles"|"ssrFiles" config option fast-glob paths array (transform and cache the results in advance), using <code>--open</code> or "server" > "open" provides a performance boost, as Vite will automatically warm up the entry point, also find files that are frequently used by running <code>DEBUG="vite:transform" vite</code> and inspect the logs</li>
+    <li><strong>Use Lesser or Native Tooling</strong>, reduce the amount of work for the source files (JS/TS/CSS)
+      <ul>
+        <li>less work:
+          <ul>
+            <li>use CSS instead of Sass/Less/Stylus when possible (nesting can be handled by PostCSS)</li>
+            <li>do not transform SVGs into UI framework components (React, Vue, etc), import them as strings or URLs instead</li>
+            <li>when using <code>@vitejs/plugin-react</code>, avoid configuring the Babel options, it skips the transformation during build (only esbuild will be used)</li>
+          </ul>
+        </li>
+        <li>native tooling, brings larger installation size, not the default when starting a new Vite project, may be worth for larger applications
+          <ul>
+            <li>experimental support for <a href="https://github.com/vitejs/vite/discussions/13835" target="_blank" rel="noreferrer">LightningCSS</a></li>
+            <li><a href="https://github.com/vitejs/vite-plugin-react-swc" target="_blank" rel="noreferrer"><code>@vitejs/plugin-react-swc</code></a> in place of <code>@vitejs/plugin-react</code></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+
+
+<h2 id="conf">Config</h2>
+
+  <ul>
+    <li>Vite will automatically try to resolve a config file named <code>vite.config.js</code> inside project root (other JS and TS extensions are also supported) when running <code>vite</code> from the command line</li>
+    <li>using ES modules syntax in the config file even if the project is not using native Node ESM is supported, e.g. type: "module" in <code>package.json</code>, in this case, the config file is auto pre-processed before load</li>
+    <li><code>vite --config my-config.js</code> - specify a config file to use, resolved relative to <code>cwd</code></li>
+  </ul>
+
+  <pre><code class="jsx">
+    // --- most basic config file, vite.config.js
+    export default {
+      // config options
+    }
+
+
+    // --- intellisense with jsdoc type hints:
+    /** @type {import('vite').UserConfig} */
+    export default {
+      // ...
+    }
+    // OR use the defineConfig helper, provides intellisense without jsdoc annotations:
+    import { defineConfig } from 'vite'
+    export default defineConfig({
+      // ...
+    })
+    // TS config files are also supported, use vite.config.ts with the defineConfig helper
+
+
+    // --- Conditional Config
+    export default defineConfig(({
+      command,    // serve ( "vite", "vite dev", "vite serve" is running ) | build ( "vite build" )
+      mode,
+      isSsrBuild,
+      isPreview
+    }) => {
+      if (command === 'serve') {
+        return {
+          // dev specific config
+        }
+      } else {
+        // command === 'build'
+        return {
+          // build specific config
+        }
+      }
+    })
+
+
+    // --- Async Config, to call async functions in config, export an async function instead
+    // also pass through defineConfig to improve intellisense support:
+    export default defineConfig(async ({ command, mode }) => {
+      const data = await asyncFunction()
+      return {
+        // vite config
+      }
+    })
+
+
+    // --- Environment Variables in Config
+    // can be obtained with exported loadEnv helper
+    import { defineConfig, loadEnv } from 'vite'
+    export default defineConfig(({ command, mode }) => {
+      const env = loadEnv(
+        mode,          // load env file based on "mode" in the current working directory
+        process.cwd(),
+        ''             // '' - to load all env regardless of the `VITE_` prefix
+      )
+      return {
+        // vite config
+        define: {
+          __APP_ENV__: JSON.stringify(env.APP_ENV),
+        },
+      }
+    })
+  </code></pre>
+
+
+<br/>
+<a href="../index.html" id="main_page_link">Back to Main Page</a>
+<br/>
+<br/>
+<br/>
+
+</body>
+</html>

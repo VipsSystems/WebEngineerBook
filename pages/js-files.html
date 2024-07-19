@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="JavaScript files, form, ajax, fetch tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="javascript, js, files, form, formdata, fetch, ajax, url, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="javascript, js, files, form, formdata, fetch, ajax, url, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -23,6 +23,8 @@
 </head>
 
 <body>
+
+<h1>JS files</h1>
 
 <h2 id="ajax">AJAX</h2>
 
@@ -76,7 +78,7 @@
     <li>to bypassing the cache- append a timestamp to the URL, being sure to include a "?" or "&" as appropriate</li>
   </ul>
 
-  <div id="ajax_tests" class="example h_5">
+  <div id="ajax_tests" class="example h-5">
     <button onclick="ajax_ok()">ajax_ok</button>
     <input type="text" id="ajax_ok" value="php/ajax_json.php"/><br>
     <button onclick="ajax_abort()">ajax_abort</button>
@@ -284,12 +286,12 @@
 <h2 id="ajax_xml">AJAX+XML</h2>
 
 
-  <div class="example h_4">
+  <div class="example h-4">
     choose or click on catalog entry
     <input type="button" onclick="ax_cds.ax_prev()" value="ax_prev()">
     <input type="button" onclick="ax_cds.ax_next()" value="ax_next()">
   </div>
-  <div id="ax_info" class="example h_3"></div>
+  <div id="ax_info" class="example h-3"></div>
   <div class="example h20">
     <table id="ax_catalog" style="cursor:pointer;"></table>
   </div>
@@ -336,7 +338,7 @@
               // ax_info.innerHTML = "unable to load XML-catalog";
             }
         };
-        xmlhttp.open("GET", "cd_catalog.xml", true);
+        xmlhttp.open("GET", "../files/cd_catalog.xml", true);
         xmlhttp.send();
       },
       ax_prev() {
@@ -404,7 +406,7 @@
               // ax_info.innerHTML = "unable to load XML-catalog";
             }
         };
-        xmlhttp.open("GET", "cd_catalog.xml", true);
+        xmlhttp.open("GET", "../files/cd_catalog.xml", true);
         xmlhttp.send();
       },
       ax_prev() {

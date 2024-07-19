@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Git tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="git, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="git, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -24,16 +24,17 @@
 
 <body>
 
-  <pre>
-  <code class="python">
+  <h1>Git</h1>
+
+  <pre><code class="python">
     # install on Linux
     sudo apt-get update
     sudo apt-get install git
     git --version
 
     # set the username and user email address to be used
-    git config --global user.name "Emma Paris"
-    git config --global user.email "eparis@atlassian.com"
+    git config --global user.name "Andrei T."
+    git config --global user.email "andreivinyl@gmail.com"
 
     # initialize the repository as Git repository
     git init
@@ -94,6 +95,10 @@
     git branch -d branch_to_delete
     git branch -D branch_to_delete # delete unmerged or with commits
 
+    # cloning large remote repository
+    git config --global core.compression 0
+    git clone --depth 1 [repo_URI]
+
     # origin - default name Git gives to the server you cloned from
     # automatically sets up local master branch to track the remote master branch
     git clone https://github.com/schacon/ticgit
@@ -147,8 +152,34 @@
 
     # increase the postBuffer for larger files upload
     git config http.postBuffer 100000000
-  </code>
-  </pre>
+  </code></pre>
+
+  <pre><code class="python">
+    # Solving "error: RPC failed; curl 92 HTTP/2 stream 5 was not closed cleanly: CANCEL (err 8)"
+
+    # 1 - check network connection
+    # ensure your internet connection is stable, take steps to stabilize it
+    # try disconnecting from VPN
+
+    # 2 - change Git HTTP transport
+      git config --global http.version HTTP/1.1
+
+    # 3 - extend git timeout settings to accommodate slower connections:
+    git config --global http.postBuffer 524288000
+    git config --global http.lowSpeedLimit 0
+    git config --global http.lowSpeedTime 999999
+
+    ### Retry commands that produced errors
+
+    ### TO RESET ALL CHANGES
+    git config --global --unset http.version
+    git config --global --unset http.postBuffer
+    git config --global --unset http.lowSpeedLimit
+    git config --global --unset http.lowSpeedTime
+  </code></pre>
+  <br/>
+  <br/>
+  <br/>
   <img src="../images/git.png"
   style="position:relative;width:80%;margin-left:10%;">
   <br/>

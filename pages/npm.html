@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="NPM tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="npm, js, command, cli, node modules, module, package json, install, app, http, server, serve, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="npm, js, command, cli, node_modules, modules, packages, package json, install, app, http, server, serve, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -23,6 +23,8 @@
 </head>
 
 <body>
+
+<h1>NPM</h1>
 
 <h2 id="intro">Intro</h2>
 
@@ -130,6 +132,144 @@
 
   <img src="../images/npm-versions.jpeg"
   style="position:relative;width:85%;margin-left:1em;">
+
+
+
+<h2 id="pnpm">pnpm</h2>
+
+  <ul>
+    <li>fast, disk space efficient package manager</li>
+    <li>up to 2x faster than npm</li>
+    <li>files inside <code>node_modules</code> are cloned or hard linked from a single content-addressable storage</li>
+    <li>built-in support for multiple packages in a repository</li>
+    <li>creates a non-flat <code>node_modules</code> by default, so code has no access to arbitrary packages</li>
+    <li>how <code>pnpm &lt;command></code> works, a shortcut where <code>pnpm exec</code> and <code>pnpm run</code> are explicit commands without fallback:
+      <ul>
+        <li><strong>IF</strong> <code>&lt;command></code> is a pnpm command (add, install,...), execute that command</li>
+        <li><strong>ELSE IF</strong> <code>&lt;command></code> is a script found in <code>package.json</code>, execute <code>pnpm run &lt;command></code></li>
+        <li><strong>ELSE</strong> execute <code>pnpm exec &lt;command></code></li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code class="terminal">
+    # installing with NPM, when Node.js already installed:
+    npm install -g pnpm
+    # with Node.js not installed:
+    npm install -g @pnpm/exe
+    # installing with Windows Powershell:
+    iwr https://get.pnpm.io/install.ps1 -useb | iex
+    # installing with Chocolatey:
+    choco install pnpm
+
+    # initialize a new project, get the default package.json in the current directory
+    pnpm init
+
+    # install project dependencies
+    pnpm install
+    pnpm i
+
+    # run a package.json script
+    pnpm run build
+    pnpm build
+
+    # add new dependencies to project
+    pnpm add &lt;pkg>
+    # add new dev dependency, -D (or --save-dev) flag
+    pnpm add -D &lt;pkg>
+    # install a package globally, -g flag:
+    pnpm add -g &lt;pkg>
+    pnpm add &lt;pkg>@&lt;tag>
+    pnpm add &lt;pkg>@&lt;version>
+    pnpm add &lt;pkg>@&lt;version range>
+    pnpm add &lt;git host>:&lt;git user>/&lt;repo name>
+    pnpm add &lt;git repo url>
+    pnpm add &lt;tarball file>
+    pnpm add &lt;tarball url>
+    pnpm add &lt;dir>
+
+    # remove dependencies from the project
+    pnpm remove &lt;pkg>
+    pnpm rm &lt;pkg>
+    pnpm rm -g &lt;pkg> # remove a globally installed package
+    pnpm uninstall &lt;pkg>
+    pnpm un &lt;pkg>
+
+    # update packages to their latest versions based on the specified range in package.json
+    pnpm update
+    pnpm up
+    # update all dependencies to their latest versions, ignoring ranges specified in package.json
+    pnpm up --latest
+
+    # run 'scripts' > 'start' command, specified in the package
+    pnpm start
+    # run 'scripts' > 'test' command, if one was provided
+    pnpm test
+    pnpm t
+
+    # npx alternative,
+    # download specified package from the registry without installing it as a dependency,
+    # and run whatever default command binary it exposes.
+    pnpm dlx &lt;pkg> &lt;command> &lt;value>
+    # executed command:
+    # 1 - single entry of 'bin' field of package.json.
+    # 2 - command name in the 'bin' field of package.json that matches the package name, ignoring the scope part if any.
+    # 3 - throws an error with a helpful error message.
+    pnpm --package=typescript dlx tsc --init
+
+    # setup tab-completion
+    pnpm install-completion
+
+    # display a tree-like view of the project dependencies
+    pnpm list
+    pnpm ls
+    # checks for known security issues
+    pnpm audit
+    # check licenses
+    pnpm licenses
+    # check for outdated packages
+    pnpm outdated
+
+    # overview of the content-addressable store status
+    pnpm store status
+    # optimize disk space usage, remove unreferenced packages from the store
+    pnpm store prune
+    # prints the path to the active store directory
+    store path
+    # checks for modified packages in the store
+    store status
+
+    # publish packages to registries, and share them with the community
+    pnpm publish
+
+    # execute commands specified by the 'bin' field in installed package package.json file.
+    # run executable of the corresponding file with the same name in project node_modules/.bin directory.
+    pnpm add -D typescript # installing typescript as a dev dependency
+    pnpm exec tsc --init   # running the tsc command to create a tsconfig.json file
+    pnpm tsc # omit exec, when there is no conflicting 'tsc' script in package.json
+    # 'pnpm exec' prepends ./node_modules/.bin to the PATH (PATH=./node_modules/.bin:$PATH) and then executes command.
+    # has access to all commands resolved by the paths specified in PATH,
+    # access many system commands for example rm, ls, and so on.
+
+    # PNPM Workspaces - manage multiple packages within a monorepository
+    # define a single package.json file at the root of the repository
+    # and specify the individual packages as workspaces, PNPM treats them as interdependent projects.
+    # running 'pnpm install' at the root of the repository installs dependencies for all workspaces.
+    # pnpm-workspace.yaml
+    {
+      "name": "my-monorepo",
+      "private": true,
+      "workspaces": [
+        "packages/*"
+      ]
+    }
+
+    # run a command for each project in the workspace
+    pnpm &lt;command> --recursive
+    pnpm &lt;command> --r
+  </code></pre>
+
+
 
 <h2 id="serve">serve - static file serving and directory listing</h2>
 

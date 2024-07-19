@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Typescript tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="typescript, ts, js, types, class, function, enum, module, jsx, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="typescript, ts, js, types, class, function, enum, module, jsx, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -24,7 +24,9 @@
 
 <body>
 
-<h2 id="initial">Initial</h2>
+<h1>TypeScript</h1>
+
+<h2 id="intro">Intro</h2>
 
   <pre><code class="javascript">
     // install ts from npm
@@ -145,6 +147,9 @@
         a // const a: string
         b // const b: number
     }
+    // optional labels or names for each element:
+    type Pair&lt;T> = [first: T, second: T];
+    type TwoOrMore&lt;T> = [first: T, second: T, rest: ...T[]];
 
     // --- ENUM
     enum Color {Red, Green, Blue} // start members numbering with 0
@@ -397,7 +402,7 @@
     let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
     let search = { ...defaults, food: "rich" };
     // { food: "rich", price: "$$", ambiance: "noisy" }
-    let search = {  food: "rich", ...defaults };
+    let search = { food: "rich", ...defaults };
     // { food: "spicy", price: "$$", ambiance: "noisy" }
 
     class C {
@@ -431,7 +436,7 @@
   <ul>
     <li>when an interface type extends a class type it inherits the members of the class (private and protected members of a base class) but not their implementations: as if the interface had declared all of the members of the class without providing an implementation</li>
     <li>when you create an interface that extends a class with private or protected members, that interface type can only be implemented by that class or a subclass of it</li>
-    <li>useful when you have a large inheritance hierarchy, but want to specify that your code works with only subclasses that have certain properties, subclasses dont have to be related besides inheriting from the base class</li>
+    <li>useful when you have a large inheritance hierarchy, but want to specify that code works with only subclasses that have certain properties, subclasses dont have to be related besides inheriting from the base class</li>
     <li>"implements" - treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation</li>
   </ul>
 
@@ -602,217 +607,6 @@
 
 
 
-<h2 id="classes">Classes</h2>
-
-  <ul>
-    <li>"implements" - treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation</li>
-  </ul>
-
-  <pre><code class="ts">
-    // superclass
-    class Animal {
-      name: string;
-
-      // public name: string; // is as default
-      // protected name: string; // same, can also be accessed within deriving classes
-      // private name: string; // unavailable outside class, unique to the containing class
-      // #name: string; // ES private fields
-      // constructor(name: string) { this.#name = name; }
-      // greet() { console.log(`Hello, my name is ${this.#name}!`); }
-
-      // readonly name: string; // not modifiable after definition
-      // readonly numberOfLegs: number = 8; // initialized or in constructor
-
-      constructor(theName: string) { this.name = theName; }
-      // create class parameter while constructing: public|private|protected|readonly
-      // constructor(readonly name: string) {...}
-      // protected constructor() {...} - class cant be instantiated, but can be extended
-
-      move(distanceInMeters: number = 0) {
-        console.log(`${this.name} moved ${distanceInMeters}m.`);
-      }
-
-      // private methods and accessors
-      #someMethod() { }
-      get #someValue() { return 100; }
-      publicMethod() {
-        this.#someMethod();
-        return this.#someValue;
-      }
-      static #someMethod() { }
-      equals(other: unknown) {
-        return other &&
-            typeof other === "object" &&
-            #name in other && // narrow the type of other as Person
-            this.#name === other.#name;
-      }
-    }
-    // constructors in derived classes must call super()
-    // before any references to 'this'
-    class Snake extends Animal {
-      constructor(name: string) { super(name); }
-      move(distanceInMeters = 5) {
-        console.log("Slithering...");
-        super.move(distanceInMeters);
-      }
-    }
-    class Horse extends Animal {
-      constructor(name: string) { super(name); }
-      move(distanceInMeters = 45) {
-        console.log("Galloping...");
-        super.move(distanceInMeters);
-      }
-    }
-    let sam = new Snake("Sammy the Python");
-    let tom: Animal = new Horse("Tommy the Palomino");
-    sam.move();
-    tom.move(34);
-
-    // --- ACCESSORS (getters/setters) - set the compiler to output ES5 or higher
-    let passcode = "secret passcode";
-    class Employee {
-      private _fullName: string;
-      get fullName(): string { return this._fullName; }
-      set fullName(newName: string) {
-        if (passcode && passcode == "secret passcode") {
-          this._fullName = newName;
-        }
-        else {
-          console.log("Error: Unauthorized update of employee!");
-        }
-      }
-    }
-    let employee = new Employee();
-    employee.fullName = "Bob Smith";
-    if (employee.fullName) {
-      console.log(employee.fullName);
-    }
-    class Thing {
-      #size = 0;
-      get size(): number { return this.#size; }
-      set size(value: string | number | boolean) {
-        let num = Number(value);
-        // Don't allow NaN and stuff.
-        if (!Number.isFinite(num)) {
-          this.#size = 0; return;
-        }
-        this.#size = num;
-      }
-    }
-    let thing = new Thing();
-    thing.size = "hello";
-    thing.size = true;
-    thing.size = 42;
-    let mySize: number = thing.size; // reading 'thing.size' always produces a number!
-    // ECMAScript auto-accessors, "de-sugared" to a get and set accessor with an unreachable private property: #__name: string;
-    class Person {
-      accessor name: string;
-      constructor(name: string) {
-        this.name = name;
-      }
-    }
-
-    // --- STATIC properties
-    class Grid {
-      static origin = {x: 0, y: 0}; // instead of this.
-      calculateDistanceFromOrigin(point: {x: number; y: number;}) {
-        let xDist = (point.x - Grid.origin.x);
-        let yDist = (point.y - Grid.origin.y);
-        return Math.sqrt(xDist * xDist + yDist * yDist) / this.scale;
-      }
-      constructor (public scale: number) { }
-    }
-    let grid1 = new Grid(1.0);  // 1x scale
-    let grid2 = new Grid(5.0);  // 5x scale
-    console.log(grid1.calculateDistanceFromOrigin({x: 10, y: 10}));
-    console.log(grid2.calculateDistanceFromOrigin({x: 10, y: 10}));
-
-    // --- STATIC blocks
-    class Foo {
-      static #count = 0;
-      static prop = 1
-      get count() { return Foo.#count; }
-      static {
-          try {
-              const lastInstances = loadLastInstances();
-              Foo.#count += lastInstances.length;
-          }
-          catch {}
-      }
-      // runs in the same order in which they are written
-      static { console.log(Foo.prop++); }
-    }
-
-    // --- ABSTRACT classes, defines implementation details
-    abstract class Department {
-      constructor(public name: string) { }
-      printName(): void {
-        console.log("Department name: " + this.name);
-      }
-      abstract printMeeting(): void; // must be implemented in derived classes
-      abstract prop: number; // no initializer, just type
-    }
-    class AccountingDepartment extends Department {
-      constructor() {
-        super("Accounting and Auditing");
-      }
-      printMeeting(): void {
-        console.log("The Accounting Department meets each Monday at 10am.");
-      }
-      generateReports(): void {
-        console.log("Generating accounting reports...");
-      }
-    }
-    let department: Department; // ok to create a reference to an abstract type
-    department = new Department(); // error: cannot create an instance of an abstract class
-    department = new AccountingDepartment(); // ok to create and assign a non-abstract subclass
-    department.printName();
-    department.printMeeting();
-    department.generateReports(); // error: method doesn't exist on declared abstract type
-
-    // --- ADVANCED
-    class Greeter {
-      static standardGreeting = "Hello, there";
-      greeting: string;
-      greet() {
-        if (this.greeting) {
-          return "Hello, " + this.greeting;
-        }
-        else {
-          return Greeter.standardGreeting;
-        }
-      }
-    }
-    let greeter1: Greeter; // using class type
-    greeter1 = new Greeter(); // using class constructor
-    console.log(greeter1.greet()); // ...
-    let greeterMaker: typeof Greeter = Greeter; // obtain and override class
-    greeterMaker.standardGreeting = "Hey there!";
-    let greeter2: Greeter = new greeterMaker();
-    console.log(greeter2.greet());
-    // class as interface
-    class Point {
-      x: number;
-      y: number;
-    }
-    interface Point3d extends Point {
-      z: number;
-    }
-    let point3d: Point3d = {x: 1, y: 2, z: 3};
-    // - override, TS will always make sure that a method with the same name exists in a the base class
-    class SomeComponent {
-      // show() { }
-      // hide() { }
-      setVisible(value: boolean) { }
-    }
-    class SpecializedComponent extends SomeComponent {
-      // Err: member cannot have an 'override' modifier because it is not declared in the base class 'SomeComponent'
-      override show() { }
-    }
-  </code></pre>
-
-
-
 <h2 id="functions">Functions</h2>
 
   <pre><code class="ts">
@@ -915,6 +709,431 @@
     let pickedCard2 = pickCard(15);
     alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
     // calling pickCard with any other parameter types would cause an error
+
+    // --- allowed undefined-returning functions
+    function f4(): undefined {
+      // no returns
+    }
+    takesFunction((): undefined => {
+      // no returns
+    });
+    takesFunction(function f() { // return type is undefined
+      // no returns
+    });
+    takesFunction(function f() { // return type is undefined
+      return;
+    });
+    // under '--noImplicitReturns'
+    function f(): undefined {
+      if (Math.random()) {
+        // do some stuff...
+        return;
+      }
+    }
+  </code></pre>
+
+
+
+<h2 id="classes">Classes</h2>
+
+    <ul>
+      <li>"implements" - treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation</li>
+    </ul>
+
+    <pre><code class="ts">
+      // superclass
+      class Animal {
+        name: string;
+
+        name: string; // is as default
+        // public name: string; // is as default
+        // protected name: string; // same, can also be accessed within deriving classes
+        // private name: string; // unavailable outside class, unique to the containing class
+        // #name: string; // ES private fields
+        // constructor(name: string) { this.#name = name; }
+        // greet() { console.log(`Hello, my name is ${this.#name}!`); }
+
+        // readonly name: string; // not modifiable after definition
+        // readonly numberOfLegs: number = 8; // initialized or in constructor
+
+        constructor(theName: string) { this.name = theName; }
+        // create class parameter while constructing: public|private|protected|readonly
+        // constructor(readonly name: string) {...}
+        // protected constructor() {...} - class cant be instantiated, but can be extended
+
+        move(distanceInMeters: number = 0) {
+          console.log(`${this.name} moved ${distanceInMeters}m.`);
+        }
+
+        // private methods and accessors
+        #someMethod() { }
+        get #someValue() { return 100; }
+        publicMethod() {
+          this.#someMethod();
+          return this.#someValue;
+        }
+        static #someMethod() { }
+        equals(other: unknown) {
+          return other &&
+              typeof other === "object" &&
+              #name in other && // narrow the type of other as Person
+              this.#name === other.#name;
+        }
+      }
+      // constructors in derived classes must call super()
+      // before any references to 'this'
+      class Snake extends Animal {
+        constructor(name: string) { super(name); }
+        move(distanceInMeters = 5) {
+          console.log("Slithering...");
+          super.move(distanceInMeters);
+        }
+      }
+      class Horse extends Animal {
+        constructor(name: string) { super(name); }
+        move(distanceInMeters = 45) {
+          console.log("Galloping...");
+          super.move(distanceInMeters);
+        }
+      }
+      let sam = new Snake("Sammy the Python");
+      let tom: Animal = new Horse("Tommy the Palomino");
+      sam.move();
+      tom.move(34);
+
+      // --- ACCESSORS (getters/setters)
+      // set the compiler to output ES5 or higher !
+      let passcode = "secret passcode";
+      class Employee {
+        private _fullName: string;
+        get fullName(): string { return this._fullName; }
+        set fullName(newName: string) {
+          if (passcode && passcode == "secret passcode") {
+            this._fullName = newName;
+          }
+          else {
+            console.log("Error: Unauthorized update of employee!");
+          }
+        }
+      }
+      let employee = new Employee();
+      employee.fullName = "Bob Smith";
+      if (employee.fullName) {
+        console.log(employee.fullName);
+      }
+      class Thing {
+        #size = 0;
+        get size(): number { return this.#size; }
+        set size(value: string | number | boolean) {
+          let num = Number(value);
+          // Don't allow NaN and stuff.
+          if (!Number.isFinite(num)) {
+            this.#size = 0; return;
+          }
+          this.#size = num;
+        }
+      }
+      let thing = new Thing();
+      thing.size = "hello";
+      thing.size = true;
+      thing.size = 42;
+      let mySize: number = thing.size; // reading 'thing.size' always produces a number!
+      // ECMAScript auto-accessors
+      // "de-sugared" to a get and set accessor with an unreachable private property: #__name: string;
+      class Person {
+        accessor name: string;
+        constructor(name: string) {
+          this.name = name;
+        }
+      }
+      // completely unrelated types for get and set accessor with explicit type annotations are allowed
+      interface CSSStyleRule {
+        get style(): CSSStyleDeclaration; // always reads as a "CSSStyleDeclaration"
+        set style(newValue: string); // can only write a "string" here
+      }
+      class SafeBox {
+        #value: string | undefined;
+        set value(newValue: string) { ... } // Only accepts strings!
+        get value(): string | undefined { // Must check for 'undefined'!
+          return this.#value;
+        }
+      }
+
+      // --- STATIC properties
+      class Grid {
+        static origin = {x: 0, y: 0}; // instead of this.
+        calculateDistanceFromOrigin(point: {x: number; y: number;}) {
+          let xDist = (point.x - Grid.origin.x);
+          let yDist = (point.y - Grid.origin.y);
+          return Math.sqrt(xDist * xDist + yDist * yDist) / this.scale;
+        }
+        constructor (public scale: number) { }
+      }
+      let grid1 = new Grid(1.0);  // 1x scale
+      let grid2 = new Grid(5.0);  // 5x scale
+      console.log(grid1.calculateDistanceFromOrigin({x: 10, y: 10}));
+      console.log(grid2.calculateDistanceFromOrigin({x: 10, y: 10}));
+
+      // --- STATIC blocks
+      class Foo {
+        static #count = 0;
+        static prop = 1
+        get count() { return Foo.#count; }
+        static {
+            try {
+                const lastInstances = loadLastInstances();
+                Foo.#count += lastInstances.length;
+            }
+            catch {}
+        }
+        // runs in the same order in which they are written
+        static { console.log(Foo.prop++); }
+      }
+
+      // --- ABSTRACT classes, defines implementation details
+      abstract class Department {
+        constructor(public name: string) { }
+        printName(): void {
+          console.log("Department name: " + this.name);
+        }
+        abstract printMeeting(): void; // must be implemented in derived classes
+        abstract prop: number; // no initializer, just type
+      }
+      class AccountingDepartment extends Department {
+        constructor() {
+          super("Accounting and Auditing");
+        }
+        printMeeting(): void {
+          console.log("The Accounting Department meets each Monday at 10am.");
+        }
+        generateReports(): void {
+          console.log("Generating accounting reports...");
+        }
+      }
+      let department: Department; // ok to create a reference to an abstract type
+      department = new Department(); // error: cannot create an instance of an abstract class
+      department = new AccountingDepartment(); // ok to create and assign a non-abstract subclass
+      department.printName();
+      department.printMeeting();
+      department.generateReports(); // error: method doesn't exist on declared abstract type
+
+      // --- ADVANCED
+      class Greeter {
+        static standardGreeting = "Hello, there";
+        greeting: string;
+        greet() {
+          if (this.greeting) {
+            return "Hello, " + this.greeting;
+          }
+          else {
+            return Greeter.standardGreeting;
+          }
+        }
+      }
+      let greeter1: Greeter; // using class type
+      greeter1 = new Greeter(); // using class constructor
+      console.log(greeter1.greet()); // ...
+      let greeterMaker: typeof Greeter = Greeter; // obtain and override class
+      greeterMaker.standardGreeting = "Hey there!";
+      let greeter2: Greeter = new greeterMaker();
+      console.log(greeter2.greet());
+      // class as interface
+      class Point {
+        x: number;
+        y: number;
+      }
+      interface Point3d extends Point {
+        z: number;
+      }
+      let point3d: Point3d = {x: 1, y: 2, z: 3};
+      // - override, TS will always make sure that a method with the same name exists in a the base class
+      class SomeComponent {
+        // show() { }
+        // hide() { }
+        setVisible(value: boolean) { }
+      }
+      class SpecializedComponent extends SomeComponent {
+        // Err: member cannot have an 'override' modifier because it is not declared in the base class 'SomeComponent'
+        override show() { }
+      }
+    </code></pre>
+
+
+
+
+<h3 id="using">"using" declaration</h3>
+
+  <ul>
+    <li>support for the upcoming <a href="https://github.com/tc39/proposal-explicit-resource-management">Explicit Resource Management feature</a> in ECMAScript</li>
+  </ul>
+
+  <pre><code class="ts">
+    // ...
+    {
+        "compilerOptions": {
+            "target": "es2022",
+            "lib": ["es2022", "esnext.disposable", "dom"] // "esnext" or "esnext.disposable"
+        }
+    }
+    // ...
+
+    class TempFile implements Disposable { // "Disposable" is a global type
+      #path: string;
+      #handle: number;
+      constructor(path: string) {
+          this.#path = path;
+          this.#handle = fs.openSync(path, "w+");
+      }
+      // other methods ...
+      [Symbol.dispose]() {
+          // close the file and delete it
+          fs.closeSync(this.#handle);
+          fs.unlinkSync(this.#path);
+      }
+    }
+    export function doSomeWork() {
+      const file = new TempFile(".some_temp_file");
+      try { ... }
+      finally {
+        file[Symbol.dispose]();
+      }
+    }
+    // or just
+    export function doSomeWork() {
+      // declare new fixed bindings, kind of like "const"
+      using file = new TempFile(".some_temp_file");
+      // use file...
+      if (someCondition()) {
+        // do some more work...
+        return;
+      }
+      // Symbol.dispose method will be called at the end of the scope, oron return, throw
+      // for variables declared with "using".
+      // supposed to be resilient to exceptions; if an error is thrown, it is rethrown after disposal
+    }
+    // also disposes in a first-in-last-out order like a stack
+    function loggy(id: string): Disposable {
+      console.log(`Creating ${id}`);
+      return {
+        [Symbol.dispose]() {
+          console.log(`Disposing ${id}`);
+        }
+      }
+    }
+    function func() {
+      using a = loggy("a");
+      using b = loggy("b");
+        {
+          using c = loggy("c");
+          using d = loggy("d");
+        }
+      using e = loggy("e");
+      return;
+      // Unreachable.
+      // Never created, never disposed.
+      using f = loggy("f");
+     }
+     func();
+     // Creating a
+     // Creating b
+     // Creating c
+     // Creating d
+     // Disposing d
+     // Disposing c
+     // Creating e
+     // Disposing e
+     // Disposing b
+     // Disposing a
+
+     // --- "await using" and asyncDispose - when resource disposal involves asynchronous operations
+     // AsyncDisposable type describes any object with an asynchronous dispose method
+     async function doWork() {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    function loggy(id: string): AsyncDisposable {
+      console.log(`Constructing ${id}`);
+      return {
+        async [Symbol.asyncDispose]() {
+          console.log(`Disposing (async) ${id}`);
+          await doWork();
+        },
+      }
+    }
+    async function func() {
+      await using a = loggy("a");
+      await using b = loggy("b");
+      {
+        await using c = loggy("c");
+        await using d = loggy("d");
+      }
+      await using e = loggy("e");
+      return;
+      // Unreachable.
+      // Never created, never disposed.
+      await using f = loggy("f");
+    }
+    func();
+    // Constructing a
+    // Constructing b
+    // Constructing c
+    // Constructing d
+    // Disposing (async) d
+    // Disposing (async) c
+    // Constructing e
+    // Disposing (async) e
+    // Disposing (async) b
+    // Disposing (async) a
+
+    // --- DisposableStack and AsyncDisposableStack
+    // for doing both one-off clean-up, along with arbitrary amounts of cleanup,
+    // keeping track of Disposable objects, disposes of everything it keeps track of like a stack.
+    // they are also Disposable, can be assigned with "using" to variables because
+    function doSomeWork() {
+      const path = ".some_temp_file";
+      const file = fs.openSync(path, "w+");
+      using cleanup = new DisposableStack();
+      // then call "defer" immediately after creating a resource
+      cleanup.defer(() => { // callback will be run once cleanup is disposed of
+        fs.closeSync(file);
+        fs.unlinkSync(path);
+      });
+      // use file...
+      if (someCondition()) {
+        // do some more work...
+        return;
+      }
+      // ...
+    }
+
+    // --- SuppressedError (subtype of Error), when logic before or during disposal throws an error
+    class ErrorA extends Error {
+      name = "ErrorA";
+    }
+    class ErrorB extends Error {
+      name = "ErrorB";
+    }
+    function throwy(id: string) {
+      return {
+        [Symbol.dispose]() {
+          throw new ErrorA(`Error from ${id}`);
+        }
+      };
+    }
+    function func() {
+      using a = throwy("a");
+      throw new ErrorB("oops!")
+    }
+    try {
+      func();
+    }
+    catch (e: any) {
+      console.log(e.name); // SuppressedError
+      console.log(e.message); // An error was suppressed during disposal.
+      console.log(e.error.name); // ErrorA
+      console.log(e.error.message); // Error from a
+      console.log(e.suppressed.name); // ErrorB
+      console.log(e.suppressed.message); // oops!
+    }
   </code></pre>
 
 
@@ -1011,6 +1230,11 @@
 
 <h2 id="enums">Enums</h2>
 
+  <ul>
+    <li>enums are a union of each member type</li>
+    <li>can be narrowed and have their members referenced as types</li>
+  </ul>
+
   <pre><code class="ts">
     enum Direction_nr {
       Up = 1, // default would be 0 if not initialized
@@ -1026,6 +1250,11 @@
       Right = "RIGHT",
     }
     Direction_str.Up; // "UP"
+    enum E {
+      A = 10 * 10,  // Numeric literal enum member
+      B = "foo",    // String literal enum member
+      C = bar(42)   // Opaque computed enum member
+    }
 
     // --- CONSTANTS, evaluated at start time :
     enum E { X } // first member and not initialized (=1)
@@ -1178,6 +1407,26 @@
       console.log(mouseEvent.clickTime);  // now, no error is given
     };
 
+    // --- "const" modifier, no need to write 'as const':
+    type HasNames = { names: readonly string[] };
+    function getNamesExactly&lt;const T extends HasNames&gt;(arg: T): T["names"] {
+      return arg.names;
+    }
+    const names = getNamesExactly({ names: ["Alice", "Bob", "Eve"] }); // inferred type: : readonly [...]
+    const names2 = getNamesExactly({ names: ["Alice", "Bob", "Eve"]} as const); // older solution
+    // does not reject mutable values, and does not require immutable constraints:
+    declare function fnBad&lt;const T extends string[]&gt;(args: T): void;
+    // 'T' will be 'string[]', 'readonly ["a", "b", "c"]' is not assignable to mutable 'string[]',
+    // inference falls back to the constraint
+    fnBad(["a", "b" ,"c"]);
+    // better definition , with readonly string[]:
+    declare function fnGood&lt;const T extends readonly string[]&gt;(args: T): void;
+    fnGood(["a", "b" ,"c"]); // T is readonly ["a", "b", "c"]
+    // modifier only affects inference of object, array and primitive expressions that were written within the call,
+    // arguments which wouldnt (or couldnt) be modified with as const wont see any change in behavior:
+    const arr = ["a", "b" ,"c"];
+    fnGood(arr); // 'T' is still 'string[]'-- the 'const' modifier has no effect here
+
     // --- "satisfies" operator
     // validate that the type of an expression matches some type, without changing the resulting type of that expression.
     // validate that all the properties of palette are compatible with string | number[] :
@@ -1264,8 +1513,7 @@
 <h2 id="compat">Type Compatibility</h2>
 
   <ul>
-    <li>based on structural subtyping, basic rule: x is compatible with y if y has at least the same members as x
-  </li>
+    <li>based on structural subtyping, basic rule: x is compatible with y if y has at least the same members as x</li>
   </ul>
 
   <pre><code class="ts">
@@ -1936,7 +2184,7 @@
         return result;
     }
     let originalProps = unproxify(proxyProps);
-    // if the mapped type is not homomorphic, give an explicit type parameter to your unwrapping function
+    // if the mapped type is not homomorphic, give an explicit type parameter to unwrapping function
 
     // --- new object types based on arbitrary keys
     type Options = {
@@ -2336,6 +2584,27 @@
     // Err: Type 'Function' does not satisfy the constraint 'abstract new (...args: any) =&gt; any'
     // Err: Type 'Function' provides no match for the signature 'new (...args: any): any'
 
+    // --- NoInfer&lt;Type&gt; - blocks inferences to the contained type
+    // other than blocking inferences, is identical to "Type".
+    // not to dig in and match against the inner types to find candidates for type inference.
+    function createStreetLight&lt;C extends string>(
+      colors: C[],
+      defaultColor?: NoInfer&lt;C>,
+    ) { ... }
+    function doSomethingr&lt;T>(arg: T) { ... }
+    //explicitly say that 'T' should be 'string'.
+    doSomethingr&lt;string>("hello!");
+    // just let the type of 'T' get inferred
+    doSomething("hello!");
+
+    createStreetLight(["red", "yellow", "green"], "red");  // OK
+    createStreetLight(["red", "yellow", "green"], "blue");  // Error
+
+
+
+
+
+
     // --- ThisParameterType&lt;Type&gt;
     // extracts the type of the 'this' parameter for a function type,
     // or 'unknown' if the function type has no 'this' parameter
@@ -2457,18 +2726,22 @@
 <h2 id="mns">Modules/Namespaces</h2>
 
   <ul>
-    <li><strong>namespaces</strong> - objects in the global namespace, can span multiple files, and can be concatenated using --outFile, good way to structure your code, with all dependencies included as script-tags in your HTML page, it can be hard to identify component dependencies, especially in a large application</li>
+    <li><strong>namespaces</strong> - objects in the global namespace, can span multiple files, and can be concatenated using <code>--outFile</code>, good way to structure code, with all dependencies included as script-tags in HTML page, it can be hard to identify component dependencies, especially in a large application</li>
     <li><strong>modules</strong> - like namespaces, can contain both code and declarations</li>
     <li>main difference is that modules declare their dependencies, modules also have a dependency on a module loader (such as CommonJs/Require.js), for a small JS application this might not be optimal, but for larger applications, the cost comes with long term modularity and maintainability benefits</li>
     <li>modules provide for better code reuse, stronger isolation and better tooling support for bundling</li>
-    <li>modules are the default and the recommended approach to structure your code</li>
-    <li>pitfalls:</li>
-    <li>"import" for modules, "/// &lt;reference ... /&gt;" for namespaces</li>
-    <li>because the module file itself is already a logical grouping, and its top-level name is defined by the code that imports it, its unnecessary to use an additional module layer for exported objects</li>
+    <li>modules are the default and the recommended approach to structure code</li>
+    <li>pitfalls:
+      <ul>
+        <li>"import" for modules, "/// &lt;reference ... /&gt;" for namespaces</li>
+        <li>because the module file itself is already a logical grouping, and its top-level name is defined by the code that imports it, its unnecessary to use an additional module layer for exported objects</li>
+      </ul>
+    </li>
+    <li><a href="./typescript-extra.html#tsconfig">ECMAScript Modules (ESM) in Node.js (tsconfig.json section)</a></li>
+    <li>since TypeScript 5.0 compiler is now implemented internally with modules, not namespaces</li>
   </ul>
 
-  <h3>Modules</h3>
-
+  <details><summary>Modules</summary>
   <pre><code class="ts">
     // TypeScript supports "export=" to model CommonJS and AMD workflow
     // import module = require("module") must be used to import the module
@@ -2495,6 +2768,18 @@
     import type { SomeThing } from "./some-module.js";
     export type { SomeThing };
     import { someFunc, type BaseType } from "./some-module.js";
+    // - export type *
+    // models/vehicles.ts
+    export class Spaceship { ... }
+    // models/index.ts
+    export type * as vehicles from "./vehicles";
+    // main.ts
+    import { vehicles } from "./models";
+    // "vehicles" can only be used in a type position
+    function takeASpaceship(s: vehicles.Spaceship) { ... }
+    function makeASpaceship() {
+      return new vehicles.Spaceship(); // cannot be used as a value !
+    }
 
     // --- DYNAMIC module loading in node.js
     // module loader is invoked (through "require") dynamically
@@ -2581,10 +2866,17 @@
     const obj = await import("./something.json", {
       assert: { type: "json" },
     });
-  </code></pre>
 
-  <h4>structuring modules</h4>
+    // --- Import Attributes, evolution of an earlier "import assertions" proposal.
+    // runtime are now free to use attributes to guide the resolution
+    // and interpretation of import paths,
+    // import assertions could only assert some characteristics after loading a module
+    const obj = await import("./something.json", {
+      with: { type: "json" } // with vs. assert
+    });
+  </code></pre></details>
 
+  <details><summary>Structuring modules</summary>
   <pre><code class="ts">
     // 1 - functions, rather then classes or namespaces
     // - if you are only exporting a single class or function, use export default
@@ -2633,16 +2925,16 @@
 
     // 3 - do not use namespaces in module
 
-    // 4 - check that you are not trying to namespace your external modules:
+    // 4 - check that you are not trying to namespace external modules:
     // - file whose only top-level declaration is "export namespace Foo { ... }"
     // remove Foo and move everything 'up' a level
     // - file that has a single "export class" or "export function"
     // consider using "export default"
     // - multiple files that have the same "export namespace Foo {" at top-level
     // dont think that these are going to combine into one Foo!
-  </code></pre>
+  </code></pre></details>
 
-  <h3>Namespaces</h3>
+  <details><summary>Namespaces</summary>
   <pre><code class="ts">
     // instead of putting lots of different names into the global namespace
 
@@ -2748,10 +3040,9 @@
       export interface Base extends Selectors { event: Event; }
     }
     declare var d3: D3.Base;
-  </code></pre>
+  </code></pre></details>
 
-  <h3>Pitfalls</h3>
-
+  <details><summary>Pitfalls</summary>
   <pre><code class="ts">
     // compiler looks for .ts, .tsx, and then a .d.ts with the appropriate path
     // if a specific file not found - compiler looks for ambient module declaration
@@ -2773,38 +3064,36 @@
     // using:
     import * as shapes from "./shapes";
     let t = new shapes.Triangle();
-  </code></pre>
+  </code></pre></details>
 
 
 
 <h2 id="modres">Module Resolution</h2>
 
   <ul>
-    <li>to look for moduleA compiler follows one of two different strategies <strong>Classic</strong> (default) or <strong>Node</strong>:
-    <ul>
-      <li>use the <strong>--moduleResolution</strong> flag to specify the module resolution strategy, if not specified, the default is <strong>Classic</strong> for <strong>--module AMD|System|ES2015</strong> or <strong>Node</strong> otherwise</li>
-    </ul>
-    </li>
+    <li>figuring out what an import refers to</li>
+    <li>lookup strategies: <code>node16</code>|<code>nodenext</code>, <code>classic</code>(when module is amd, umd, system, es6/es2015), <code>node10</code>|<code>node</code>. See <a href="./typescript-extra.html#options">Compiller Options: <code>--moduleResolution</code></a> for more details</li>
     <li>if that didnt work and if the module name is non-relative (and in the case of "moduleA", it is), then the compiler will attempt to locate an ambient module declaration</li>
-    <li></li>
+    <li>unresolved modules produce error, like: TS2307: Cannot find module 'moduleA'</li>
     <li>/*** - absolute path</li>
     <li>./*** - look in current folder</li>
     <li>../ - one tree branch back</li>
     <li></li>
-    <li><strong>tsc --traceResolution</strong> - show how compiler will solve path</li>
-    <li><strong>tsc app.ts moduleA.ts --noResolve</strong> - avoid resolving unspecified in command line modules</li>
+    <li><code>tsc --traceResolution</code> - show how compiler will solve path</li>
+    <li>compiler will attempt to resolve all module imports before it starts the compilation process, successfully resolved imports are added to the set of files the compiler will process later on, unresolved paths will be resolved relative to the specified <a href="./typescript-extra.html#tsconfig">typeRoots</a></li>
+    <li><code>tsc app.ts moduleA.ts --noResolve</code> - avoid resolving modules unspecified in command line</li>
     <li></li>
-    <li>tsconfig.json - turns a folder into a "project", all files in the folder and all its sub-directories are included in your compilation
-    <ul>
-      <li>exclude - exclude some of the files</li>
-      <li>files - specify all the files instead of letting the compiler look them up</li>
-      <li>to exclude a file from the compilation, you need to exclude it and all files that have an import or /// &lt;reference path="..." /&gt; directive to it.</li>
-    </ul>
+    <li>tsconfig.json - turns a folder into a "project", all files in the folder and all its sub-directories are included in compilation
+      <ul>
+        <li>exclude - exclude some of the files</li>
+        <li>files - specify all the files instead of letting the compiler look them up</li>
+        <li>to exclude a file from the compilation, you need to exclude it and all files that have an import or /// &lt;reference path="..." /&gt; directive to it</li>
+      </ul>
     </li>
   </ul>
 
   <pre><code class="ts">
-    // lookup for moduleA is in .ts/.tsx files, or in .d.ts that your code depends on
+    // lookup for moduleA is in .ts/.tsx files, or in .d.ts that code depends on
     import { a } from "moduleA"
 
     // RELATIVE module imports - starts with /, ./ or ../
@@ -2818,10 +3107,10 @@
     // NON-RELATIVE module imports
     // can be resolved relative to baseUrl, or through path mapping
     // can also resolve to ambient module declarations
-    // use when importing any of your external dependencies
+    // use when importing any of external dependencies
     import * as $ from "jquery";
     import { Component } from "@angular/core";
-  </code></pre>
+  </code></pre></details>
 
   <details><summary>CLASSIC resolution strategy</summary>
   <pre><code class="ts">
@@ -2849,7 +3138,7 @@
     /root/moduleB.d.ts
     /moduleB.ts
     /moduleB.d.ts
-  </code></pre>
+  </code></pre></details>
 
   <details><summary>NODE resolution strategy</summary>
   <pre><code class="ts">
@@ -2926,7 +3215,7 @@
     /node_modules/moduleB/index.ts
     /node_modules/moduleB/index.tsx
     /node_modules/moduleB/index.d.ts
-  </code></pre>
+  </code></pre></details>
 
   <h3>additional module resolution flags</h3>
   <pre><code class="ts">
@@ -2978,6 +3267,62 @@
             └── template1.ts (imports './view2')
   </code></pre>
 
+  <table role="table">
+    <caption>module resolution settings</caption>
+    <thead>
+    <tr>
+    <th></th>
+    <th>classic</th>
+    <th>node</th>
+    <th>node16</th>
+    <th>bundler</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>node_modules packages</td>
+    <td></td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    </tr>
+    <tr>
+    <td>extensionless</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>CJS only</td>
+    <td>✅</td>
+    </tr>
+    <tr>
+    <td>directory index</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>CJS only</td>
+    <td>✅</td>
+    </tr>
+    <tr>
+    <td>*.ts imports</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>✅</td>
+    </tr>
+    <tr>
+    <td>package.json exports</td>
+    <td></td>
+    <td></td>
+    <td>✅</td>
+    <td>✅</td>
+    </tr>
+    <tr>
+    <td>exports conditions</td>
+    <td></td>
+    <td></td>
+    <td>always <strong>node</strong>, <strong>types</strong>;<br><strong>import</strong> from ESM,<br><strong>require</strong> from CJS;<br>custom additions</td>
+    <td>always <strong>types</strong>, <strong>import</strong>;<br>custom additions</td>
+    </tr>
+    </tbody>
+  </table>
 
 
 <h2 id="dm">Declaration Merging</h2>
@@ -3138,14 +3483,17 @@
 
   <ul>
     <li>embeddable XML-like syntax, transformed into valid JavaScript, TS supports embedding, type checking, and compiling JSX directly to JavaScript</li>
-    <li>1 - name your files with a .tsx extension</li>
+    <li>1 - name files with a .tsx extension</li>
     <li>2 - enable the jsx option</li>
-    <li><strong>tsc -- jsx [MODE] file.tsx</strong></li>
-    <li>TS ships with three JSX modes, only affect the emit stage (type checking is unaffected) : preserve, react, and react-native</li>
-    <li>preserve - keep the JSX as part of the output to be further consumed by another transform step (e.g. Babel) = .jsx file</li>
-    <li>react - emit React.createElement, does not need to go through a JSX transformation before use = .js file</li>
-    <li>react-native - equivalent of preserve in that it keeps all JSX, but the output will instead have a .js file</li>
-    <li>specify this mode using <strong>--jsx</strong> command line flag or the corresponding option in your <strong>tsconfig.json</strong> file</li>
+    <li><code>tsc --jsx [MODE] file.tsx</code></li>
+    <li>TS ships with three JSX modes, only affect the emit stage (type checking is unaffected):
+      <ul>
+        <li><code>preserve</code> - keep the JSX as part of the output to be further consumed by another transform step (e.g. Babel) = .jsx file</li>
+        <li><code>react</code> - emit React.createElement, does not need to go through a JSX transformation before use = .js file</li>
+        <li><code>react-native</code> - equivalent of preserve in that it keeps all JSX, but the output will instead have a .js file</li>
+      </ul>
+    </li>
+    <li>specify this mode using <code>--jsx</code> command line flag or the corresponding option in <strong>tsconfig.json</strong> file</li>
     <li>identifier React is hard-coded, so you must make React available with an uppercase R</li>
     <li>by default the result of a JSX expression is typed as any, you can customize the type by specifying the JSX.Element interface, however, it is not possible to retrieve type information about the element, attributes or children of the JSX from this interface</li>
   </ul>
@@ -3198,14 +3546,23 @@
     declare namespace JSX {
       interface IntrinsicElements {
         foo: any
-    }}
+      }
+    }
     &lt;foo /&gt;; // ok
     &lt;bar /&gt;; // error
     // catch-all string indexer on JSX.IntrinsicElements
     declare namespace JSX {
       interface IntrinsicElements {
         [elemName: string]: any;
-    }}
+      }
+    }
+    // namespaced tag names
+    namespace JSX { // in some library code or in an augmentation of that library
+        interface IntrinsicElements {
+            ["a:b"]: { prop: string };
+        }
+    } // ...
+    let x = &lt;a:b prop="hello!" /&gt;;
 
     // --- VALUE-BASED ELEMENT (component) - begins with an uppercase letter
     // looked up by identifiers that are in scope
@@ -3260,6 +3617,15 @@
       }
     }
     &lt;foo bar /&gt;; // element attributes type for 'foo' is '{bar?: boolean}'
+    // namespaced attribute names
+    const x = &lt;Foo a:b="hello" /&gt;; // equivalents
+    const y = &lt;Foo a : b="hello" /&gt;;
+    interface FooProps {
+      "a:b": string;
+    }
+    function Foo(props: FooProps) {
+      return &lt;div&gt;{props["a:b"]}&lt;/div&gt;;
+    }
 
     // for value-based elements
     // determined by the type of a property on the element instance type
@@ -3267,7 +3633,7 @@
     // which property to use is determined by JSX.ElementAttributesProperty
     // it should be declared with a single property
     // the name of that property is then used.
-    // as of TS 2.8, if JSX.ElementAttributesProperty is not provided
+    // if JSX.ElementAttributesProperty is not provided
     // the type of first parameter of the class element constructor
     // or SFC call will be used instead
     declare namespace JSX {
@@ -3302,7 +3668,7 @@
     // if an attribute name is not a valid JS identifier (like a data-* attribute)
     // it is not considered to be an error if it is not found in the element attributes type
 
-    // --- CHILDREN TYPE CHECKING (as of TS 2.3)
+    // --- CHILDREN TYPE CHECKING
     // children - special property in an element attributes type,
     // where child JSXExpressions are taken to be inserted into the attributes.
     // JSX.ElementChildrenAttribute (declared with a single property) -
@@ -3366,21 +3732,55 @@
 <h2 id="decorators">@decorators</h2>
 
   <ul>
-    <li>special kind of declaration that can be attached to a class declaration, method, accessor, property, or parameter</li>
-    <li>use the form <strong>@expression</strong>, where expression must evaluate to a function that will be called at runtime with information about the decorated declaration</li>
-    <li>decorator evaluation, well defined order to how decorators applied to various declarations inside of a class are applied:
-    <ul>
-      <li><strong>for each instance member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
-      <li><strong>for each static member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
-      <li><strong>for the constructor</strong>: Parameter Decorators are applied</li>
-      <li><strong>for the class</strong>: Class Decorators are applied</li>
-    </ul>
+    <li>change how JavaScript constructs (such as classes and methods) work, function that we can apply to language constructs</li>
+    <li>replace the value that is being decorated with a matching value that has the same semantics (method with another method, a field with another field, ...), stage 2 decorators can replace the decorated value with a completely different type of value</li>
+    <li>provide access to the value that is being decorated via accessor functions which they can then choose to share</li>
+    <li>initialize the value that is being decorated, running additional code after the value has been fully defined, in cases where the value is a member of class, then initialization occurs once per instance</li>
+    <li><code>@expression</code> - where expression must evaluate to a function that will be called at runtime with information about the decorated declaration</li>
+    <li>experimental stage 2 decorators implementation (enabled with <code>experimentalDecorators</code> compiler option), can be attached to a class declaration, method, accessor, property, or parameter
+      <ul>
+        <li>decorator evaluation, well defined order to how decorators applied to various declarations inside of a class are applied:
+          <ul>
+            <li><strong>for each instance member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
+            <li><strong>for each static member</strong>: Parameter Decorators, followed by Method, Accessor, or Property Decorators are applied</li>
+            <li><strong>for the constructor</strong>: Parameter Decorators are applied</li>
+            <li><strong>for the class</strong>: Class Decorators are applied</li>
+          </ul>
+        </li>
+        <li>stage 2 decorators (based on a concept of descriptors, more full-featured) vs. stage 3
+          <ul>
+            <li>ability of all decorators to add arbitrary 'extra' class elements, rather than just wrapping/changing the element being decorated</li>
+            <li>ability to declare new private fields, including reusing a private name in multiple classes</li>
+            <li>class decorator access to manipulating all fields and methods within the class</li>
+            <li>more flexible handling of the initializer, treating it as a 'thunk'</li>
+          </ul>
+        </li>
+      </ul>
     </li>
-    <li>with the introduction of Classes in TypeScript and ES6, there now exist certain scenarios that require additional features to support annotating or modifying classes and class members, decorators provide a way to add both annotations and a meta-programming syntax for class declarations and members</li>
-    <li><strong>proposal for JavaScript and are available as an experimental feature of TypeScript</strong></li>
-    <li>enable the <strong>experimentalDecorators</strong> compiler option either on the command line or in your tsconfig.json</li>
+    <li>stage 3 decorators (TypeScript 5.0), works without flag, can be applied to the: classes, class fields/methods/accessors (public, private, and static) and auto-accessors
+      <ul>
+        <li>evaluation steps:
+          <ul>
+            <li>decorator expressions (the thing after the @) are <strong>evaluated</strong> interspersed with computed property names</li>
+            <li>decorators are <strong>called</strong> (as functions) during class definition, after the methods have been evaluated but before the constructor and prototype have been put together</li>
+            <li>decorators are <strong>applied</strong> (mutating the constructor and prototype) all at once, after all of them have been called</li>
+          </ul>
+        </li>
+        <li>addInitializer method of the context object (not available for class fields), can be called to associate an initializer function with the class or class element, run arbitrary code after the value has been defined in order to finish setting it up:
+          <ul>
+            <li><strong>class decorator</strong> initializers are run after the class has been fully defined, and after class static fields have been assigned</li>
+            <li><srong>class element</srong> initializers run during class construction, before class fields are initialized</li>
+            <li><strong>class static element</strong> initializers run during class definition, before static class fields are defined, but after class elements have been defined</li>
+          </ul>
+        </li>
+        <li>not compatible with <code>--emitDecoratorMetadata</code>, and does not allow decorating parameters</li>
+      </ul>
+    </li>
+    <li>decorators can be used for metaprogramming: write code that processes code that processes user data</li>
+    <li><a href="https://2ality.com/2022/10/javascript-decorators.html">source of stage 3 decorators examples (https://2ality.com/)</a></li>
   </ul>
 
+  <details><summary>experimental stage 2 decorators</summary>
   <pre><code class="ts">
     // --- ENABLING , Command Line:
     tsc --target ES5 --experimentalDecorators
@@ -3688,7 +4088,1221 @@
       set p1(value: Point) { this._p1 = value; }
       get p1() { return this._p1; }
     }
-  </code></pre>
+  </code></pre></details>
+
+  <details><summary>stage 3 decorators (as in TC39 proposal)</summary>
+
+  <details><summary>abilities</summary>
+  <pre><code class="ts">
+    // --- replacing the decorated entity
+    // @replaceMethod replaces method .hello() with a function that it returns
+    function replaceMethod() {
+      return function () {
+        return `How are you, ${this.name}?`;
+      }
+    }
+    class Person {
+      constructor(name) {
+        this.name = name;
+      }
+      @replaceMethod
+      hello() {
+        return `Hi ${this.name}!`;
+      }
+    }
+    const robin = new Person('Robin');
+    assert.equal(
+      robin.hello(), 'How are you, Robin?'
+    );
+
+    // --- exposing access to the decorated entity to others
+    // @exposeAccess stores an object in the variable acc that give access to property .green of the instances of Color
+    let acc;
+    function exposeAccess(_value, {access}) {
+      acc = access;
+    }
+    class Color {
+      @exposeAccess
+      name = 'green'
+    }
+    const green = new Color();
+    assert.equal(
+      green.name, 'green'
+    );
+    // Using `acc` to get and set `green.name`
+    assert.equal(
+      acc.get.call(green), 'green'
+    );
+    acc.set.call(green, 'red');
+    assert.equal(
+      green.name, 'red'
+    );
+
+    // --- processing the decorated entity and its container
+    function collect(_value, {name, addInitializer}) {
+      addInitializer(function () {
+        if (!this.collectedMethodKeys) {
+          this.collectedMethodKeys = new Set();
+        }
+        this.collectedMethodKeys.add(name);
+      });
+    }
+    class C {
+      @collect
+      toString() {}
+      @collect
+      [Symbol.iterator]() {}
+    }
+    const inst = new C();
+    assert.deepEqual(
+      inst.collectedMethodKeys,
+      new Set(['toString', Symbol.iterator])
+    );
+
+    // --- placed before export and after export or export default
+    @register export default class Foo { ... }
+    export default @register class Bar { ... }
+    // not allowed, mixing the two styles
+    @before export @after class Bar { ... }
+  </code></pre></details>
+
+  <details><summary>Class method</summary>
+  <pre><code class="ts">
+    // signature:
+    type ClassMethodDecorator = (
+      value: Function,
+      context: {
+        kind: 'method';
+        name: string | symbol;
+        static: boolean;
+        private: boolean;
+        access: { get: () => unknown };
+        addInitializer(initializer: () => void): void;
+      }
+    ) => Function | void;
+    // abilities:
+    // change the decorated method by changing "value"
+    // replace the decorated method by returning a function
+    // register initializers
+    // context.access only supports getting the value of its property, not setting it
+
+    // --- @trace wraps methods, invocations and results are logged to the console:
+    function trace(value, {kind, name}) {
+      if (kind === 'method') {
+        return function (...args) {
+          console.log(`CALL ${name}: ${JSON.stringify(args)}`);
+          const result = value.apply(this, args);
+          console.log('=> ' + JSON.stringify(result));
+          return result;
+        };
+      }
+    }
+    class StringBuilder {
+      #str = '';
+      @trace
+      add(str) {
+        this.#str += str;
+      }
+      @trace
+      toString() {
+        return this.#str;
+      }
+    }
+    const sb = new StringBuilder();
+    sb.add('Home');
+    sb.add('page');
+    assert.equal(
+      sb.toString(), 'Homepage'
+    );
+    // Output:
+    // CALL add: ["Home"]
+    // => undefined
+    // CALL add: ["page"]
+    // => undefined
+    // CALL toString: []
+    // => "Homepage"
+
+    // --- @bind - function-call methods with fixed "this":
+    function bind(value, {kind, name, addInitializer}) {
+      if (kind === 'method') {
+        // initializer registration
+        addInitializer(function () {
+          this[name] = value.bind(this);
+        });
+      }
+    }
+    class Color2 {
+      #name;
+      constructor(name) {
+        this.#name = name;
+      }
+      @bind
+      toString() {
+        return `Color(${this.#name})`;
+      }
+    }
+    const green2 = new Color2('green');
+    const toString2 = green2.toString;
+    assert.equal(
+      toString2(), 'Color(green)'
+    );
+    // The own property green2.toString is different
+    // from Color2.prototype.toString
+    assert.ok(Object.hasOwn(green2, 'toString'));
+    assert.notEqual(
+      green2.toString,
+      Color2.prototype.toString
+    );
+
+    // --- multiple
+    function bound(originalMethod: any, context: ClassMethodDecoratorContext) {
+      const methodName = context.name;
+      if (context.private) {
+        throw new Error(`'bound' cannot decorate private properties like ${methodName as string}.`);
+      }
+      context.addInitializer(function () {
+        this[methodName] = this[methodName].bind(this);
+      });
+    }
+    // function loggedMethod(headMessage = "LOG:") {
+    //   return function actualDecorator(originalMethod: any, context: ClassMethodDecoratorContext) {
+    //     const methodName = String(context.name);
+    //     function replacementMethod(this: any, ...args: any[]) {
+    //       console.log(`${headMessage} Entering method '${methodName}'.`)
+    //       const result = originalMethod.call(this, ...args);
+    //       console.log(`${headMessage} Exiting method '${methodName}'.`)
+    //       return result;
+    //     }
+    //     return replacementMethod;
+    //   }
+    // }
+    function loggedMethod(headMessage: string = "LOG:") {
+      return function loggedMethod&lt;This, Args extends any[], Return&gt;(
+        target: (this: This, ...args: Args) => Return,
+        context: ClassMethodDecoratorContext&lt;This, (this: This, ...args: Args) =&gt; Return>
+      ) {
+        const methodName = String(context.name);
+        function replacementMethod(this: This, ...args: Args): Return {
+          console.log(`${headMessage} Entering method '${methodName}'.`)
+          const result = target.call(this, ...args);
+          console.log(`${headMessage} Exiting method '${methodName}'.`)
+          return result;
+        }
+        return replacementMethod;
+      }
+    }
+    class User {
+      name: string;
+      constructor(name: string) {
+        this.name = name;
+      }
+      // decorations run in "reverse order"
+      @bound // decorate the result of @loggedMethod, add logic before any other fields are initialized
+      @loggedMethod // decorate the original method greet
+      // @bound @loggedMethod(">>>") greet() { ...
+      greet() {
+        console.log(`Hi, my name is ${this.name}.`);
+      }
+    }
+    const p = new User('Andrei');
+    const greet = p.greet;
+    greet();
+    // Output:
+    // >>> Entering method 'greet'.
+    // Hi, my name is Andrei.
+    // >>> Exiting method 'greet'.
+  </code></pre></details>
+
+  <details><summary>Class Accessors</summary>
+  <pre><code class="ts">
+    // signature:
+    type ClassGetterDecorator = (
+      value: Function,
+      context: {
+        kind: "getter";
+        name: string | symbol;
+        access: { get(): unknown };
+        static: boolean;
+        private: boolean;
+        addInitializer(initializer: () => void): void;
+      }
+    ) => Function | void;
+    type ClassSetterDecorator = (
+      value: Function,
+      context: {
+        kind: "setter";
+        name: string | symbol;
+        access: { set(value: unknown): void };
+        static: boolean;
+        private: boolean;
+        addInitializer(initializer: () => void): void;
+      }
+    ) => Function | void;
+    // abilities are similar to method decorators
+
+    function logged(value, { kind, name }) {
+      if (kind === "method" || kind === "getter" || kind === "setter") {
+        return function (...args) {
+          console.log(`starting ${name} with arguments ${args.join(", ")}`);
+          const ret = value.call(this, ...args);
+          console.log(`ending ${name}`);
+          return ret;
+        };
+      }
+    }
+    class C {
+      @logged
+      set x(arg) {}
+    }
+    new C().x = 1
+    // starting x with arguments 1
+    // ending x
+
+    // --- computing values lazily
+    class C {
+      @lazy
+      get value() {
+        console.log('COMPUTING');
+        return 'Result of computation';
+      }
+    }
+    // @lazy wraps the original getter
+    // when invoked for the first time, it invokes the getter
+    // and creates an own data property whose value is the result.
+    // own property overrides the inherited getter whenever someone reads the property.
+    function lazy(value, {kind, name, addInitializer}) {
+      // implement the property via a getter
+      // code that computes its value, is only executed if the property is read
+      if (kind === 'getter') {
+        return function () {
+          const result = value.call(this);
+          // property .[name] is immutable (because there is only a getter)
+          // we have to define the property and cant use assignment
+          Object.defineProperty(
+            this, name,
+            {
+              value: result,
+              writable: false,
+            }
+          );
+          return result;
+        };
+      }
+    }
+    console.log('1 new C()');
+    const inst = new C();
+    console.log('2 inst.value');
+    assert.equal(inst.value, 'Result of computation');
+    console.log('3 inst.value');
+    assert.equal(inst.value, 'Result of computation');
+    console.log('4 end');
+    // Output:
+    // 1 new C()
+    // 2 inst.value
+    // COMPUTING
+    // 3 inst.value
+    // 4 end
+  </code></pre></details>
+
+  <details><summary>Class Fields</summary>
+  <pre><code class="ts">
+    // signature:
+    type ClassFieldDecorator = (
+      value: undefined,
+        context: {
+        kind: "field";
+        name: string | symbol;
+        access: { get(): unknown, set(value: unknown): void };
+        static: boolean;
+        private: boolean;
+      }
+    ) => (initialValue: unknown) => unknown | void;
+    // abilities:
+    // - cannot change or replace its field (use an auto-accessor)
+    // - change the value with which "its" field is initialized,
+    // by returning a function that receives the original initialization value and returns a new initialization value
+    // inside that function, "this" refers to the current instance
+    // - register initializers
+    // - expose access to its field (even if it is private) via context.access
+
+    function logged(value, { kind, name }) {
+      if (kind === "field") {
+        return function (initialValue) {
+          console.log(`initializing ${name} with value ${initialValue}`);
+          return initialValue;
+        };
+      }
+      // ...
+    }
+    class C {
+      @logged x = 1;
+    }
+    new C(); // initializing x with value 1
+
+    // --- @twice doubles the original initialization value of a field
+    function twice() {
+      return initialValue => initialValue * 2;
+    }
+    class C {
+      @twice
+      field = 3;
+    }
+    const inst = new C();
+    assert.equal(
+      inst.field, 6
+    );
+
+    // ---  @readOnly - immutable, read-only fields (instance public fields)
+    // waits until the field was completely set up (either via an assignment or via the constructor)
+    // (!) breaks instanceof, see workaround in classes decorators
+    // auto-accessors @readOnly version does not require the class to be decorated
+    const readOnlyFieldKeys = Symbol('readOnlyFieldKeys');
+    function readOnly(value, {kind, name}) {
+      // collect all keys of read-only fields
+      if (kind === 'field') {
+        return function () {
+          if (!this[readOnlyFieldKeys]) {
+            this[readOnlyFieldKeys] = [];
+          }
+          this[readOnlyFieldKeys].push(name);
+        };
+      }
+      // wait until the instance was completely set up
+      // make the fields, whose keys we collected, non-writable
+      if (kind === 'class') {
+        return function (...args) {
+          const inst = new value(...args);
+          for (const key of inst[readOnlyFieldKeys]) {
+            Object.defineProperty(inst, key, {writable: false});
+          }
+          return inst;
+        }
+      }
+    }
+
+    @readOnly // wrap the class because decorator initializers are executed too early
+    class Color {
+      @readOnly
+      name;
+      constructor(name) {
+        this.name = name;
+      }
+    }
+    const blue = new Color('blue');
+    assert.equal(blue.name, 'blue');
+    assert.throws(
+      () => blue.name = 'brown', // TypeError: Cannot assign to read only property 'name'
+    );
+
+    // --- dependency injection (instance public fields)
+    // easier to adapt the dependencies to different environments, including testing.
+    // inversion of control: constructor does not do its own setup, we do it for it.
+    // approaches for doing dependency injection:
+    // - manually, by creating dependencies and passing them to the constructor.
+    // - via "contexts" in frontend frameworks such as React.
+    // - via decorators and a dependency injection registry (a minor variation of dependency injection containers):
+    function createRegistry() {
+      const nameToClass = new Map();
+      const nameToInstance = new Map();
+      const registry = {
+        register(name, componentClass) {
+          nameToClass.set(name, componentClass);
+        },
+        getInstance(name) {
+          if (nameToInstance.has(name)) {
+            return nameToInstance.get(name);
+          }
+          const componentClass = nameToClass.get(name);
+          if (componentClass === undefined) {
+            throw new Error('Unknown component name: ' + name);
+          }
+          const inst = new componentClass();
+          nameToInstance.set(name, inst);
+          return inst;
+        },
+      };
+      function inject (_value, {kind, name}) {
+        if (kind === 'field') {
+          return () => registry.getInstance(name);
+        }
+      }
+      return {registry, inject};
+    }
+    const {registry, inject} = createRegistry();
+    class Logger {
+      log(str) { console.log(str) }
+    }
+    class Main {
+      @inject logger;
+      run() { this.logger.log('Hello!') }
+    }
+    registry.register('logger', Logger);
+    new Main().run();
+    // Output:
+    // Hello!
+
+    // --- "friend" visibility (instance private fields)
+    // change the visibility of some class members by making them private
+    // prevents them from being accessed publicly
+    // lets a group of "friends" (functions, other classes, etc.) access the member.
+    // everyone who has access to friendName, is a "friend" of classWithSecret.#name
+    // module contains classes and functions that collaborate and that there is some instance data that only the collaborators should be able see
+    const friendName = new Friend();
+    class ClassWithSecret {
+      @friendName.install #name = 'Rumpelstiltskin';
+      getName() {
+        return this.#name;
+      }
+    }
+    // everyone who has access to "secret", can access inst.#name
+    const inst = new ClassWithSecret();
+    assert.equal(
+      friendName.get(inst), 'Rumpelstiltskin'
+    );
+    friendName.set(inst, 'Joe');
+    assert.equal(
+      inst.getName(), 'Joe'
+    );
+    class Friend {
+      #access = undefined;
+      #getAccessOrThrow() {
+        if (this.#access === undefined) { throw new Error('The friend decorator wasn not used yet') }
+        return this.#access;
+      }
+      // an instance property whose value is a function whose "this"
+      // is fixed (bound to the instance)
+      install = (_value, {kind, access}) => {
+        if (kind === 'field') {
+          if (this.#access) { throw new Error('This decorator can only be used once') }
+          this.#access = access;
+        }
+      }
+      get(inst) {
+        return this.#getAccessOrThrow().get.call(inst);
+      }
+      set(inst, value) {
+        return this.#getAccessOrThrow().set.call(inst, value);
+      }
+    }
+
+    // --- enums (static public fields)
+    function enumEntry(value, {kind, name}) {
+      if (kind === 'field') {
+        return function (initialValue) {
+          // a Map from "enum keys" (the names of their fields) to enum values
+          if (!Object.hasOwn(this, 'enumFields')) {
+            this.enumFields = new Map();
+          }
+          this.enumFields.set(name, initialValue);
+          // add enum keys to enum values - without having to pass them to the constructor
+          initialValue.enumKey = name;
+          return initialValue;
+        };
+      }
+    }
+    class Color {
+      @enumEntry static red = new Color();
+      @enumEntry static green = new Color();
+      @enumEntry static blue = new Color();
+      toString() {
+        return `Color(${this.enumKey})`;
+      }
+    }
+    assert.equal(
+      Color.green.toString(),
+      'Color(green)'
+    );
+    assert.deepEqual(
+      Color.enumFields,
+      new Map([
+        ['red', Color.red],
+        ['green', Color.green],
+        ['blue', Color.blue],
+      ])
+    );
+
+    // --- register children on a parent class:
+    const CHILDREN = new WeakMap();
+    function registerChild(parent, child) {
+      let children = CHILDREN.get(parent);
+      if (children === undefined) {
+        children = [];
+        CHILDREN.set(parent, children);
+      }
+      children.push(child);
+    }
+    function getChildren(parent) {
+      return CHILDREN.get(parent);
+    }
+    function register() {
+      return function(value) {
+        registerChild(this, value);
+        return value;
+      }
+    }
+    class Child {}
+    class OtherChild {}
+    class Parent {
+      @register child1 = new Child();
+      @register child2 = new OtherChild();
+    }
+    let parent = new Parent();
+    getChildren(parent); // [Child, OtherChild]
+  </code></pre></details>
+
+  <details><summary>Classes</summary>
+  <pre><code class="ts">
+    // signature:
+    type ClassDecorator = (value: Function, context: {
+      kind: "class";
+      name: string | undefined;
+      addInitializer(initializer: () => void): void;
+    }) => Function | void;
+    // abilities:
+    // change the decorated class by changing "value"
+    // replace the decorated class by returning a callable value
+    // register initializers, which are called after the decorated class is fully set up
+    // does not get context.access because classes are not members of other language constructs (like methods, etc.)
+
+    function logged(value, { kind, name }) {
+      if (kind === "class") {
+        return class extends value {
+          constructor(...args) {
+            super(...args);
+            console.log(`constructing an instance of ${name} with arguments ${args.join(", ")}`);
+          }
+        }
+      }
+      // ...
+    }
+    @logged
+    class C {}
+    new C(1);
+    // constructing an instance of C with arguments 1
+
+    // --- collecting instances, "instanceof" wont work (!)
+    class InstanceCollector {
+      instances = new Set();
+      install = (value, {kind}) => {
+        if (kind === 'class') {
+          const _this = this;
+          return function (...args) { // (A)
+            const inst = new value(...args); // (B)
+            _this.instances.add(inst);
+            return inst;
+          };
+        }
+      };
+    }
+    const collector = new InstanceCollector();
+    @collector.install
+    class MyClass {}
+    const inst1 = new MyClass();
+    const inst2 = new MyClass();
+    const inst3 = new MyClass();
+    assert.deepEqual(
+      collector.instances, new Set([inst1, inst2, inst3])
+    );
+    assert.equal(
+      inst1 instanceof MyClass,
+      false
+    );
+
+    // enabling "instanceof":
+    function countInstances(value) {
+      const _this = this;
+      let instanceCount = 0;
+
+      // --- --- ---
+      const wrapper = function (...args) { // new-callable
+        instanceCount++;
+        const instance = new value(...args);
+        instance.count = instanceCount;
+        return instance;
+      };
+
+      // 1 - set the .prototype of the wrapper function to the .prototype of the wrapped value
+      wrapper.prototype = value.prototype;
+      // 2 - give the wrapper function a method whose key is Symbol.hasInstance
+      Object.defineProperty(
+        wrapper, Symbol.hasInstance,
+        {
+          value: function (x) {
+            return x instanceof value;
+          }
+        }
+      );
+
+      return wrapper;
+
+      // --- --- ---
+      // 3 - by returning a subclass of value
+      return class extends value { // (A)
+        constructor(...args) {
+          super(...args);
+          instanceCount++;
+          this.count = instanceCount;
+        }
+      };
+
+    }
+
+    @countInstances
+    class MyClass {}
+
+    const inst1 = new MyClass();
+    assert.ok(inst1 instanceof MyClass);
+    assert.equal(inst1.count, 1);
+    const inst2 = new MyClass();
+    assert.ok(inst2 instanceof MyClass);
+    assert.equal(inst2.count, 2);
+
+    // --- making classes function-callable:
+    function functionCallable(value, {kind}) {
+      if (kind === 'class') {
+        return function (...args) {
+          if (new.target !== undefined) {
+            throw new TypeError('This function cant be new-invoked');
+          }
+          return new value(...args);
+        }
+      }
+    }
+    @functionCallable
+    class Person {
+      constructor(name) {
+        this.name = name;
+      }
+    }
+    const robin = Person('Robin');
+    assert.equal(
+      robin.name, 'Robin'
+    );
+  </code></pre></details>
+
+  <details><summary>Class Auto-Accessors</summary>
+  <pre><code class="ts">
+    // define a getter and setter on the class prototype
+    // that defaults to getting and setting a value on a private slot.
+    // "accessor" keyword before a class field.
+    // receive a value, which is an object containing the get and set accessors
+    // defined on the prototype of the class (or the class itself in the case of static auto-accessors).
+    type ClassAutoAccessorDecorator = (
+      value: {
+        get: () => unknown;
+        set(value: unknown) => void;
+      },
+      context: {
+        kind: "accessor";
+        name: string | symbol;
+        access: { get(): unknown, set(value: unknown): void };
+        static: boolean;
+        private: boolean;
+        addInitializer(initializer: () => void): void;
+      }
+    ) => {
+      get?: () => unknown;
+      set?: (value: unknown) => void;
+      init?: (initialValue: unknown) => unknown;
+    } | void;
+    // abilities:
+    // - receives the getter and the setter of the auto-accessor via its parameter value
+    // context.access provides the same functionality
+    // - replace the decorated auto-accessor by returning an object with the methods .get() and/or .set()
+    // - influence the initial value of the auto-accessor by returning an object with the method .init()
+    // - register initializers
+
+    function logged(value, { kind, name }) {
+      if (kind === "accessor") {
+        let { get, set } = value;
+        return {
+          get() {
+            console.log(`getting ${name}`);
+            return get.call(this);
+          },
+          set(val) {
+            console.log(`setting ${name} to ${val}`);
+            return set.call(this, val);
+          },
+          init(initialValue) {
+            console.log(`initializing ${name} with value ${initialValue}`);
+            return initialValue;
+          }
+        };
+      }
+      // ...
+    }
+    class C {
+      @logged accessor x = 1;
+    }
+    let c = new C(); // initializing x with value 1
+    c.x; // getting x
+    c.x = 123; // setting x to 123
+
+    // --- read-only auto-accessors
+    // Compared to the field version, has one considerable advantage:
+    // idoes not need to wrap the class to ensure that the decorated constructs become read-only
+    const UNINITIALIZED = Symbol('UNINITIALIZED');
+    function readOnly({get,set}, {name, kind}) {
+      if (kind === 'accessor') {
+        return {
+          init() {
+            return UNINITIALIZED;
+          },
+          get() {
+            const value = get.call(this);
+            if (value === UNINITIALIZED) {
+              throw new TypeError(
+                `Accessor ${name} hasn not been initialized yet`
+              );
+            }
+            return value;
+          },
+          set(newValue) {
+            const oldValue = get.call(this);
+            if (oldValue !== UNINITIALIZED) {
+              throw new TypeError(
+                `Accessor ${name} can only be set once`
+              );
+            }
+            set.call(this, newValue);
+          },
+        };
+      }
+    }
+    class Color {
+      @readOnly
+      accessor name;
+      constructor(name) {
+        this.name = name;
+      }
+    }
+    const blue = new Color('blue');
+    assert.equal(blue.name, 'blue');
+    assert.throws(
+      () => blue.name = 'yellow', // TypeError: Accessor name can only be set once
+    );
+    const orange = new Color('orange');
+    assert.equal(orange.name, 'orange');
+  </code></pre></details>
+
+  <details><summary>Decorator Metadata</summary>
+  <pre><code class="ts">
+    // make it easy for decorators to create and consume metadata on any class they are used on or within.
+    // providing a "metadata" object, which can be used either to directly store metadata, or as a WeakMap key.
+    // object is provided via the decorator "context" argument,
+    // and is then accessible via the Symbol.metadata property on the class definition after decoration
+    type Decorator = (value: Input, context: {
+      kind: string;
+      name: string | symbol;
+      access: {
+        get?(): unknown;
+        set?(value: unknown): void;
+      };
+      isPrivate?: boolean;
+      isStatic?: boolean;
+      addInitializer?(initializer: () => void): void;
+    + metadata?: Record&lt;string | number | symbol, unknown>;
+    }) => Output | void;
+
+    // usage:
+    function meta(key, value) {
+      return (_, context) => {
+        context.metadata[key] = value;
+      };
+    }4
+
+    @meta('a', 'x')
+    class C {
+      @meta('b', 'y')
+      m() {}
+    }
+    C[Symbol.metadata].a; // 'x'
+    C[Symbol.metadata].b; // 'y'
+
+    interface Context {
+        name: string;
+        metadata: Record&lt;PropertyKey, unknown>;
+    }
+    function setMetadata(_target: any, context: Context) {
+        context.metadata[context.name] = true;
+    }
+    class SomeClass {
+        @setMetadata
+        foo = 123;
+        @setMetadata
+        accessor bar = "hello!";
+        @setMetadata
+        baz() { }
+    }
+    const ourMetadata = SomeClass[Symbol.metadata];
+    console.log(JSON.stringify(ourMetadata));
+    // { "bar": true, "baz": true, "foo": true }
+    // metadata could possibly be attached for lots of uses like debugging, serialization,
+    // or performing dependency injection with decorators.
+    // metadata objects are created per decorated class,
+    // frameworks can either privately use them as keys into a Map or WeakMap, or tack properties on as necessary.
+    // keep track of which properties and accessors are serializable when using JSON.stringify:
+    import { serialize, jsonify } from "./serializer";
+    class Person {
+      firstName: string;
+      lastName: string;
+      @serialize
+      age: number
+      @serialize
+      get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+      }
+      toJSON() {
+        return jsonify(this)
+      }
+      constructor(firstName: string, lastName: string, age: number) {
+        // ...
+      }
+    }
+    //  example of how the module ./serialize.ts might be defined:
+    const serializables = new WeakMap&lt;object, string[]>();
+    type Context =
+        | ClassAccessorDecoratorContext
+        | ClassGetterDecoratorContext
+        | ClassFieldDecoratorContext
+        ;
+    export function serialize(_target: any, context: Context): void {
+        if (context.static || context.private) {
+            throw new Error("Can only serialize public instance members.")
+        }
+        if (typeof context.name !== "string") {
+            throw new Error("Can only serialize string properties.");
+        }
+        let propNames = serializables.get(context.metadata);
+        if (propNames === undefined) {
+            serializables.set(context.metadata, propNames = []);
+        }
+        propNames.push(context.name);
+    }
+    export function jsonify(instance: object): string {
+        const metadata = instance.constructor[Symbol.metadata];
+        const propNames = metadata && serializables.get(metadata);
+        if (!propNames) {
+            throw new Error("No members marked with @serialize.");
+        }
+        const pairStrings = propNames.map(key => {
+            const strKey = JSON.stringify(key);
+            const strValue = JSON.stringify((instance as any)[key]);
+            return `${strKey}: ${strValue}`;
+        });
+        return `{ ${pairStrings.join(", ")} }`;
+    }
+
+    // --- inheritance
+    // with parent class metadata object is set to the metadata object of the superclass
+    // allows taking advantage of shadowing by default, mirroring class inheritance:
+    function meta(key, value) {
+      return (_, context) => {
+        context.metadata[key] = value;
+      };
+    }
+
+    @meta('a', 'x')
+    class C {
+      @meta('b', 'y')
+      m() {}
+    }
+
+    C[Symbol.metadata].a; // 'x'
+    C[Symbol.metadata].b; // 'y'
+
+    class D extends C {
+      @meta('b', 'z')
+      m() {}
+    }
+
+    D[Symbol.metadata].a; // 'x'
+    D[Symbol.metadata].b; // 'z'
+
+    // read metadata during decoration, so it can be modified or extended by children rather than overriding it:
+    function appendMeta(key, value) {
+      return (_, context) => {
+        // NOTE: be sure to copy, not mutate
+        const existing = context.metadata[key] ?? [];
+        context.metadata[key] = [...existing, value];
+      };
+    }
+
+    @appendMeta('a', 'x')
+    class C {}
+
+    @appendMeta('a', 'z')
+    class D extends C {}
+
+    C[Symbol.metadata].a; // ['x']
+    D[Symbol.metadata].a; // ['x', 'z']
+
+    // --- private metadata
+    //  object can be used as a key in a WeakMap if the decorator author does not want to share their metadata:
+    const PRIVATE_METADATA = new WeakMap();
+    function meta(key, value) {
+      return (_, context) => {
+        let metadata = PRIVATE_METADATA.get(context.metadata);
+        if (!metadata) {
+          metadata = {};
+          PRIVATE_METADATA.set(context.metadata, metadata);
+        }
+        metadata[key] = value;
+      };
+    }
+
+    @meta('a', 'x')
+    class C {
+      @meta('b', 'y')
+      m() {}
+    }
+
+    PRIVATE_METADATA.get(C[Symbol.metadata]).a; // 'x'
+    PRIVATE_METADATA.get(C[Symbol.metadata]).b; // 'y'
+  </code></pre></details>
+
+  <details><summary>addInitializer examples</summary>
+  <pre><code class="ts">
+    // --- @customElement
+    // create a decorator which registers a web component in the browser
+    function customElement(name) {
+      return (value, { addInitializer }) => {
+        addInitializer(function() {
+          customElements.define(name, this);
+        });
+      }
+    }
+
+    @customElement('my-element')
+    class MyElement extends HTMLElement {
+      static get observedAttributes() {
+        return ['some', 'attrs'];
+      }
+    }
+
+    // ---  @bound
+    // bind the method to the instance of the class:
+    function bound(value, { name, addInitializer }) {
+      addInitializer(function () {
+        this[name] = this[name].bind(this);
+      });
+    }
+
+    class C {
+      message = "hello!";
+      @bound
+      m() {
+        console.log(this.message);
+      }
+    }
+    let { m } = new C();
+    m(); // hello!
+  </code></pre></details>
+
+  <details><summary>access object and metadata sidechanneling</summary>
+  <pre><code class="ts">
+    // --- METADATA SIDECHANNELING
+    // dependency injection decorator:
+    const INJECTIONS = new WeakMap();
+    function createInjections() {
+      const injections = [];
+      function injectable(Class) {
+        INJECTIONS.set(Class, injections);
+      }
+      function inject(injectionKey) {
+        return function applyInjection(v, context) {
+          // use access object
+          injections.push({ injectionKey, set: context.access.set });
+        };
+      }
+      return { injectable, inject };
+    }
+    class Container {
+      registry = new Map();
+      register(injectionKey, value) {
+        this.registry.set(injectionKey, value);
+      }
+      lookup(injectionKey) {
+        this.registry.get(injectionKey);
+      }
+      create(Class) {
+        let instance = new Class();
+        for (const { injectionKey, set } of INJECTIONS.get(Class) || []) {
+          set.call(instance, this.lookup(injectionKey));
+        }
+        return instance;
+      }
+    }
+    class Store {}
+    const { injectable, inject } = createInjections();
+    @injectable
+    class C {
+      // inject values on an instance
+      @inject('store') store;
+    }
+    let container = new Container();
+    let store = new Store();
+    container.register('store', store);
+    let c = container.create(C);
+    c.store === store; // true
+  </code></pre></details>
+
+  <details><summary>exposing data from decorators</summary>
+  <pre><code class="ts">
+    // in a surrounding scope (doesnt work if a decorator comes from another module):
+    const classes = new Set(); // (A)
+    function collect(value, {kind, addInitializer}) {
+      if (kind === 'class') {
+        classes.add(value);
+      }
+    }
+    @collect
+    class A {}
+    @collect
+    class B {}
+    @collect
+    class C {}
+    assert.deepEqual(
+      classes, new Set([A, B, C])
+    );
+
+    // via a factory function:
+    function createClassCollector() {
+      const classes = new Set();
+      function collect(value, {kind, addInitializer}) {
+        if (kind === 'class') {
+          classes.add(value);
+        }
+      }
+      return {
+        classes,
+        collect,
+      };
+    }
+    const {classes, collect} = createClassCollector();
+    @collect
+    class A {}
+    @collect
+    class B {}
+    @collect
+    class C {}
+    assert.deepEqual(
+      classes, new Set([A, B, C])
+    );
+
+    // via a class:
+    // it has two members: .classes - Set with the collected classes , .install - a class decorator
+    class ClassCollector {
+      classes = new Set();
+      // implement .install by assigning an arrow function to a public instance field
+      install = (value, {kind}) => { // scopes of the current instance
+        // also the outer scope of the arrow function
+        if (kind === 'class') {
+          this.classes.add(value);
+        }
+      };
+    }
+    const collector = new ClassCollector();
+    @collector.install
+    class A {}
+    @collector.install
+    class B {}
+    @collector.install
+    class C {}
+    assert.deepEqual(
+      collector.classes, new Set([A, B, C])
+    );
+  </code></pre></details>
+
+  <table>
+  <caption>Type signature:</caption>
+    <thead>
+    <tr>
+    <th>Kind of decorator:</th>
+    <th><code>(input) =&gt; output</code></th>
+    <th><code>.access</code></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Class</td>
+    <td><code>(func) =&gt; func2</code></td>
+    <td>-</td>
+    </tr>
+    <tr>
+    <td>Method</td>
+    <td><code>(func) =&gt; func2</code></td>
+    <td><code>{get}</code></td>
+    </tr>
+    <tr>
+    <td>Getter</td>
+    <td><code>(func) =&gt; func2</code></td>
+    <td><code>{get}</code></td>
+    </tr>
+    <tr>
+    <td>Setter</td>
+    <td><code>(func) =&gt; func2</code></td>
+    <td><code>{set}</code></td>
+    </tr>
+    <tr>
+    <td>Auto-accessor</td>
+    <td><code>({get,set}) =&gt; {get,set,init}</code></td>
+    <td><code>{get,set}</code></td>
+    </tr>
+    <tr>
+    <td>Field</td>
+    <td><code>() =&gt; (initValue)=&gt;initValue2</code></td>
+    <td><code>{get,set}</code></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <table>
+  <caption>Value of <code>this</code> in functions</caption>
+    <thead>
+    <tr>
+    <th><code>this</code> is:</th>
+    <th><code>undefined</code></th>
+    <th>Class</th>
+    <th>Instance</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Decorator function</td>
+    <td>✔</td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+    <td>Static initializer</td>
+    <td></td>
+    <td>✔</td>
+    <td></td>
+    </tr>
+    <tr>
+    <td>Non-static initializer</td>
+    <td></td>
+    <td></td>
+    <td>✔</td>
+    </tr>
+    <tr>
+    <td>Static field decorator result</td>
+    <td></td>
+    <td>✔</td>
+    <td></td>
+    </tr>
+    <tr>
+    <td>Non-static field decorator result</td>
+    <td></td>
+    <td></td>
+    <td>✔</td>
+    </tr>
+    </tbody>
+  </table>
+
+  </details>
 
 
 
@@ -3728,7 +5342,7 @@
     let smartObj = new SmartObject();
     setTimeout(() => smartObj.interact(), 1000);
     ////////////////////////////////////////
-    // In your runtime library somewhere
+    // In runtime library somewhere
     ////////////////////////////////////////
     function applyMixins(derivedCtor: any, baseCtors: any[]) {
       // run through the properties of each of the mixins
@@ -3753,9 +5367,9 @@
     <li>/// &lt;reference path="..." /&gt;
     <ul>
       <li>declaration of dependency between files, instruct the compiler to include additional files in the compilation process</li>
-      <li>also serve as a method to order the output when using --out or --outFile, files are emitted to the output file location in the same order as the input after preprocessing pass</li>
+      <li>also serve as a method to order the output when using <code>--outFile</code>, files are emitted to the output file location in the same order as the input after preprocessing pass</li>
       <li>preprocessing input files: starts with a set of root files, resolved in a depth first manner, in the order they have been seen in the file, path is resolved relative to the containing file, if unrooted</li>
-      <li>--noResolve compiler flag - triple-slash references are ignored, they neither result in adding new files, nor change the order of the files provided</li>
+      <li><code>--noResolve</code> compiler flag - triple-slash references are ignored, they neither result in adding new files, nor change the order of the files provided</li>
     </ul>
     </li>
     <li>/// &lt;reference types="..." /&gt;
@@ -3764,7 +5378,7 @@
       <li>process of resolving these package names is similar to the process of resolving module names in an "import" statement, are as an import for declaration packages</li>
       <li>use these directives only when you're authoring a d.ts file by hand</li>
       <li>in a generated declaration file is added if and only if the resulting file uses any declarations from the referenced package</li>
-      <li>for declaring a dependency on an @types package in a .ts file, use --types on the command line or in your tsconfig.json instead (see using @types, typeRoots and types in tsconfig.json files for more details)</li>
+      <li>for declaring a dependency on an @types package in a .ts file, use <code>--types</code> on the command line or in tsconfig.json instead (see using @types, typeRoots and types in tsconfig.json files for more details)</li>
       <li>how imports are resolved, reference the types of a CommonJS module from an ECMAScript module
         <ul>
           <li>/// &lt;reference types="pkg" resolution-mode="require" /&gt;</li>
@@ -3782,8 +5396,8 @@
     <li>/// &lt;reference no-default-lib="true"/&gt;
     <ul>
       <li>marks a file as a default library (is at the top of lib.d.ts and its different variants)</li>
-      <li>instructs the compiler to not include the default library (i.e. lib.d.ts) in the compilation, impact here is similar to passing --noLib on the command line</li>
-      <li>when passing --skipDefaultLibCheck, the compiler will only skip checking such files</li>
+      <li>instructs the compiler to not include the default library (i.e. lib.d.ts) in the compilation, impact here is similar to passing <code>--noLib</code> on the command line</li>
+      <li>when passing <code>--skipDefaultLibCheck</code>, the compiler will only skip checking such files</li>
     </ul>
     </li>
     <li>/// &lt;amd-module /&gt;
@@ -3820,6 +5434,7 @@
         "resolution-mode": "import"
     };
     export interface MergedType extends TypeFromRequire, TypeFromImport {}
+
     // --- import()
     export type TypeFromRequire =
         import("pkg", { assert: { "resolution-mode": "require" } }).TypeFromRequire;

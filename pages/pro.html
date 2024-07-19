@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Programming tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="programming, build, application, pattern, principles, solid, osi, layer, trend, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="programming, build, application, pattern, principles, solid, osi, layer, trend, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -24,7 +24,9 @@
 
 <body>
 
-<h2 id="build">Build</h2>
+<h1>Programming</h1>
+
+<h2 id="build">Building</h2>
 
   <ul>
     <li>Focus
@@ -112,7 +114,7 @@
   <ul>
     <li>principles designed for building software out modular, encapsulated, extendable and composable components</li>
     <li><strong>S: Single Responsibility Principle</strong> - class, software components and microservices should be responsible for only one thing, put related features together, to change for the same reason and separate features if they will change for different reasons, reduces coupling between the individual component of the software and code</li>
-    <li><strong>O: Open-Closed Principle</strong> - classes, modules, functions should be open for extension, not modification, extend child classes rather then overloading parent (use it as base), prevents someone from changing already tried and tested code, ideally, if you are adding new functionality only than your code should be tested</li>
+    <li><strong>O: Open-Closed Principle</strong> - classes, modules, functions should be open for extension, but closed for modification, write to reuse and not to rewrite, extend child classes rather then overloading parent (use it as base), prevents someone from changing already tried and tested code, ideally, if you are adding new functionality only than your code should be tested</li>
     <li><strong>L: Liskov Substitution Principle</strong> - universal methods for classes and sub-classes, and universal call independent of final object
       <ul>
         <li>derived class or subclass must enhance functionality, but not reduce them</li>
@@ -127,7 +129,7 @@
         <li>happens mostly when one interface contains more than one functionality, and the client only needs one functionality and no other</li>
       </ul>
     </li>
-    <li><strong>D:Dependency Injection or Inversion</strong> - dependency should be on abstractions not concretions, slasses should less be dependent of services they are using, expose universal interfaces
+    <li><strong>D:Dependency Injection or Inversion</strong> - dependency should be on abstractions not concretions, classes should less be dependent of services they are using, expose universal interfaces
     <ul>
       <li>High-level modules should not depend upon low-level modules, both should depend upon abstractions</li>
       <li>Abstractions should not depend on details, details should depend upon abstractions</li>

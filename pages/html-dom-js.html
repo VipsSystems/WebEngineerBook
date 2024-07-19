@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="HTML DOM, document, element, event tutorials and examples, Web Engineer Book">
-  <meta name="keywords" content="html, dom, document, element, event, web components, api, tutorials, examples, cheat sheet, help, documentation, web, engineer, book">
+  <meta name="keywords" content="html, dom, document, element, event, web components, api, tutorials, examples, cheat sheet, help, documentation, web, engineer, book, @vipssystems, #vipssystems, #WebEngineerBook">
   <meta name="author" content="Andrei, andreivinyl@gmail.com">
 
   <link rel="manifest" href="../manifest.webmanifest">
@@ -23,6 +23,8 @@
 </head>
 
 <body onhashchange="hashFunction(event)">
+
+<h1>HTML DOM</h1>
 
 <h2 id="nodes">DOM Nodes</h2>
   <ul>
@@ -1125,7 +1127,7 @@
     <button onclick="scroll_left()">scroll_left</button>
   </div>
 
-  <div id="scroll_test" class="example w-50 h-10">
+  <div id="scroll_test" class="example w-50 h-10" style="overflow: scroll; white-space: nowrap;">
     ------------------------------------------------------------------------------------------1------------------------------------------------------------------------------------------<br>
     ------------------------------------------------------------------------------------------2------------------------------------------------------------------------------------------<br>
     ------------------------------------------------------------------------------------------3------------------------------------------------------------------------------------------<br>
@@ -1160,6 +1162,10 @@
   </script>
 
   <pre><code class="javascript">
+    &lt;div id="scroll_test" class="example w-50 h-10" style="overflow: scroll; white-space: nowrap;">
+      --------------------1--- ...
+    &lt;/div>
+
     function scroll_into(){
       document.getElementById("scroll_btn").scrollIntoView();
     }
@@ -1325,7 +1331,7 @@
   </ul>
 
   <div id="for_event_div" class="example h-20 w-30">click to see event info
-    <div id="for_event_span" class="example h_5">click to see event info</div>
+    <div id="for_event_span" class="example h-5">click to see event info</div>
   </div>
 
   <div id="for_event_result" class="example h-20 w-65"></div>
@@ -2138,7 +2144,7 @@
     <li>most mouse devices do not have the ability to scroll along the z-axis, and will always return 0</li>
   </ul>
 
-  <div id="wheel_test" class="example h_5"></div>
+  <div id="wheel_test" class="example h-5"></div>
 
   <script>
     var wheel_test = document.getElementById("wheel_test");
@@ -2973,7 +2979,7 @@
   </ul>
 
 
-  <div class="example w-50 h_5">
+  <div class="example w-50 h-5">
     <input
       id="clipboard_test"
       type="text"
@@ -2981,7 +2987,7 @@
       class="tests-input"
     />
   </div>
-  <div class="example w-50 h_5">
+  <div class="example w-50 h-5">
     <span id="clipboard_test_result"></span>
   </div>
 
